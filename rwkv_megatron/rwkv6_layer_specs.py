@@ -469,7 +469,7 @@ class RWKV6Attention(MegatronModule):
         return output, bias
 
 
-# Helper function to get module spec for MLP/MoE
+# TODO: change to RWKV ChannelMix from the current GPT2 MLP
 def _get_cmix_module_spec() -> ModuleSpec:
     return ModuleSpec(
         module=MLP,
@@ -484,7 +484,7 @@ def _get_tmix_module_spec() -> ModuleSpec:
     return ModuleSpec(module=RWKV6Attention)
 
 
-def get_rwkv_layer_spec() -> ModuleSpec:
+def get_rwkv6_layer_spec() -> ModuleSpec:
     return ModuleSpec(
         module=TransformerLayer,
         submodules=TransformerLayerSubmodules(

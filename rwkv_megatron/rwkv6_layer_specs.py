@@ -71,10 +71,10 @@ class GroupNorm(MegatronModule):
         self.eps = config.layernorm_epsilon
 
         self.weight = torch.nn.Parameter(
-            torch.Tensor(self.num_local_channels, device=torch.cuda.current_device())
+            torch.empty(self.num_local_channels, device=torch.cuda.current_device())
         )
         self.bias = torch.nn.Parameter(
-            torch.Tensor(self.num_local_channels, device=torch.cuda.current_device())
+            torch.empty(self.num_local_channels, device=torch.cuda.current_device())
         )
 
         set_tensor_model_parallel_attributes(
@@ -118,6 +118,7 @@ class RWKV6Bottleneck(MegatronModule):
         config: TransformerConfig,
         bottleneck_size: int,
         expansion: int,
+        to_tensor_parallel: bool,
     ):
         super().__init__(config=config)
         assert not config.use_cpu_initialization
@@ -126,7 +127,7 @@ class RWKV6Bottleneck(MegatronModule):
         self.expansion = expansion
 
         self.weight_down = torch.nn.Parameter(
-            torch.Tensor(
+            torch.empty(
                 self.config.hidden_size,
                 expansion,
                 bottleneck_size,
@@ -134,7 +135,7 @@ class RWKV6Bottleneck(MegatronModule):
             )
         )
         self.weight_up = torch.nn.Parameter(
-            torch.Tensor(
+            torch.empty(
                 expansion,
                 bottleneck_size,
                 self.config.hidden_size,
@@ -144,17 +145,32 @@ class RWKV6Bottleneck(MegatronModule):
         setattr(self.weight_up, "sequence_parallel", self.config.sequence_parallel)
         setattr(self.weight_down, "sequence_parallel", self.config.sequence_parallel)
 
-        self.bias = torch.nn.Parameter(
-            torch.Tensor(
-                self.expansion,
-                divide(self.config.hidden_size, get_tensor_model_parallel_world_size()),
-                device=torch.cuda.current_device(),
+        self.to_tensor_parallel = to_tensor_parallel
+        if self.to_tensor_parallel:
+            self.bias = torch.nn.Parameter(
+                torch.empty(
+                    self.expansion,
+                    divide(
+                        self.config.hidden_size, get_tensor_model_parallel_world_size()
+                    ),
+                    device=torch.cuda.current_device(),
+                )
             )
-        )
-        set_tensor_model_parallel_attributes(
-            self.bias, is_parallel=True, dim=1, stride=1
-        )
-        setattr(self.bias, "allreduce", True)
+            set_tensor_model_parallel_attributes(
+                self.bias, is_parallel=True, dim=1, stride=1
+            )
+            setattr(self.bias, "allreduce", True)
+        else:
+            self.bias = torch.nn.Parameter(
+                torch.empty(
+                    self.expansion,
+                    self.config.hidden_size,
+                    device=torch.cuda.current_device(),
+                )
+            )
+            setattr(
+                self.weight_down, "sequence_parallel", self.config.sequence_parallel
+            )
 
         if config.perform_initialization:
             torch.nn.init.uniform_(self.weight_down, -1e-4, 1e-4)
@@ -162,20 +178,24 @@ class RWKV6Bottleneck(MegatronModule):
             torch.nn.init.uniform_(self.bias, -1, 1)
 
     def forward(self, x: Tensor):
-        neck = einsum(x, self.weight_up, "t b d, d e r -> t b e r").tanh()
-        expanded = einsum(neck, self.weight_down, "t b e r, e r d -> t (b e d)")
-        if self.config.sequence_parallel:
-            tp_expanded = all_to_all_sp2hp(expanded)
+        neck = einsum(x, self.weight_down, "t b d, d e r -> t b e r").tanh()
+        expanded = einsum(neck, self.weight_up, "t b e r, e r d -> t b e d")
+
+        if self.to_tensor_parallel:
+            expanded = rearrange(expanded, "t b e d -> t (b e d)")
+            if self.config.sequence_parallel:
+                tp_expanded = all_to_all_sp2hp(expanded)
+            else:
+                tp_expanded = scatter_to_tensor_model_parallel_region(expanded)
+            tp_expanded = rearrange(
+                tp_expanded,
+                "t (b e d) -> t b e d",
+                b=x.shape[1],
+                e=self.expansion,
+            )
+            return tp_expanded + self.bias
         else:
-            tp_expanded = scatter_to_tensor_model_parallel_region(expanded)
-        tp_expanded = rearrange(
-            tp_expanded,
-            "t (b e d) -> t b e d",
-            b=x.shape[1],
-            e=self.expansion,
-            d=x.shape[2],
-        )
-        return tp_expanded + self.bias
+            return expanded + self.bias
 
     def sharded_state_dict(
         self,
@@ -198,35 +218,27 @@ class RWKV6TokenShiftSequenceParallel(torch.autograd.Function):
         input: Tensor,
         dim: int,
     ):
+        ctx.dim = dim
+
         assert (
             get_context_parallel_world_size() == 1
         ), "Context parallel for RWKV not yet implemented"
         world_group = get_tensor_model_parallel_group()
         world_size = get_tensor_model_parallel_world_size()
         world_rank = get_tensor_model_parallel_rank()
-        ops = []
 
         recv_buffer = torch.empty_like(input.select(dim, 0))
 
-        if world_rank < world_size - 1:
-            ops.append(
-                dist.P2POp(
-                    dist.isend,
-                    input.select(dim, -1),
-                    world_rank + 1,
-                    world_group,
-                )
-            )
-        if world_rank > 0:
-            ops.append(dist.P2POp(dist.irecv, recv_buffer, world_rank - 1, world_group))
-
-        reqs = dist.batch_isend_irecv(ops)
+        with dist._coalescing_manager(world_group, input.device, async_ops=True) as cm:
+            if world_rank < world_size - 1:
+                world_group.send([input.select(dim, -1)], world_rank + 1, 0)
+            if world_rank > 0:
+                world_group.recv([recv_buffer], world_rank - 1, 0)
 
         if world_rank == 0:
             recv_buffer.zero_()
 
-        for r in reqs:
-            r.wait()
+        cm.wait()
 
         return torch.cat(
             [
@@ -242,32 +254,26 @@ class RWKV6TokenShiftSequenceParallel(torch.autograd.Function):
         ctx,
         grad_output: Tensor,
     ):
+        dim = ctx.dim
+
         world_group = get_tensor_model_parallel_group()
         world_size = get_tensor_model_parallel_world_size()
         world_rank = get_tensor_model_parallel_rank()
-        ops = []
 
         recv_buffer = torch.empty_like(grad_output.select(dim, 0))
 
-        if world_rank < world_size - 1:
-            ops.append(dist.P2POp(dist.irecv, recv_buffer, world_rank + 1, world_group))
-        if world_rank > 0:
-            ops.append(
-                dist.P2POp(
-                    dist.isend,
-                    grad_output.select(dim, 0),
-                    world_rank - 1,
-                    world_group,
-                )
-            )
-
-        reqs = dist.batch_isend_irecv(ops)
+        with dist._coalescing_manager(
+            world_group, grad_output.device, async_ops=True
+        ) as cm:
+            if world_rank < world_size - 1:
+                world_group.recv([recv_buffer], world_rank + 1, 0)
+            if world_rank > 0:
+                world_group.send([grad_output.select(dim, 0)], world_rank - 1, 0)
 
         if world_rank == world_size - 1:
             recv_buffer.zero_()
 
-        for r in reqs:
-            r.wait()
+        cm.wait()
 
         return (
             torch.cat(
@@ -283,7 +289,7 @@ class RWKV6TokenShiftSequenceParallel(torch.autograd.Function):
 
 def _token_shift(input: Tensor, dim: int, sequence_parallel: bool):
     if sequence_parallel:
-        return RWKV6TokenShiftSequenceParallel.apply(input)
+        return RWKV6TokenShiftSequenceParallel.apply(input, 0)
     else:
         return torch.cat(
             [
@@ -306,7 +312,7 @@ class RWKV6CoreAttention(MegatronModule):
         world_size = get_tensor_model_parallel_world_size()
 
         self.time_first = torch.nn.Parameter(
-            torch.Tensor(
+            torch.empty(
                 divide(self.config.hidden_size, world_size),
                 device=torch.cuda.current_device(),
             )
@@ -320,33 +326,26 @@ class RWKV6CoreAttention(MegatronModule):
         if self.config.perform_initialization:
             torch.nn.init.normal_(self.time_first, mean=1.0, std=0.02)
 
-        self.group_norm = GroupNorm(
-            num_groups=self.config.num_attention_heads,
-            num_channels=self.config.hidden_size,
-            eps=self.config.layernorm_epsilon,
-            config=self.config,
-        )
-
     def forward(self, r: Tensor, k: Tensor, v: Tensor, w: Tensor):
         assert r.shape == k.shape == v.shape == w.shape
 
-        # RED = '\033[91m'
-        # RESET = '\033[0m'
-        # print(f"{RED} r: {r.shape} {RESET}")
-
-        T, B, H, N = r.shape
-        r = r.permute(1, 2, 0, 3).contiguous()
-        k = k.permute(1, 2, 0, 3).contiguous()
-        v = v.permute(1, 2, 0, 3).contiguous()
-        w = w.permute(1, 2, 0, 3).contiguous()
-        u = self.time_first.reshape(-1, N).contiguous()
+        r = rearrange(
+            r, "t b (h n) -> b h t n", h=self.config.num_attention_heads
+        ).contiguous()
+        k = rearrange(
+            k, "t b (h n) -> b h t n", h=self.config.num_attention_heads
+        ).contiguous()
+        v = rearrange(
+            v, "t b (h n) -> b h t n", h=self.config.num_attention_heads
+        ).contiguous()
+        w = rearrange(
+            w, "t b (h n) -> b h t n", h=self.config.num_attention_heads
+        ).contiguous()
+        u = self.time_first.reshape(-1, r.shape[-1]).contiguous()
 
         o = fused_recurrent_rwkv6(r, k, v, w, u)[0]
-        o = o.permute(2, 0, 1, 3).reshape(T * B, H * N).contiguous()
-        o = self.group_norm(o)
-        o = o.reshape(T, B, H, N)
 
-        return o
+        return rearrange(o, "b h t n -> t b (h n)")
 
     def sharded_state_dict(
         self,
@@ -374,15 +373,17 @@ class RWKV6Attention(MegatronModule):
             config,
             bottleneck_size,
             expansion=5,
+            to_tensor_parallel=False,
         )
         self.bottleneck_decay = RWKV6Bottleneck(
             config,
             bottleneck_size * 2,
             expansion=1,
+            to_tensor_parallel=True,
         )
 
         self.mix_coeff_input = torch.nn.Parameter(
-            torch.Tensor(
+            torch.empty(
                 self.config.hidden_size,
                 device=torch.cuda.current_device(),
             )
@@ -408,10 +409,12 @@ class RWKV6Attention(MegatronModule):
         self.linear_gate = col_linear_factory("gate")
 
         self.core_attention = RWKV6CoreAttention(config, layer_number)
+
         self.group_norm = GroupNorm(
-            config,
-            self.config.num_attention_heads,
-            self.config.hidden_size,
+            num_groups=self.config.num_attention_heads,
+            num_channels=self.config.hidden_size,
+            eps=self.config.layernorm_epsilon,
+            config=self.config,
         )
         self.linear_proj = RowParallelLinear(
             self.config.hidden_size,
@@ -450,21 +453,25 @@ class RWKV6Attention(MegatronModule):
 
         mix_coeffs = self.bottleneck_token_shift(mixed_input)
         data_dependent_mixed = (
-            hidden_states.unsqueeze_(-2) + delta_shift.unsqueeze_(-2) * mix_coeffs
+            hidden_states.unsqueeze(-2) + delta_shift.unsqueeze(-2) * mix_coeffs
         )
         mixed_decay, mixed_key, mixed_value, mixed_receptance, mixed_gate = (
             data_dependent_mixed.unbind(-2)
         )
 
-        decay = self.bottleneck_decay(mixed_decay)
-        key = self.linear_key(mixed_key)
-        value = self.linear_value(mixed_value)
-        receptance = self.linear_receptance(mixed_receptance)
-        gate = torch.nn.functional.silu(self.linear_gate(mixed_gate))
+        decay = self.bottleneck_decay(mixed_decay).squeeze(-2).exp().neg()
+        key = self.linear_key(mixed_key)[0]
+        value = self.linear_value(mixed_value)[0]
+        receptance = self.linear_receptance(mixed_receptance)[0]
+        gate = torch.nn.functional.silu(self.linear_gate(mixed_gate)[0])
 
         output = self.core_attention(receptance, key, value, decay)
-        output = output.reshape(*output.shape[:-2], -1)
-        output, bias = self.linear_proj(self.group_norm(output) * gate)
+        output = rearrange(
+            self.group_norm(rearrange(output, "t b c -> (t b) c")),
+            "(t b) c -> t b c",
+            t=output.shape[0],
+        )
+        output, bias = self.linear_proj(output * gate)
 
         return output, bias
 

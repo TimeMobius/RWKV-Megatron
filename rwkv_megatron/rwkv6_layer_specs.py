@@ -26,7 +26,9 @@ from megatron.core.tensor_parallel.layers import (
 )
 from megatron.core.tensor_parallel.mappings import (
     all_to_all_sp2hp,
+    all_to_all_hp2sp,
     scatter_to_tensor_model_parallel_region,
+    gather_from_tensor_model_parallel_region,
 )
 from megatron.core.transformer.mlp import MLP, MLPSubmodules
 from megatron.core.transformer.module import MegatronModule
@@ -206,7 +208,10 @@ class RWKV6Bottleneck(MegatronModule):
         """Sharding along axis 0"""
         state_dict = self.state_dict(prefix="", keep_vars=True)
         return make_sharded_tensors_for_checkpoint(
-            state_dict, prefix, {"bias": 1}, sharded_offsets
+            state_dict,
+            prefix,
+            {"bias": 1} if self.to_tensor_parallel else {},
+            sharded_offsets,
         )
 
 
@@ -300,7 +305,7 @@ def _token_shift(input: Tensor, dim: int, sequence_parallel: bool):
         )
 
 
-class RWKV6CoreAttention(MegatronModule):
+class WKV6(MegatronModule):
     def __init__(
         self,
         config: TransformerConfig,
@@ -360,7 +365,7 @@ class RWKV6CoreAttention(MegatronModule):
         )
 
 
-class RWKV6Attention(MegatronModule):
+class RWKV6TimeMix(MegatronModule):
     def __init__(
         self,
         config: TransformerConfig,
@@ -401,14 +406,14 @@ class RWKV6Attention(MegatronModule):
             bias=self.config.add_bias_linear or self.config.add_qkv_bias,
             skip_bias_add=False,
             is_expert=False,
-            tp_comm_buffer_name=name,
+            tp_comm_buffer_name="tmix_" + name,
         )
         self.linear_receptance = col_linear_factory("receptance")
         self.linear_key = col_linear_factory("key")
         self.linear_value = col_linear_factory("value")
         self.linear_gate = col_linear_factory("gate")
 
-        self.core_attention = RWKV6CoreAttention(config, layer_number)
+        self.core_attention = WKV6(config, layer_number)
 
         self.group_norm = GroupNorm(
             num_groups=self.config.num_attention_heads,
@@ -425,7 +430,7 @@ class RWKV6Attention(MegatronModule):
             input_is_parallel=True,
             skip_bias_add=True,
             is_expert=False,
-            tp_comm_buffer_name="proj",
+            tp_comm_buffer_name="tmix_proj",
         )
 
         world_size = get_tensor_model_parallel_world_size()
@@ -476,19 +481,72 @@ class RWKV6Attention(MegatronModule):
         return output, bias
 
 
-# TODO: change to RWKV ChannelMix from the current GPT2 MLP
-def _get_cmix_module_spec() -> ModuleSpec:
-    return ModuleSpec(
-        module=MLP,
-        submodules=MLPSubmodules(
-            linear_fc1=ColumnParallelLinear,
-            linear_fc2=RowParallelLinear,
-        ),
-    )
+class RWKV6ChannelMix(MegatronModule):
+    def __init__(self, config: TransformerConfig):
+        super().__init__(config)
 
+        self.mix_coeffs = torch.nn.Parameter(
+            torch.empty(2, config.hidden_size, device=torch.cuda.current_device())
+        )
+        self.linear_up = ColumnParallelLinear(
+            self.config.hidden_size,
+            self.config.ffn_hidden_size,
+            config=self.config,
+            init_method=self.config.init_method,
+            gather_output=False,
+            bias=self.config.add_bias_linear,
+            skip_bias_add=False,
+            is_expert=False,
+            tp_comm_buffer_name="cmix_up",
+        )
+        self.linear_gate = ColumnParallelLinear(
+            self.config.hidden_size,
+            self.config.hidden_size,
+            config=self.config,
+            init_method=self.config.init_method,
+            gather_output=False,
+            bias=self.config.add_bias_linear,
+            skip_bias_add=False,
+            is_expert=False,
+            tp_comm_buffer_name="cmix_gate",
+        )
+        self.linear_down = RowParallelLinear(
+            self.config.ffn_hidden_size,
+            self.config.hidden_size,
+            config=self.config,
+            init_method=self.config.output_layer_init_method,
+            bias=self.config.add_bias_linear,
+            input_is_parallel=True,
+            skip_bias_add=False,
+            is_expert=False,
+            tp_comm_buffer_name="cmix_down",
+        )
 
-def _get_tmix_module_spec() -> ModuleSpec:
-    return ModuleSpec(module=RWKV6Attention)
+    def forward(self, hidden_states: Tensor):
+        shifted_hidden_states = _token_shift(
+            hidden_states, 0, self.config.sequence_parallel
+        )
+        delta_shift = shifted_hidden_states - hidden_states
+        mixed_input = (
+            hidden_states.unsqueeze(-2) + delta_shift.unsqueeze(-2) * self.mix_coeffs
+        )
+        mixed_up, mixed_gate = mixed_input.unbind(-2)
+
+        ffn_hidden_states, bias = self.linear_up(mixed_up.contiguous())
+        assert bias is None
+        ffn_hidden_states = torch.square(torch.relu(ffn_hidden_states))
+        output, bias = self.linear_down(ffn_hidden_states)
+        assert bias is None
+
+        gate, bias = self.linear_gate(mixed_gate.contiguous())
+        assert bias is None
+        if self.config.sequence_parallel:
+            gate = all_to_all_hp2sp(gate)
+        else:
+            gate = gather_from_tensor_model_parallel_region(gate)
+        gate = torch.sigmoid(gate)
+
+        return output * gate.reshape_as(output), None
 
 
 def get_rwkv6_layer_spec() -> ModuleSpec:
@@ -496,14 +554,10 @@ def get_rwkv6_layer_spec() -> ModuleSpec:
         module=TransformerLayer,
         submodules=TransformerLayerSubmodules(
             input_layernorm=FusedLayerNorm,
-            self_attention=_get_tmix_module_spec(),
+            self_attention=ModuleSpec(module=RWKV6TimeMix),
             self_attn_bda=get_bias_dropout_add,
             pre_mlp_layernorm=FusedLayerNorm,
-            mlp=_get_cmix_module_spec(),
+            mlp=ModuleSpec(module=RWKV6ChannelMix),
             mlp_bda=get_bias_dropout_add,
-            sharded_state_dict_keys_map={
-                "input_layernorm.": "self_attention.linear_qkv.layer_norm_",
-                "pre_mlp_layernorm.": "mlp.linear_fc1.layer_norm_",
-            },
         ),
     )

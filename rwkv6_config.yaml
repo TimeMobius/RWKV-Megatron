@@ -5,7 +5,7 @@ language_model:
   num_attention_heads: 64
   num_query_groups: null
 
-  ffn_hidden_size: null
+  ffn_hidden_size: 3584
   kv_channels: null
   hidden_dropout: 0.0
   attention_dropout: 0.0
@@ -273,9 +273,7 @@ manual_gc_eval: True
 tp_comm_overlap_cfg: null
 
 #data
-data_path:
-  - /mnt/data/Datasets/RWKV-Megatron/slimpajama-6b/train-00-48_text_document
-  - /mnt/data/Datasets/RWKV-Megatron/slimpajama-6b/train-01-48_text_document
+data_path: /mnt/data/Datasets/RWKV-Megatron/slimpajama-6b/all_text_document
 split: '99,1,0'
 train_data_path: null
 valid_data_path: null
@@ -301,12 +299,9 @@ eod_mask_loss: False
 create_attention_mask_in_dataloader: False
 train_samples: null
 dataloader_type: null
-# vocab_size: null
-# tokenizer_type: HuggingFaceTokenizer
-# tokenizer_model: RWKV/rwkv-6-world-1b6
-vocab_size: 65536
-tokenizer_type: NullTokenizer
-tokenizer_model: null
+vocab_size: null
+tokenizer_type: HuggingFaceTokenizer
+tokenizer_model: /mnt/data/Models/Huggingface/Mobius-r6-chat-CHNtuned-12b-16k-v5-5
 
 #profile:
 profile: False
@@ -350,3 +345,5 @@ use_dist_ckpt: True
 dist_ckpt_format: torch_dist
 ckpt_fully_parallel_save: True
 ckpt_assume_constant_structure: null
+
+debug_dump: False

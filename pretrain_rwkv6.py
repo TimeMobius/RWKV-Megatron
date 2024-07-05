@@ -8,6 +8,8 @@ import torch
 from functools import partial
 
 from typing import Union
+
+import torch.distributed
 from megatron.training import get_args
 from megatron.training import print_rank_0
 from megatron.training import get_timers
@@ -25,17 +27,12 @@ from megatron.core.models.gpt import GPTModel
 from megatron.training import pretrain
 from megatron.core.utils import StragglerDetector
 from megatron.core.transformer.spec_utils import import_module
-from megatron.training.tokenizer.tokenizer import _HuggingFaceTokenizer
 from megatron.training.utils import (
     get_batch_on_this_cp_rank,
     get_batch_on_this_tp_rank,
 )
 from megatron.training.arguments import core_transformer_config_from_args
 from megatron.training.yaml_arguments import core_transformer_config_from_yaml
-from megatron.core.models.gpt.gpt_layer_specs import (
-    get_gpt_layer_local_spec,
-    get_gpt_layer_with_transformer_engine_spec,
-)
 
 
 from rwkv_megatron.rwkv6_layer_specs import get_rwkv6_layer_spec
@@ -92,6 +89,20 @@ def model_provider(
         position_embedding_type=args.position_embedding_type,
         rotary_percent=args.rotary_percent,
     )
+
+    if args.debug_dump:
+        print_rank_0(f"vocab_size = {get_tokenizer().vocab_size}")
+        torch.distributed.barrier()
+        for i in range(torch.distributed.get_world_size()):
+            if torch.distributed.get_rank() == i:
+                RED = "\033[91m"
+                BLUE = "\033[94m"
+                RESET = "\033[0m"
+                print(f"{RED}============ Parameters @ Rank {i} ============{RESET}")
+                for name, param in model.named_parameters():
+                    print(f"{BLUE}{name:>80}{RESET}{str(list(param.shape)):>20}")
+            torch.distributed.barrier()
+        exit(0)
 
     return model
 
@@ -243,10 +254,15 @@ if __name__ == "__main__":
     # Temporary for transition to core datasets
     train_valid_test_datasets_provider.is_distributed = True
 
-    pretrain(
-        train_valid_test_datasets_provider,
-        model_provider,
-        ModelType.encoder_or_decoder,
-        forward_step,
-        args_defaults={"tokenizer_type": "GPT2BPETokenizer"},
-    )
+    from unittest.mock import patch
+
+    with patch(
+        "transformers.dynamic_module_utils.resolve_trust_remote_code",
+        return_value=True,
+    ):
+        pretrain(
+            train_valid_test_datasets_provider,
+            model_provider,
+            ModelType.encoder_or_decoder,
+            forward_step,
+        )

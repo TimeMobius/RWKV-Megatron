@@ -484,4 +484,10 @@ def main():
 
 if __name__ == "__main__":
 
-    main()
+    from unittest.mock import patch
+
+    with patch(
+        "transformers.dynamic_module_utils.resolve_trust_remote_code",
+        return_value=True,
+    ):
+        main()

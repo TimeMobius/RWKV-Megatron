@@ -1,4 +1,3 @@
-import math
 from typing import Optional, Tuple
 
 import torch
@@ -6,17 +5,13 @@ from torch import Tensor
 from torch.cuda.amp import custom_bwd, custom_fwd
 import torch.distributed as dist
 
-from megatron.core import parallel_state
 from megatron.core.parallel_state import (
-    get_global_memory_buffer,
-    get_tensor_and_expert_parallel_rank,
-    get_tensor_and_expert_parallel_world_size,
     get_tensor_model_parallel_group,
     get_tensor_model_parallel_rank,
     get_tensor_model_parallel_world_size,
     get_context_parallel_world_size,
 )
-from megatron.core.dist_checkpointing.mapping import ShardedStateDict, ShardedTensor
+from megatron.core.dist_checkpointing.mapping import ShardedStateDict
 from megatron.core.fusions.fused_bias_dropout import get_bias_dropout_add
 from megatron.core.fusions.fused_layer_norm import FusedLayerNorm
 from megatron.core.tensor_parallel.layers import (
@@ -30,7 +25,6 @@ from megatron.core.tensor_parallel.mappings import (
     scatter_to_tensor_model_parallel_region,
     gather_from_tensor_model_parallel_region,
 )
-from megatron.core.transformer.mlp import MLP, MLPSubmodules
 from megatron.core.transformer.module import MegatronModule
 from megatron.core.transformer.spec_utils import ModuleSpec
 from megatron.core.transformer.transformer_config import TransformerConfig
@@ -43,13 +37,14 @@ from megatron.core.utils import divide
 
 from einops import einsum, rearrange
 
-from fla.ops.rwkv6 import fused_recurrent_rwkv6
 
+from unittest.mock import patch
+from transformers import AutoConfig, AutoModel, AutoModelForCausalLM
 
-def _get_default_bottleneck_size(hidden_size: int):
-    # this becomes 32 for 1024~4095, and 64 for 4096, matching what we have for existing RWKV
-    # just to avoid adding arguments
-    return 2 ** (math.floor(math.log2(hidden_size) / 2))
+with patch("transformers.AutoConfig.register", return_value=None):
+    with patch("transformers.AutoModel.register", return_value=None):
+        with patch("transformers.AutoModelForCausalLM.register", return_value=None):
+            from fla.ops.rwkv6 import fused_recurrent_rwkv6
 
 
 class GroupNorm(MegatronModule):
@@ -315,6 +310,7 @@ class WKV6(MegatronModule):
         assert not config.use_cpu_initialization
 
         world_size = get_tensor_model_parallel_world_size()
+        self.num_heads_local = divide(self.config.num_attention_heads, world_size)
 
         self.time_first = torch.nn.Parameter(
             torch.empty(
@@ -334,18 +330,10 @@ class WKV6(MegatronModule):
     def forward(self, r: Tensor, k: Tensor, v: Tensor, w: Tensor):
         assert r.shape == k.shape == v.shape == w.shape
 
-        r = rearrange(
-            r, "t b (h n) -> b h t n", h=self.config.num_attention_heads
-        ).contiguous()
-        k = rearrange(
-            k, "t b (h n) -> b h t n", h=self.config.num_attention_heads
-        ).contiguous()
-        v = rearrange(
-            v, "t b (h n) -> b h t n", h=self.config.num_attention_heads
-        ).contiguous()
-        w = rearrange(
-            w, "t b (h n) -> b h t n", h=self.config.num_attention_heads
-        ).contiguous()
+        r = rearrange(r, "t b (h n) -> b h t n", h=self.num_heads_local).contiguous()
+        k = rearrange(k, "t b (h n) -> b h t n", h=self.num_heads_local).contiguous()
+        v = rearrange(v, "t b (h n) -> b h t n", h=self.num_heads_local).contiguous()
+        w = rearrange(w, "t b (h n) -> b h t n", h=self.num_heads_local).exp().neg().contiguous()
         u = self.time_first.reshape(-1, r.shape[-1]).contiguous()
 
         o = fused_recurrent_rwkv6(r, k, v, w, u)[0]
@@ -373,16 +361,15 @@ class RWKV6TimeMix(MegatronModule):
     ):
         super().__init__(config=config)
 
-        bottleneck_size = _get_default_bottleneck_size(config.hidden_size)
         self.bottleneck_token_shift = RWKV6Bottleneck(
             config,
-            bottleneck_size,
+            config.token_shift_bottleneck_size,
             expansion=5,
             to_tensor_parallel=False,
         )
         self.bottleneck_decay = RWKV6Bottleneck(
             config,
-            bottleneck_size * 2,
+            config.decay_bottleneck_size,
             expansion=1,
             to_tensor_parallel=True,
         )
@@ -464,7 +451,7 @@ class RWKV6TimeMix(MegatronModule):
             data_dependent_mixed.unbind(-2)
         )
 
-        decay = self.bottleneck_decay(mixed_decay).squeeze(-2).exp().neg()
+        decay = self.bottleneck_decay(mixed_decay).squeeze(-2)
         key = self.linear_key(mixed_key)[0]
         value = self.linear_value(mixed_value)[0]
         receptance = self.linear_receptance(mixed_receptance)[0]

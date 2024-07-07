@@ -1,11 +1,14 @@
 language_model:
   # model architecture
   num_layers: 32
-  hidden_size: 4096
-  num_attention_heads: 64
+  hidden_size: 5120
+  num_attention_heads: 80
   num_query_groups: null
 
-  ffn_hidden_size: 14336
+  token_shift_bottleneck_size: 32
+  decay_bottleneck_size: 64
+
+  ffn_hidden_size: 17920
   kv_channels: null
   hidden_dropout: 0.0
   attention_dropout: 0.0
@@ -13,7 +16,7 @@ language_model:
 
   apply_residual_connection_post_layernorm: False
   layernorm_epsilon: 1.e-5
-  layernorm_zero_centered_gamma: True
+  layernorm_zero_centered_gamma: False
   add_bias_linear: False
   bias_activation_fusion: False
   add_qkv_bias: False
@@ -84,7 +87,7 @@ language_model:
 
 model_parallel:
   # Model parallelism
-  tensor_model_parallel_size: 8
+  tensor_model_parallel_size: 4
   context_parallel_size: 1
   pipeline_model_parallel_size: 1
   virtual_pipeline_model_parallel_size: null
@@ -348,3 +351,8 @@ ckpt_fully_parallel_save: True
 ckpt_assume_constant_structure: null
 
 debug_dump: False
+
+load_pretrained_rwkv: /mnt/data/Models/Huggingface/Mobius-r6-chat-CHNtuned-12b-16k-v5-5
+load_pretrained_rwkv_source_type: mobius-huggingface
+
+check_against_pretrained: False

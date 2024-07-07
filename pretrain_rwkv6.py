@@ -4,12 +4,12 @@
 """Pretrain RWKV6."""
 
 import os
+import rwkv.model
 import torch
 from functools import partial
 
-from typing import Union
-
 import torch.distributed
+
 from megatron.training import get_args
 from megatron.training import print_rank_0
 from megatron.training import get_timers
@@ -22,7 +22,6 @@ from megatron.core.datasets.blended_megatron_dataset_builder import (
 from megatron.core.datasets.utils import get_blend_from_list
 from megatron.core.datasets.gpt_dataset import GPTDatasetConfig
 from megatron.core.datasets.gpt_dataset import MockGPTDataset, GPTDataset
-import megatron.legacy.model
 from megatron.core.models.gpt import GPTModel
 from megatron.training import pretrain
 from megatron.core.utils import StragglerDetector
@@ -34,28 +33,17 @@ from megatron.training.utils import (
 from megatron.training.arguments import core_transformer_config_from_args
 from megatron.training.yaml_arguments import core_transformer_config_from_yaml
 
+import transformers
+import rwkv
 
 from rwkv_megatron.rwkv6_layer_specs import get_rwkv6_layer_spec
+from rwkv_megatron.rwkv6_model import RWKV6Model
 
 
 stimer = StragglerDetector()
 
 
-def model_provider(
-    pre_process=True, post_process=True
-) -> Union[GPTModel, megatron.legacy.model.GPTModel]:
-    """Builds the model.
-
-    If you set the use_legacy_models to True, it will return the legacy GPT model and if not the mcore GPT model.
-
-    Args:
-        pre_process (bool, optional): Set to true if you need to compute embedings. Defaults to True.
-        post_process (bool, optional): Set to true if you need to want to compute output logits/loss. Defaults to True.
-
-
-    Returns:
-        Union[GPTModel, megatron.legacy.model.GPTModel]: The returned model
-    """
+def model_provider(pre_process=True, post_process=True) -> GPTModel:
     args = get_args()
     assert (
         args.transformer_impl != "transformer_engine"
@@ -65,8 +53,14 @@ def model_provider(
     # Experimental loading arguments from yaml
     if args.yaml_cfg is not None:
         config = core_transformer_config_from_yaml(args, "language_model")
+        config.token_shift_bottleneck_size = (
+            args.language_model.token_shift_bottleneck_size
+        )
+        config.decay_bottleneck_size = args.language_model.decay_bottleneck_size
     else:
         config = core_transformer_config_from_args(args)
+        config.token_shift_bottleneck_size = args.token_shift_bottleneck_size
+        config.decay_bottleneck_size = args.decay_bottleneck_size
 
     assert not args.use_legacy_models, "RWKV6 only works with Megatron Core"
 
@@ -76,7 +70,7 @@ def model_provider(
         assert args.num_experts is None, "RWKV6 with MoE not yet implemented"
         transformer_layer_spec = get_rwkv6_layer_spec()
 
-    model = GPTModel(
+    model = RWKV6Model(
         config=config,
         transformer_layer_spec=transformer_layer_spec,
         vocab_size=args.padded_vocab_size,
@@ -89,6 +83,19 @@ def model_provider(
         position_embedding_type=args.position_embedding_type,
         rotary_percent=args.rotary_percent,
     )
+
+    if args.load is None and args.load_pretrained_rwkv is not None:
+        print_rank_0(
+            f"loading RWKV6 model initialization from {args.load_pretrained_rwkv}"
+            f" as '{args.load_pretrained_rwkv_source_type}'"
+        )
+        if args.load_pretrained_rwkv_source_type == "mobius-huggingface":
+            hf_model = transformers.AutoModelForCausalLM.from_pretrained(
+                args.load_pretrained_rwkv, trust_remote_code=True
+            )
+            model.from_mobius_huggingface(hf_model, args.check_against_pretrained)
+        else:
+            raise ValueError(f"Unrecognized {args.load_pretrained_rwkv_source_type=}")
 
     if args.debug_dump:
         print_rank_0(f"vocab_size = {get_tokenizer().vocab_size}")

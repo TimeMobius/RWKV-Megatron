@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 import torch
 from torch import Tensor
@@ -50,18 +50,30 @@ class RWKV6Model(GPTModel):
         if self.check_against_pretrained:
             pretrained_model = self.ground_truth_model_closure()
 
-            mcore_hiddens = []
-            mcore_hook = lambda module, args, output: mcore_hiddens.append(
-                output[0] if isinstance(output, tuple) else output
-            )
-            hf_hiddens = []
-            hf_hook = lambda module, args, output: hf_hiddens.append(
-                (output[0] if isinstance(output, tuple) else output).transpose(0, 1)
-            )
+            mcore_hiddens: List[Tensor] = []
+
+            def mcore_hook(module, args, output):
+                nonlocal mcore_hiddens
+                mcore_hiddens += [
+                    args[0] if isinstance(args, tuple) else args,
+                    output[0] if isinstance(output, tuple) else output,
+                ]
+
+            hf_hiddens: List[Tensor] = []
+
+            def hf_hook(module, args, output):
+                nonlocal hf_hiddens
+                hf_hiddens += [
+                    t.transpose(0, 1)
+                    for t in [
+                        args[0] if isinstance(args, tuple) else args,
+                        output[0] if isinstance(output, tuple) else output,
+                    ]
+                ]
 
             for m in [
-                self.embedding,
                 self.pre_norm,
+                self.decoder.layers[0].self_attention.linear_key,
                 *[
                     m1
                     for layer in self.decoder.layers
@@ -77,8 +89,8 @@ class RWKV6Model(GPTModel):
                 m.register_forward_hook(mcore_hook)
 
             for m in [
-                pretrained_model.rwkv.embeddings,
                 pretrained_model.rwkv.blocks[0].pre_ln,
+                pretrained_model.rwkv.blocks[0].attention.key,
                 *[
                     m1
                     for layer in pretrained_model.rwkv.blocks
@@ -124,17 +136,51 @@ class RWKV6Model(GPTModel):
                     torch.distributed.barrier()
                     if rank == torch.distributed.get_rank():
                         for i, (mcore, hf) in enumerate(zip(mcore_hiddens, hf_hiddens)):
+                            mcore = mcore.detach().cpu()
                             if mcore.numel() != hf.numel():
-                                hf = torch.select(
-                                    hf.reshape(*hf.shape[:-1], tp_size, -1), 2, tp_rank
+                                assert mcore.dim() == hf.dim()
+                                # find tp dimension
+                                tp_dim = -1
+                                for d in range(mcore.dim()):
+                                    if mcore.size(d) * tp_size == hf.size(d):
+                                        assert (
+                                            tp_dim == -1
+                                        ), "Multiple TP dimensions found"
+                                        tp_dim = d
+                                    else:
+                                        assert mcore.size(d) == hf.size(d)
+                                assert tp_dim != -1, "TP dimension not found"
+                                # select in tp dimension
+                                hf = hf.reshape(
+                                    *hf.shape[:tp_dim],
+                                    tp_size,
+                                    -1,
+                                    *hf.shape[tp_dim + 1 :],
                                 )
-                            diff = (mcore.cpu() - hf).abs() / (hf.abs() + 1e-4)
+                                hf = hf.select(tp_dim, tp_rank)
+                            diff = (mcore - hf).abs() / (hf.abs() + 1e-4)
                             print(
                                 f"rank {rank} layer {i} error: max {diff.max()} mean {diff.mean()}"
                             )
+                            if diff.max() > 1:
+                                topk_diffs, topk_indices = torch.topk(diff.view(-1), 10)
+                                topk_hf = hf[
+                                    torch.unravel_index(topk_indices, diff.shape)
+                                ]
+                                topk_mcore = mcore[
+                                    torch.unravel_index(topk_indices, diff.shape)
+                                ]
+                                for i in range(10):
+                                    print(
+                                        "    ",
+                                        topk_indices[i],
+                                        topk_diffs[i],
+                                        topk_mcore[i],
+                                        topk_hf[i],
+                                    )
                     torch.distributed.barrier()
             exit(0)
-        
+
         return result
 
     def _get_layers_start(self):

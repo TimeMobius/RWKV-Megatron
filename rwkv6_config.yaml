@@ -1,14 +1,14 @@
 language_model:
   # model architecture
   num_layers: 32
-  hidden_size: 5120
-  num_attention_heads: 80
+  hidden_size: 8192
+  num_attention_heads: 32
   num_query_groups: null
 
   token_shift_bottleneck_size: 32
   decay_bottleneck_size: 64
 
-  ffn_hidden_size: 17920
+  ffn_hidden_size: 28672
   kv_channels: null
   hidden_dropout: 0.0
   attention_dropout: 0.0
@@ -44,9 +44,12 @@ language_model:
   apply_rope_fusion: True
 
   # activation recomputation
-  recompute_granularity: null
-  recompute_method: null
-  recompute_num_layers: null
+  recompute_granularity: full
+  recompute_method: uniform
+  recompute_num_layers: 4
+  # recompute_granularity: null
+  # recompute_method: null
+  # recompute_num_layers: null
   distribute_saved_activations: null
 
   # fp8 related
@@ -87,7 +90,7 @@ language_model:
 
 model_parallel:
   # Model parallelism
-  tensor_model_parallel_size: 4
+  tensor_model_parallel_size: 8
   context_parallel_size: 1
   pipeline_model_parallel_size: 1
   virtual_pipeline_model_parallel_size: null
@@ -160,7 +163,7 @@ model_parallel:
 # training:
 use_legacy_models: False
 spec: null
-micro_batch_size: 2
+micro_batch_size: 1
 global_batch_size: 64
 rampup_batch_size: null
 check_for_nan_in_loss_and_grad: True
@@ -315,8 +318,8 @@ profile_step_start: 10
 
 #logging:
 logging_level: null
-log_params_norm: True
-log_num_zeros_in_grad: True
+log_params_norm: False
+log_num_zeros_in_grad: False
 log_throughput: True
 log_progress: True
 timing_log_level: 0
@@ -352,7 +355,7 @@ ckpt_assume_constant_structure: null
 
 debug_dump: False
 
-load_pretrained_rwkv: /mnt/data/Models/Huggingface/Mobius-r6-chat-CHNtuned-12b-16k-v5-5
-load_pretrained_rwkv_source_type: mobius-huggingface
+load_pretrained_rwkv: /mnt/data/Models/rwkv-r6-30b-init.pth
+load_pretrained_rwkv_source_type: rwkv-lm
 
 check_against_pretrained: False

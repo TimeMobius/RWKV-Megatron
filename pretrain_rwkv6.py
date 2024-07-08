@@ -94,6 +94,10 @@ def model_provider(pre_process=True, post_process=True) -> GPTModel:
                 args.load_pretrained_rwkv, trust_remote_code=True
             )
             model.from_mobius_huggingface(hf_model, args.check_against_pretrained)
+        elif args.load_pretrained_rwkv_source_type == "rwkv-lm":
+            model.from_rwkv_lm(
+                torch.load(args.load_pretrained_rwkv, map_location="cpu")
+            )
         else:
             raise ValueError(f"Unrecognized {args.load_pretrained_rwkv_source_type=}")
 

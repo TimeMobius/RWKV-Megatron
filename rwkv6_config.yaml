@@ -334,9 +334,9 @@ log_validation_ppl_to_tensorboard: True
 log_memory_to_tensorboard: False
 log_world_size_to_tensorboard: False
 log_loss_scale_to_tensorboard: True
-wandb_project: ''
-wandb_exp_name: ''
-wandb_save_dir: ''
+wandb_project: 'Mobius-r6-30b-megatron'
+wandb_exp_name: 'Mobius-r6-30b'
+wandb_save_dir: '/mnt/data/Logs'
 enable_one_logger: False
 one_logger_project: e2e-tracking
 one_logger_entity: hwinf_dcm

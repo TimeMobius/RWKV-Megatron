@@ -336,7 +336,7 @@ class WKV6(MegatronModule):
         w = rearrange(w, "t b (h n) -> b h t n", h=self.num_heads_local).exp().neg().contiguous()
         u = self.time_first.reshape(-1, r.shape[-1]).contiguous()
 
-        o = fused_recurrent_rwkv6(r, k, v, w, u)[0]
+        o = fused_recurrent_rwkv6(r, k, v, w, u, scale=1.)[0]
 
         return rearrange(o, "b h t n -> t b (h n)")
 

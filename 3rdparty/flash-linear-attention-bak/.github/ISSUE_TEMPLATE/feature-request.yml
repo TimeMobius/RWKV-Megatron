@@ -1,0 +1,30 @@
+name: 🚀 Feature Request
+description: Suggest an idea for this project.
+title: "[Feature Request] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: feature-request
+    attributes:
+      label: Feature Request
+      description: Provide a clear and concise description of your feature proposal.
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: |
+        Please explain the motivation behind your proposal. Is your feature request addressing a specific problem? For example, "I'm often frustrated when [...]." If this is related to another GitHub issue, please link it here as well.
+    validations:
+      required: true
+
+  - type: textarea
+    id: contribution
+    attributes:
+      label: Your Contribution
+      description: |
+        How can you contribute to this feature? For example, could you help by submitting a PR?
+    validations:
+      required: true

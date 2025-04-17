@@ -1,12 +1,4 @@
 # Modified from Megatron-LM/pretrain_gpt.py
-# import debugpy
-# try:
-#     # 5678 is the default attach port in the VS Code debug configurations. Unless a host and port are specified, host defaults to 127.0.0.1
-#     debugpy.listen(("localhost", 9501))
-#     print("Waiting for debugger attach")
-#     debugpy.wait_for_client()
-# except Exception as e:
-#     pass
 
 # Copyright (c) 2023, NVIDIA CORPORATION.  All rights reserved.
 """Pretrain RWKV6."""
@@ -15,7 +7,7 @@ import os
 import rwkv.model
 import torch
 from functools import partial
-
+import numpy
 import torch.distributed
 
 from megatron.training import get_args
@@ -46,7 +38,6 @@ import rwkv
 
 from rwkv_megatron.rwkv6_layer_specs import get_rwkv6_layer_spec
 from rwkv_megatron.rwkv6_model import RWKV6Model
-
 
 stimer = StragglerDetector()
 
@@ -186,7 +177,66 @@ def loss_func(loss_mask: torch.Tensor, output_tensor: torch.Tensor):
         {"lm loss": (reporting_loss[0], reporting_loss[1])},
     )
 
+# def loss_func(loss_mask: torch.Tensor, output_tensor: torch.Tensor, non_loss_data: bool=False):
+#     """Loss function.
 
+#     Args:
+#         loss_mask (torch.Tensor): Used to mask out some portions of the loss
+#         output_tensor (torch.Tensor): The tensor with the losses
+#         non_loss_data (bool): If True, return additional non-loss data alongside the loss
+
+#     Returns:
+#         If non_loss_data=False:
+#             - the loss scalar for this micro-batch
+#             - the number of non-padded tokens in this microbatch
+#             - a dict containing reporting metrics on the loss and number of tokens across
+#                 the data parallel ranks
+#         If non_loss_data=True:
+#             - additional non-loss data (e.g., processed output tensor)
+#             - the loss scalar for this micro-batch
+#     """
+#     args = get_args()
+
+#     losses = output_tensor.float()
+#     loss_mask = loss_mask.view(-1).float()
+#     total_tokens = loss_mask.sum()
+#     loss = torch.cat(
+#         [torch.sum(losses.view(-1) * loss_mask).view(1), total_tokens.view(1)]
+#     )
+
+#     if args.context_parallel_size > 1:
+#         torch.distributed.all_reduce(loss, group=mpu.get_context_parallel_group())
+
+#     # Check individual rank losses are not NaN prior to DP all-reduce.
+#     if args.check_for_nan_in_loss_and_grad:
+#         global_rank = torch.distributed.get_rank()
+#         assert not loss[0].isnan(), (
+#             f"Rank {global_rank}: found NaN in local forward loss calculation. "
+#             f"Device: {torch.cuda.current_device()}, node: {os.uname()[1]}"
+#         )
+
+#     # Reduce loss for logging.
+#     reporting_loss = loss.clone().detach()
+#     torch.distributed.all_reduce(reporting_loss, group=mpu.get_data_parallel_group())
+
+#     local_num_tokens = loss[1].clone().detach().to(torch.int)
+    
+#     # Base return values
+#     loss_scalar = loss[0] * args.context_parallel_size
+#     metrics = {"lm loss": (reporting_loss[0], reporting_loss[1])}
+
+#     if not non_loss_data:
+#         return (
+#             loss_scalar,
+#             local_num_tokens,
+#             metrics,
+#         )
+#     else:
+#         # Additional non-loss data (example: processed output tensor)
+#         # Modify this part based on your specific needs (e.g., segmentation masks)
+#         processed_output = output_tensor  # Placeholder; adjust as needed
+#         return processed_output, loss_scalar
+    
 def forward_step(data_iterator, model: GPTModel):
     """Forward training step.
 
@@ -267,6 +317,26 @@ def train_valid_test_datasets_provider(train_val_test_num_samples):
 
     return train_ds, valid_ds, test_ds
 
+def get_train_iters():
+    """Modify the train iters arg from configs according to the dataset length.
+    """
+    args = get_args()
+    auto_train_iters = getattr(args, 'auto_train_iters', None)
+    if auto_train_iters:
+        if args.mock_data:
+            dataset_type = MockGPTDataset
+        else:
+            dataset_type = GPTDataset
+        config = core_gpt_dataset_config_from_args(args)
+        low_level_dataset = dataset_type.build_low_level_dataset(args.data_path[0], config) # total 22847747 sequences
+        split = config.split_matrix
+        beg = int(round(split[0][0] * float(low_level_dataset.sequence_lengths.shape[0])))
+        end = int(round(split[0][1] * float(low_level_dataset.sequence_lengths.shape[0]))) # 22619270 trainning seqences
+        train_samples =int(numpy.sum(low_level_dataset.sequence_lengths[beg:end]) / args.seq_length)
+        print_rank_0(f"train_samples is {train_samples}")
+        args.train_iters = int(train_samples / args.global_batch_size)
+    else:
+        return
 
 if __name__ == "__main__":
 
@@ -284,4 +354,5 @@ if __name__ == "__main__":
             model_provider,
             ModelType.encoder_or_decoder,
             forward_step,
+            get_train_iters
         )

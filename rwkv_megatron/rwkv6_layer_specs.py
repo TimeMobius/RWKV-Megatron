@@ -10,6 +10,9 @@ from megatron.core.parallel_state import (
     get_tensor_model_parallel_rank,
     get_tensor_model_parallel_world_size,
     get_context_parallel_world_size,
+    get_pipeline_model_parallel_group,
+    get_pipeline_model_parallel_rank,
+    get_pipeline_model_parallel_world_size,
 )
 from megatron.core.dist_checkpointing.mapping import ShardedStateDict
 from megatron.core.fusions.fused_bias_dropout import get_bias_dropout_add
@@ -427,6 +430,31 @@ class RWKV6TimeMix(MegatronModule):
         self.head_size = divide(
             self.config.hidden_size, self.config.num_attention_heads
         )
+#         world_group = get_tensor_model_parallel_group()
+#         world_size = get_tensor_model_parallel_world_size()
+#         world_rank = get_tensor_model_parallel_rank()
+#         pp_group = get_pipeline_model_parallel_group()
+#         pp_size = get_pipeline_model_parallel_world_size()
+#         pp_rank = get_pipeline_model_parallel_rank()
+#         import os
+#         print(f"""
+# 进程信息:
+# - 进程ID (PID): {os.getpid()}
+# - 张量并行组: {world_group}
+# - 张量并行大小: {world_size}
+# - 张量并行排名: {world_rank}
+# - 流水线并行组: {pp_group}
+# - 流水线并行大小: {pp_size}
+# - 流水线并行排名: {pp_rank}
+
+# 模型配置:
+# - self.config.hidden_size: {self.config.hidden_size}
+# - config.hidden_size: {config.hidden_size}
+# - self.config.num_attention_heads: {self.config.num_attention_heads}
+# - self.head_size: {self.head_size}
+# - self.mix_coeff_input shape: {self.mix_coeff_input.shape}
+# - linear_receptance weight shape: {self.linear_receptance.weight.shape}")
+#             """)
 
     def forward(
         self,
@@ -436,7 +464,13 @@ class RWKV6TimeMix(MegatronModule):
         inference_params=None,
         rotary_pos_emb=None,
         packed_seq_params=None,
+        inference_context=None,
+        rotary_pos_cos=None,
+        rotary_pos_sin=None,
+        attention_bias=None,
+        sequence_len_offset=None,
     ):
+        # print(f"hidden_states requires_grad: {hidden_states.requires_grad}")
         shifted_hidden_states = _token_shift(
             hidden_states, 0, self.config.sequence_parallel
         )

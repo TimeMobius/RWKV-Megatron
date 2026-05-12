@@ -238,16 +238,18 @@ class RWKV7Bottleneck(MegatronModule):
         expanded = einsum(neck, self.weight_up, "t b r, r d -> t b d")
 
         if self.to_tensor_parallel:
-            expanded = rearrange(expanded, "t b d -> t (b d)")
             if self.config.sequence_parallel:
+                # Flatten tokens only, so TP communication redistributes hidden
+                # channels without interleaving different batch samples.
+                expanded = rearrange(expanded, "t b d -> (t b) d")
                 tp_expanded = all_to_all_sp2hp(expanded)
+                tp_expanded = rearrange(
+                    tp_expanded,
+                    "(t b) d -> t b d",
+                    b=x.shape[1],
+                )
             else:
                 tp_expanded = scatter_to_tensor_model_parallel_region(expanded)
-            tp_expanded = rearrange(
-                tp_expanded,
-                "t (b d) -> t b d",
-                b=x.shape[1],
-            )
             return tp_expanded + self.bias if self.use_bias else tp_expanded 
         else:
             return expanded + self.bias if self.use_bias else expanded

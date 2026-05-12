@@ -125,7 +125,7 @@ def _emulate_all_to_all_sp2hp(per_rank_inputs, dst_rank: int):
 
 def run_sequence_parallel_outputs(global_x: torch.Tensor):
     local_inputs = list(torch.chunk(global_x, TP_SIZE, dim=0))
-    per_rank_flat_inputs = [rearrange(local_x, "t b d -> t (b d)") for local_x in local_inputs]
+    per_rank_flat_inputs = [rearrange(local_x, "t b d -> (t b) d") for local_x in local_inputs]
     outputs = []
 
     for rank, local_x in enumerate(local_inputs):

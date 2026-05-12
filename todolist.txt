@@ -1,0 +1,69 @@
+RWKV7 review todolist
+
+处理顺序建议
+1. 先修 P1 级别的功能正确性问题，避免训练和加载结果直接错误。
+2. 再补齐 scratch initialization，保证从零训练时参数不是未定义值。
+3. 然后修数值一致性问题，尽量对齐官方 RWKV-7 / FLA 行为。
+4. 最后修调试和校验路径，保证对拍工具可用。
+
+1. 修复 TP bottleneck 分片混入不同 batch 样本的问题
+优先级: P1
+位置: rwkv_megatron/rwkv7_layer_specs.py:240-249
+问题:
+`expanded` 在进入 `scatter_to_tensor_model_parallel_region` / `all_to_all_sp2hp` 之前被展平成了 `(b d)`，导致 tensor parallel 的切分发生在拼接后的 batch-hidden 轴上，而不是只沿 hidden 维切分。
+影响:
+当 `micro_batch_size > 1` 时，各 rank 取到的 shard 会混入别的样本通道，reshape 回 `t b d` 之后 `a/w/g/v` 的 LoRA 分支输入被静默污染，训练和推理都会错，但不一定立刻报错。
+解决方案:
+重写 `RWKV7Bottleneck.forward()` 里的 reshape 和通信路径，确保 TP 只切 hidden 维，不打平 batch 维。需要重点检查 `expanded` 的布局、通信前后的 tensor shape，以及恢复 `t b d` 时是否严格保持 sample 对齐。
+
+2. 修复 TimeMix scratch init 未初始化专有参数的问题
+优先级: P1
+位置: rwkv_megatron/rwkv7_layer_specs.py:437-476
+问题:
+`mix_coeff_input`、`rho`、`beta`、`alpha` 这些 RWKV7 TimeMix 参数使用 `torch.empty(...)` 分配，但在 `perform_initialization=True` 时没有初始化逻辑。
+影响:
+如果不是立刻从 checkpoint 覆盖，这些参数会直接带着未定义内存进入训练，模型初值与官方实现完全不一致，训练可能不稳定或者直接跑偏。
+解决方案:
+补上官方 RWKV-7 的初始化公式。建议参考 `rwkv_v7_demo_rnn.py` 和 `D:\codes\RWKV-LM-V7` 中对应参数的构造方式，在模块初始化阶段按 layer id、hidden size、head size 等条件生成与官方一致的初值。
+
+3. 修复 ChannelMix x_k 未初始化的问题
+优先级: P1
+位置: rwkv_megatron/rwkv7_layer_specs.py:649-650
+问题:
+`RWKV7ChannelMix.mix_coeffs` 也是 `torch.empty(...)` 分配，但没有初始化路径，本质上就是 FFN token shift 的 `x_k` 未定义。
+影响:
+即使线性层权重初始化正常，ChannelMix 的输入混合系数仍然是垃圾值，导致从零训练时 FFN 分支行为错误。
+解决方案:
+按官方 RWKV-7 FFN token-mix 公式初始化 `mix_coeffs`。实现时需要与 TimeMix 初始化风格保持一致，并确认 shape、broadcast 维度以及 layer-dependent 公式都与官方代码对应。
+
+4. 修复 HF LoRA loader 把 down/up 投影接反的问题
+优先级: P1
+位置: rwkv_megatron/rwkv7_model.py:252-272
+问题:
+HF / FLA 格式里，`lora.0.weight` 是第一层线性 `[rank, hidden]`，`lora.2.weight` 是第二层线性 `[hidden, rank]`。当前代码直接把它们写进 `weight_up` / `weight_down`，等价于把 LoRA 的 down projection 和 up projection 接反了。
+影响:
+`rwkv-huggingface` 路径加载出来的 `a/w/g/v` LoRA 分支函数是错的，虽然 tensor shape 恰好能对上，但实际计算图不等价。`rwkv-lm` 加载路径看起来是正常的，因此这是一个特定于 HF 路径的正确性 bug。
+解决方案:
+重新核对自定义 `weight_down` / `weight_up` 的数学定义，再按 HF 权重语义做正确映射和必要转置。修完后建议用同一组 checkpoint 分别走 HF 路径和官方实现做前向对拍，确认 LoRA 分支输出一致。
+
+5. 修复自定义 GroupNorm 忽略传入 eps 的问题
+优先级: P2
+位置: rwkv_megatron/rwkv7_layer_specs.py:115
+问题:
+`GroupNorm.__init__` 丢弃了调用方传入的 `eps`，始终使用 `config.layernorm_epsilon`。
+影响:
+`RWKV7TimeMix` 无法使用官方 RWKV-7 / FLA 期望的 eps 设置，例如 `head_dim * 1e-5`。这会改变归一化数值，影响复现、对拍和训练稳定性细节。
+解决方案:
+让 `GroupNorm` 真正使用构造参数里的 `eps`，仅在未显式传入时再回退到 config 默认值。修复后建议重点验证 TimeMix 输出与官方实现的数值误差是否缩小。
+
+6. 修复 `check_against_pretrained` 在 rwkv-lm 路径失效的问题
+优先级: P3
+位置: rwkv_megatron/rwkv7_model.py:384-387
+问题:
+当调用 `from_rwkv_lm(..., check_against_pretrained=True)` 时，`ground_truth_model_closure` 返回的是原始 `state_dict`，但 `forward()` 里的 debug 分支把它当成可调用模型对象来访问模块和执行前向。
+影响:
+一旦打开这个检查开关，代码会在真正比较之前先失败，导致调试和对拍流程不可用。
+解决方案:
+二选一处理即可：
+1. 如果短期不打算支持这个路径，就显式抛出清晰错误，说明当前只支持某一种 reference model。
+2. 如果要支持，就构造一个真正可调用的官方 reference model 对象，而不是只保存 state dict，并让 `forward()` 的 debug 分支只依赖统一接口。

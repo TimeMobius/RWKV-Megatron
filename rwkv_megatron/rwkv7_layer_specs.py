@@ -45,10 +45,54 @@ from einops import einsum, rearrange
 from unittest.mock import patch
 from transformers import AutoConfig, AutoModel, AutoModelForCausalLM
 
+from megatron.core.utils import is_te_min_version
+from megatron.training import get_args
+import transformer_engine.pytorch as te
+from transformer_engine.common import recipe
+
+try:
+    from megatron.core.extensions.transformer_engine import (
+        TEColumnParallelLinear,
+        TELayerNormColumnParallelLinear,
+        TENorm,
+        TERowParallelLinear,
+    )
+
+    HAVE_TE = True
+except ImportError:
+    HAVE_TE = False
+from megatron.core import parallel_state
+from megatron.training import print_rank_0
+
+def get_fp8_recipe():
+    # 获取同时包含 TP 和 DP 的通信组 (排除 PP)
+    # 注意：在较新的 Megatron-Core 版本中，AMAX reduction group 通常由框架维护
+    # 如果你是手动调用 te.fp8_autocast，必须显式传入这个组
+    
+    # 这种组通常称为 "Model Parallel Group" (排除 PP) 或者需要自己构造
+    # 在标准 Megatron 中，通常 TE 会复用 tensor_model_parallel_group 
+    # 或者你需要一个包含 (TP + DP) 的组。
+    
+    # 最安全的做法是只在 Tensor Parallel 组内同步 (如果 DP 不需要同步 AMAX)
+    # 或者使用 parallel_state.get_tensor_and_data_parallel_group() (如果该函数存在)
+    
+    fp8_group = parallel_state.get_tensor_model_parallel_group()
+    
+    return recipe.DelayedScaling(
+        margin=0,
+        interval=16,
+        fp8_format=recipe.Format.HYBRID
+        # amax_reduce_group=fp8_group  # <--- 关键修复：指定通信组
+    )
+
+print(f"[Degugging_Info]:******************************** current have_te is {HAVE_TE}")
 with patch("transformers.AutoConfig.register", return_value=None):
     with patch("transformers.AutoModel.register", return_value=None):
         with patch("transformers.AutoModelForCausalLM.register", return_value=None):
             from fla.ops.rwkv7 import chunk_rwkv7, fused_recurrent_rwkv7
+            from fla.ops.rwkv7.fused_addcmul import fused_addcmul_rwkv7
+            from fla.ops.rwkv7.fused_k_update import fused_k_rwkv7
+            # from fla.modules.token_shift import token_shift
         
 class GroupNorm(MegatronModule):
     def __init__(
@@ -166,9 +210,9 @@ class RWKV7Bottleneck(MegatronModule):
                         device=torch.cuda.current_device(),
                     )
                 )
-                setattr(
-                    self.weight_down, "sequence_parallel", self.config.sequence_parallel
-                )
+                # setattr(
+                #     self.weight_down, "sequence_parallel", self.config.sequence_parallel
+                # )
 
             if config.perform_initialization:
                 torch.nn.init.uniform_(self.bias, -1, 1)
@@ -194,7 +238,7 @@ class RWKV7Bottleneck(MegatronModule):
         expanded = einsum(neck, self.weight_up, "t b r, r d -> t b d")
 
         if self.to_tensor_parallel:
-            expanded = rearrange(expanded, "t b d -> t (b d)") 
+            expanded = rearrange(expanded, "t b d -> t (b d)")
             if self.config.sequence_parallel:
                 tp_expanded = all_to_all_sp2hp(expanded)
             else:
@@ -202,7 +246,7 @@ class RWKV7Bottleneck(MegatronModule):
             tp_expanded = rearrange(
                 tp_expanded,
                 "t (b d) -> t b d",
-                b=x.shape[1], # 这里的d实际是d/tp
+                b=x.shape[1],
             )
             return tp_expanded + self.bias if self.use_bias else tp_expanded 
         else:
@@ -216,12 +260,11 @@ class RWKV7Bottleneck(MegatronModule):
     ) -> ShardedStateDict:
         """Sharding along axis 0"""
         state_dict = self.state_dict(prefix="", keep_vars=True)
-        # import time
-        # time.sleep(1000)
+
         return make_sharded_tensors_for_checkpoint(
             state_dict,
             prefix,
-            {"bias": 0} if self.to_tensor_parallel and self.use_bias else {}, # bias特殊，在dim=1上切分
+            {"bias": 0} if self.to_tensor_parallel and self.use_bias else {},
             sharded_offsets,
         )
 
@@ -338,7 +381,7 @@ class WKV7(MegatronModule):
         a = rearrange(a, "t b (h n) -> b t h n", h=self.num_heads_local).contiguous()
         b = rearrange(b, "t b (h n) -> b t h n", h=self.num_heads_local).contiguous()
 
-        o = chunk_rwkv7(r, w, k, v, a, b, scale=1.)[0]
+        o = chunk_rwkv7(r, w, k, v, a, b, scale=1., safe_gate=True, chunk_size=64)[0]
         return rearrange(o, "b t h n -> t b (h n)")
 
     def sharded_state_dict(
@@ -362,6 +405,8 @@ class RWKV7TimeMix(MegatronModule):
     ):
         super().__init__(config=config)
 
+        args = get_args()
+        use_te = args.transformer_impl == "transformer_engine" and HAVE_TE
         self.bottleneck_learn = RWKV7Bottleneck(
             config,
             config.D_AAA_LORA,
@@ -406,6 +451,7 @@ class RWKV7TimeMix(MegatronModule):
         set_tensor_model_parallel_attributes(
             self.rho, is_parallel=True, dim=0, stride=1
         )
+        setattr(self.rho, "allreduce", True)
 
         self.beta = torch.nn.Parameter(
             torch.empty(
@@ -427,13 +473,13 @@ class RWKV7TimeMix(MegatronModule):
         set_tensor_model_parallel_attributes(
             self.alpha, is_parallel=True, dim=0, stride=1
         )
-        setattr(self.alpha, "allreduce", True)        
+        setattr(self.alpha, "allreduce", True)
 
         setattr(
             self.mix_coeff_input, "sequence_parallel", self.config.sequence_parallel
         )
 
-        col_linear_factory = lambda name: ColumnParallelLinear(
+        col_linear_factory = lambda name: (TEColumnParallelLinear if use_te else ColumnParallelLinear)(
             self.config.hidden_size,
             self.config.hidden_size,
             config=self.config,
@@ -456,7 +502,7 @@ class RWKV7TimeMix(MegatronModule):
             eps=self.config.layernorm_epsilon,
             config=self.config,
         )
-        self.linear_proj = RowParallelLinear(
+        self.linear_proj = (TERowParallelLinear if use_te else RowParallelLinear)(
             self.config.hidden_size,
             self.config.hidden_size,
             config=self.config,
@@ -493,41 +539,43 @@ class RWKV7TimeMix(MegatronModule):
         attention_bias=None,
         sequence_len_offset=None,
     ):        
-        import os
-        pp_group = get_pipeline_model_parallel_group()
-        tp_group = get_tensor_model_parallel_group()
-        pp_ranks = dist.get_process_group_ranks(pp_group)
-        tp_ranks = dist.get_process_group_ranks(tp_group)
+
         tp_size = get_tensor_model_parallel_world_size()
-        tp_rank = get_tensor_model_parallel_rank()
-        pp_size = get_pipeline_model_parallel_world_size()
+        tp_rank = get_tensor_model_parallel_rank()  
         pp_rank = get_pipeline_model_parallel_rank()
 
-        current_rank = dist.get_rank()
-        v0 = None  # 初始化 v0
-        if len(hidden_states.shape) == 4 and hidden_states.shape[0] == 2:
-            hidden_states, v0 = hidden_states[0], hidden_states[1]
+        v0 = None
+        if len(hidden_states.shape) == 4:
+            if self.config.sequence_parallel:
+                hidden_states, v0 = hidden_states[0], rearrange(hidden_states[1:], 'n t b d -> (n t) b d')
+            else:
+                hidden_states, v0 = hidden_states[0], hidden_states[1]
 
-        shifted_hidden_states = _token_shift( 
+        shifted_hidden_states = _token_shift(
             hidden_states, 0, self.config.sequence_parallel
         )
         delta_shift = shifted_hidden_states - hidden_states
-        mixed_input = hidden_states.unsqueeze(-2) + delta_shift.unsqueeze(-2) * self.mix_coeff_input
-        mixed_receptance, mixed_key, mixed_value, mixed_decay, mixed_learn_rate, mixed_gate = mixed_input.unbind(-2)
-        learn_rate = torch.sigmoid(self.bottleneck_learn(mixed_learn_rate.contiguous())) 
-        key = self.linear_key(mixed_key.contiguous())[0]
-        rem_key = key * self.beta
+        mixed_receptance, mixed_decay, mixed_key, mixed_value, mixed_learn_rate, mixed_gate = fused_addcmul_rwkv7(hidden_states, delta_shift, *[self.mix_coeff_input[i] for i in range(6)])
 
-        rem_key_norm = torch.nn.functional.normalize(rem_key.view(rem_key.shape[0],rem_key.shape[1],self.num_heads_per_partition, self.head_size), dim=-1, p=2.0) # κ^t TODO sequence_parallel 适配 1204 -> 4096
-        
-        rep_key = key * (1 + (learn_rate - 1) * self.alpha)
-        value = self.linear_value(mixed_value.contiguous())[0] 
+        learn_rate = torch.sigmoid(self.bottleneck_learn(mixed_learn_rate.contiguous()))
+        current_recipe = get_fp8_recipe()
+        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe):
+            key = self.linear_key(mixed_key.contiguous())[0]
+        rem_key = key * self.beta
+        # rem_batch = rem_key.shape[1]
+        # rem_seq = rem_key.shape[0]
+
+        temp_rearranged = rearrange(rem_key, 't b (h n) -> b t h n', h=self.num_heads_per_partition)
+        normalized_rearranged = torch.nn.functional.normalize(temp_rearranged, dim=-1, p=2.0)
+        rem_key_norm = rearrange(normalized_rearranged, 'b t h n -> t b (h n)')
+
+        rep_key = fused_k_rwkv7(key, learn_rate, self.alpha)
+
+        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe):
+            value = self.linear_value(mixed_value.contiguous())[0]
 
         if v0 is None and self.layer_number == 1 and pp_rank == 0:
-            if self.config.sequence_parallel:
-                v0 = all_to_all_hp2sp(value) # TODO 需要修改
-            else:
-                v0 = gather_from_tensor_model_parallel_region(value)
+            v0 = gather_from_tensor_model_parallel_region(value)
 
         elif v0 is not None:
             if pp_rank == 0 and self.layer_number == 1: 
@@ -537,15 +585,17 @@ class RWKV7TimeMix(MegatronModule):
             end_idx = start_idx + shard_size
             v0_shard = v0[:, :, start_idx:end_idx]
 
-
             vt = torch.sigmoid(self.bottleneck_v(mixed_value.contiguous()))
-            value = v0_shard + (value - v0_shard) * vt
+            # value = value + (v0_shard - value) * vt
+            #value = torch.addcmul(value, v0_shard - value, vt)
+            value = torch.lerp(value, v0_shard, vt)
 
         decay = self.bottleneck_decay(mixed_decay.contiguous())
         weight = torch.exp(torch.tensor(-0.5)) * torch.sigmoid(decay)
-        receptance = self.linear_receptance(mixed_receptance.contiguous())[0]
-        gate = self.bottleneck_learn(mixed_gate.contiguous())
-        rem_key_norm = rearrange(rem_key_norm, "t b n d -> t b (n d)")
+        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe):
+            receptance = self.linear_receptance(mixed_receptance.contiguous())[0]
+        gate = self.bottleneck_gate(mixed_gate.contiguous())
+
         a = rem_key_norm.neg()
         b = learn_rate * rem_key_norm
 
@@ -556,13 +606,37 @@ class RWKV7TimeMix(MegatronModule):
             "(t b) c -> t b c",
             t=output.shape[0],
         )
-        ut = (receptance * (self.rho * rep_key)) * value
-        output += ut
-        output, bias = self.linear_proj(output * gate)
+        # B = output.shape[1]
+        # T = output.shape[0]
+        H = self.num_heads_per_partition
+        # ut = (receptance * (self.rho * rep_key)) * value # torch.Size([4096, 8, 384])
+        # ut = ((receptance.view(B,T,H,-1)*rep_key.view(B,T,H,-1)*self.rho.view(1,1,H,-1)).sum(dim=-1, keepdim=True) * value.view(B,T,H,-1)).view(T,B,-1)
+        r = rearrange(receptance, 't b (h n) -> b t h n', h=H)
+        k = rearrange(rep_key, 't b (h n) -> b t h n', h=H)
+        v = rearrange(value, 't b (h n) -> b t h n', h=H)
+        #    将 (H*N) -> (1, 1, H, N) 以便广播
+        p = rearrange(self.rho, '(h n) -> 1 1 h n', h=H)
+        # 2. 以清晰的维度执行计算
+        prod = r * k * p
+        summed = prod.sum(dim=-1, keepdim=True)
+        ut_intermediate = summed * v
 
-        if v0.shape != output.shape:
-            raise ValueError(f"v0 shape {v0.shape} does not match output shape {output.shape}")
-        output = torch.stack([output, v0], dim=0)
+        # 3. 使用 rearrange 将结果恢复到目标形状
+        #    将 (B, T, H, N) -> (T, B, H*N)
+        ut = rearrange(ut_intermediate, 'b t h n -> t b (h n)')
+        output += ut
+        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe):
+            output, bias = self.linear_proj(output * gate) 
+
+        if self.config.sequence_parallel:
+            # reshape v0 to match output shape
+            # v0 = v0.reshape(-1, output.shape[0], output.shape[1], output.shape[2])
+            v0  = rearrange(v0, '(n t) b d -> n t b d', t=output.shape[0])
+            output = torch.cat([output.unsqueeze(0), v0], dim=0)
+        else:
+            if v0.shape != output.shape:
+                raise ValueError(f"v0 shape {v0.shape} does not match output shape {output.shape}")
+            output = torch.stack([output, v0], dim=0)
         return output, bias
 
 
@@ -570,10 +644,12 @@ class RWKV7ChannelMix(MegatronModule):
     def __init__(self, config: TransformerConfig):
         super().__init__(config)
 
+        args = get_args()
+        use_te = args.transformer_impl == "transformer_engine" and HAVE_TE
         self.mix_coeffs = torch.nn.Parameter( 
             torch.empty(config.hidden_size, device=torch.cuda.current_device())
         )
-        self.linear_up = ColumnParallelLinear(
+        self.linear_up = (TEColumnParallelLinear if use_te else ColumnParallelLinear)(
             self.config.hidden_size,
             self.config.ffn_hidden_size,
             config=self.config,
@@ -585,7 +661,7 @@ class RWKV7ChannelMix(MegatronModule):
             tp_comm_buffer_name="cmix_up",
         )
 
-        self.linear_down = RowParallelLinear( 
+        self.linear_down = (TERowParallelLinear if use_te else RowParallelLinear)( 
             self.config.ffn_hidden_size,
             self.config.hidden_size,
             config=self.config,
@@ -602,14 +678,16 @@ class RWKV7ChannelMix(MegatronModule):
             hidden_states, 0, self.config.sequence_parallel
         )
         delta_shift = shifted_hidden_states - hidden_states 
-        mixed_up = (
-            hidden_states + delta_shift * self.mix_coeffs
-        )
+        mixed_up = torch.addcmul(hidden_states, delta_shift, self.mix_coeffs)
 
-        ffn_hidden_states, bias = self.linear_up(mixed_up.contiguous())
+        current_recipe = get_fp8_recipe()
+
+        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe):
+            ffn_hidden_states, bias = self.linear_up(mixed_up.contiguous())
         assert bias is None
         ffn_hidden_states = torch.square(torch.relu(ffn_hidden_states))
-        output, bias = self.linear_down(ffn_hidden_states)
+        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe):
+            output, bias = self.linear_down(ffn_hidden_states)
         assert bias is None
         return output, None
 
@@ -625,4 +703,22 @@ def get_rwkv7_layer_spec() -> ModuleSpec:
             mlp=ModuleSpec(module=RWKV7ChannelMix),
             mlp_bda=get_bias_dropout_add,
         ),
+    )
+
+'''
+    added by zgz, date:20250619
+'''
+def get_rwkv7_with_transformer_engine_spec() -> ModuleSpec:
+    inp_norm = pre_norm = TENorm if is_te_min_version("1.9.0") else FusedLayerNorm
+    return ModuleSpec(
+        module=TransformerLayer,
+        submodules=TransformerLayerSubmodules(
+            input_layernorm=inp_norm,
+            self_attention=ModuleSpec(module=RWKV7TimeMix),
+            self_attn_bda=get_bias_dropout_add,
+            pre_mlp_layernorm=pre_norm,
+            mlp=ModuleSpec(module=RWKV7ChannelMix),
+            mlp_bda=get_bias_dropout_add,
+        ),
+
     )

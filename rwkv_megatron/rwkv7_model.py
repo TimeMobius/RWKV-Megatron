@@ -207,7 +207,6 @@ class RWKV7Model(GPTModel):
     @torch.no_grad
     def from_mobius_huggingface(self, pretrained_model, check_against_pretrained: bool):
         state_dict: Dict[str, Tensor] = dict(pretrained_model.state_dict())
-
         layers_start = self._get_layers_start()
         tp_rank = get_tensor_model_parallel_rank()
         tp_size = get_tensor_model_parallel_world_size()
@@ -224,62 +223,70 @@ class RWKV7Model(GPTModel):
 
         if self.pre_process:
             self.embedding.word_embeddings.weight.copy_(
-                tp(state_dict["rwkv.embeddings.weight"])
+                tp(state_dict["model.embeddings.weight"])
             )
             self.pre_norm.weight.copy_(
-                state_dict["rwkv.blocks.0.pre_ln.weight"] + norm_offset
+                state_dict["model.layers.0.pre_norm.weight"] + norm_offset
             )
-            self.pre_norm.bias.copy_(state_dict["rwkv.blocks.0.pre_ln.bias"])
+            self.pre_norm.bias.copy_(state_dict["model.layers.0.pre_norm.bias"])
 
         if self.post_process:
             self.decoder.final_layernorm.weight.copy_(
-                state_dict["rwkv.ln_out.weight"] + norm_offset
+                state_dict["model.norm.weight"] + norm_offset
             )
-            self.decoder.final_layernorm.bias.copy_(state_dict["rwkv.ln_out.bias"])
-            self.output_layer.weight.copy_(tp(state_dict["head.weight"]))
+            self.decoder.final_layernorm.bias.copy_(state_dict["model.norm.bias"])
+            self.output_layer.weight.copy_(tp(state_dict["lm_head.weight"]))
 
         for i_local_layer, layer in enumerate(self.decoder.layers):
             layer: TransformerLayer
 
             i_layer = i_local_layer + layers_start
-            prefix = f"rwkv.blocks.{i_layer}."
+            prefix = f"model.layers.{i_layer}."
             hf_layer = lambda term: state_dict[prefix + term]
-            hf_cmix = lambda term: state_dict[prefix + "feed_forward." + term]
-            hf_tmix = lambda term: state_dict[prefix + "attention." + term]
+            hf_cmix = lambda term: state_dict[prefix + "ffn." + term]
+            hf_tmix = lambda term: state_dict[prefix + "attn." + term]
 
             cmix: RWKV7ChannelMix = layer.mlp
             tmix: RWKV7TimeMix = layer.self_attention
 
-            layer.input_layernorm.weight.copy_(hf_layer("ln1.weight") + norm_offset)
-            layer.input_layernorm.bias.copy_(hf_layer("ln1.bias"))
+            if i_layer != 0:
+                tmix.bottleneck_v.weight_down.copy_(hf_tmix("v_lora.lora.2.weight"))
+                tmix.bottleneck_v.weight_up.copy_(hf_tmix("v_lora.lora.0.weight"))
+                tmix.bottleneck_v.bias.copy_(tp(hf_tmix("v_lora.lora.2.bias"))) 
 
-            tmix.mix_coeff_input.copy_(hf_tmix("time_maa_x").flatten())
-            tmix.bottleneck_token_shift.weight_down.copy_(
-                rearrange(hf_tmix("time_maa_w1"), "d (e r) -> d e r", e=5)
-            )
-            tmix.bottleneck_token_shift.weight_up.copy_(hf_tmix("time_maa_w2"))
-            for i_in_bias, name in enumerate("wkvrg"):
-                tmix.bottleneck_token_shift.bias[i_in_bias].copy_(
-                    hf_tmix("time_maa_" + name).flatten()
-                )
-            tmix.bottleneck_decay.weight_down.copy_(
-                hf_tmix("time_decay_w1").unsqueeze(1)
-            )
-            tmix.bottleneck_decay.weight_up.copy_(hf_tmix("time_decay_w2").unsqueeze(0))
-            tmix.bottleneck_decay.bias.copy_(tp(hf_tmix("time_decay").flatten()))
-            tmix.linear_receptance.weight.copy_(tp(hf_tmix("receptance.weight")))
-            tmix.linear_key.weight.copy_(tp(hf_tmix("key.weight")))
-            tmix.linear_value.weight.copy_(tp(hf_tmix("value.weight")))
-            tmix.linear_gate.weight.copy_(tp(hf_tmix("gate.weight")))
-            tmix.linear_proj.weight.copy_(tp(hf_tmix("output.weight"), 1))
-            tmix.group_norm.weight.copy_(tp(hf_tmix("ln_x.weight")))
-            tmix.group_norm.bias.copy_(tp(hf_tmix("ln_x.bias")))
+            layer.input_layernorm.weight.copy_(hf_layer("attn_norm.weight") + norm_offset)
+            layer.input_layernorm.bias.copy_(hf_layer("attn_norm.bias"))
 
-            layer.pre_mlp_layernorm.weight.copy_(hf_layer("ln2.weight") + norm_offset)
-            layer.pre_mlp_layernorm.bias.copy_(hf_layer("ln2.bias"))
+            for i, name in enumerate("rwkvag"):
+                tmix.mix_coeff_input[i].copy_(hf_tmix("x_" + name).flatten())
 
-            cmix.mix_coeffs[0].copy_(hf_cmix("time_maa_k").flatten())
-            cmix.mix_coeffs[1].copy_(hf_cmix("time_maa_r").flatten())
+            tmix.bottleneck_learn.weight_down.copy_(hf_tmix("a_lora.lora.2.weight"))
+            tmix.bottleneck_learn.weight_up.copy_(hf_tmix("a_lora.lora.0.weight"))
+            tmix.bottleneck_learn.bias.copy_(tp(hf_tmix("a_lora.lora.2.bias")))
+
+            tmix.bottleneck_decay.weight_down.copy_(hf_tmix("w_lora.lora.2.weight"))
+            tmix.bottleneck_decay.weight_up.copy_(hf_tmix("w_lora.lora.0.weight"))
+            tmix.bottleneck_decay.bias.copy_(tp(hf_tmix("w_lora.lora.2.bias")))
+
+            tmix.bottleneck_gate.weight_down.copy_(hf_tmix("g_lora.lora.2.weight"))
+            tmix.bottleneck_gate.weight_up.copy_(hf_tmix("g_lora.lora.0.weight"))
+            
+            tmix.rho.copy_(tp(hf_tmix("r_k").flatten()))
+            tmix.beta.copy_(tp(hf_tmix("k_k")))
+            tmix.alpha.copy_(tp(hf_tmix("k_a")))
+
+            tmix.linear_receptance.weight.copy_(tp(hf_tmix("r_proj.weight")))
+            tmix.linear_key.weight.copy_(tp(hf_tmix("k_proj.weight")))
+            tmix.linear_value.weight.copy_(tp(hf_tmix("v_proj.weight")))
+            tmix.linear_proj.weight.copy_(tp(hf_tmix("o_proj.weight"), 1))
+
+            tmix.group_norm.weight.copy_(tp(hf_tmix("g_norm.weight")))
+            tmix.group_norm.bias.copy_(tp(hf_tmix("g_norm.bias")))
+
+            layer.pre_mlp_layernorm.weight.copy_(hf_layer("ffn_norm.weight") + norm_offset)
+            layer.pre_mlp_layernorm.bias.copy_(hf_layer("ffn_norm.bias"))
+
+            cmix.mix_coeffs.copy_(hf_cmix("x_k"))
             cmix.linear_up.weight.copy_(tp(hf_cmix("key.weight"), 0))
             cmix.linear_down.weight.copy_(tp(hf_cmix("value.weight"), 1))
 
@@ -374,7 +381,7 @@ class RWKV7Model(GPTModel):
             cmix.linear_up.weight.copy_(tp(hf_cmix("key.weight"), 0))
             cmix.linear_down.weight.copy_(tp(hf_cmix("value.weight"), 1))
 
-            if check_against_pretrained:
-                assert self.pre_process and self.post_process
-                self.check_against_pretrained = True
-                self.ground_truth_model_closure = lambda: state_dict
+        if check_against_pretrained:
+            assert self.pre_process and self.post_process
+            self.check_against_pretrained = True
+            self.ground_truth_model_closure = lambda: state_dict

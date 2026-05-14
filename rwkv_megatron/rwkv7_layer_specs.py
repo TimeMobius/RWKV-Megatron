@@ -35,6 +35,7 @@ from megatron.core.transformer.transformer_config import TransformerConfig
 from megatron.core.transformer.transformer_layer import (
     TransformerLayer,
     TransformerLayerSubmodules,
+    get_transformer_layer_offset,
 )
 from megatron.core.transformer.utils import make_sharded_tensors_for_checkpoint
 from megatron.core.utils import divide
@@ -84,6 +85,56 @@ def get_fp8_recipe():
         fp8_format=recipe.Format.HYBRID
         # amax_reduce_group=fp8_group  # <--- 关键修复：指定通信组
     )
+
+
+def _rwkv7_build_channel_positions(hidden_size: int, device) -> Tensor:
+    return torch.arange(hidden_size, device=device, dtype=torch.float32) / hidden_size
+
+
+def _rwkv7_get_global_layer_id(config: TransformerConfig, layer_number: int) -> int:
+    return layer_number + get_transformer_layer_offset(config) - 1
+
+
+def _rwkv7_time_mix_init_tensors(
+    hidden_size: int,
+    num_attention_heads: int,
+    num_layers: int,
+    global_layer_id: int,
+    device,
+) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
+    positions = _rwkv7_build_channel_positions(hidden_size, device=device)
+    ratio_1_to_almost0 = 1.0 - (global_layer_id / num_layers)
+
+    mix_coeff_input = torch.stack(
+        [
+            1.0 - torch.pow(positions, 0.2 * ratio_1_to_almost0),
+            1.0 - torch.pow(positions, 0.9 * ratio_1_to_almost0),
+            1.0 - torch.pow(positions, 0.7 * ratio_1_to_almost0),
+            1.0 - torch.pow(positions, 0.7 * ratio_1_to_almost0),
+            1.0 - torch.pow(positions, 0.9 * ratio_1_to_almost0),
+            1.0 - torch.pow(positions, 0.2 * ratio_1_to_almost0),
+        ]
+    )
+
+    linear = torch.arange(hidden_size, device=device, dtype=torch.float32) / (hidden_size - 1) - 0.5
+    beta = torch.zeros(hidden_size, device=device, dtype=torch.float32) + 0.71 - linear * 0.1
+    alpha = torch.zeros(hidden_size, device=device, dtype=torch.float32) + 1.02
+
+    head_dim = divide(hidden_size, num_attention_heads)
+    rho = torch.zeros(num_attention_heads, head_dim, device=device, dtype=torch.float32) - 0.04
+
+    return mix_coeff_input, rho.flatten(), beta, alpha
+
+
+def _rwkv7_channel_mix_init_tensor(
+    hidden_size: int,
+    num_layers: int,
+    global_layer_id: int,
+    device,
+) -> Tensor:
+    positions = _rwkv7_build_channel_positions(hidden_size, device=device)
+    ratio_1_to_almost0 = 1.0 - (global_layer_id / num_layers)
+    return 1.0 - torch.pow(positions, ratio_1_to_almost0**4)
 
 print(f"[Degugging_Info]:******************************** current have_te is {HAVE_TE}")
 with patch("transformers.AutoConfig.register", return_value=None):
@@ -518,6 +569,7 @@ class RWKV7TimeMix(MegatronModule):
 
         world_size = get_tensor_model_parallel_world_size()
         self.layer_number = layer_number
+        self.global_layer_id_for_init = _rwkv7_get_global_layer_id(self.config, layer_number)
 
         self.num_heads_per_partition = divide(
             self.config.num_attention_heads, world_size
@@ -525,6 +577,23 @@ class RWKV7TimeMix(MegatronModule):
         self.head_size = divide(
             self.config.hidden_size, self.config.num_attention_heads
         )
+
+        if self.config.perform_initialization:
+            mix_coeff_input, rho_full, beta_full, alpha_full = _rwkv7_time_mix_init_tensors(
+                hidden_size=self.config.hidden_size,
+                num_attention_heads=self.config.num_attention_heads,
+                num_layers=self.config.num_layers,
+                global_layer_id=self.global_layer_id_for_init,
+                device=self.mix_coeff_input.device,
+            )
+            shard_size = divide(self.config.hidden_size, world_size)
+            shard_start = shard_size * get_tensor_model_parallel_rank()
+            shard_end = shard_start + shard_size
+            with torch.no_grad():
+                self.mix_coeff_input.copy_(mix_coeff_input.to(self.mix_coeff_input.dtype))
+                self.rho.copy_(rho_full[shard_start:shard_end].to(self.rho.dtype))
+                self.beta.copy_(beta_full[shard_start:shard_end].to(self.beta.dtype))
+                self.alpha.copy_(alpha_full[shard_start:shard_end].to(self.alpha.dtype))
     
 
     def forward(
@@ -648,6 +717,7 @@ class RWKV7ChannelMix(MegatronModule):
 
         args = get_args()
         use_te = args.transformer_impl == "transformer_engine" and HAVE_TE
+        self.layer_number = None
         self.mix_coeffs = torch.nn.Parameter( 
             torch.empty(config.hidden_size, device=torch.cuda.current_device())
         )
@@ -674,6 +744,19 @@ class RWKV7ChannelMix(MegatronModule):
             is_expert=False,
             tp_comm_buffer_name="cmix_down",
         )
+
+    def set_layer_number(self, layer_number: int):
+        self.layer_number = layer_number
+        if self.config.perform_initialization:
+            global_layer_id = layer_number - 1
+            init_tensor = _rwkv7_channel_mix_init_tensor(
+                hidden_size=self.config.hidden_size,
+                num_layers=self.config.num_layers,
+                global_layer_id=global_layer_id,
+                device=self.mix_coeffs.device,
+            )
+            with torch.no_grad():
+                self.mix_coeffs.copy_(init_tensor.to(self.mix_coeffs.dtype))
 
     def forward(self, hidden_states: Tensor):
         shifted_hidden_states = _token_shift(

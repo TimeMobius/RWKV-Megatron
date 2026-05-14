@@ -100,8 +100,8 @@ language_model:
   inference_rng_tracker: false
   use_custom_fsdp: false
   is_hybrid_model: false
-  D_AAA_LORA: 64
-  D_DECAY_LORA: 64
+  D_AAA_LORA: 96
+  D_DECAY_LORA: 96
   D_GATE_LORA: 256
   D_MV_LORA: 64
 

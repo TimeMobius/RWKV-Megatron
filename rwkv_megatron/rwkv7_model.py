@@ -249,10 +249,21 @@ class RWKV7Model(GPTModel):
             cmix: RWKV7ChannelMix = layer.mlp
             tmix: RWKV7TimeMix = layer.self_attention
 
+            def load_hf_lora_into_bottleneck(
+                bottleneck,
+                prefix: str,
+                bias_term: str | None,
+            ):
+                # HF stores LoRA as Linear(hidden -> rank) then Linear(rank -> hidden),
+                # while RWKV7Bottleneck keeps weights in einsum-friendly [hidden, rank]
+                # and [rank, hidden] layouts.
+                bottleneck.weight_down.copy_(hf_tmix(prefix + ".lora.0.weight").transpose(0, 1))
+                bottleneck.weight_up.copy_(hf_tmix(prefix + ".lora.2.weight").transpose(0, 1))
+                if bias_term is not None:
+                    bottleneck.bias.copy_(tp(hf_tmix(bias_term)))
+
             if i_layer != 0:
-                tmix.bottleneck_v.weight_down.copy_(hf_tmix("v_lora.lora.2.weight"))
-                tmix.bottleneck_v.weight_up.copy_(hf_tmix("v_lora.lora.0.weight"))
-                tmix.bottleneck_v.bias.copy_(tp(hf_tmix("v_lora.lora.2.bias"))) 
+                load_hf_lora_into_bottleneck(tmix.bottleneck_v, "v_lora", "v_lora.lora.2.bias")
 
             layer.input_layernorm.weight.copy_(hf_layer("attn_norm.weight") + norm_offset)
             layer.input_layernorm.bias.copy_(hf_layer("attn_norm.bias"))
@@ -260,16 +271,11 @@ class RWKV7Model(GPTModel):
             for i, name in enumerate("rwkvag"):
                 tmix.mix_coeff_input[i].copy_(hf_tmix("x_" + name).flatten())
 
-            tmix.bottleneck_learn.weight_down.copy_(hf_tmix("a_lora.lora.2.weight"))
-            tmix.bottleneck_learn.weight_up.copy_(hf_tmix("a_lora.lora.0.weight"))
-            tmix.bottleneck_learn.bias.copy_(tp(hf_tmix("a_lora.lora.2.bias")))
+            load_hf_lora_into_bottleneck(tmix.bottleneck_learn, "a_lora", "a_lora.lora.2.bias")
 
-            tmix.bottleneck_decay.weight_down.copy_(hf_tmix("w_lora.lora.2.weight"))
-            tmix.bottleneck_decay.weight_up.copy_(hf_tmix("w_lora.lora.0.weight"))
-            tmix.bottleneck_decay.bias.copy_(tp(hf_tmix("w_lora.lora.2.bias")))
+            load_hf_lora_into_bottleneck(tmix.bottleneck_decay, "w_lora", "w_lora.lora.2.bias")
 
-            tmix.bottleneck_gate.weight_down.copy_(hf_tmix("g_lora.lora.2.weight"))
-            tmix.bottleneck_gate.weight_up.copy_(hf_tmix("g_lora.lora.0.weight"))
+            load_hf_lora_into_bottleneck(tmix.bottleneck_gate, "g_lora", None)
             
             tmix.rho.copy_(tp(hf_tmix("r_k").flatten()))
             tmix.beta.copy_(tp(hf_tmix("k_k")))

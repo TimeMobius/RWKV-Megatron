@@ -10,13 +10,34 @@ Expected workflow:
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import torch
 from safetensors.torch import load_file
 
 
-HF_MODEL_DIR = Path(r"D:\fsdownload\RWKV7-Goose-World2.9-0.4B-HF")
+def _resolve_hf_model_dir() -> Path:
+    candidates = []
+    env_path = os.environ.get("RWKV7_HF_MODEL_DIR")
+    if env_path:
+        candidates.append(Path(env_path))
+    candidates.extend(
+        [
+            Path("/mnt/data/Models/Huggingface/RWKV7-Goose-World2.9-0.4B-HF"),
+            Path(r"D:\fsdownload\RWKV7-Goose-World2.9-0.4B-HF"),
+        ]
+    )
+    for candidate in candidates:
+        if (candidate / "model.safetensors").is_file():
+            return candidate
+    raise FileNotFoundError(
+        "Could not locate RWKV7 HF model. Set RWKV7_HF_MODEL_DIR or place the model "
+        "under /mnt/data/Models/Huggingface/RWKV7-Goose-World2.9-0.4B-HF."
+    )
+
+
+HF_MODEL_DIR = _resolve_hf_model_dir()
 
 
 def _hf_lora_reference(x: torch.Tensor, weight_0: torch.Tensor, weight_2: torch.Tensor) -> torch.Tensor:

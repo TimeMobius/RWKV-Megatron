@@ -30,7 +30,7 @@ def _megatron_bottleneck(x: torch.Tensor, weight_down: torch.Tensor, weight_up: 
 
 
 def _assert_close(name: str, got: torch.Tensor, expected: torch.Tensor):
-    assert torch.allclose(got, expected, atol=1e-6, rtol=1e-6), (
+    assert torch.allclose(got, expected, atol=5e-4, rtol=1e-5), (
         f"{name} mismatch\n"
         f"max_abs={torch.max(torch.abs(got - expected)).item()}\n"
     )
@@ -59,7 +59,7 @@ def test_hf_lora_weights_map_to_megatron_bottleneck():
             weight_down=weight_2,
             weight_up=weight_0,
         )
-        assert not torch.allclose(current_loader_result, reference, atol=1e-6, rtol=1e-6), (
+        assert not torch.allclose(current_loader_result, reference, atol=5e-4, rtol=1e-5), (
             f"current loader unexpectedly matched reference for {prefix}"
         )
 

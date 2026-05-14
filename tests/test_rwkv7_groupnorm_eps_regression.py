@@ -4,7 +4,7 @@ Regression test for RWKV7 GroupNorm epsilon handling.
 Expected workflow:
 1. Run this script before fixing rwkv7_layer_specs.py. It should fail because:
    - GroupNorm ignores the explicit eps argument
-   - RWKV7TimeMix passes layernorm_epsilon instead of head_dim * 1e-5
+   - RWKV7TimeMix passes layernorm_epsilon instead of head_dim * layernorm_epsilon
 2. After fixing both issues, this script should pass and confirm RWKV7 uses the
    official GroupNorm epsilon.
 """
@@ -135,11 +135,14 @@ def test_groupnorm_respects_explicit_eps_argument():
 def test_timemix_uses_official_groupnorm_eps():
     _, rwkv7_timemix_cls = _load_groupnorm_and_timemix()
     config = _build_config(hidden_size=768, num_heads=12)
-    expected_eps = (config.hidden_size // config.num_attention_heads) * 1e-5
+    expected_eps = (
+        config.hidden_size // config.num_attention_heads
+    ) * config.layernorm_epsilon
     with patch("torch.cuda.current_device", lambda: "cpu"):
         module = rwkv7_timemix_cls(config=config, layer_number=1)
     assert module.group_norm.eps == expected_eps, (
-        f"RWKV7TimeMix should use head_dim * 1e-5 = {expected_eps}, got {module.group_norm.eps}"
+        "RWKV7TimeMix should use "
+        f"head_dim * layernorm_epsilon = {expected_eps}, got {module.group_norm.eps}"
     )
 
 

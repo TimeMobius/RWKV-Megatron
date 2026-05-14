@@ -549,7 +549,10 @@ class RWKV7TimeMix(MegatronModule):
 
         self.core_attention = WKV7(config, layer_number)
 
-        group_norm_eps = divide(self.config.hidden_size, self.config.num_attention_heads) * 1e-5
+        group_norm_eps = (
+            divide(self.config.hidden_size, self.config.num_attention_heads)
+            * self.config.layernorm_epsilon
+        )
         self.group_norm = GroupNorm(
             num_groups=self.config.num_attention_heads,
             num_channels=self.config.hidden_size,

@@ -74,7 +74,9 @@ def _maybe_validate_rwkv7_runtime_checks(model: RWKV7Model) -> None:
     if os.environ.get("RWKV7_VALIDATE_GROUPNORM_EPS", "0") != "1":
         return
 
-    expected_eps = (model.config.hidden_size // model.config.num_attention_heads) * 1e-5
+    expected_eps = (
+        model.config.hidden_size // model.config.num_attention_heads
+    ) * model.config.layernorm_epsilon
     layers_start = model._get_layers_start()
 
     for i_local_layer, layer in enumerate(model.decoder.layers):
@@ -88,7 +90,8 @@ def _maybe_validate_rwkv7_runtime_checks(model: RWKV7Model) -> None:
             )
 
     print_rank_0(
-        f"RWKV7 runtime check passed: GroupNorm eps matches official head_dim * 1e-5 = {expected_eps}"
+        "RWKV7 runtime check passed: "
+        f"GroupNorm eps matches head_dim * layernorm_epsilon = {expected_eps}"
     )
 
 

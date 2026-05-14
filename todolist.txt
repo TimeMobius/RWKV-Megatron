@@ -45,6 +45,8 @@ HF / FLA 格式里，`lora.0.weight` 是第一层线性 `[rank, hidden]`，`lora
 `rwkv-huggingface` 路径加载出来的 `a/w/g/v` LoRA 分支函数是错的，虽然 tensor shape 恰好能对上，但实际计算图不等价。`rwkv-lm` 加载路径看起来是正常的，因此这是一个特定于 HF 路径的正确性 bug。
 解决方案:
 重新核对自定义 `weight_down` / `weight_up` 的数学定义，再按 HF 权重语义做正确映射和必要转置。修完后建议用同一组 checkpoint 分别走 HF 路径和官方实现做前向对拍，确认 LoRA 分支输出一致。
+补充说明:
+HF / FLA 这边的 `lora.0.weight` 与 `lora.2.weight` 看起来像是和 `pth` 里的 `a1/a2`、`w1/w2` 顺序相反，但本质上不是“保存错了顺序”，而是 `nn.Linear(in_features, out_features)` 在 PyTorch 里把 `weight` 按 `[out_features, in_features]` 存储。也就是说，HF 里第一层 `hidden -> rank` 的线性层保存出来就是 `[rank, hidden]`，第二层 `rank -> hidden` 保存出来就是 `[hidden, rank]`。因此从 HF 导入到 Megatron 自定义 bottleneck（其 `weight_down` / `weight_up` 使用的是手写矩阵乘法所需的 `[hidden, rank]` / `[rank, hidden]` 布局）时，必须做一次转置，而不是直接拷贝。
 
 5. 修复自定义 GroupNorm 忽略传入 eps 的问题
 优先级: P2
@@ -67,3 +69,21 @@ HF / FLA 格式里，`lora.0.weight` 是第一层线性 `[rank, hidden]`，`lora
 二选一处理即可：
 1. 如果短期不打算支持这个路径，就显式抛出清晰错误，说明当前只支持某一种 reference model。
 2. 如果要支持，就构造一个真正可调用的官方 reference model 对象，而不是只保存 state dict，并让 `forward()` 的 debug 分支只依赖统一接口。
+
+7. 修复 sequence parallel 与 pipeline parallel 叠加时 v0 传递协议不一致的问题
+优先级: P1
+位置:
+- rwkv_megatron/rwkv7_layer_specs.py:550-593, 633-637
+- 3rdparty/Megatron-LM-0.11.0/megatron/core/transformer/transformer_layer.py:384-415, 472-480
+- 3rdparty/Megatron-LM-0.11.0/megatron/core/pipeline_parallel/schedules.py:1533-1536
+问题:
+当前代码在 sequence parallel 下对 `v0` / `v_first` 使用了两套不同语义：
+1. 在单个 PP stage 内，`RWKV7TimeMix` 首层通过 `gather_from_tensor_model_parallel_region(value)` 生成的是“本 rank 的 local sequence + full hidden”的 `v0`，后续层再按 hidden shard 切回 `v0_shard`，这一套对 `PP=1` 是自洽的。
+2. 但为了跨 pipeline stage 传递，`schedules.py` 又把 SP 情况的中间激活 shape 改成了 `(1 + TP, seq/TP, batch, hidden)`，等价于把 `v0` 当成了“包含所有 TP sequence chunk 的 full-sequence cache”。
+`TransformerLayer` / `RWKV7TimeMix` 在收到这种输入后会把 `hidden_states[1:]` 展平成 `(TP * local_seq, batch, hidden)`，随后 `v0_shard = v0[:, :, start_idx:end_idx]` 的 token 维就变成了 full sequence，而本层 `value` 仍然是 local sequence，和 `torch.lerp(value, v0_shard, vt)` 需要的 shape / 语义不一致。
+影响:
+当 `sequence_parallel=True` 且 `pipeline_model_parallel_size > 1` 时，`v0` 的跨 stage 传递和再切分逻辑不正确，轻则在 value residual 混合处直接 shape 不匹配，重则 silent misalignment，导致后续层拿到错误的 `v_first`。
+解决方案:
+需要统一 `v0` 在 SP 下的唯一表示方式，建议二选一：
+1. 推荐方案：始终只携带“local sequence + full hidden”的 `v0`。这样单 stage 内和跨 PP stage 都维持 `(2, local_seq, batch, hidden)` 或等价结构，`RWKV7TimeMix` 不再把 `v0` 展平成 full sequence，`schedules.py` 也不应使用 `(1 + TP, ...)`。
+2. 备选方案：如果坚持跨 stage 传 full sequence，那么后续 stage 的 TimeMix 也必须把本层 `value`、`vt` 和所有依赖 token 维的逻辑同步扩成 full sequence 语义，这会显著增加复杂度，而且与当前 SP 设计不一致。

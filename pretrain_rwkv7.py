@@ -69,6 +69,29 @@ from rwkv_megatron.rwkv7_model import RWKV7Model
 stimer = StragglerDetector()
 
 
+def _maybe_validate_rwkv7_runtime_checks(model: RWKV7Model) -> None:
+    """Run opt-in runtime assertions for real training launches."""
+    if os.environ.get("RWKV7_VALIDATE_GROUPNORM_EPS", "0") != "1":
+        return
+
+    expected_eps = (model.config.hidden_size // model.config.num_attention_heads) * 1e-5
+    layers_start = model._get_layers_start()
+
+    for i_local_layer, layer in enumerate(model.decoder.layers):
+        tmix = layer.self_attention
+        actual_eps = tmix.group_norm.eps
+        if not math.isclose(actual_eps, expected_eps, rel_tol=0.0, abs_tol=1e-12):
+            raise AssertionError(
+                "RWKV7 GroupNorm eps mismatch at "
+                f"global layer {layers_start + i_local_layer}: "
+                f"expected {expected_eps}, got {actual_eps}"
+            )
+
+    print_rank_0(
+        f"RWKV7 runtime check passed: GroupNorm eps matches official head_dim * 1e-5 = {expected_eps}"
+    )
+
+
 def model_provider(pre_process=True, post_process=True) -> GPTModel:
     """
     RWKV7模型提供者，负责构建和初始化模型实例
@@ -172,6 +195,8 @@ def model_provider(pre_process=True, post_process=True) -> GPTModel:
                     print(f"{BLUE}{name:>80}{RESET}{str(list(param.shape)):>20}")
             torch.distributed.barrier()
         exit(0)
+
+    _maybe_validate_rwkv7_runtime_checks(model)
 
     return model
 

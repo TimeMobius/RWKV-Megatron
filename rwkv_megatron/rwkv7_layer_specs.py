@@ -163,7 +163,7 @@ class GroupNorm(MegatronModule):
         self.num_channels = num_channels
         self.num_local_channels = divide(num_channels, world_size)
 
-        self.eps = config.layernorm_epsilon
+        self.eps = eps
 
         self.weight = torch.nn.Parameter(
             torch.empty(self.num_local_channels, device=torch.cuda.current_device())
@@ -549,10 +549,11 @@ class RWKV7TimeMix(MegatronModule):
 
         self.core_attention = WKV7(config, layer_number)
 
+        group_norm_eps = divide(self.config.hidden_size, self.config.num_attention_heads) * 1e-5
         self.group_norm = GroupNorm(
             num_groups=self.config.num_attention_heads,
             num_channels=self.config.hidden_size,
-            eps=self.config.layernorm_epsilon,
+            eps=group_norm_eps,
             config=self.config,
         )
         self.linear_proj = (TERowParallelLinear if use_te else RowParallelLinear)(

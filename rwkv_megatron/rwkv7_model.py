@@ -303,6 +303,14 @@ class RWKV7Model(GPTModel):
 
     @torch.no_grad
     def from_rwkv_lm(self, state_dict, check_against_pretrained: bool):
+        if check_against_pretrained:
+            raise NotImplementedError(
+                "RWKV7 check_against_pretrained is only supported for rwkv-huggingface "
+                "reference models. The rwkv-lm path only provides a state_dict and does "
+                "not construct the callable reference model required by the debug "
+                "comparison hooks."
+            )
+
         layers_start = self._get_layers_start()
         tp_rank = get_tensor_model_parallel_rank()
         tp_size = get_tensor_model_parallel_world_size()
@@ -387,7 +395,3 @@ class RWKV7Model(GPTModel):
             cmix.linear_up.weight.copy_(tp(hf_cmix("key.weight"), 0))
             cmix.linear_down.weight.copy_(tp(hf_cmix("value.weight"), 1))
 
-        if check_against_pretrained:
-            assert self.pre_process and self.post_process
-            self.check_against_pretrained = True
-            self.ground_truth_model_closure = lambda: state_dict

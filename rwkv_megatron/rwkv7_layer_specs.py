@@ -96,6 +96,40 @@ def _rwkv7_probe_rank_filter():
     return ranks if ranks else None
 
 
+def _rwkv7_probe_pp_filter():
+    raw = os.getenv("RWKV7_DEBUG_V0_PROBE_PP_RANKS", "").strip()
+    if not raw:
+        return None
+
+    ranks = set()
+    for item in raw.split(","):
+        item = item.strip()
+        if not item:
+            continue
+        try:
+            ranks.add(int(item))
+        except ValueError:
+            continue
+    return ranks if ranks else None
+
+
+def _rwkv7_probe_layer_filter():
+    raw = os.getenv("RWKV7_DEBUG_V0_PROBE_LAYERS", "").strip()
+    if not raw:
+        return None
+
+    layers = set()
+    for item in raw.split(","):
+        item = item.strip()
+        if not item:
+            continue
+        try:
+            layers.add(int(item))
+        except ValueError:
+            continue
+    return layers if layers else None
+
+
 _RWKV7_PROBE_COUNTS = {}
 
 
@@ -114,6 +148,12 @@ def _rwkv7_probe_message(tag: str, *, layer_number: int, tp_rank: int, pp_rank: 
     rank = dist.get_rank() if dist.is_available() and dist.is_initialized() else 0
     rank_filter = _rwkv7_probe_rank_filter()
     if rank_filter is not None and rank not in rank_filter:
+        return
+    pp_filter = _rwkv7_probe_pp_filter()
+    if pp_filter is not None and pp_rank not in pp_filter:
+        return
+    layer_filter = _rwkv7_probe_layer_filter()
+    if layer_filter is not None and layer_number not in layer_filter:
         return
 
     key = (tag, rank, pp_rank, tp_rank, layer_number)

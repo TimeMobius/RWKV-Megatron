@@ -107,7 +107,7 @@ def later_stage_mix_value_sp(
     pp_rank: int,
 ):
     """Emulate the SP later-stage branch in RWKV7TimeMix.forward()."""
-    assert v0_full_sequence_full_hidden.shape[1:] == local_value_shard.shape[1:]
+    assert v0_full_sequence_full_hidden.shape[:2] == local_value_shard.shape[:2]
 
     if pp_rank == 0 and layer_number == 1:
         raise ValueError("v0 is not None for the first layer")

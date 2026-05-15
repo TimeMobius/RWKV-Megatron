@@ -1,4 +1,3 @@
-import os
 from dataclasses import dataclass
 from typing import Optional, Tuple
 
@@ -65,119 +64,6 @@ except ImportError:
     HAVE_TE = False
 from megatron.core import parallel_state
 from megatron.training import print_rank_0
-
-
-def _rwkv7_probe_enabled() -> bool:
-    return os.getenv("RWKV7_DEBUG_V0_PROBE", "").lower() in {"1", "true", "yes", "on"}
-
-
-def _rwkv7_probe_max_hits() -> int:
-    raw = os.getenv("RWKV7_DEBUG_V0_PROBE_MAX_HITS", "8")
-    try:
-        return max(1, int(raw))
-    except ValueError:
-        return 8
-
-
-def _rwkv7_probe_rank_filter():
-    raw = os.getenv("RWKV7_DEBUG_V0_PROBE_RANKS", "").strip()
-    if not raw:
-        return None
-
-    ranks = set()
-    for item in raw.split(","):
-        item = item.strip()
-        if not item:
-            continue
-        try:
-            ranks.add(int(item))
-        except ValueError:
-            continue
-    return ranks if ranks else None
-
-
-def _rwkv7_probe_pp_filter():
-    raw = os.getenv("RWKV7_DEBUG_V0_PROBE_PP_RANKS", "").strip()
-    if not raw:
-        return None
-
-    ranks = set()
-    for item in raw.split(","):
-        item = item.strip()
-        if not item:
-            continue
-        try:
-            ranks.add(int(item))
-        except ValueError:
-            continue
-    return ranks if ranks else None
-
-
-def _rwkv7_probe_layer_filter():
-    raw = os.getenv("RWKV7_DEBUG_V0_PROBE_LAYERS", "").strip()
-    if not raw:
-        return None
-
-    layers = set()
-    for item in raw.split(","):
-        item = item.strip()
-        if not item:
-            continue
-        try:
-            layers.add(int(item))
-        except ValueError:
-            continue
-    return layers if layers else None
-
-
-_RWKV7_PROBE_COUNTS = {}
-
-
-def _rwkv7_probe_shape(value):
-    if value is None:
-        return None
-    if isinstance(value, torch.Tensor):
-        return tuple(value.shape)
-    return value
-
-
-def _rwkv7_probe_message(tag: str, *, layer_number: int, tp_rank: int, pp_rank: int, **values) -> None:
-    if not _rwkv7_probe_enabled():
-        return
-
-    rank = dist.get_rank() if dist.is_available() and dist.is_initialized() else 0
-    rank_filter = _rwkv7_probe_rank_filter()
-    if rank_filter is not None and rank not in rank_filter:
-        return
-    pp_filter = _rwkv7_probe_pp_filter()
-    if pp_filter is not None and pp_rank not in pp_filter:
-        return
-    layer_filter = _rwkv7_probe_layer_filter()
-    if layer_filter is not None and layer_number not in layer_filter:
-        return
-
-    key = (tag, rank, pp_rank, tp_rank, layer_number)
-    current = _RWKV7_PROBE_COUNTS.get(key, 0)
-    if current >= _rwkv7_probe_max_hits():
-        return
-    _RWKV7_PROBE_COUNTS[key] = current + 1
-
-    parts = [
-        f"tag={tag}",
-        f"rank={rank}",
-        f"pp_rank={pp_rank}",
-        f"tp_rank={tp_rank}",
-        f"layer={layer_number}",
-    ]
-    for name, value in values.items():
-        if isinstance(value, torch.Tensor):
-            parts.append(
-                f"{name}.shape={tuple(value.shape)}"
-            )
-            parts.append(f"{name}.dtype={value.dtype}")
-        else:
-            parts.append(f"{name}={value}")
-    print("[RWKV7_V0_PROBE] " + " | ".join(parts), flush=True)
 
 def get_fp8_recipe():
     # 获取同时包含 TP 和 DP 的通信组 (排除 PP)
@@ -736,17 +622,7 @@ class RWKV7TimeMix(MegatronModule):
         v0 = None
         if len(hidden_states.shape) == 4:
             if self.config.sequence_parallel:
-                packed_hidden_states = hidden_states
                 hidden_states, v0 = hidden_states[0], rearrange(hidden_states[1:], 'n t b d -> (n t) b d')
-                _rwkv7_probe_message(
-                    "sp_unpack",
-                    layer_number=self.layer_number,
-                    tp_rank=tp_rank,
-                    pp_rank=pp_rank,
-                    packed_hidden_states=packed_hidden_states,
-                    hidden_states=hidden_states,
-                    v0=v0,
-                )
             else:
                 hidden_states, v0 = hidden_states[0], hidden_states[1]
 
@@ -775,14 +651,6 @@ class RWKV7TimeMix(MegatronModule):
 
         if v0 is None and self.layer_number == 1 and pp_rank == 0:
             v0 = gather_from_tensor_model_parallel_region(value)
-            _rwkv7_probe_message(
-                "stage0_build_v0",
-                layer_number=self.layer_number,
-                tp_rank=tp_rank,
-                pp_rank=pp_rank,
-                value=value,
-                gathered_v0=v0,
-            )
 
         elif v0 is not None:
             if pp_rank == 0 and self.layer_number == 1: 
@@ -791,29 +659,6 @@ class RWKV7TimeMix(MegatronModule):
             start_idx = tp_rank * shard_size
             end_idx = start_idx + shard_size
             v0_shard = v0[:, :, start_idx:end_idx]
-
-            _rwkv7_probe_message(
-                "before_v0_mix",
-                layer_number=self.layer_number,
-                tp_rank=tp_rank,
-                pp_rank=pp_rank,
-                value=value,
-                v0=v0,
-                v0_shard=v0_shard,
-                shard_range=(start_idx, end_idx),
-            )
-
-            if value.shape != v0_shard.shape:
-                raise RuntimeError(
-                    "RWKV7 SP/PP v0 mismatch before lerp: "
-                    f"rank={dist.get_rank() if dist.is_available() and dist.is_initialized() else 0}, "
-                    f"pp_rank={pp_rank}, tp_rank={tp_rank}, layer={self.layer_number}, "
-                    f"value_shape={tuple(value.shape)}, "
-                    f"v0_shape={tuple(v0.shape)}, "
-                    f"v0_shard_shape={tuple(v0_shard.shape)}, "
-                    f"shard_range=({start_idx}, {end_idx}), "
-                    f"sequence_parallel={self.config.sequence_parallel}"
-                )
 
             vt = torch.sigmoid(self.bottleneck_v(mixed_value.contiguous()))
             # value = value + (v0_shard - value) * vt
@@ -862,14 +707,6 @@ class RWKV7TimeMix(MegatronModule):
             # reshape v0 to match output shape
             # v0 = v0.reshape(-1, output.shape[0], output.shape[1], output.shape[2])
             v0  = rearrange(v0, '(n t) b d -> n t b d', t=output.shape[0])
-            _rwkv7_probe_message(
-                "sp_repack",
-                layer_number=self.layer_number,
-                tp_rank=tp_rank,
-                pp_rank=pp_rank,
-                output=output,
-                repacked_v0=v0,
-            )
             output = torch.cat([output.unsqueeze(0), v0], dim=0)
         else:
             if v0.shape != output.shape:

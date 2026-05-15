@@ -74,9 +74,16 @@ def stage0_build_v0_sp(gathered_full_sequence_full_hidden: torch.Tensor):
     return v0
 
 
-def transformer_layer_pack_sp(hidden_states: torch.Tensor, v0_per_tp_rank: list[torch.Tensor]):
+def transformer_layer_pack_sp(
+    hidden_states: torch.Tensor, v0_full_sequence_full_hidden: torch.Tensor
+):
     """Emulate TransformerLayer's SP pack protocol with one v0 cache slot per TP rank."""
-    return torch.cat([hidden_states.unsqueeze(0), *[v.unsqueeze(0) for v in v0_per_tp_rank]], dim=0)
+    local_seq = hidden_states.shape[0]
+    v0_slots = list(v0_full_sequence_full_hidden.split(local_seq, dim=0))
+    return torch.cat(
+        [hidden_states.unsqueeze(0), *[slot.unsqueeze(0) for slot in v0_slots]],
+        dim=0,
+    )
 
 
 def timemix_unpack_sp(packed_hidden_states: torch.Tensor):
@@ -150,14 +157,8 @@ def test_sp_transformer_layer_protocol_keeps_local_sequence_v0_contract():
     rank0_v0 = stage0_build_v0_sp(rank0_full_seq_v0_full_hidden)
     rank1_v0 = stage0_build_v0_sp(rank1_full_seq_v0_full_hidden)
 
-    packed_rank0 = transformer_layer_pack_sp(
-        rank0_stage0_hidden,
-        [rank0_v0[0], rank0_v0[1]],
-    )
-    packed_rank1 = transformer_layer_pack_sp(
-        rank1_stage0_hidden,
-        [rank1_v0[0], rank1_v0[1]],
-    )
+    packed_rank0 = transformer_layer_pack_sp(rank0_stage0_hidden, rank0_v0)
+    packed_rank1 = transformer_layer_pack_sp(rank1_stage0_hidden, rank1_v0)
 
     assert packed_rank0.shape == (1 + TP_SIZE, 1, 1, HIDDEN)
     assert packed_rank1.shape == (1 + TP_SIZE, 1, 1, HIDDEN)
@@ -188,13 +189,13 @@ def test_sp_transformer_layer_protocol_keeps_local_sequence_v0_contract():
     assert torch.equal(mixed0, shard0)
     assert torch.equal(mixed1, shard1)
 
-    repacked_rank0 = transformer_layer_pack_sp(unpacked_hidden0, [unpacked_v00[0], unpacked_v00[1]])
-    repacked_rank1 = transformer_layer_pack_sp(unpacked_hidden1, [unpacked_v01[0], unpacked_v01[1]])
+    repacked_rank0 = transformer_layer_pack_sp(unpacked_hidden0, unpacked_v00)
+    repacked_rank1 = transformer_layer_pack_sp(unpacked_hidden1, unpacked_v01)
 
     assert repacked_rank0.shape == (1 + TP_SIZE, 1, 1, HIDDEN)
     assert repacked_rank1.shape == (1 + TP_SIZE, 1, 1, HIDDEN)
-    assert torch.equal(repacked_rank0[1:], rank0_full_seq_v0_full_hidden)
-    assert torch.equal(repacked_rank1[1:], rank1_full_seq_v0_full_hidden)
+    assert torch.equal(repacked_rank0[1:], rank0_full_seq_v0_full_hidden.unsqueeze(1))
+    assert torch.equal(repacked_rank1[1:], rank1_full_seq_v0_full_hidden.unsqueeze(1))
 
 
 if __name__ == "__main__":

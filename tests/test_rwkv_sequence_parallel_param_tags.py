@@ -19,7 +19,6 @@ import torch
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-RWKV6_PATH = REPO_ROOT / "rwkv_megatron" / "rwkv6_layer_specs.py"
 RWKV7_PATH = REPO_ROOT / "rwkv_megatron" / "rwkv7_layer_specs.py"
 
 
@@ -119,15 +118,6 @@ def test_rwkv7_channelmix_marks_mix_coeffs_sequence_parallel():
     assert getattr(module.mix_coeffs, "sequence_parallel", False) is True
 
 
-def test_rwkv6_channelmix_marks_mix_coeffs_sequence_parallel():
-    namespace = _load_selected_defs(RWKV6_PATH, ["RWKV6ChannelMix"])
-    module_cls = namespace["RWKV6ChannelMix"]
-    config = _build_config()
-    with patch("torch.cuda.current_device", lambda: "cpu"):
-        module = module_cls(config)
-    assert getattr(module.mix_coeffs, "sequence_parallel", False) is True
-
-
 def test_rwkv7_bottleneck_marks_non_tp_bias_sequence_parallel():
     namespace = _load_selected_defs(RWKV7_PATH, ["RWKV7Bottleneck"])
     module_cls = namespace["RWKV7Bottleneck"]
@@ -137,27 +127,14 @@ def test_rwkv7_bottleneck_marks_non_tp_bias_sequence_parallel():
     assert getattr(module.bias, "sequence_parallel", False) is True
 
 
-def test_rwkv6_bottleneck_marks_non_tp_bias_sequence_parallel():
-    namespace = _load_selected_defs(RWKV6_PATH, ["RWKV6Bottleneck"])
-    module_cls = namespace["RWKV6Bottleneck"]
+def test_rwkv7_bottleneck_weights_stay_sequence_parallel():
+    namespace = _load_selected_defs(RWKV7_PATH, ["RWKV7Bottleneck"])
+    module_cls = namespace["RWKV7Bottleneck"]
     config = _build_config()
     with patch("torch.cuda.current_device", lambda: "cpu"):
-        module = module_cls(config, bottleneck_size=4, expansion=2, to_tensor_parallel=False)
-    assert getattr(module.bias, "sequence_parallel", False) is True
-
-
-def test_rwkv6_and_rwkv7_bottleneck_weights_stay_sequence_parallel():
-    for path, class_name, kwargs in (
-        (RWKV6_PATH, "RWKV6Bottleneck", dict(bottleneck_size=4, expansion=2, to_tensor_parallel=True)),
-        (RWKV7_PATH, "RWKV7Bottleneck", dict(bottleneck_size=4, to_tensor_parallel=True, use_bias=True)),
-    ):
-        namespace = _load_selected_defs(path, [class_name])
-        module_cls = namespace[class_name]
-        config = _build_config()
-        with patch("torch.cuda.current_device", lambda: "cpu"):
-            module = module_cls(config, **kwargs)
-        assert getattr(module.weight_up, "sequence_parallel", False) is True
-        assert getattr(module.weight_down, "sequence_parallel", False) is True
+        module = module_cls(config, bottleneck_size=4, to_tensor_parallel=True, use_bias=True)
+    assert getattr(module.weight_up, "sequence_parallel", False) is True
+    assert getattr(module.weight_down, "sequence_parallel", False) is True
 
 
 if __name__ == "__main__":

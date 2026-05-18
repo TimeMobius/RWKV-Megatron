@@ -168,7 +168,9 @@ class RWKV6Bottleneck(MegatronModule):
                     device=torch.cuda.current_device(),
                 )
             )
-            setattr(self.bias, "sequence_parallel", self.config.sequence_parallel)
+            setattr(
+                self.weight_down, "sequence_parallel", self.config.sequence_parallel
+            )
 
         if config.perform_initialization:
             torch.nn.init.uniform_(self.weight_down, -1e-4, 1e-4)
@@ -507,7 +509,6 @@ class RWKV6ChannelMix(MegatronModule):
         self.mix_coeffs = torch.nn.Parameter(
             torch.empty(2, config.hidden_size, device=torch.cuda.current_device())
         )
-        setattr(self.mix_coeffs, "sequence_parallel", self.config.sequence_parallel)
         self.linear_up = ColumnParallelLinear(
             self.config.hidden_size,
             self.config.ffn_hidden_size,

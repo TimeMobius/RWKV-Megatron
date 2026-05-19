@@ -171,12 +171,19 @@ def main(args):
 
     # 加载样本模型（仅提取 args 和 model）
     input_model_dir = os.path.join(args.load_dir, f'iter_{iteration:07d}')
-    input_sub_models = os.listdir(input_model_dir)
+    input_sub_models = sorted(
+        entry
+        for entry in os.listdir(input_model_dir)
+        if entry.startswith("mp_rank_")
+        and os.path.isdir(os.path.join(input_model_dir, entry))
+    )
+    if not input_sub_models:
+        raise Exception(f"No mp_rank_* checkpoint shards found under {input_model_dir}")
+
     sample_model_file = os.path.join(input_model_dir, input_sub_models[0], "model_optim_rng.pt")
     try:
         sample_model = torch.load(sample_model_file, map_location='cpu', weights_only=False)  # 加载整个检查点
         sample_args = sample_model['args']
-        sample_model_weights = sample_model['model']
         del sample_model  # 释放内存
     except Exception as e:
         raise Exception(f"Failed to load sample model {sample_model_file}: {str(e)}")

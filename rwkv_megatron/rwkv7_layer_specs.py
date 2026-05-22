@@ -712,6 +712,33 @@ class RWKV7TimeMix(MegatronModule):
             output = torch.stack([output, v0], dim=0)
         return output, bias
 
+    def sharded_state_dict(
+        self,
+        prefix: str = "",
+        sharded_offsets: Tuple[Tuple[int, int, int]] = (),
+        metadata: Optional[dict] = None,
+    ) -> ShardedStateDict:
+        """Mark TP-sharded local parameters before recursing into child modules."""
+        sharded_state_dict = {}
+        self._save_to_state_dict(sharded_state_dict, "", keep_vars=True)
+        sharded_state_dict = make_sharded_tensors_for_checkpoint(
+            sharded_state_dict,
+            prefix,
+            {
+                "rho": 0,
+                "beta": 0,
+                "alpha": 0,
+            },
+            sharded_offsets,
+        )
+        for name, module in self.named_children():
+            sharded_state_dict.update(
+                sharded_state_dict_default(
+                    module, f"{prefix}{name}.", sharded_offsets, metadata
+                )
+            )
+        return sharded_state_dict
+
 
 class RWKV7ChannelMix(MegatronModule):
     def __init__(self, config: TransformerConfig):

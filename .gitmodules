@@ -1,8 +1,8 @@
 [submodule "3rdparty/flash-linear-attention-260115"]
 	path = 3rdparty/flash-linear-attention-260115
-	url = https://github.com/shiroko98/flash-linear-attention.git
+	url = ../flash-linear-attention.git
 	branch = muon
 [submodule "3rdparty/Megatron-LM-0.11.0"]
 	path = 3rdparty/Megatron-LM-0.11.0
-	url = https://github.com/shiroko98/Megatron-LM-RWKV7.git
+	url = ../Megatron-LM-RWKV7.git
 	branch = muon

@@ -34,6 +34,8 @@ def main():
     parser.add_argument('--result-tag',default='')
     parser.add_argument('--capture-output',help='Optional audit capture basename (stored under the audit directory)')
     parser.add_argument('--capture-core-gradients',action='store_true')
+    parser.add_argument('--audit-v0-edges',action='store_true')
+    parser.add_argument('--split-value-reference',action='store_true')
     parser.add_argument('--shared-pointops',action='store_true')
     parser.add_argument('--te-final-reference',action='store_true')
     parser.add_argument('--carrier-chain-reference',action='store_true')
@@ -99,7 +101,12 @@ def main():
         handles.append(layer.self_attention.register_forward_hook(hook(f'{index}.att',lambda t:t[0].transpose(0,1))))
         handles.append(layer.register_forward_hook(hook(f'{index}.hidden',lambda t:t[0].transpose(0,1))))
     logits=model(x,torch.arange(x.shape[1],device=x.device).expand_as(x),None)
-    loss=F.cross_entropy(logits.float().reshape(-1,dim['vocab']),y.reshape(-1));loss.backward()
+    loss=F.cross_entropy(logits.float().reshape(-1,dim['vocab']),y.reshape(-1))
+    if args.audit_v0_edges:
+        from v0_edges import V0Edges, summarize
+        edge_audit=V0Edges(loss,retained['0.v-raw'][0])
+    loss.backward()
+    if args.audit_v0_edges:actual_edges=edge_audit.finish()
     selected=None
     if args.full and not args.all_gradients:
         selected={'blocks.0.att.value.weight','blocks.0.ln0.weight','blocks.0.ln0.bias','ln_out.weight','ln_out.bias'}
@@ -124,9 +131,11 @@ def main():
     retained.clear()
     for handle in handles:handle.remove()
     del logits,loss,model;gc.collect();torch.cuda.empty_cache()
-    reference=NativeReference(state,dtype,core=args.reference_core,aligned=args.aligned_reference,apex_norms=args.apex_reference_norms,shared_pointops=args.shared_pointops,te_final=args.te_final_reference,carrier_chain=args.carrier_chain_reference,te_norms=args.te_reference_norms)
+    reference=NativeReference(state,dtype,core=args.reference_core,aligned=args.aligned_reference,apex_norms=args.apex_reference_norms,shared_pointops=args.shared_pointops,te_final=args.te_final_reference,carrier_chain=args.carrier_chain_reference,te_norms=args.te_reference_norms,split_value_views=args.split_value_reference)
     ref_logits=reference(x);ref_loss=F.cross_entropy(ref_logits.float().reshape(-1,dim['vocab']),y.reshape(-1))
+    if args.audit_v0_edges:edge_audit=V0Edges(ref_loss,reference.v_first)
     ref_loss.backward();ref_grad=reference.native_gradients(selected)
+    if args.audit_v0_edges:reference_edges=edge_audit.finish()
     trace_metrics={k:metric(v,reference.trace[k]) for k,v in trace.items() if k in reference.trace}
     gradient_trace={k:metric(v,(reference.live[k].grad.transpose(0,1) if args.aligned_reference else reference.live[k].grad).detach().cpu()) for k,v in actual_grad_trace.items() if k in reference.live and reference.live[k].grad is not None}
     grad_metrics={k:metric(actual_grad[k],v) for k,v in ref_grad.items()}
@@ -142,6 +151,10 @@ def main():
     name+=('-all-gradients' if args.all_gradients else '')
     name+=('-torch-norms' if args.torch_norms else '')+('-aligned' if args.aligned_reference else '')+('-apex' if args.apex_reference_norms else '')+('-shared-pointops' if args.shared_pointops else '')+('-te-final' if args.te_final_reference else '')+('-carrier-chain' if args.carrier_chain_reference else '')
     name+=('-te-norms' if args.te_reference_norms else '')+args.result_tag
+    name+=('-split-value' if args.split_value_reference else '')
+    if args.audit_v0_edges:
+        result['v0_edges']={'actual':summarize(actual_edges),'reference':summarize(reference_edges)}
+        torch.save({'actual':actual_edges,'reference':reference_edges},PATH/(name+'-v0-edges.pth'))
     (PATH/(name+'.json')).write_text(json.dumps(result,indent=2)+'\n')
     print('SINGLE RESULT',name,'losses',actual_loss,ref_loss.item(),'logits',result['logits'],flush=True)
     print('FIRST TRACES',list(trace_metrics.items())[:5],flush=True)

@@ -1,0 +1,205 @@
+{
+  "observer_matches_previous_uninstrumented_run": true,
+  "later_layers_with_exact_v0_branch_gradients": 31,
+  "future_gradient_exact": true,
+  "local_two_branch_sum_exact": true,
+  "both_totals_reconstructed_bit_exact_by_addition_grouping": true,
+  "baseline_v0_difference": {
+    "max_abs": 0.00390625,
+    "relative_l2": 0.001942962593647095,
+    "reference_l2": 6.671825922633678,
+    "actual_l2": 6.671545995071794,
+    "finite": true
+  },
+  "accumulation": {
+    "actual": {
+      "source_edges_in_execution_order": [
+        "StackBackward0",
+        "ViewBackward0",
+        "ViewBackward0"
+      ],
+      "total_vs_fp64_sum": {
+        "max_abs": 0.001953125,
+        "relative_l2": 0.0018105703703297513,
+        "reference_l2": 6.671777715927759,
+        "actual_l2": 6.671545995071794,
+        "finite": true
+      },
+      "total_matches_execution_order_sum": true,
+      "permutation_matches": [
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          1,
+          0,
+          2
+        ]
+      ],
+      "later_layer_branches": 31,
+      "future_vs_fp64_branch_sum": {
+        "max_abs": 0.0020949351601302624,
+        "relative_l2": 0.005807202093389999,
+        "reference_l2": 5.948539946039922,
+        "actual_l2": 5.948799002787098,
+        "finite": true
+      },
+      "future_matches_reverse_layer_bf16_sum": true,
+      "total_vs_fp64_all_branch_sum": {
+        "max_abs": 0.002600729465484619,
+        "relative_l2": 0.005452867737183402,
+        "reference_l2": 6.671557701222929,
+        "actual_l2": 6.671545995071794,
+        "finite": true
+      },
+      "one_final_bf16_round_vs_fp64_all_branch_sum": {
+        "max_abs": 0.0016051940619945526,
+        "relative_l2": 0.0016475108737054385,
+        "reference_l2": 6.671557701222929,
+        "actual_l2": 6.6718146530840094,
+        "finite": true
+      }
+    },
+    "reference": {
+      "source_edges_in_execution_order": [
+        "StackBackward0",
+        "ViewBackward0"
+      ],
+      "total_vs_fp64_sum": {
+        "max_abs": 0.001953125,
+        "relative_l2": 0.0016111361205070403,
+        "reference_l2": 6.671718515670771,
+        "actual_l2": 6.671825922633678,
+        "finite": true
+      },
+      "total_matches_execution_order_sum": true,
+      "permutation_matches": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      "later_layer_branches": 31,
+      "future_vs_fp64_branch_sum": {
+        "max_abs": 0.0020949351601302624,
+        "relative_l2": 0.005807202093389999,
+        "reference_l2": 5.948539946039922,
+        "actual_l2": 5.948799002787098,
+        "finite": true
+      },
+      "future_matches_reverse_layer_bf16_sum": true,
+      "total_vs_fp64_all_branch_sum": {
+        "max_abs": 0.002593100070953369,
+        "relative_l2": 0.0054235414571755704,
+        "reference_l2": 6.671498421177234,
+        "actual_l2": 6.671825922633678,
+        "finite": true
+      },
+      "one_final_bf16_round_vs_fp64_all_branch_sum": {
+        "max_abs": 0.0018843617290258408,
+        "relative_l2": 0.0016574342763117044,
+        "reference_l2": 6.671498421177234,
+        "actual_l2": 6.671865815310614,
+        "finite": true
+      }
+    }
+  },
+  "fixed_33_branch_sum": {
+    "actual_vs_fp64": {
+      "max_abs": 0.002600729465484619,
+      "relative_l2": 0.005452867737183402,
+      "reference_l2": 6.671557701222929,
+      "actual_l2": 6.671545995071794,
+      "finite": true
+    },
+    "reference_vs_fp64": {
+      "max_abs": 0.002600729465484619,
+      "relative_l2": 0.005463072665046444,
+      "reference_l2": 6.671557701222929,
+      "actual_l2": 6.671825922633678,
+      "finite": true
+    },
+    "fp32_sum_vs_fp64": {
+      "max_abs": 4.0978193283081055e-08,
+      "relative_l2": 3.2031410053644425e-08,
+      "reference_l2": 6.671557701222929,
+      "actual_l2": 6.671557701959624,
+      "finite": true
+    },
+    "fp32_then_bf16_vs_fp64": {
+      "max_abs": 0.0016051940619945526,
+      "relative_l2": 0.0016475108737054385,
+      "reference_l2": 6.671557701222929,
+      "actual_l2": 6.6718146530840094,
+      "finite": true
+    },
+    "one_final_bf16_round_vs_fp64": {
+      "max_abs": 0.0016051940619945526,
+      "relative_l2": 0.0016475108737054385,
+      "reference_l2": 6.671557701222929,
+      "actual_l2": 6.6718146530840094,
+      "finite": true
+    }
+  },
+  "runtime": {
+    "executable": "/mnt/data/anaconda3/envs/train_mobius_py312/bin/python",
+    "prefix": "/mnt/data/anaconda3/envs/train_mobius_py312",
+    "python": "3.12.14 (main, Sep  2 2026, 23:27:36) [GCC 15.3.0]",
+    "torch": "2.9.1+cu128",
+    "cuda": "12.8",
+    "triton": "3.5.1",
+    "transformer_engine": "2.19.0",
+    "sources": {
+      "megatron": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/3rdparty/Megatron-LM-0.11.0/megatron/core/__init__.py",
+      "fla": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/3rdparty/flash-linear-attention-260115/fla/__init__.py",
+      "schedule": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/3rdparty/Megatron-LM-0.11.0/megatron/core/pipeline_parallel/schedules.py",
+      "torch": "/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/torch/__init__.py",
+      "triton": "/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/triton/__init__.py",
+      "transformer_engine": "/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/transformer_engine/__init__.py",
+      "apex_layernorm": "/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/fused_layer_norm_cuda.cpython-312-x86_64-linux-gnu.so",
+      "apex_wgrad": "/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/fused_weight_gradient_mlp_cuda.cpython-312-x86_64-linux-gnu.so"
+    },
+    "rwkv_kernel": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/3rdparty/flash-linear-attention-260115/fla/ops/rwkv7/chunk.py",
+    "modules_from_expected_locations": true,
+    "submodule_commits": {
+      "megatron": "c2876aaa0029df2b5567c893b8cbf2f6ea62a1b9",
+      "fla": "40850297f9f977d7d33eb9d87fcf9a460554b553"
+    },
+    "ld_library_path": "/mnt/data/anaconda3/envs/train_mobius_py312/lib:/mnt/data/anaconda3/envs/train_mobius_py312/targets/x86_64-linux/lib:/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/nvidia/cublas/lib:/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/nvidia/cusparse/lib:/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/nvidia/cusolver/lib:/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/nvidia/cudnn/lib:/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/nvidia/nccl/lib:",
+    "source_sha256": {
+      "rwkv_megatron/rwkv7_layer_specs.py": "6241e8c85a4b13fac0e2a47953fe5299abc136c1f609cd96ac2e1f972b3112f7",
+      "rwkv_megatron/rwkv7_transformer_layer.py": "33ec55821abf3ea2f6818b358093207f2aebe0461150411f47a9846c96f5bb73",
+      "rwkv_megatron/normalization.py": "c45ed2bd165f56ad2a56f4bba79424fbc20f8c09bee7c344bb2c1cbb15f696ba",
+      "rwkv_megatron/rwkv7_model.py": "0c0aebf9a0e16df2c9e0200e0f92de96955128a423f921e15b4da211d8519456"
+    }
+  },
+  "split_view_reference_control": {
+    "forward_captures_exact": 546,
+    "v0_gradient_exact": true,
+    "parameter_gradients_checked": 1059,
+    "parameter_gradients_exact": 1059,
+    "max_parameter_relative_l2": 0.0,
+    "remaining_differences": {}
+  },
+  "cropped_batch2_control": {
+    "layers": 4,
+    "hidden": 256,
+    "sequence": 128,
+    "batch": 2,
+    "baseline_v0_difference": {
+      "max_abs": 1.52587890625e-05,
+      "relative_l2": 0.001856737728569971,
+      "reference_l2": 0.038548111545412926,
+      "actual_l2": 0.03854826569429408,
+      "finite": true
+    },
+    "addition_grouping_reconstructs_both_totals": true,
+    "aligned_parameter_gradients_exact": 135
+  }
+}

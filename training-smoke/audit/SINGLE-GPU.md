@@ -4,6 +4,8 @@
 
 后续变更：本报告下方原始结果使用旧的 Apex 层内 norm + TE 最终 norm。当前默认构建已统一为 TE>=1.9.0，缺失或版本不足则统一回退 Apex；更新后的验证见 `TE-UNIFICATION.md`。历史结果不替代新后端验证。
 
+2026-10-10 后向定位更新：第 0 层 value 的三路梯度与原参考两路梯度，因 WKV/correction 是否共享 reshape 分支而有不同的 BF16 加法分组。31 个后续层 v0 分支及本层两路之和均一致，捕获梯度重放能逐元素重构两边总梯度。仅对齐诊断参考的 view 分支，完整 3B 的全部 1,059 个参数梯度完全一致；生产代码无需为逐位对齐修改。详情与精度优化评估见 `V0-BACKWARD.md`。
+
 ## 参考源码
 
 - BlinkDL/RWKV-LM，提交 `20be0f8cf0bdf506d8c0030c87a9a3416f95b143`：RWKV-v7/train_temp/rwkv7_train_simplified.py、train_temp/src/model.py、rwkv_v7_demo_rnn.py。

@@ -11,7 +11,7 @@ import torch.nn.functional as F
 
 
 class NativeReference(torch.nn.Module):
-    def __init__(self,state,dtype,core='recurrent',aligned=False,apex_norms=False,shared_pointops=False,te_final=False,carrier_chain=False,te_norms=False):
+    def __init__(self,state,dtype,core='recurrent',aligned=False,apex_norms=False,shared_pointops=False,te_final=False,carrier_chain=False,te_norms=False,split_value_views=False):
         super().__init__()
         self.weights=torch.nn.ParameterDict({key.replace('.','__'):torch.nn.Parameter(value.cuda().to(dtype).clone())
                                              for key,value in state.items()})
@@ -25,6 +25,7 @@ class NativeReference(torch.nn.Module):
         self.te_final=te_final
         self.carrier_chain=carrier_chain
         self.te_norms=te_norms
+        self.split_value_views=split_value_views
         self.layer_norms=torch.nn.ModuleDict()
         if te_norms:
             from transformer_engine.pytorch import LayerNorm
@@ -112,6 +113,7 @@ class NativeReference(torch.nn.Module):
                 gate=torch.sigmoid(lora(mix['v'],'v')+self.w(att+'v0'))
                 v=torch.lerp(v,first,gate) if self.aligned else v+(first-v)*gate
             v=self.mark(f'{layer}.v',v)
+            correction_value=v
             kk=F.normalize((k*self.w(att+'k_k')).reshape(*k.shape[:2],self.heads,self.head_size),dim=-1)
             k=self.mark(f'{layer}.k', (k.float()*torch.addcmul(torch.ones_like(k,dtype=torch.float32),a.float()-1,self.w(att+'k_a').float())).to(k.dtype) if self.aligned else k*(1+(a-1)*self.w(att+'k_a')))
             if self.shared_pointops:
@@ -135,7 +137,14 @@ class NativeReference(torch.nn.Module):
             o=F.group_norm(o.reshape(-1,o.shape[-1]),self.heads,self.w(att+'ln_x.weight'),
                            self.w(att+'ln_x.bias'),self.head_size*1e-5).reshape_as(o)
             self.mark(f'{layer}.groupnorm',o)
-            correction=((r*k*self.w(att+'r_k')).sum(-1,keepdim=True)*v).flatten(2)
+            if self.split_value_views:
+                # Diagnostic only: production independently views value for
+                # WKV and output correction. A shared view changes the BF16
+                # addition grouping when layer-zero also feeds the carrier.
+                correction_value=reshape(correction_value)
+                if self.aligned:correction_value=correction_value.transpose(0,1)
+            else:correction_value=v
+            correction=((r*k*self.w(att+'r_k')).sum(-1,keepdim=True)*correction_value).flatten(2)
             if self.aligned:correction=correction.transpose(0,1)
             project_input=self.mark(f'{layer}.project-input',(o+correction)*g)
             o=self.mark(f'{layer}.att',F.linear(project_input,self.w(att+'output.weight')))

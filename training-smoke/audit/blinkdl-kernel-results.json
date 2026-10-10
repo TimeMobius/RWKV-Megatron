@@ -1,0 +1,336 @@
+[
+  {
+    "sequence": 64,
+    "batch": 2,
+    "heads": 2,
+    "head_size": 64,
+    "thresholds": {
+      "output": 0.007,
+      "gradients": 0.008
+    },
+    "checks": {
+      "official": {
+        "output": {
+          "max_abs": 0.0019130110740661621,
+          "relative_l2": 0.0016227489883738498,
+          "reference_l2": 23.084577040312205,
+          "actual_l2": 23.083361789503915,
+          "finite": true
+        },
+        "dr": {
+          "max_abs": 0.015625,
+          "relative_l2": 0.0025030139896243535,
+          "reference_l2": 96.51524806382797,
+          "actual_l2": 96.51771821404442,
+          "finite": true
+        },
+        "dwraw": {
+          "max_abs": 0.0009765625,
+          "relative_l2": 0.002474611192357302,
+          "reference_l2": 3.503453485950002,
+          "actual_l2": 3.503679884637499,
+          "finite": true
+        },
+        "dk": {
+          "max_abs": 0.015625,
+          "relative_l2": 0.0025140395894017796,
+          "reference_l2": 96.47022114729266,
+          "actual_l2": 96.47254233419312,
+          "finite": true
+        },
+        "dv": {
+          "max_abs": 0.015625,
+          "relative_l2": 0.0026354206590643585,
+          "reference_l2": 93.55085208941578,
+          "actual_l2": 93.54877093403405,
+          "finite": true
+        },
+        "da": {
+          "max_abs": 0.0009765625,
+          "relative_l2": 0.002466108052519985,
+          "reference_l2": 3.937029652356995,
+          "actual_l2": 3.937175256579269,
+          "finite": true
+        },
+        "db": {
+          "max_abs": 0.0078125,
+          "relative_l2": 0.0024824690735113317,
+          "reference_l2": 36.19474229811578,
+          "actual_l2": 36.195519211396004,
+          "finite": true
+        }
+      },
+      "fla": {
+        "output": {
+          "max_abs": 0.003764212131500244,
+          "relative_l2": 0.0025848577776995804,
+          "reference_l2": 23.084577040312205,
+          "actual_l2": 23.072745691059122,
+          "finite": true
+        },
+        "dr": {
+          "max_abs": 0.015625,
+          "relative_l2": 0.002795740188721259,
+          "reference_l2": 96.51524806382797,
+          "actual_l2": 96.4523376156196,
+          "finite": true
+        },
+        "dwraw": {
+          "max_abs": 0.0029296875,
+          "relative_l2": 0.005186250273174482,
+          "reference_l2": 3.503453485950002,
+          "actual_l2": 3.5006080597440494,
+          "finite": true
+        },
+        "dk": {
+          "max_abs": 0.015625,
+          "relative_l2": 0.0028638162286961583,
+          "reference_l2": 96.47022114729266,
+          "actual_l2": 96.40615821078433,
+          "finite": true
+        },
+        "dv": {
+          "max_abs": 0.03125,
+          "relative_l2": 0.003882086111875593,
+          "reference_l2": 93.55085208941578,
+          "actual_l2": 93.50563220845802,
+          "finite": true
+        },
+        "da": {
+          "max_abs": 0.0009765625,
+          "relative_l2": 0.004209961386753629,
+          "reference_l2": 3.937029652356995,
+          "actual_l2": 3.930969340503045,
+          "finite": true
+        },
+        "db": {
+          "max_abs": 0.015625,
+          "relative_l2": 0.00412430948220999,
+          "reference_l2": 36.19474229811578,
+          "actual_l2": 36.14056743360083,
+          "finite": true
+        }
+      },
+      "fla_vs_official": {
+        "output": {
+          "max_abs": 0.00390625,
+          "relative_l2": 0.0029668161621992702,
+          "reference_l2": 23.083361789503915,
+          "actual_l2": 23.072745691059122,
+          "finite": true
+        },
+        "dr": {
+          "max_abs": 0.015625,
+          "relative_l2": 0.0021689024425630148,
+          "reference_l2": 96.51771821404442,
+          "actual_l2": 96.4523376156196,
+          "finite": true
+        },
+        "dwraw": {
+          "max_abs": 0.0029296875,
+          "relative_l2": 0.004976580380587996,
+          "reference_l2": 3.503679884637499,
+          "actual_l2": 3.5006080597440494,
+          "finite": true
+        },
+        "dk": {
+          "max_abs": 0.015625,
+          "relative_l2": 0.002161662309633212,
+          "reference_l2": 96.47254233419312,
+          "actual_l2": 96.40615821078433,
+          "finite": true
+        },
+        "dv": {
+          "max_abs": 0.03125,
+          "relative_l2": 0.0035437235984373512,
+          "reference_l2": 93.54877093403405,
+          "actual_l2": 93.50563220845802,
+          "finite": true
+        },
+        "da": {
+          "max_abs": 0.0009765625,
+          "relative_l2": 0.003830257864355693,
+          "reference_l2": 3.937175256579269,
+          "actual_l2": 3.930969340503045,
+          "finite": true
+        },
+        "db": {
+          "max_abs": 0.015625,
+          "relative_l2": 0.003798710272695367,
+          "reference_l2": 36.195519211396004,
+          "actual_l2": 36.14056743360083,
+          "finite": true
+        }
+      }
+    },
+    "passed": true,
+    "failures": []
+  },
+  {
+    "sequence": 128,
+    "batch": 2,
+    "heads": 2,
+    "head_size": 64,
+    "thresholds": {
+      "output": 0.007,
+      "gradients": 0.008
+    },
+    "checks": {
+      "official": {
+        "output": {
+          "max_abs": 0.003726959228515625,
+          "relative_l2": 0.0016451615452858293,
+          "reference_l2": 33.6387280297235,
+          "actual_l2": 33.63942558583274,
+          "finite": true
+        },
+        "dr": {
+          "max_abs": 0.015625,
+          "relative_l2": 0.0025904510409981156,
+          "reference_l2": 134.30410482268522,
+          "actual_l2": 134.31449058038248,
+          "finite": true
+        },
+        "dwraw": {
+          "max_abs": 0.0009765625,
+          "relative_l2": 0.0024633131157273747,
+          "reference_l2": 4.93585606280219,
+          "actual_l2": 4.936189690864212,
+          "finite": true
+        },
+        "dk": {
+          "max_abs": 0.03125,
+          "relative_l2": 0.0026113244628426006,
+          "reference_l2": 133.6871327059504,
+          "actual_l2": 133.69573067296983,
+          "finite": true
+        },
+        "dv": {
+          "max_abs": 0.015625,
+          "relative_l2": 0.0026479848721407276,
+          "reference_l2": 134.86181696780494,
+          "actual_l2": 134.8630355222674,
+          "finite": true
+        },
+        "da": {
+          "max_abs": 0.0009765625,
+          "relative_l2": 0.0025153437824703122,
+          "reference_l2": 6.070521835322955,
+          "actual_l2": 6.07126280978007,
+          "finite": true
+        },
+        "db": {
+          "max_abs": 0.0078125,
+          "relative_l2": 0.002493762699737832,
+          "reference_l2": 51.93651687609765,
+          "actual_l2": 51.939142799449534,
+          "finite": true
+        }
+      },
+      "fla": {
+        "output": {
+          "max_abs": 0.005548715591430664,
+          "relative_l2": 0.0026281669514517138,
+          "reference_l2": 33.6387280297235,
+          "actual_l2": 33.6137060647163,
+          "finite": true
+        },
+        "dr": {
+          "max_abs": 0.03125,
+          "relative_l2": 0.0028999980423023626,
+          "reference_l2": 134.30410482268522,
+          "actual_l2": 134.22208385232946,
+          "finite": true
+        },
+        "dwraw": {
+          "max_abs": 0.001953125,
+          "relative_l2": 0.005287588214518804,
+          "reference_l2": 4.93585606280219,
+          "actual_l2": 4.933191007216985,
+          "finite": true
+        },
+        "dk": {
+          "max_abs": 0.03125,
+          "relative_l2": 0.002986145979883088,
+          "reference_l2": 133.6871327059504,
+          "actual_l2": 133.60277918895622,
+          "finite": true
+        },
+        "dv": {
+          "max_abs": 0.03125,
+          "relative_l2": 0.003902312571771146,
+          "reference_l2": 134.86181696780494,
+          "actual_l2": 134.75961700687094,
+          "finite": true
+        },
+        "da": {
+          "max_abs": 0.001953125,
+          "relative_l2": 0.0042236540743628235,
+          "reference_l2": 6.070521835322955,
+          "actual_l2": 6.061016844725038,
+          "finite": true
+        },
+        "db": {
+          "max_abs": 0.0078125,
+          "relative_l2": 0.004238428578034614,
+          "reference_l2": 51.93651687609765,
+          "actual_l2": 51.85408233683134,
+          "finite": true
+        }
+      },
+      "fla_vs_official": {
+        "output": {
+          "max_abs": 0.0078125,
+          "relative_l2": 0.0030261886657746984,
+          "reference_l2": 33.63942558583274,
+          "actual_l2": 33.6137060647163,
+          "finite": true
+        },
+        "dr": {
+          "max_abs": 0.03125,
+          "relative_l2": 0.002244013132405223,
+          "reference_l2": 134.31449058038248,
+          "actual_l2": 134.22208385232946,
+          "finite": true
+        },
+        "dwraw": {
+          "max_abs": 0.001953125,
+          "relative_l2": 0.005079852062867962,
+          "reference_l2": 4.936189690864212,
+          "actual_l2": 4.933191007216985,
+          "finite": true
+        },
+        "dk": {
+          "max_abs": 0.03125,
+          "relative_l2": 0.0022366516267402423,
+          "reference_l2": 133.69573067296983,
+          "actual_l2": 133.60277918895622,
+          "finite": true
+        },
+        "dv": {
+          "max_abs": 0.03125,
+          "relative_l2": 0.0035253158408406326,
+          "reference_l2": 134.8630355222674,
+          "actual_l2": 134.75961700687094,
+          "finite": true
+        },
+        "da": {
+          "max_abs": 0.001953125,
+          "relative_l2": 0.004002833072582244,
+          "reference_l2": 6.07126280978007,
+          "actual_l2": 6.061016844725038,
+          "finite": true
+        },
+        "db": {
+          "max_abs": 0.0078125,
+          "relative_l2": 0.0039457407381882,
+          "reference_l2": 51.939142799449534,
+          "actual_l2": 51.85408233683134,
+          "finite": true
+        }
+      }
+    },
+    "passed": true,
+    "failures": []
+  }
+]

@@ -2,6 +2,7 @@
 
 References pinned in reference-sources.json. Defaults to independent torch formulas.
 Diagnostic options can share precision primitives to isolate model wiring.
+Use BlinkDLReference for source-extracted official forward/branch comparisons.
 The state has K,V orientation, transposed relative to BlinkDL's V,K RNN state.
 """
 import math
@@ -11,7 +12,7 @@ import torch.nn.functional as F
 
 
 class NativeReference(torch.nn.Module):
-    def __init__(self,state,dtype,core='recurrent',aligned=False,apex_norms=False,shared_pointops=False,te_final=False,carrier_chain=False,te_norms=False,split_value_views=False):
+    def __init__(self,state,dtype,core='recurrent',aligned=False,apex_norms=False,shared_pointops=False,te_final=False,carrier_chain=False,te_norms=False,split_value_views=True):
         super().__init__()
         self.weights=torch.nn.ParameterDict({key.replace('.','__'):torch.nn.Parameter(value.cuda().to(dtype).clone())
                                              for key,value in state.items()})
@@ -138,9 +139,9 @@ class NativeReference(torch.nn.Module):
                            self.w(att+'ln_x.bias'),self.head_size*1e-5).reshape_as(o)
             self.mark(f'{layer}.groupnorm',o)
             if self.split_value_views:
-                # Diagnostic only: production independently views value for
-                # WKV and output correction. A shared view changes the BF16
-                # addition grouping when layer-zero also feeds the carrier.
+                # Official simplified TimeMix also independently views value
+                # for WKV and correction. Sharing these views is retained only
+                # as a historical negative control for BF16 addition grouping.
                 correction_value=reshape(correction_value)
                 if self.aligned:correction_value=correction_value.transpose(0,1)
             else:correction_value=v

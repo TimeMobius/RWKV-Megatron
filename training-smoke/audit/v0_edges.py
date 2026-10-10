@@ -62,7 +62,11 @@ def summarize(case):
               'total_vs_fp64_sum': metric(case['total'], exact),
               'total_matches_execution_order_sum': torch.equal(case['total'], sequential),
               'permutation_matches': [], 'later_layer_branches': len(lerps)}
-    for order in itertools.permutations(range(len(parts))):
+    # Direct official v_first has one edge per later layer. Factorial search is
+    # useful only for the two/three-way historical carrier diagnostic.
+    result['permutation_search_performed']=len(parts)<=6
+    orders=itertools.permutations(range(len(parts))) if len(parts)<=6 else ()
+    for order in orders:
         folded = parts[order[0]].clone()
         for i in order[1:]:
             folded = folded + parts[i]

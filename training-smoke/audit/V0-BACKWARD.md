@@ -2,6 +2,8 @@
 
 2026-10-10，独立工作区，单卡 H800。当前 Megatron c2876aaa、FLA 40850297、TE 2.19.0、Python 3.12.14 / Torch 2.9.1。这里讨论 BF16；不是 FP16，也不是前一轮新旧 FLA decay kernel 的差异。
 
+后续参考修正：本文“原参考”指我编写的历史共享原语诊断脚本，不是 BlinkDL 官方代码。当前默认已改为加载 BlinkDL 源码 forward/CUDA 算子；见 `BLINKDL-ALIGNMENT.md`。历史共享 view 仅保留为 `--shared-value-reference` 负向控制。下面0.1943%的解释不代表与实际官方BF16算子已对齐。
+
 ## 结论
 
 原报告剩余的 v0 后向差异，已定位到第 0 层 value 的**加法分组**。本次固定完整 3B 样本没有发现漏传、重复传播、detach 或错误公式。无需为了逐位对齐改变生产模型。仅对齐参考脚本的分支结构，就能恢复全部参数梯度一致；默认独立参考仍保留原写法。
@@ -59,7 +61,7 @@ Megatron: ((F + A) BF16 + B) BF16
 bash training-smoke/audit/launch-single.sh --full --bf16 \
   --reference-core fla --aligned-reference --shared-pointops \
   --te-final-reference --carrier-chain-reference --te-reference-norms \
-  --audit-v0-edges --result-tag=-v0-edge-audit
+  --audit-v0-edges --shared-value-reference --result-tag=-v0-edge-audit
 
 # 控制实验：仅对齐参考的 value 分支，检查全部参数梯度
 bash training-smoke/audit/launch-single.sh --full --bf16 --all-gradients \

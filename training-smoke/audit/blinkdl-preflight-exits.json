@@ -1,0 +1,20 @@
+{
+  "small-fp32": {
+    "exit_code": 0,
+    "log": "training-smoke/logs/audit-blinkdl-small-fp32.log"
+  },
+  "small-bf16-initial": {
+    "exit_code": 1,
+    "log": "training-smoke/logs/audit-blinkdl-small-bf16.log",
+    "reason": "Conda CUDA include: cuda_bf16.h not found"
+  },
+  "small-bf16-target-headers": {
+    "exit_code": 1,
+    "log": "training-smoke/logs/audit-blinkdl-small-bf16-headers.log",
+    "reason": "Conda split NVIDIA headers: cusparse.h not found"
+  },
+  "small-bf16-complete-includes": {
+    "exit_code": 0,
+    "log": "training-smoke/logs/audit-blinkdl-small-bf16-includes.log"
+  }
+}

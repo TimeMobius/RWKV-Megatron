@@ -13,11 +13,12 @@ CONFIRM = 'full-bf16-fla-vs-fla-all-gradients-aligned-shared-pointops-te-final-c
 
 
 def main():
-    baseline = json.loads((PATH / (BASE + '.json')).read_text())
+    baseline_stem=BASE+'-shared-value' if (PATH/(BASE+'-shared-value.json')).exists() else BASE
+    baseline = json.loads((PATH / (baseline_stem + '.json')).read_text())
     old = json.loads((PATH / BASE.replace('-v0-edge-audit', '-new-replay-core')).with_suffix('.json').read_text())
     assert baseline['gradient_trace'] == old['gradient_trace']
     assert baseline['gradient_by_parameter'] == old['gradient_by_parameter']
-    edges = torch.load(PATH / (BASE + '-v0-edges.pth'), weights_only=True)
+    edges = torch.load(PATH / (baseline_stem + '-v0-edges.pth'), weights_only=True)
     a, b = edges['actual'], edges['reference']
     parts = lambda case: [r['gradient'] for r in case['records'] if r['kind'] == 'source-edge']
     pa, pb = parts(a), parts(b)

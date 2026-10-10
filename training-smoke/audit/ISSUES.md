@@ -1,5 +1,11 @@
 # RWKV7 审计待查问题（2026-10-09）
 
+## 2026-10-10：官方源码参考已校正，实际BF16精度仍有差异
+
+详见`BLINKDL-ALIGNMENT.md`与`blinkdl-alignment-summary.json`。默认参考改为源码提取的BlinkDL forward及官方BF16 CUDA，直接复用v_first、不共享WKV/correction value view、不引入carrier。完整3B独立FP32公式对照通过全部1,059个梯度；相同TE/FLA原语下官方式直接v_first和生产carrier的全部梯度逐元素相同，支持本样本的传递正确。
+
+实际官方BF16 CUDA对照：CE差0.00717878，logits相对差0.8403%，v0梯度相对差7.6905%，整体参数梯度相对差13.5362%；最大单参数43.1242%。这项精度问题保持开放，不能用旧诊断0.1943%的加法分组解释覆盖。统一Torch norm仍有CE差0.00553060/v0差9.6427%，后续应验证key-pre、v-residual、GroupNorm/correction/gate及FFN融合/拆分精度与后向，再判断优化。官方WKV与FLA在seq64/128上均通过原独立FP32输出/六种输入梯度阈值。原生产TE/FLA、环境和原工作区未改；未认证收敛、多卡或FP8。
+
 ## 2026-10-10：单卡 v0 梯度汇合差异已解释
 
 见 `V0-BACKWARD.md` / `v0-accumulation-summary.json`。同一版 FLA 下，第 1–31 层回传 v0 的分支梯度与本层两路之和全部一致。生产为三路梯度累加，原参考共享 value reshape、先合并本层两路，BF16 加法分组不同；重放捕获梯度精确复现原先约0.1943%的总梯度差。只对齐参考分支后，完整3B全部1,059个参数梯度逐元素一致。该固定样本没有发现漏传、重复传播或detach；不为bit-exact改变生产结构。BF16后续层连续累加的精度仍有优化空间，FP32汇总尚未实现或认证。此结论与下述新旧FLA内核反向差异独立。

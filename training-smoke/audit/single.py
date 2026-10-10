@@ -36,11 +36,21 @@ def main():
     parser.add_argument('--capture-core-gradients',action='store_true')
     parser.add_argument('--audit-v0-edges',action='store_true')
     parser.add_argument('--split-value-reference',action='store_true')
+    parser.add_argument('--shared-value-reference',action='store_true',help='Historical negative control: share WKV/correction value view')
+    parser.add_argument('--reference-profile',choices=('blinkdl','diagnostic'),help='Default: BlinkDL source bodies; diagnostic flags retain their explicit shared-primitive mode')
     parser.add_argument('--shared-pointops',action='store_true')
     parser.add_argument('--te-final-reference',action='store_true')
     parser.add_argument('--carrier-chain-reference',action='store_true')
     parser.add_argument('--reference-core',choices=('recurrent','fla'),default='recurrent')
     args=parser.parse_args()
+    diagnostic_flags=any((args.aligned_reference,args.apex_reference_norms,args.te_reference_norms,
+                          args.shared_pointops,args.te_final_reference,args.carrier_chain_reference,
+                          args.split_value_reference,args.shared_value_reference))
+    profile=args.reference_profile or ('diagnostic' if diagnostic_flags else 'blinkdl')
+    if profile=='blinkdl' and diagnostic_flags:
+        parser.error('BlinkDL reference cannot use Megatron-aligned norm/pointop/carrier flags')
+    if args.split_value_reference and args.shared_value_reference:
+        parser.error('split-value-reference and shared-value-reference are mutually exclusive')
     torch.cuda.set_device(0);dist.init_process_group('nccl')
     ps.initialize_model_parallel(tensor_model_parallel_size=1,pipeline_model_parallel_size=1)
     model_parallel_cuda_manual_seed(1234);torch.backends.cuda.matmul.allow_tf32=False
@@ -131,7 +141,11 @@ def main():
     retained.clear()
     for handle in handles:handle.remove()
     del logits,loss,model;gc.collect();torch.cuda.empty_cache()
-    reference=NativeReference(state,dtype,core=args.reference_core,aligned=args.aligned_reference,apex_norms=args.apex_reference_norms,shared_pointops=args.shared_pointops,te_final=args.te_final_reference,carrier_chain=args.carrier_chain_reference,te_norms=args.te_reference_norms,split_value_views=args.split_value_reference)
+    if profile=='blinkdl':
+        from blinkdl_reference import BlinkDLReference
+        reference=BlinkDLReference(state,dtype)
+    else:
+        reference=NativeReference(state,dtype,core=args.reference_core,aligned=args.aligned_reference,apex_norms=args.apex_reference_norms,shared_pointops=args.shared_pointops,te_final=args.te_final_reference,carrier_chain=args.carrier_chain_reference,te_norms=args.te_reference_norms,split_value_views=not args.shared_value_reference)
     ref_logits=reference(x);ref_loss=F.cross_entropy(ref_logits.float().reshape(-1,dim['vocab']),y.reshape(-1))
     if args.audit_v0_edges:edge_audit=V0Edges(ref_loss,reference.v_first)
     ref_loss.backward();ref_grad=reference.native_gradients(selected)
@@ -140,18 +154,23 @@ def main():
     gradient_trace={k:metric(v,(reference.live[k].grad.transpose(0,1) if args.aligned_reference else reference.live[k].grad).detach().cpu()) for k,v in actual_grad_trace.items() if k in reference.live and reference.live[k].grad is not None}
     grad_metrics={k:metric(actual_grad[k],v) for k,v in ref_grad.items()}
     result={'full_3b':args.full,'dtype':str(dtype),'megatron_core':'torch recurrence' if args.naive_core else 'FLA',
-        'reference_core':args.reference_core,'torch_norms':args.torch_norms,'runtime':report(),'loss_megatron':actual_loss,
+        'reference_core':('official CUDA' if args.bf16 else 'independent torch recurrence') if profile=='blinkdl' else args.reference_core,
+        'reference_profile':profile,'reference_provenance':reference.provenance() if profile=='blinkdl' else {'kind':'shared-primitive diagnostic; not an official implementation'},
+        'torch_norms':args.torch_norms,'runtime':report(),'loss_megatron':actual_loss,
         'loss_native':ref_loss.item(),'loss_delta':actual_loss-ref_loss.item(),
         'gradient_trace':gradient_trace,'logits':metric(actual_logits,ref_logits.detach().cpu()),'trace':trace_metrics,
         'gradient_by_parameter':grad_metrics,'gradient_scope':'selected' if selected else 'all',
         'v0_reference_gradient_norm':reference.v_first.grad.float().norm().item(),
         'first_value_gradient':metric(first_value_grad,reference.v_first.grad.transpose(0,1).detach().cpu() if args.aligned_reference else reference.v_first.grad.detach().cpu()),
         'max_relative_gradient':max(v['relative_l2'] for v in grad_metrics.values())}
-    name=('full-' if args.full else 'small-')+('bf16-' if args.bf16 else 'fp32-')+('naive' if args.naive_core else 'fla')+'-vs-'+args.reference_core
+    reference_name=('blinkdl-main' if args.bf16 else 'blinkdl-simplified') if profile=='blinkdl' else args.reference_core
+    name=('full-' if args.full else 'small-')+('bf16-' if args.bf16 else 'fp32-')+('naive' if args.naive_core else 'fla')+'-vs-'+reference_name
     name+=('-all-gradients' if args.all_gradients else '')
     name+=('-torch-norms' if args.torch_norms else '')+('-aligned' if args.aligned_reference else '')+('-apex' if args.apex_reference_norms else '')+('-shared-pointops' if args.shared_pointops else '')+('-te-final' if args.te_final_reference else '')+('-carrier-chain' if args.carrier_chain_reference else '')
     name+=('-te-norms' if args.te_reference_norms else '')+args.result_tag
     name+=('-split-value' if args.split_value_reference else '')
+    name+=('-shared-value' if args.shared_value_reference else '')
+    name+=('-blinkdl-source' if profile=='blinkdl' else '')
     if args.audit_v0_edges:
         result['v0_edges']={'actual':summarize(actual_edges),'reference':summarize(reference_edges)}
         torch.save({'actual':actual_edges,'reference':reference_edges},PATH/(name+'-v0-edges.pth'))

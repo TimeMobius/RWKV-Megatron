@@ -1,0 +1,1009 @@
+{
+  "accuracy": {
+    "0": {
+      "bf16": {
+        "output": [
+          {
+            "max_abs": 0.00741991400718689,
+            "relative_l2": 0.001499431619687915,
+            "reference_l2": 24.297910754163983,
+            "actual_l2": 24.300286192066697,
+            "finite": true
+          },
+          {
+            "max_abs": 0.0050213805686963875,
+            "relative_l2": 0.002707199224109121,
+            "reference_l2": 71.55417527999327,
+            "actual_l2": 71.55776251342783,
+            "finite": true
+          },
+          {
+            "max_abs": 0.005579430582982825,
+            "relative_l2": 0.0031644155491345164,
+            "reference_l2": 41.687076672636614,
+            "actual_l2": 41.686217389145476,
+            "finite": true
+          }
+        ],
+        "gradient": [
+          {
+            "max_abs": 1.6279472784574693,
+            "relative_l2": 0.004570771669739371,
+            "reference_l2": 3980.4425221563956,
+            "actual_l2": 3980.976974937328,
+            "finite": true
+          },
+          {
+            "max_abs": 0.017339323507216786,
+            "relative_l2": 0.003388992724511961,
+            "reference_l2": 81.04258154728626,
+            "actual_l2": 81.04512759702551,
+            "finite": true
+          },
+          {
+            "max_abs": 0.06337357993980319,
+            "relative_l2": 0.004302165503428926,
+            "reference_l2": 93.07207643062588,
+            "actual_l2": 93.07749385364757,
+            "finite": true
+          },
+          {
+            "max_abs": 0.006922739483965046,
+            "relative_l2": 0.0017403935670168454,
+            "reference_l2": 8.85468264864033,
+            "actual_l2": 8.854584937878265,
+            "finite": true
+          }
+        ]
+      },
+      "fp32": {
+        "output": [
+          {
+            "max_abs": 0.00741991400718689,
+            "relative_l2": 0.001499431619687915,
+            "reference_l2": 24.297910754163983,
+            "actual_l2": 24.300286192066697,
+            "finite": true
+          },
+          {
+            "max_abs": 0.0019502320708735255,
+            "relative_l2": 0.001611405666546649,
+            "reference_l2": 71.55417527999327,
+            "actual_l2": 71.55371797395851,
+            "finite": true
+          },
+          {
+            "max_abs": 0.0019512975742017602,
+            "relative_l2": 0.0016559879770106452,
+            "reference_l2": 41.687076672636614,
+            "actual_l2": 41.686852099217326,
+            "finite": true
+          }
+        ],
+        "gradient": [
+          {
+            "max_abs": 0.5148263953900312,
+            "relative_l2": 0.0022915554722936415,
+            "reference_l2": 3980.4425221563956,
+            "actual_l2": 3980.5286827583745,
+            "finite": true
+          },
+          {
+            "max_abs": 0.015673718957256444,
+            "relative_l2": 0.0024232338559544136,
+            "reference_l2": 81.04258154728626,
+            "actual_l2": 81.04114586836839,
+            "finite": true
+          },
+          {
+            "max_abs": 0.03594282518291436,
+            "relative_l2": 0.0015989380923869595,
+            "reference_l2": 93.07207643062588,
+            "actual_l2": 93.06984633464012,
+            "finite": true
+          },
+          {
+            "max_abs": 0.006922739483965046,
+            "relative_l2": 0.0017403935670168454,
+            "reference_l2": 8.85468264864033,
+            "actual_l2": 8.854584937878265,
+            "finite": true
+          }
+        ]
+      },
+      "fp32_fused": {
+        "output": [
+          {
+            "max_abs": 0.00741991400718689,
+            "relative_l2": 0.001499431619687915,
+            "reference_l2": 24.297910754163983,
+            "actual_l2": 24.300286192066697,
+            "finite": true
+          },
+          {
+            "max_abs": 0.0019502320708735255,
+            "relative_l2": 0.0016114056621931096,
+            "reference_l2": 71.55417527999327,
+            "actual_l2": 71.55372494557693,
+            "finite": true
+          },
+          {
+            "max_abs": 0.0019512975742017602,
+            "relative_l2": 0.0016559879770108444,
+            "reference_l2": 41.687076672636614,
+            "actual_l2": 41.686852099481925,
+            "finite": true
+          }
+        ],
+        "gradient": [
+          {
+            "max_abs": 0.48517360460996883,
+            "relative_l2": 0.0016642607622194686,
+            "reference_l2": 3980.4425221563956,
+            "actual_l2": 3980.27589179135,
+            "finite": true
+          },
+          {
+            "max_abs": 0.007671503183424022,
+            "relative_l2": 0.0016535751981765778,
+            "reference_l2": 81.04258154728626,
+            "actual_l2": 81.0436753125149,
+            "finite": true
+          },
+          {
+            "max_abs": 0.03594282518291436,
+            "relative_l2": 0.0015989380923869595,
+            "reference_l2": 93.07207643062588,
+            "actual_l2": 93.06984633464012,
+            "finite": true
+          },
+          {
+            "max_abs": 0.006922739483965046,
+            "relative_l2": 0.0017403935670168454,
+            "reference_l2": 8.85468264864033,
+            "actual_l2": 8.854584937878265,
+            "finite": true
+          }
+        ]
+      },
+      "compiled_fp32_formula": {
+        "output": [
+          {
+            "max_abs": 1.3504177331924438e-07,
+            "relative_l2": 2.3135871443702915e-08,
+            "reference_l2": 24.297910754163983,
+            "actual_l2": 24.297910788903728,
+            "finite": true
+          },
+          {
+            "max_abs": 1.6850843786997416e-07,
+            "relative_l2": 5.4259351144963276e-08,
+            "reference_l2": 71.55417527999327,
+            "actual_l2": 71.55417636177306,
+            "finite": true
+          },
+          {
+            "max_abs": 1.194354107836304e-07,
+            "relative_l2": 5.890535549322197e-08,
+            "reference_l2": 41.687076672636614,
+            "actual_l2": 41.68707727841174,
+            "finite": true
+          }
+        ],
+        "gradient": [
+          {
+            "max_abs": 2.9571104505521362e-05,
+            "relative_l2": 8.098522950496558e-08,
+            "reference_l2": 3980.4425221563956,
+            "actual_l2": 3980.4425854967785,
+            "finite": true
+          },
+          {
+            "max_abs": 5.195129912927143e-07,
+            "relative_l2": 5.876260518119683e-08,
+            "reference_l2": 81.04258154728626,
+            "actual_l2": 81.0425824757477,
+            "finite": true
+          },
+          {
+            "max_abs": 1.8799561232185624e-06,
+            "relative_l2": 1.0490154871822034e-07,
+            "reference_l2": 93.07207643062588,
+            "actual_l2": 93.0720780945287,
+            "finite": true
+          },
+          {
+            "max_abs": 1.4892430044710636e-07,
+            "relative_l2": 7.158379462486222e-08,
+            "reference_l2": 8.85468264864033,
+            "actual_l2": 8.854682686393335,
+            "finite": true
+          }
+        ]
+      }
+    },
+    "15": {
+      "bf16": {
+        "output": [
+          {
+            "max_abs": 0.01342153549194336,
+            "relative_l2": 0.0016404600843320388,
+            "reference_l2": 94.27679120875723,
+            "actual_l2": 94.27595019108078,
+            "finite": true
+          },
+          {
+            "max_abs": 0.005284061509382099,
+            "relative_l2": 0.002623701898403523,
+            "reference_l2": 71.55417527999327,
+            "actual_l2": 71.55736415221793,
+            "finite": true
+          },
+          {
+            "max_abs": 0.0045845111885916,
+            "relative_l2": 0.0033435945100950735,
+            "reference_l2": 24.925972241992884,
+            "actual_l2": 24.926928247752507,
+            "finite": true
+          }
+        ],
+        "gradient": [
+          {
+            "max_abs": 0.11865642512606822,
+            "relative_l2": 0.0036466728911570103,
+            "reference_l2": 343.23639846537367,
+            "actual_l2": 343.2484325280437,
+            "finite": true
+          },
+          {
+            "max_abs": 0.05211816703016048,
+            "relative_l2": 0.002527795299811797,
+            "reference_l2": 216.8684713493343,
+            "actual_l2": 216.87227008923173,
+            "finite": true
+          },
+          {
+            "max_abs": 0.08622718642078375,
+            "relative_l2": 0.004517334356136367,
+            "reference_l2": 84.34354011180305,
+            "actual_l2": 84.3890648949601,
+            "finite": true
+          },
+          {
+            "max_abs": 0.04646155485534109,
+            "relative_l2": 0.0015860664115729965,
+            "reference_l2": 111.30662130176191,
+            "actual_l2": 111.28451402817957,
+            "finite": true
+          }
+        ]
+      },
+      "fp32": {
+        "output": [
+          {
+            "max_abs": 0.01342153549194336,
+            "relative_l2": 0.0016404600843320388,
+            "reference_l2": 94.27679120875723,
+            "actual_l2": 94.27595019108078,
+            "finite": true
+          },
+          {
+            "max_abs": 0.0019521934086949022,
+            "relative_l2": 0.001547573013847593,
+            "reference_l2": 71.55417527999327,
+            "actual_l2": 71.55534063631485,
+            "finite": true
+          },
+          {
+            "max_abs": 0.001952391661785291,
+            "relative_l2": 0.0016618546842018134,
+            "reference_l2": 24.925972241992884,
+            "actual_l2": 24.92543077398215,
+            "finite": true
+          }
+        ],
+        "gradient": [
+          {
+            "max_abs": 0.030029603960040063,
+            "relative_l2": 0.0023832863702772716,
+            "reference_l2": 343.23639846537367,
+            "actual_l2": 343.2398462031992,
+            "finite": true
+          },
+          {
+            "max_abs": 0.05211816703016048,
+            "relative_l2": 0.002368348352943855,
+            "reference_l2": 216.8684713493343,
+            "actual_l2": 216.87355777934042,
+            "finite": true
+          },
+          {
+            "max_abs": 0.047764511410825605,
+            "relative_l2": 0.0016649081941363547,
+            "reference_l2": 84.34354011180305,
+            "actual_l2": 84.3400229902971,
+            "finite": true
+          },
+          {
+            "max_abs": 0.04646155485534109,
+            "relative_l2": 0.0015860664115729965,
+            "reference_l2": 111.30662130176191,
+            "actual_l2": 111.28451402817957,
+            "finite": true
+          }
+        ]
+      },
+      "fp32_fused": {
+        "output": [
+          {
+            "max_abs": 0.01342153549194336,
+            "relative_l2": 0.0016404600843320388,
+            "reference_l2": 94.27679120875723,
+            "actual_l2": 94.27595019108078,
+            "finite": true
+          },
+          {
+            "max_abs": 0.0019521934086949022,
+            "relative_l2": 0.0015475730138130024,
+            "reference_l2": 71.55417527999327,
+            "actual_l2": 71.5553406811676,
+            "finite": true
+          },
+          {
+            "max_abs": 0.001952391661785291,
+            "relative_l2": 0.0016618546991338699,
+            "reference_l2": 24.925972241992884,
+            "actual_l2": 24.92543876873323,
+            "finite": true
+          }
+        ],
+        "gradient": [
+          {
+            "max_abs": 0.030029603960040063,
+            "relative_l2": 0.001663406917909432,
+            "reference_l2": 343.23639846537367,
+            "actual_l2": 343.24004689218015,
+            "finite": true
+          },
+          {
+            "max_abs": 0.03124546976950704,
+            "relative_l2": 0.0016518629249479921,
+            "reference_l2": 216.8684713493343,
+            "actual_l2": 216.85361477301512,
+            "finite": true
+          },
+          {
+            "max_abs": 0.047764511410825605,
+            "relative_l2": 0.0016649081941363547,
+            "reference_l2": 84.34354011180305,
+            "actual_l2": 84.3400229902971,
+            "finite": true
+          },
+          {
+            "max_abs": 0.04646155485534109,
+            "relative_l2": 0.0015860664115729965,
+            "reference_l2": 111.30662130176191,
+            "actual_l2": 111.28451402817957,
+            "finite": true
+          }
+        ]
+      },
+      "compiled_fp32_formula": {
+        "output": [
+          {
+            "max_abs": 2.384185791015625e-07,
+            "relative_l2": 1.113585197017232e-08,
+            "reference_l2": 94.27679120875723,
+            "actual_l2": 94.27679121752487,
+            "finite": true
+          },
+          {
+            "max_abs": 1.8134155477245173e-07,
+            "relative_l2": 5.502260147761775e-08,
+            "reference_l2": 71.55417527999327,
+            "actual_l2": 71.55417647002992,
+            "finite": true
+          },
+          {
+            "max_abs": 8.901611447953428e-08,
+            "relative_l2": 6.016459778872082e-08,
+            "reference_l2": 24.925972241992884,
+            "actual_l2": 24.925972637714594,
+            "finite": true
+          }
+        ],
+        "gradient": [
+          {
+            "max_abs": 2.0026982880949618e-06,
+            "relative_l2": 6.059093912062067e-08,
+            "reference_l2": 343.23639846537367,
+            "actual_l2": 343.2364011418191,
+            "finite": true
+          },
+          {
+            "max_abs": 4.616563415993369e-07,
+            "relative_l2": 3.2287546707224176e-08,
+            "reference_l2": 216.8684713493343,
+            "actual_l2": 216.8684717822811,
+            "finite": true
+          },
+          {
+            "max_abs": 1.858024417877857e-06,
+            "relative_l2": 9.817583084891271e-08,
+            "reference_l2": 84.34354011180305,
+            "actual_l2": 84.34354123109107,
+            "finite": true
+          },
+          {
+            "max_abs": 1.5585683286190033e-06,
+            "relative_l2": 7.383285095584996e-08,
+            "reference_l2": 111.30662130176191,
+            "actual_l2": 111.3066216532985,
+            "finite": true
+          }
+        ]
+      }
+    },
+    "31": {
+      "bf16": {
+        "output": [
+          {
+            "max_abs": 0.1229248046875,
+            "relative_l2": 0.0016224636163260817,
+            "reference_l2": 615.8910386623224,
+            "actual_l2": 615.8921096563357,
+            "finite": true
+          },
+          {
+            "max_abs": 0.005416373332979396,
+            "relative_l2": 0.0025749764523521064,
+            "reference_l2": 71.55417527999327,
+            "actual_l2": 71.5557034723789,
+            "finite": true
+          },
+          {
+            "max_abs": 0.005375849016942658,
+            "relative_l2": 0.003065720487664238,
+            "reference_l2": 44.02976597376475,
+            "actual_l2": 44.02777138783898,
+            "finite": true
+          }
+        ],
+        "gradient": [
+          {
+            "max_abs": 0.02869284651206261,
+            "relative_l2": 0.0024974872371549476,
+            "reference_l2": 341.82842545450455,
+            "actual_l2": 341.8236472466562,
+            "finite": true
+          },
+          {
+            "max_abs": 0.3760439653268861,
+            "relative_l2": 0.0024245781920132227,
+            "reference_l2": 742.1189723853373,
+            "actual_l2": 742.1220945675688,
+            "finite": true
+          },
+          {
+            "max_abs": 0.05951303295366461,
+            "relative_l2": 0.005144195071834526,
+            "reference_l2": 60.86462573773072,
+            "actual_l2": 60.869175998610224,
+            "finite": true
+          },
+          {
+            "max_abs": 0.17495226860046387,
+            "relative_l2": 0.0016024637953748972,
+            "reference_l2": 289.57822071461476,
+            "actual_l2": 289.6391551061725,
+            "finite": true
+          }
+        ]
+      },
+      "fp32": {
+        "output": [
+          {
+            "max_abs": 0.1229248046875,
+            "relative_l2": 0.0016224636163260817,
+            "reference_l2": 615.8910386623224,
+            "actual_l2": 615.8921096563357,
+            "finite": true
+          },
+          {
+            "max_abs": 0.001952899534026109,
+            "relative_l2": 0.0015549950315643692,
+            "reference_l2": 71.55417527999327,
+            "actual_l2": 71.55510212859208,
+            "finite": true
+          },
+          {
+            "max_abs": 0.001951510263765277,
+            "relative_l2": 0.0016824122034846266,
+            "reference_l2": 44.02976597376475,
+            "actual_l2": 44.02812918566179,
+            "finite": true
+          }
+        ],
+        "gradient": [
+          {
+            "max_abs": 0.02869284651206261,
+            "relative_l2": 0.002367333362614521,
+            "reference_l2": 341.82842545450455,
+            "actual_l2": 341.823669438109,
+            "finite": true
+          },
+          {
+            "max_abs": 0.3760439653268861,
+            "relative_l2": 0.002410543454441591,
+            "reference_l2": 742.1189723853373,
+            "actual_l2": 742.1264079144189,
+            "finite": true
+          },
+          {
+            "max_abs": 0.028071561520025767,
+            "relative_l2": 0.0017172410634570634,
+            "reference_l2": 60.86462573773072,
+            "actual_l2": 60.87373604449859,
+            "finite": true
+          },
+          {
+            "max_abs": 0.17495226860046387,
+            "relative_l2": 0.0016024637953748972,
+            "reference_l2": 289.57822071461476,
+            "actual_l2": 289.6391551061725,
+            "finite": true
+          }
+        ]
+      },
+      "fp32_fused": {
+        "output": [
+          {
+            "max_abs": 0.1229248046875,
+            "relative_l2": 0.0016224636163260817,
+            "reference_l2": 615.8910386623224,
+            "actual_l2": 615.8921096563357,
+            "finite": true
+          },
+          {
+            "max_abs": 0.001952899534026109,
+            "relative_l2": 0.0015549950303443442,
+            "reference_l2": 71.55417527999327,
+            "actual_l2": 71.55510430831718,
+            "finite": true
+          },
+          {
+            "max_abs": 0.001951510263765277,
+            "relative_l2": 0.001682412203504008,
+            "reference_l2": 44.02976597376475,
+            "actual_l2": 44.028129106890695,
+            "finite": true
+          }
+        ],
+        "gradient": [
+          {
+            "max_abs": 0.015424801370804708,
+            "relative_l2": 0.0016672742940346211,
+            "reference_l2": 341.82842545450455,
+            "actual_l2": 341.82156776787934,
+            "finite": true
+          },
+          {
+            "max_abs": 0.18997601494915273,
+            "relative_l2": 0.0016370061944449346,
+            "reference_l2": 742.1189723853373,
+            "actual_l2": 742.1384283064691,
+            "finite": true
+          },
+          {
+            "max_abs": 0.028071561520025767,
+            "relative_l2": 0.0017172410667428194,
+            "reference_l2": 60.86462573773072,
+            "actual_l2": 60.87373609088592,
+            "finite": true
+          },
+          {
+            "max_abs": 0.17495226860046387,
+            "relative_l2": 0.0016024637953748972,
+            "reference_l2": 289.57822071461476,
+            "actual_l2": 289.6391551061725,
+            "finite": true
+          }
+        ]
+      },
+      "compiled_fp32_formula": {
+        "output": [
+          {
+            "max_abs": 9.5367431640625e-07,
+            "relative_l2": 7.468647375900625e-09,
+            "reference_l2": 615.8910386623224,
+            "actual_l2": 615.8910385957819,
+            "finite": true
+          },
+          {
+            "max_abs": 1.798387151419334e-07,
+            "relative_l2": 5.5512245368106996e-08,
+            "reference_l2": 71.55417527999327,
+            "actual_l2": 71.55417637407014,
+            "finite": true
+          },
+          {
+            "max_abs": 1.2733287091393208e-07,
+            "relative_l2": 6.103195626756307e-08,
+            "reference_l2": 44.02976597376475,
+            "actual_l2": 44.02976666199178,
+            "finite": true
+          }
+        ],
+        "gradient": [
+          {
+            "max_abs": 3.59435560426391e-07,
+            "relative_l2": 2.992548311703301e-08,
+            "reference_l2": 341.82842545450455,
+            "actual_l2": 341.8284256803197,
+            "finite": true
+          },
+          {
+            "max_abs": 3.5382735035227597e-06,
+            "relative_l2": 2.581262484608931e-08,
+            "reference_l2": 742.1189723853373,
+            "actual_l2": 742.1189724808312,
+            "finite": true
+          },
+          {
+            "max_abs": 1.3982595508110762e-06,
+            "relative_l2": 1.1013497157037855e-07,
+            "reference_l2": 60.86462573773072,
+            "actual_l2": 60.86462644247714,
+            "finite": true
+          },
+          {
+            "max_abs": 5.207490175962448e-06,
+            "relative_l2": 6.825203107177258e-08,
+            "reference_l2": 289.57822071461476,
+            "actual_l2": 289.5782192710158,
+            "finite": true
+          }
+        ]
+      }
+    }
+  },
+  "benchmark": {
+    "128": {
+      "bf16": {
+        "samples": [
+          {
+            "gpu_ms": 0.7305354436238607,
+            "wall_ms": 0.7332079112529755
+          },
+          {
+            "gpu_ms": 0.5203392028808593,
+            "wall_ms": 0.5215063070257505
+          },
+          {
+            "gpu_ms": 0.5104757308959961,
+            "wall_ms": 0.5115314697225889
+          },
+          {
+            "gpu_ms": 0.5358997344970703,
+            "wall_ms": 0.5369815044105053
+          },
+          {
+            "gpu_ms": 0.5801557540893555,
+            "wall_ms": 0.5813558120280504
+          }
+        ],
+        "median_wall_ms": 0.5369815044105053,
+        "extra_saved_bytes": 1331200,
+        "forward_cuda_kernels": [
+          "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})",
+          "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<c10::BFloat16, at::native::NormTwoOps<c10::BFloat16, float, c10::BFloat16>, unsigned int, c10::BFloat16, 4, 4> >(at::native::ReduceOp<c10::BFloat16, at::native::NormTwoOps<c10::BFloat16, float, c10::BFloat16>, unsigned int, c10::BFloat16, 4, 4>)",
+          "void at::native::vectorized_elementwise_kernel<8, at::native::(anonymous namespace)::launch_clamp_scalar(at::TensorIteratorBase&, c10::Scalar, c10::Scalar, at::native::detail::ClampLimits)::{lambda()#1}::operator()() const::{lambda()#9}::operator()() const::{lambda(c10::BFloat16)#1}, std::array<char*, 2ul> >(int, at::native::(anonymous namespace)::launch_clamp_scalar(at::TensorIteratorBase&, c10::Scalar, c10::Scalar, at::native::detail::ClampLimits)::{lambda()#1}::operator()() const::{lambda()#9}::operator()() const::{lambda(c10::BFloat16)#1}, std::array<char*, 2ul>)",
+          "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::DivFunctor<c10::BFloat16> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::DivFunctor<c10::BFloat16> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::DivFunctor<c10::BFloat16> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::DivFunctor<c10::BFloat16> > const&)::{lambda(int)#1})",
+          "k_update_fwd_kernel_short",
+          "void at::native::vectorized_elementwise_kernel<8, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#9}::operator()() const::{lambda(c10::BFloat16)#1}, std::array<char*, 2ul> >(int, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#9}::operator()() const::{lambda(c10::BFloat16)#1}, std::array<char*, 2ul>)",
+          "void at::native::vectorized_elementwise_kernel<8, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul> >(int, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul>)"
+        ]
+      },
+      "fp32": {
+        "samples": [
+          {
+            "gpu_ms": 0.8348586400349934,
+            "wall_ms": 0.8368861706306537
+          },
+          {
+            "gpu_ms": 0.7921056111653646,
+            "wall_ms": 0.7933848692725102
+          },
+          {
+            "gpu_ms": 0.8195775985717774,
+            "wall_ms": 0.8208200645943483
+          },
+          {
+            "gpu_ms": 0.8452906926472982,
+            "wall_ms": 0.8465916849672794
+          },
+          {
+            "gpu_ms": 0.7746890385945638,
+            "wall_ms": 0.7759027648717165
+          }
+        ],
+        "median_wall_ms": 0.8208200645943483,
+        "extra_saved_bytes": 7925760,
+        "forward_cuda_kernels": [
+          "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, 4, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, 4, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})",
+          "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::NormTwoOps<float, float, float>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::NormTwoOps<float, float, float>, unsigned int, float, 4, 4>)",
+          "void at::native::vectorized_elementwise_kernel<4, at::native::(anonymous namespace)::launch_clamp_scalar(at::TensorIteratorBase&, c10::Scalar, c10::Scalar, at::native::detail::ClampLimits)::{lambda()#1}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul> >(int, at::native::(anonymous namespace)::launch_clamp_scalar(at::TensorIteratorBase&, c10::Scalar, c10::Scalar, at::native::detail::ClampLimits)::{lambda()#1}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>)",
+          "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::DivFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::DivFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::DivFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::DivFunctor<float> > const&)::{lambda(int)#1})",
+          "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, 4, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, 4, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, 4, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "k_update_fwd_kernel_short",
+          "void at::native::vectorized_elementwise_kernel<8, at::native::bfloat16_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda(float)#1}, std::array<char*, 2ul> >(int, at::native::bfloat16_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda(float)#1}, std::array<char*, 2ul>)",
+          "void at::native::vectorized_elementwise_kernel<4, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul> >(int, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>)",
+          "void at::native::vectorized_elementwise_kernel<8, at::native::bfloat16_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda(float)#1}, std::array<char*, 2ul> >(int, at::native::bfloat16_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda(float)#1}, std::array<char*, 2ul>)",
+          "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, 4, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "void at::native::vectorized_elementwise_kernel<4, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul> >(int, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul>)",
+          "void at::native::vectorized_elementwise_kernel<8, at::native::bfloat16_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda(float)#1}, std::array<char*, 2ul> >(int, at::native::bfloat16_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda(float)#1}, std::array<char*, 2ul>)"
+        ]
+      },
+      "fp32_fused": {
+        "samples": [
+          {
+            "gpu_ms": 0.32397867838541666,
+            "wall_ms": 0.32549606015284854
+          },
+          {
+            "gpu_ms": 0.3255370775858561,
+            "wall_ms": 0.326777125398318
+          },
+          {
+            "gpu_ms": 0.32557865778605144,
+            "wall_ms": 0.3268208975593249
+          },
+          {
+            "gpu_ms": 0.3317066510518392,
+            "wall_ms": 0.33294733924170333
+          },
+          {
+            "gpu_ms": 0.32888854344685875,
+            "wall_ms": 0.330084344993035
+          }
+        ],
+        "median_wall_ms": 0.3268208975593249,
+        "extra_saved_bytes": 20480,
+        "forward_cuda_kernels": [
+          "## Call CompiledFxGraph fn6e3f5ra5ieialolprjjmm5xylu3x66m6swc4q26q57hywhn3rw ##",
+          "triton_per_fused__to_copy_linalg_vector_norm_mul_view_0",
+          "triton_poi_fused__to_copy_add_clamp_min_div_expand_mul_neg_sub_view_1"
+        ]
+      }
+    },
+    "512": {
+      "bf16": {
+        "samples": [
+          {
+            "gpu_ms": 0.595030403137207,
+            "wall_ms": 0.5965508986264467
+          },
+          {
+            "gpu_ms": 0.9339157104492187,
+            "wall_ms": 0.935138730953137
+          },
+          {
+            "gpu_ms": 1.0198432286580403,
+            "wall_ms": 1.0210870609929164
+          },
+          {
+            "gpu_ms": 0.9658336003621419,
+            "wall_ms": 0.96702273003757
+          },
+          {
+            "gpu_ms": 0.914355214436849,
+            "wall_ms": 0.9155288649102052
+          }
+        ],
+        "median_wall_ms": 0.935138730953137,
+        "extra_saved_bytes": 5324800,
+        "forward_cuda_kernels": [
+          "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})",
+          "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<c10::BFloat16, at::native::NormTwoOps<c10::BFloat16, float, c10::BFloat16>, unsigned int, c10::BFloat16, 4, 4> >(at::native::ReduceOp<c10::BFloat16, at::native::NormTwoOps<c10::BFloat16, float, c10::BFloat16>, unsigned int, c10::BFloat16, 4, 4>)",
+          "void at::native::vectorized_elementwise_kernel<8, at::native::(anonymous namespace)::launch_clamp_scalar(at::TensorIteratorBase&, c10::Scalar, c10::Scalar, at::native::detail::ClampLimits)::{lambda()#1}::operator()() const::{lambda()#9}::operator()() const::{lambda(c10::BFloat16)#1}, std::array<char*, 2ul> >(int, at::native::(anonymous namespace)::launch_clamp_scalar(at::TensorIteratorBase&, c10::Scalar, c10::Scalar, at::native::detail::ClampLimits)::{lambda()#1}::operator()() const::{lambda()#9}::operator()() const::{lambda(c10::BFloat16)#1}, std::array<char*, 2ul>)",
+          "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::DivFunctor<c10::BFloat16> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::DivFunctor<c10::BFloat16> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::DivFunctor<c10::BFloat16> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::DivFunctor<c10::BFloat16> > const&)::{lambda(int)#1})",
+          "k_update_fwd_kernel_short",
+          "void at::native::vectorized_elementwise_kernel<8, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#9}::operator()() const::{lambda(c10::BFloat16)#1}, std::array<char*, 2ul> >(int, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#9}::operator()() const::{lambda(c10::BFloat16)#1}, std::array<char*, 2ul>)",
+          "void at::native::vectorized_elementwise_kernel<8, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul> >(int, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul>)"
+        ]
+      },
+      "fp32": {
+        "samples": [
+          {
+            "gpu_ms": 1.1770943959554037,
+            "wall_ms": 1.1786853739370902
+          },
+          {
+            "gpu_ms": 1.137981923421224,
+            "wall_ms": 1.1391520344962676
+          },
+          {
+            "gpu_ms": 1.1651060740152994,
+            "wall_ms": 1.166264961163203
+          },
+          {
+            "gpu_ms": 1.087231953938802,
+            "wall_ms": 1.088371096799771
+          },
+          {
+            "gpu_ms": 1.1368544260660807,
+            "wall_ms": 1.137982231254379
+          }
+        ],
+        "median_wall_ms": 1.1391520344962676,
+        "extra_saved_bytes": 31641600,
+        "forward_cuda_kernels": [
+          "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, 4, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, 4, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})",
+          "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::NormTwoOps<float, float, float>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::NormTwoOps<float, float, float>, unsigned int, float, 4, 4>)",
+          "void at::native::vectorized_elementwise_kernel<4, at::native::(anonymous namespace)::launch_clamp_scalar(at::TensorIteratorBase&, c10::Scalar, c10::Scalar, at::native::detail::ClampLimits)::{lambda()#1}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul> >(int, at::native::(anonymous namespace)::launch_clamp_scalar(at::TensorIteratorBase&, c10::Scalar, c10::Scalar, at::native::detail::ClampLimits)::{lambda()#1}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>)",
+          "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::DivFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::DivFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::DivFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::DivFunctor<float> > const&)::{lambda(int)#1})",
+          "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, 4, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, 4, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, 4, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "k_update_fwd_kernel_short",
+          "void at::native::vectorized_elementwise_kernel<8, at::native::bfloat16_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda(float)#1}, std::array<char*, 2ul> >(int, at::native::bfloat16_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda(float)#1}, std::array<char*, 2ul>)",
+          "void at::native::vectorized_elementwise_kernel<4, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul> >(int, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>)",
+          "void at::native::vectorized_elementwise_kernel<8, at::native::bfloat16_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda(float)#1}, std::array<char*, 2ul> >(int, at::native::bfloat16_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda(float)#1}, std::array<char*, 2ul>)",
+          "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, 4, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "void at::native::vectorized_elementwise_kernel<4, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul> >(int, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul>)",
+          "void at::native::vectorized_elementwise_kernel<8, at::native::bfloat16_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda(float)#1}, std::array<char*, 2ul> >(int, at::native::bfloat16_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda(float)#1}, std::array<char*, 2ul>)"
+        ]
+      },
+      "fp32_fused": {
+        "samples": [
+          {
+            "gpu_ms": 0.30955413182576497,
+            "wall_ms": 0.3110992256551981
+          },
+          {
+            "gpu_ms": 0.3042517344156901,
+            "wall_ms": 0.3053835593163967
+          },
+          {
+            "gpu_ms": 0.3054613431294759,
+            "wall_ms": 0.30657993629574776
+          },
+          {
+            "gpu_ms": 0.31042025883992513,
+            "wall_ms": 0.3115369938313961
+          },
+          {
+            "gpu_ms": 0.304472541809082,
+            "wall_ms": 0.30561086411277455
+          }
+        ],
+        "median_wall_ms": 0.30657993629574776,
+        "extra_saved_bytes": 81920,
+        "forward_cuda_kernels": [
+          "## Call CompiledFxGraph fyt6kuytwyxlvujyzicpcgy2rzhn2ki2hxr63gvcwivfuemokph7 ##",
+          "triton_per_fused__to_copy_linalg_vector_norm_mul_view_0",
+          "triton_poi_fused__to_copy_add_clamp_min_div_expand_mul_neg_sub_view_1"
+        ]
+      }
+    },
+    "2048": {
+      "bf16": {
+        "samples": [
+          {
+            "gpu_ms": 0.6396725336710612,
+            "wall_ms": 0.6412169896066189
+          },
+          {
+            "gpu_ms": 0.6243104298909505,
+            "wall_ms": 0.625578360632062
+          },
+          {
+            "gpu_ms": 0.6236746470133464,
+            "wall_ms": 0.6248613353818655
+          },
+          {
+            "gpu_ms": 0.6234570821126302,
+            "wall_ms": 0.6245932076126337
+          },
+          {
+            "gpu_ms": 0.6168127695719401,
+            "wall_ms": 0.6180325988680124
+          }
+        ],
+        "median_wall_ms": 0.6248613353818655,
+        "extra_saved_bytes": 21299200,
+        "forward_cuda_kernels": [
+          "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})",
+          "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<c10::BFloat16, at::native::NormTwoOps<c10::BFloat16, float, c10::BFloat16>, unsigned int, c10::BFloat16, 4, 4> >(at::native::ReduceOp<c10::BFloat16, at::native::NormTwoOps<c10::BFloat16, float, c10::BFloat16>, unsigned int, c10::BFloat16, 4, 4>)",
+          "void at::native::vectorized_elementwise_kernel<8, at::native::(anonymous namespace)::launch_clamp_scalar(at::TensorIteratorBase&, c10::Scalar, c10::Scalar, at::native::detail::ClampLimits)::{lambda()#1}::operator()() const::{lambda()#9}::operator()() const::{lambda(c10::BFloat16)#1}, std::array<char*, 2ul> >(int, at::native::(anonymous namespace)::launch_clamp_scalar(at::TensorIteratorBase&, c10::Scalar, c10::Scalar, at::native::detail::ClampLimits)::{lambda()#1}::operator()() const::{lambda()#9}::operator()() const::{lambda(c10::BFloat16)#1}, std::array<char*, 2ul>)",
+          "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::DivFunctor<c10::BFloat16> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::DivFunctor<c10::BFloat16> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::DivFunctor<c10::BFloat16> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::DivFunctor<c10::BFloat16> > const&)::{lambda(int)#1})",
+          "k_update_fwd_kernel_long",
+          "void at::native::vectorized_elementwise_kernel<8, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#9}::operator()() const::{lambda(c10::BFloat16)#1}, std::array<char*, 2ul> >(int, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#9}::operator()() const::{lambda(c10::BFloat16)#1}, std::array<char*, 2ul>)",
+          "void at::native::vectorized_elementwise_kernel<8, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul> >(int, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul>)"
+        ]
+      },
+      "fp32": {
+        "samples": [
+          {
+            "gpu_ms": 0.8568554560343424,
+            "wall_ms": 0.8581235228727261
+          },
+          {
+            "gpu_ms": 0.8336405436197917,
+            "wall_ms": 0.8345998357981443
+          },
+          {
+            "gpu_ms": 0.8273674647013346,
+            "wall_ms": 0.8282991281400124
+          },
+          {
+            "gpu_ms": 0.8261205037434896,
+            "wall_ms": 0.8270625335474809
+          },
+          {
+            "gpu_ms": 0.8423775990804037,
+            "wall_ms": 0.8433108994116386
+          }
+        ],
+        "median_wall_ms": 0.8345998357981443,
+        "extra_saved_bytes": 126504960,
+        "forward_cuda_kernels": [
+          "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, 4, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})",
+          "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::NormTwoOps<float, float, float>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::NormTwoOps<float, float, float>, unsigned int, float, 4, 4>)",
+          "void at::native::vectorized_elementwise_kernel<4, at::native::(anonymous namespace)::launch_clamp_scalar(at::TensorIteratorBase&, c10::Scalar, c10::Scalar, at::native::detail::ClampLimits)::{lambda()#1}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul> >(int, at::native::(anonymous namespace)::launch_clamp_scalar(at::TensorIteratorBase&, c10::Scalar, c10::Scalar, at::native::detail::ClampLimits)::{lambda()#1}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>)",
+          "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::DivFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::DivFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::DivFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::DivFunctor<float> > const&)::{lambda(int)#1})",
+          "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, 4, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, 4, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, 4, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "k_update_fwd_kernel_long",
+          "void at::native::vectorized_elementwise_kernel<8, at::native::bfloat16_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda(float)#1}, std::array<char*, 2ul> >(int, at::native::bfloat16_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda(float)#1}, std::array<char*, 2ul>)",
+          "void at::native::vectorized_elementwise_kernel<4, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul> >(int, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>)",
+          "void at::native::vectorized_elementwise_kernel<8, at::native::bfloat16_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda(float)#1}, std::array<char*, 2ul> >(int, at::native::bfloat16_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda(float)#1}, std::array<char*, 2ul>)",
+          "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, 4, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "void at::native::vectorized_elementwise_kernel<4, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul> >(int, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul>)",
+          "void at::native::vectorized_elementwise_kernel<8, at::native::bfloat16_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda(float)#1}, std::array<char*, 2ul> >(int, at::native::bfloat16_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda(float)#1}, std::array<char*, 2ul>)"
+        ]
+      },
+      "fp32_fused": {
+        "samples": [
+          {
+            "gpu_ms": 0.31671358744303385,
+            "wall_ms": 0.3180073108524084
+          },
+          {
+            "gpu_ms": 0.3154069264729818,
+            "wall_ms": 0.3163297350207965
+          },
+          {
+            "gpu_ms": 0.3113237380981445,
+            "wall_ms": 0.3122285474091768
+          },
+          {
+            "gpu_ms": 0.30990721384684244,
+            "wall_ms": 0.3108242992311716
+          },
+          {
+            "gpu_ms": 0.31274026234944663,
+            "wall_ms": 0.3136483331521352
+          }
+        ],
+        "median_wall_ms": 0.3136483331521352,
+        "extra_saved_bytes": 327680,
+        "forward_cuda_kernels": [
+          "triton_poi_fused__to_copy_add_clamp_min_div_expand_mul_neg_sub_view_1",
+          "## Call CompiledFxGraph f7embuhjmz7luuj6cki26c6gfnqvhnu4roxzcipt3njy4wsgujvj ##"
+        ]
+      }
+    }
+  },
+  "benchmark_reused_for_additional_formula_check": true,
+  "oracle": "Independent FP64 formula; BF16 inputs and identical upstream gradients",
+  "benchmark_inputs": "Real layer15 inputs repeated for longer lengths"
+}

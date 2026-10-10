@@ -37,7 +37,10 @@ def main():
     parser.add_argument('--capture-core-gradients',action='store_true')
     parser.add_argument('--audit-v0-edges',action='store_true')
     parser.add_argument('--v0-fp32',action='store_true',help='Single-GPU diagnostic FP32 value-gradient accumulation')
-    parser.add_argument('--precision-probe',choices=('key','all'),help='Audit-only FP32 intermediates; production source stays unchanged')
+    parser.add_argument('--precision-probe',choices=('key','key-fused','all'),help='Audit-only FP32 intermediates; production source stays unchanged')
+    parser.add_argument('--sequence-length',type=int,default=128)
+    parser.add_argument('--token-offset',type=int,default=0)
+    parser.add_argument('--tokens-file',type=Path,help='Separate token copy for longer-sequence tests')
     parser.add_argument('--recompute',action='store_true',help='Exercise the training activation-checkpoint path')
     parser.add_argument('--split-value-reference',action='store_true')
     parser.add_argument('--shared-value-reference',action='store_true',help='Historical negative control: share WKV/correction value view')
@@ -47,6 +50,7 @@ def main():
     parser.add_argument('--carrier-chain-reference',action='store_true')
     parser.add_argument('--reference-core',choices=('recurrent','fla'),default='recurrent')
     args=parser.parse_args()
+    if args.sequence_length < 1 or args.token_offset < 0:parser.error('invalid sequence length or token offset')
     if args.v0_fp32 and not args.bf16:parser.error('v0-fp32 requires bf16')
     if args.precision_probe and not args.bf16:parser.error('precision-probe requires bf16')
     if args.recompute and args.audit_v0_edges:parser.error('edge observation needs the non-checkpointed graph')
@@ -67,18 +71,21 @@ def main():
     model_parallel_cuda_manual_seed(1234);torch.backends.cuda.matmul.allow_tf32=False
     global_vars._GLOBAL_ARGS=SimpleNamespace(transformer_impl='local')
     audit.FULL=args.full
-    if args.full:audit.DIMS={'layers':32,'hidden':2560,'heads':40,'ffn':10240,'vocab':65536,'sequence':128,'batch':1,'microbatches':1}
+    if args.full:audit.DIMS={'layers':32,'hidden':2560,'heads':40,'ffn':10240,'vocab':65536,'sequence':args.sequence_length,'batch':1,'microbatches':1}
     dim=audit.DIMS;dtype=torch.bfloat16 if args.bf16 else torch.float32
     if args.full:
         state=torch.load('/mnt/data/Models/RWKV-7/rwkv7-g1j-2.9b-20260831-ctx16384.pth',map_location='cpu',weights_only=True)
-        tokens=torch.load(PATH/'minipile-tokens.pth',weights_only=True).cuda()
+        tokens=torch.load(args.tokens_file or PATH/'minipile-tokens.pth',weights_only=True)
+        tokens=tokens[:,args.token_offset:args.token_offset+args.sequence_length+1]
+        assert tokens.shape[1]==args.sequence_length+1, 'token file too short'
+        tokens=tokens.cuda()
     else:
         audit.prepare_fixture();state=torch.load(PATH/'cropped-native.pth',weights_only=True)
         gen=torch.Generator().manual_seed(20261009);tokens=torch.randint(1,128,(2,129),generator=gen).cuda()
     x,y=tokens[:,:-1],tokens[:,1:]
     cfg=audit.config_for(1,1,False,args.recompute,fp32=not args.bf16)
     model=RWKV7Model(cfg,transformer_layer_spec=specs.get_rwkv7_layer_spec(),vocab_size=dim['vocab'],
-        max_sequence_length=128,pre_process=True,post_process=True,parallel_output=False,
+        max_sequence_length=dim['sequence'],pre_process=True,post_process=True,parallel_output=False,
         share_embeddings_and_output_weights=False,position_embedding_type='none').cuda().to(dtype)
     model.from_rwkv_lm(state,False);model.train()
     if args.torch_norms:
@@ -179,7 +186,7 @@ def main():
     trace_metrics={k:metric(v,reference.trace[k]) for k,v in trace.items() if k in reference.trace}
     gradient_trace={k:metric(v,(reference.live[k].grad.transpose(0,1) if args.aligned_reference else reference.live[k].grad).detach().cpu()) for k,v in actual_grad_trace.items() if k in reference.live and reference.live[k].grad is not None}
     grad_metrics={k:metric(actual_grad[k],v) for k,v in ref_grad.items()}
-    result={'full_3b':args.full,'dtype':str(dtype),'megatron_core':'torch recurrence' if args.naive_core else 'FLA',
+    result={'sequence_length':x.shape[1],'token_offset':args.token_offset,'full_3b':args.full,'dtype':str(dtype),'megatron_core':'torch recurrence' if args.naive_core else 'FLA',
         'reference_core':('official CUDA' if args.bf16 else 'independent torch recurrence') if profile=='blinkdl' else args.reference_core,
         'reference_profile':profile,'reference_provenance':reference.provenance() if profile=='blinkdl' else {'kind':'shared-primitive diagnostic; not an official implementation'},
         'recompute':args.recompute,'precision_probe':args.precision_probe,'v0_fp32_diagnostic':args.v0_fp32,'torch_norms':args.torch_norms,'runtime':report(),'loss_megatron':actual_loss,

@@ -1,0 +1,54 @@
+{
+  "key-seq512-offset0": {
+    "command": [
+      "bash",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/launch-single.sh",
+      "--full",
+      "--bf16",
+      "--all-gradients",
+      "--reference-profile",
+      "blinkdl",
+      "--sequence-length",
+      "512",
+      "--token-offset",
+      "0",
+      "--tokens-file",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/key-minipile-4097.pth",
+      "--result-tag=-key-fusion-key-seq512-offset0",
+      "--precision-probe",
+      "key",
+      "--capture-output",
+      "full-key-fusion-key-seq512-offset0",
+      "--capture-reference-output",
+      "full-key-fusion-official-seq512-offset0"
+    ],
+    "log": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/logs/audit-key-key-seq512-offset0.log",
+    "exit_code": 0
+  },
+  "key-seq512-offset512": {
+    "command": [
+      "bash",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/launch-single.sh",
+      "--full",
+      "--bf16",
+      "--all-gradients",
+      "--reference-profile",
+      "blinkdl",
+      "--sequence-length",
+      "512",
+      "--token-offset",
+      "512",
+      "--tokens-file",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/key-minipile-4097.pth",
+      "--result-tag=-key-fusion-key-seq512-offset512",
+      "--precision-probe",
+      "key",
+      "--capture-output",
+      "full-key-fusion-key-seq512-offset512",
+      "--capture-reference-output",
+      "full-key-fusion-official-seq512-offset512"
+    ],
+    "log": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/logs/audit-key-key-seq512-offset512.log",
+    "exit_code": 0
+  }
+}

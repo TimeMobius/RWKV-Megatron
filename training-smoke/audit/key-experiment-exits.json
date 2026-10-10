@@ -1,0 +1,155 @@
+{
+  "operator": {
+    "command": [
+      "bash",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/launch-key-experiment.sh",
+      "operator"
+    ],
+    "log": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/logs/audit-key-operator.log",
+    "exit_code": 0
+  },
+  "model-benchmark": {
+    "command": [
+      "bash",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/launch-key-experiment.sh",
+      "model"
+    ],
+    "log": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/logs/audit-key-model-benchmark.log",
+    "exit_code": 0
+  },
+  "bf16-seq512-offset0": {
+    "command": [
+      "bash",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/launch-single.sh",
+      "--full",
+      "--bf16",
+      "--all-gradients",
+      "--reference-profile",
+      "blinkdl",
+      "--sequence-length",
+      "512",
+      "--token-offset",
+      "0",
+      "--tokens-file",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/key-minipile-4097.pth",
+      "--result-tag=-key-fusion-bf16-seq512-offset0"
+    ],
+    "log": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/logs/audit-key-bf16-seq512-offset0.log",
+    "exit_code": 0
+  },
+  "key-fused-seq512-offset0": {
+    "command": [
+      "bash",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/launch-single.sh",
+      "--full",
+      "--bf16",
+      "--all-gradients",
+      "--reference-profile",
+      "blinkdl",
+      "--sequence-length",
+      "512",
+      "--token-offset",
+      "0",
+      "--tokens-file",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/key-minipile-4097.pth",
+      "--result-tag=-key-fusion-key-fused-seq512-offset0",
+      "--precision-probe",
+      "key-fused",
+      "--capture-output",
+      "full-key-fusion-key-fused-seq512-offset0"
+    ],
+    "log": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/logs/audit-key-key-fused-seq512-offset0.log",
+    "exit_code": 0
+  },
+  "bf16-seq512-offset512": {
+    "command": [
+      "bash",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/launch-single.sh",
+      "--full",
+      "--bf16",
+      "--all-gradients",
+      "--reference-profile",
+      "blinkdl",
+      "--sequence-length",
+      "512",
+      "--token-offset",
+      "512",
+      "--tokens-file",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/key-minipile-4097.pth",
+      "--result-tag=-key-fusion-bf16-seq512-offset512"
+    ],
+    "log": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/logs/audit-key-bf16-seq512-offset512.log",
+    "exit_code": 0
+  },
+  "key-fused-seq512-offset512": {
+    "command": [
+      "bash",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/launch-single.sh",
+      "--full",
+      "--bf16",
+      "--all-gradients",
+      "--reference-profile",
+      "blinkdl",
+      "--sequence-length",
+      "512",
+      "--token-offset",
+      "512",
+      "--tokens-file",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/key-minipile-4097.pth",
+      "--result-tag=-key-fusion-key-fused-seq512-offset512",
+      "--precision-probe",
+      "key-fused",
+      "--capture-output",
+      "full-key-fusion-key-fused-seq512-offset512"
+    ],
+    "log": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/logs/audit-key-key-fused-seq512-offset512.log",
+    "exit_code": 0
+  },
+  "small-key-fused": {
+    "command": [
+      "bash",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/launch-single.sh",
+      "--bf16",
+      "--all-gradients",
+      "--reference-profile",
+      "diagnostic",
+      "--reference-core",
+      "fla",
+      "--aligned-reference",
+      "--shared-pointops",
+      "--te-reference-norms",
+      "--te-final-reference",
+      "--precision-probe",
+      "key-fused",
+      "--capture-output",
+      "small-key-fused",
+      "--result-tag=-key-fusion-checkpoint"
+    ],
+    "log": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/logs/audit-key-small-key-fused.log",
+    "exit_code": 0
+  },
+  "small-key-fused-recompute": {
+    "command": [
+      "bash",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/launch-single.sh",
+      "--bf16",
+      "--all-gradients",
+      "--reference-profile",
+      "diagnostic",
+      "--reference-core",
+      "fla",
+      "--aligned-reference",
+      "--shared-pointops",
+      "--te-reference-norms",
+      "--te-final-reference",
+      "--precision-probe",
+      "key-fused",
+      "--capture-output",
+      "small-key-fused-recompute",
+      "--result-tag=-key-fusion-checkpoint",
+      "--recompute"
+    ],
+    "log": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/logs/audit-key-small-key-fused-recompute.log",
+    "exit_code": 0
+  }
+}

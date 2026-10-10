@@ -8,6 +8,10 @@ from v0_fp32 import modified_forward
 def install(model,mode):
     assert model.config.tensor_model_parallel_size==1 and model.config.pipeline_model_parallel_size==1
     assert model.config.bf16 and not model.config.sequence_parallel
+    if mode == 'key-fused':
+        from key_precision import install as install_key
+        install_key(model)
+        return
     for layer in model.decoder.layers:
         att=layer.self_attention
         replacements=[

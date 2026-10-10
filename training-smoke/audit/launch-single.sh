@@ -19,4 +19,4 @@ set -u
 cd /mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test
 mkdir -p training-smoke/logs
 export PYTHONPATH="$PWD:$PWD/tests:$PWD/training-smoke/audit:${PYTHONPATH:-}"
-exec python -m torch.distributed.run --master_port 51284 --nproc_per_node 1 training-smoke/audit/single.py "$@"
+exec python -m torch.distributed.run --master_port "${AUDIT_MASTER_PORT:-51284}" --nproc_per_node 1 training-smoke/audit/single.py "$@"

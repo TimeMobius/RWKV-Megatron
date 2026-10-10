@@ -13,6 +13,8 @@ rwkv_key_fusion: true
 
 L2Wrap 不改变显示的 CE loss；只在训练后向中，对每个有效 token 的全词表最大 logit 增加梯度。它跟随原 mask、token 数归一化和梯度缩放；被 mask 的 token 不增加正则梯度。YAML 中明确设置的 key 选项优先于环境变量，命令行 `--rwkv-l2wrap-coefficient`、`--rwkv-key-fusion` / `--no-rwkv-key-fusion` 可覆盖 YAML。测试范围与结果见 [L2WRAP.md](training-smoke/audit/L2WRAP.md)。
 
+验证默认继续读取下一组样本。YAML 顶层设置 `fixed_eval_samples: true` 后，每次 eval 都从验证集开头读取同一组；断点恢复后同样从开头读取。组的大小由 `eval_iters` 和验证 batch size 决定，比较时应保持数据、seed、序列长度及验证批次配置相同。设为 `false` 或不设置则保留原行为。支持内置 `single`/`cyclic` DataLoader；外部自定义迭代器不支持此开关。测试见 [FIXED-EVAL.md](training-smoke/audit/FIXED-EVAL.md)。
+
 <div align="center">
 
 <img src="/assets/logo.png" width="300px">

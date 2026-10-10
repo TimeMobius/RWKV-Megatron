@@ -1,5 +1,7 @@
 # 单卡 RWKV7 公式、FLA 调用与续训审计
 
+新增YAML选项`fixed_eval_samples: true`，每次验证及恢复后均读取验证集开头同一组；默认false保留继续往后读。完整3B实际token哈希、同权重重复loss、恢复/连续对应eval与最终检查点一致；关闭时五次验证读取五组不同数据。98项主仓库测试及3项Megatron专用测试通过，见`FIXED-EVAL.md`。
+
 新旧FLA算子评估见`FLA-OPERATOR-OPPORTUNITIES.md`：当前WKV已经使用新版Triton核心。审计中关闭WKV内部重计算，完整3B全部梯度/前向不变，512/2048模型测速约快3.8%/2.6%，代价是保存中间数据。输出修正速度持平，FLA GroupNorm较慢，组合的BF16整体梯度差变大，未切换默认。TileLang在当前H800/batch1配置被上游资格检查拒绝。
 
 L2Wrap与key合并现可从YAML配置：`rwkv_l2wrap_coefficient: 0.0001`、`rwkv_key_fusion: true/false`。L2Wrap默认关闭，公式/算子精度比较仍使用普通CE；显式开启后的官方CUDA loss对照、真实词表分片loss、两微批次训练与完整3B断点恢复验证见`L2WRAP.md`。未认证完整RWKV多卡或FP8。

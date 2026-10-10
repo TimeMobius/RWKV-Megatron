@@ -25,6 +25,8 @@ def add_rwkv_arguments(parser):
                         help="RWKV max-logit gradient strength; 0 disables, official value is 1e-4")
     parser.add_argument("--rwkv-key-fusion", action=argparse.BooleanOptionalAction, default=None,
                         help="Fuse FP32 key calculation; overrides RWKV7_KEY_FUSION when set")
+    parser.add_argument("--fixed-eval-samples", action=argparse.BooleanOptionalAction, default=False,
+                        help="Restart validation at the same first samples on every evaluation")
     for name in ("D_AAA_LORA", "D_DECAY_LORA", "D_GATE_LORA", "D_MV_LORA"):
         parser.add_argument(f"--{name}", type=int)
 
@@ -60,6 +62,8 @@ def add_rwkv_arguments(parser):
         settings['rwkv_l2wrap_coefficient'] = nonnegative_float(settings['rwkv_l2wrap_coefficient'])
     if settings.get('rwkv_key_fusion') is not None and not isinstance(settings['rwkv_key_fusion'], bool):
         raise ValueError('rwkv_key_fusion must be a YAML boolean (true/false)')
+    if not isinstance(settings.get('fixed_eval_samples', False), bool):
+        raise ValueError('fixed_eval_samples must be a YAML boolean (true/false)')
     # Position encoding is selected by position_embedding_type upstream.
     settings["add_position_embedding"] = True
     parser.set_defaults(**settings)

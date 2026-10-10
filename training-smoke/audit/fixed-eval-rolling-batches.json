@@ -1,0 +1,84 @@
+{
+  "events": [
+    {
+      "train_iteration": 0,
+      "consumed_valid_samples_before": 0,
+      "fixed_eval_samples": false,
+      "is_test": false,
+      "batch_hashes": [
+        "b3f022f530cca9e4465305e4826928b83923ceb55f7ab8646f17730de89ae6cb",
+        "8648b54acb86856eb9fb5bd387c991feb629fe92fe7cb99e748d6ca9d1f23603",
+        "3983be9775d765f981406e9a804850c59be867130ed6d3037219a7f42844552b",
+        "585c0981508405975c19862842479a32a79e4ea7cba6e99fee9061abf42215c2"
+      ],
+      "losses": {
+        "lm loss": 2.373682975769043
+      },
+      "consumed_valid_samples_after": 4
+    },
+    {
+      "train_iteration": 0,
+      "consumed_valid_samples_before": 4,
+      "fixed_eval_samples": false,
+      "is_test": false,
+      "batch_hashes": [
+        "df5dced92345cf09016e0d10206de9fade18de8d775f8b86f0b727ebb0abc932",
+        "133102e13fc28d892c25052a792441f3393d62f8725383c5c7e970d81bcfae1e",
+        "1025065233a8f2abaf7862595f1241843491a9d7bf2e764d919c81073e60bf35",
+        "ab4c05a2e0f5726d72974cd6d4502ab287ad6a32cecfc1427a0fb9d81b8f8af0"
+      ],
+      "losses": {
+        "lm loss": 2.974411964416504
+      },
+      "consumed_valid_samples_after": 8
+    },
+    {
+      "train_iteration": 0,
+      "consumed_valid_samples_before": 8,
+      "fixed_eval_samples": false,
+      "is_test": false,
+      "batch_hashes": [
+        "ab51b981e5bbfec75b1008760e24458b08193de785ca682a404ad1abec363e34",
+        "0ac69fe72bbd70df0d206321402663350c5a5552a18e10f53f483bcfe2576eef",
+        "381a1e24c31e9f490d5a234e9933faf809cdd082838cb0b0af7a9a9fcc493759",
+        "32b506fdee7b2941daa2ef93599555478c9da984a54f2956ed7f6efc29a312c7"
+      ],
+      "losses": {
+        "lm loss": 2.516453266143799
+      },
+      "consumed_valid_samples_after": 12
+    },
+    {
+      "train_iteration": 0,
+      "consumed_valid_samples_before": 12,
+      "fixed_eval_samples": false,
+      "is_test": false,
+      "batch_hashes": [
+        "72da9c3d0314acac6f1ff73e7b11cda36a58c25014cc9e03c151dd6e399ba4b0",
+        "8c21f60c51bfc6b9d3f73ba08e035a072472b6661332211a637c1ad978c05d4e",
+        "b893540df806a12ad429f4deb6d7fa3cda29d269b1e5a68f024c94fb74e6f224",
+        "53d742c7bbecd280c2b9edc28a50bb6c909028a34cd9b601c8af958c17ab272b"
+      ],
+      "losses": {
+        "lm loss": 3.1504578590393066
+      },
+      "consumed_valid_samples_after": 16
+    },
+    {
+      "train_iteration": 0,
+      "consumed_valid_samples_before": 16,
+      "fixed_eval_samples": false,
+      "is_test": false,
+      "batch_hashes": [
+        "1d92c19eb0016144a7531eb9d9e9f2b38223d255da6cd8d2c6ec0c9973a678b1",
+        "419aaee3cbcffc17b07ef470c0a08a9471fcbc34c385942b7c225868038c53b8",
+        "b1958bfcaae7033dc88ae96fe2c23bb7b053924cf223a7c8c77f0331b985e4c2",
+        "fa21d1ade75461ab43d33e85a00bbb6490b8886d4a536491d1b9e51eb889a765"
+      ],
+      "losses": {
+        "lm loss": 3.330881357192993
+      },
+      "consumed_valid_samples_after": 20
+    }
+  ]
+}

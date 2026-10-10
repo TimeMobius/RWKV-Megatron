@@ -3,6 +3,8 @@
 rwkv_l2wrap_coefficient: 0.0
 # false selects ordinary Torch FP32 key arithmetic; true enables fusion.
 rwkv_key_fusion: true
+# true reuses the first validation sample group at every eval.
+fixed_eval_samples: false
 
 language_model:
   # model architecture

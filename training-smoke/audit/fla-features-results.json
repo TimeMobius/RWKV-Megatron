@@ -1,0 +1,212 @@
+{
+  "original_muon": "3cf180339b8a1cbad823f553541cd531d18670ea",
+  "before_last_update": "79d12e8ec0ae72bc7f2189b4244d6532ce8c268c",
+  "current": "40850297f9f977d7d33eb9d87fcf9a460554b553",
+  "last_update_rwkv_history": [
+    "aaf1e196 [Refactor] Centralize backend dispatch and registration (#1347)",
+    "b4a0c734 [Fix] Unify program ID overflow handling in ops (#1329)"
+  ],
+  "features": {
+    "output_correction": {
+      "path": "fla/ops/rwkv7/gate_output_correction.py",
+      "exists_in_original_muon": true,
+      "history_since_muon": [
+        "b4a0c734 [Fix] Unify program ID overflow handling in ops (#1329)",
+        "31d15f75 [Fix] Fix int32 overflow in pointer arithmetic across Triton kernels (#1082)",
+        "5aea42b7 [Fix] Correct RWKV7 gate output chunk mask (#907)",
+        "39f2d402 chore: add AUTHORS file, unify copyright headers, and add CI workflows [skip test] (#816)"
+      ]
+    },
+    "channel_mixing": {
+      "path": "fla/ops/rwkv7/channel_mixing.py",
+      "exists_in_original_muon": true,
+      "history_since_muon": [
+        "ebd4dd27 [Fix] Mask out-of-bounds accesses in RWKV7 channel mixing kernels (#1103)",
+        "a4a2624b [Fix] Fix invalid launch above 65535 blocks in decode-path kernels (#1097)",
+        "31d15f75 [Fix] Fix int32 overflow in pointer arithmetic across Triton kernels (#1082)",
+        "16f4f94e [Misc] Remove unused USE_CUDA_GRAPH (#954)",
+        "39f2d402 chore: add AUTHORS file, unify copyright headers, and add CI workflows [skip test] (#816)"
+      ]
+    },
+    "l2_norm": {
+      "path": "fla/modules/l2norm.py",
+      "exists_in_original_muon": true,
+      "history_since_muon": [
+        "d21ece4c [Refactor] Group normalization implementations and backends (#1348)",
+        "5c351727 [Refactor] Align normalization kernels with FLA conventions (#1297)",
+        "31d15f75 [Fix] Fix int32 overflow in pointer arithmetic across Triton kernels (#1082)",
+        "02e27033 [Ops] Migrate kernels off tl.make_block_ptr / tl.advance for triton main compat [skip test] (#1062)",
+        "6f62104c [Ops] Add triton-ascend l2norm and fused_norm_gate backends for Ascend NPU (#1002)",
+        "761fc0b5 [Cache] FLA autotune cache (#798)",
+        "39f2d402 chore: add AUTHORS file, unify copyright headers, and add CI workflows [skip test] (#816)",
+        "64248fcc fewer l2norm recompilations (#745)"
+      ]
+    },
+    "fused_linear_ce": {
+      "path": "fla/modules/fused_linear_cross_entropy.py",
+      "exists_in_original_muon": true,
+      "history_since_muon": [
+        "c5195338 [CE] Share loss kernels and support vocabulary parallelism (#1231)",
+        "9d981ffe [Perf] Remove host syncs from fused linear CE and KL divergence (#1220)",
+        "8e5d8ea7 [Ops] Feat: Add triton-ascend backend support for FLA module kernels (#927)",
+        "794f183c [Fix] Improve fused loss gradient accumulation (#874)",
+        "3f6ac6d1 [Typo] Fix typos in kernel comments [skip test] (#856)",
+        "39f2d402 chore: add AUTHORS file, unify copyright headers, and add CI workflows [skip test] (#816)",
+        "e7b347bb [CE] Add logit softcapping support to fused cross entropy (#810)"
+      ]
+    },
+    "tilelang_backend": {
+      "path": "fla/ops/generalized_delta_rule/dplr/backends/tilelang/__init__.py",
+      "exists_in_original_muon": false,
+      "history_since_muon": [
+        "aaf1e196 [Refactor] Centralize backend dispatch and registration (#1347)",
+        "3bcd96c9 [DPLR] Add exact tensor-core (I-L)^-1 inversion for safe gates, default chunk_size to 64 for tight lower_bound (#1162)",
+        "5337b5ad [Perf] A Tilelang implementation of DPLR (#1069)"
+      ]
+    }
+  },
+  "tilelang_installed": false,
+  "gpu": "NVIDIA H800",
+  "compute_capability": [
+    9,
+    0
+  ],
+  "tilelang_eligibility_only_not_execution": [
+    {
+      "batch": 1,
+      "heads": 40,
+      "head_size": 64,
+      "chunk_size": 16,
+      "lower_bound": null,
+      "shape_eligible": false,
+      "reason": "TileLang backend is slower than Triton on small grids (N*H*(V/BV)=40 < 66 SMs/2); fall back to Triton"
+    },
+    {
+      "batch": 1,
+      "heads": 40,
+      "head_size": 64,
+      "chunk_size": 16,
+      "lower_bound": -0.6065306597126334,
+      "shape_eligible": false,
+      "reason": "TileLang backend is slower than Triton on small grids (N*H*(V/BV)=40 < 66 SMs/2); fall back to Triton"
+    },
+    {
+      "batch": 1,
+      "heads": 40,
+      "head_size": 64,
+      "chunk_size": 32,
+      "lower_bound": null,
+      "shape_eligible": false,
+      "reason": "TileLang backend is slower than Triton on small grids (N*H*(V/BV)=40 < 66 SMs/2); fall back to Triton"
+    },
+    {
+      "batch": 1,
+      "heads": 40,
+      "head_size": 64,
+      "chunk_size": 32,
+      "lower_bound": -0.6065306597126334,
+      "shape_eligible": false,
+      "reason": "TileLang backend is slower than Triton on small grids (N*H*(V/BV)=40 < 66 SMs/2); fall back to Triton"
+    },
+    {
+      "batch": 1,
+      "heads": 40,
+      "head_size": 64,
+      "chunk_size": 64,
+      "lower_bound": null,
+      "shape_eligible": false,
+      "reason": "TileLang backend requires safe_gate or a lower_bound that fits chunk_size 64: its mid-chunk-centered tensor-core scheme keeps exp2 operands in fp32 range only while (chunk_size/2+1)*bound*log2(e) <= 124 (the documented safe_gate range [-5, 0) fits chunk_size 16/32 but not 64); fall back to Triton"
+    },
+    {
+      "batch": 1,
+      "heads": 40,
+      "head_size": 64,
+      "chunk_size": 64,
+      "lower_bound": -0.6065306597126334,
+      "shape_eligible": false,
+      "reason": "TileLang backend is slower than Triton at chunk_size 64 on compute capability 9.0; fall back to Triton"
+    },
+    {
+      "batch": 2,
+      "heads": 40,
+      "head_size": 64,
+      "chunk_size": 16,
+      "lower_bound": null,
+      "shape_eligible": true,
+      "reason": null
+    },
+    {
+      "batch": 2,
+      "heads": 40,
+      "head_size": 64,
+      "chunk_size": 16,
+      "lower_bound": -0.6065306597126334,
+      "shape_eligible": true,
+      "reason": null
+    },
+    {
+      "batch": 2,
+      "heads": 40,
+      "head_size": 64,
+      "chunk_size": 32,
+      "lower_bound": null,
+      "shape_eligible": true,
+      "reason": null
+    },
+    {
+      "batch": 2,
+      "heads": 40,
+      "head_size": 64,
+      "chunk_size": 32,
+      "lower_bound": -0.6065306597126334,
+      "shape_eligible": true,
+      "reason": null
+    },
+    {
+      "batch": 2,
+      "heads": 40,
+      "head_size": 64,
+      "chunk_size": 64,
+      "lower_bound": null,
+      "shape_eligible": false,
+      "reason": "TileLang backend requires safe_gate or a lower_bound that fits chunk_size 64: its mid-chunk-centered tensor-core scheme keeps exp2 operands in fp32 range only while (chunk_size/2+1)*bound*log2(e) <= 124 (the documented safe_gate range [-5, 0) fits chunk_size 16/32 but not 64); fall back to Triton"
+    },
+    {
+      "batch": 2,
+      "heads": 40,
+      "head_size": 64,
+      "chunk_size": 64,
+      "lower_bound": -0.6065306597126334,
+      "shape_eligible": false,
+      "reason": "TileLang backend is slower than Triton at chunk_size 64 on compute capability 9.0; fall back to Triton"
+    }
+  ],
+  "l2_norm_default_formula_difference": {
+    "0": {
+      "max_abs": 0.0002416372299194336,
+      "relative_l2": 4.282730476080555e-05,
+      "reference_l2": 71.55417539559298,
+      "actual_l2": 71.55227153906185,
+      "finite": true
+    },
+    "15": {
+      "max_abs": 1.7285346984863281e-06,
+      "relative_l2": 1.5116679571776716e-07,
+      "reference_l2": 71.55417536702053,
+      "actual_l2": 71.5541685386767,
+      "finite": true
+    },
+    "31": {
+      "max_abs": 1.7881393432617188e-07,
+      "relative_l2": 7.037932645037798e-08,
+      "reference_l2": 71.55417537998294,
+      "actual_l2": 71.55417584041257,
+      "finite": true
+    }
+  },
+  "l2_norm_tiny_input": {
+    "torch_normalized_norm": 1.0,
+    "fla_default_normalized_norm": 0.007999744266271591
+  },
+  "environment_changed": false
+}

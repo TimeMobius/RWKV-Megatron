@@ -1,0 +1,59 @@
+{
+  "local-operators": {
+    "command": [
+      "bash",
+      "training-smoke/audit/launch-fla-candidates.sh"
+    ],
+    "exit_code": 0,
+    "log": "training-smoke/logs/audit-fla-candidates.log"
+  },
+  "source-and-tilelang-eligibility": {
+    "command": [
+      "bash",
+      "training-smoke/audit/launch-fla-features.sh"
+    ],
+    "exit_code": 0,
+    "environment": {
+      "CUDA_VISIBLE_DEVICES": "1"
+    },
+    "log": "training-smoke/logs/audit-fla-features.log"
+  },
+  "fp32-combination-formula": {
+    "command": [
+      "bash",
+      "training-smoke/audit/launch-single.sh",
+      "--naive-core",
+      "--all-gradients",
+      "--reference-profile",
+      "blinkdl",
+      "--fla-candidate",
+      "norm-correction",
+      "--result-tag=-fla-candidate-fp32-formula"
+    ],
+    "exit_code": 0,
+    "environment": {
+      "CUDA_VISIBLE_DEVICES": "1",
+      "AUDIT_MASTER_PORT": "51285"
+    },
+    "log": "training-smoke/logs/audit-fla-candidate-fp32-formula.log"
+  },
+  "analysis": {
+    "command": [
+      "/mnt/data/anaconda3/envs/train_mobius_py312/bin/python",
+      "training-smoke/audit/analyze-fla-candidates.py"
+    ],
+    "exit_code": 0,
+    "environment": {
+      "OMP_NUM_THREADS": "8"
+    },
+    "log": "training-smoke/logs/audit-fla-candidate-analysis.log"
+  },
+  "evidence-validation": {
+    "command": [
+      "/mnt/data/anaconda3/envs/train_mobius_py312/bin/python",
+      "training-smoke/audit/validate-fla-candidates.py"
+    ],
+    "exit_code": 0,
+    "log": "training-smoke/logs/audit-fla-candidate-validation.log"
+  }
+}

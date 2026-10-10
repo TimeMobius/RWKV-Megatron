@@ -1,0 +1,1317 @@
+{
+  "input": "Current full3B fixed MiniPile seq128; layer0/15/31; key fusion already enabled",
+  "accuracy_reference": "Independent FP64 formulas with identical input and upstream gradient",
+  "benchmark_input": "Real layer15 tensors, repeated along time for longer lengths; not long-context model outputs",
+  "production_changed": false,
+  "accuracy": {
+    "0": {
+      "correction": {
+        "current": {
+          "output": {
+            "max_abs": 0.005500165843716598,
+            "relative_l2": 0.002031228843374475,
+            "reference_l2": 15.957671314787376,
+            "actual_l2": 15.959341039928425,
+            "finite": true
+          },
+          "gradient": [
+            {
+              "max_abs": 0.24609375,
+              "relative_l2": 0.0015718472148036865,
+              "reference_l2": 1182.9435996183354,
+              "actual_l2": 1182.9927693036768,
+              "finite": true
+            },
+            {
+              "max_abs": 0.0030065349548695774,
+              "relative_l2": 0.0034558417878884076,
+              "reference_l2": 5.005543921200639,
+              "actual_l2": 5.0045443905185705,
+              "finite": true
+            },
+            {
+              "max_abs": 0.0048710781632811395,
+              "relative_l2": 0.0037088352063622608,
+              "reference_l2": 5.5753028452619455,
+              "actual_l2": 5.5721940705057085,
+              "finite": true
+            },
+            {
+              "max_abs": 0.010323731659926949,
+              "relative_l2": 0.003204729467519478,
+              "reference_l2": 17.309285886550168,
+              "actual_l2": 17.310677481901408,
+              "finite": true
+            },
+            {
+              "max_abs": 0.0007229728312050654,
+              "relative_l2": 0.00470939483115478,
+              "reference_l2": 0.30644705738932415,
+              "actual_l2": 0.30554313809386396,
+              "finite": true
+            },
+            {
+              "max_abs": 0.01265373747474019,
+              "relative_l2": 0.0017919901416293912,
+              "reference_l2": 32.24157687268019,
+              "actual_l2": 32.239240784530075,
+              "finite": true
+            }
+          ]
+        },
+        "fla": {
+          "output": {
+            "max_abs": 0.003814070136468173,
+            "relative_l2": 0.001895074185672116,
+            "reference_l2": 15.957671314787376,
+            "actual_l2": 15.955753336905545,
+            "finite": true
+          },
+          "gradient": [
+            {
+              "max_abs": 0.24609375,
+              "relative_l2": 0.0015718472148036865,
+              "reference_l2": 1182.9435996183354,
+              "actual_l2": 1182.9927693036768,
+              "finite": true
+            },
+            {
+              "max_abs": 0.0009938378505267575,
+              "relative_l2": 0.001650616111467469,
+              "reference_l2": 5.005543921200639,
+              "actual_l2": 5.005371299576006,
+              "finite": true
+            },
+            {
+              "max_abs": 0.0015593899901427122,
+              "relative_l2": 0.0016274074096595992,
+              "reference_l2": 5.5753028452619455,
+              "actual_l2": 5.57479345522599,
+              "finite": true
+            },
+            {
+              "max_abs": 0.0039033263830539067,
+              "relative_l2": 0.0016131095198962983,
+              "reference_l2": 17.309285886550168,
+              "actual_l2": 17.30826362653734,
+              "finite": true
+            },
+            {
+              "max_abs": 0.0002535896687949346,
+              "relative_l2": 0.0015804759501025496,
+              "reference_l2": 0.30644705738932415,
+              "actual_l2": 0.3064228416682909,
+              "finite": true
+            },
+            {
+              "max_abs": 0.01265373747474019,
+              "relative_l2": 0.0016833083698134458,
+              "reference_l2": 32.24157687268019,
+              "actual_l2": 32.24027762335852,
+              "finite": true
+            }
+          ]
+        }
+      },
+      "group_norm": {
+        "current": {
+          "output": {
+            "max_abs": 0.0038952738367667994,
+            "relative_l2": 0.0009246389307415447,
+            "reference_l2": 31.795400280098235,
+            "actual_l2": 31.79344789332039,
+            "finite": true
+          },
+          "gradient": [
+            {
+              "max_abs": 0.6450987097778409,
+              "relative_l2": 0.0018154333043635018,
+              "reference_l2": 11267.162566870407,
+              "actual_l2": 11258.973782181074,
+              "finite": true
+            },
+            {
+              "max_abs": 0.328873721032636,
+              "relative_l2": 0.0050174760292885845,
+              "reference_l2": 74.6908412137409,
+              "actual_l2": 74.4849560109717,
+              "finite": true
+            },
+            {
+              "max_abs": 0.12496185302734375,
+              "relative_l2": 0.0016647962418433688,
+              "reference_l2": 579.2912199876132,
+              "actual_l2": 579.2936374379372,
+              "finite": true
+            }
+          ]
+        },
+        "fla": {
+          "output": {
+            "max_abs": 0.0038952738367667994,
+            "relative_l2": 0.0009050911357071559,
+            "reference_l2": 31.795400280098235,
+            "actual_l2": 31.79362582369586,
+            "finite": true
+          },
+          "gradient": [
+            {
+              "max_abs": 0.4995121928390063,
+              "relative_l2": 0.001662768956377288,
+              "reference_l2": 11267.162566870407,
+              "actual_l2": 11267.103232159832,
+              "finite": true
+            },
+            {
+              "max_abs": 0.10824790827527409,
+              "relative_l2": 0.001918102502298065,
+              "reference_l2": 74.6908412137409,
+              "actual_l2": 74.63530192251154,
+              "finite": true
+            },
+            {
+              "max_abs": 0.12496185302734375,
+              "relative_l2": 0.0016647962418433688,
+              "reference_l2": 579.2912199876132,
+              "actual_l2": 579.2936374379372,
+              "finite": true
+            }
+          ]
+        }
+      }
+    },
+    "15": {
+      "correction": {
+        "current": {
+          "output": {
+            "max_abs": 0.0033047651459174876,
+            "relative_l2": 0.0023823404531432167,
+            "reference_l2": 18.011104807554993,
+            "actual_l2": 18.01032553819697,
+            "finite": true
+          },
+          "gradient": [
+            {
+              "max_abs": 0.1171875,
+              "relative_l2": 0.0016048918607573723,
+              "reference_l2": 430.5724538588926,
+              "actual_l2": 430.60019278733176,
+              "finite": true
+            },
+            {
+              "max_abs": 0.005150273413917716,
+              "relative_l2": 0.003529571213183543,
+              "reference_l2": 13.93345924095151,
+              "actual_l2": 13.932543820979376,
+              "finite": true
+            },
+            {
+              "max_abs": 0.011736629834969037,
+              "relative_l2": 0.003525481296081179,
+              "reference_l2": 34.53671141237111,
+              "actual_l2": 34.5308616275304,
+              "finite": true
+            },
+            {
+              "max_abs": 0.018374531985026366,
+              "relative_l2": 0.003930383973391989,
+              "reference_l2": 12.947343014259303,
+              "actual_l2": 12.94099247645156,
+              "finite": true
+            },
+            {
+              "max_abs": 0.3931682467469244,
+              "relative_l2": 0.003958345080812743,
+              "reference_l2": 150.7704067463075,
+              "actual_l2": 150.45135455911569,
+              "finite": true
+            },
+            {
+              "max_abs": 0.03270612880795021,
+              "relative_l2": 0.002285633838224587,
+              "reference_l2": 117.77712365482333,
+              "actual_l2": 117.77101561596692,
+              "finite": true
+            }
+          ]
+        },
+        "fla": {
+          "output": {
+            "max_abs": 0.0018942010904992035,
+            "relative_l2": 0.0016716604666127792,
+            "reference_l2": 18.011104807554993,
+            "actual_l2": 18.01054128399272,
+            "finite": true
+          },
+          "gradient": [
+            {
+              "max_abs": 0.1171875,
+              "relative_l2": 0.0016048918607573723,
+              "reference_l2": 430.5724538588926,
+              "actual_l2": 430.60019278733176,
+              "finite": true
+            },
+            {
+              "max_abs": 0.0018798444331000752,
+              "relative_l2": 0.0016310192317994354,
+              "reference_l2": 13.93345924095151,
+              "actual_l2": 13.933315416205998,
+              "finite": true
+            },
+            {
+              "max_abs": 0.0072852961073879285,
+              "relative_l2": 0.001690968363188452,
+              "reference_l2": 34.53671141237111,
+              "actual_l2": 34.53484356576404,
+              "finite": true
+            },
+            {
+              "max_abs": 0.0037988925229466286,
+              "relative_l2": 0.0016346031769231288,
+              "reference_l2": 12.947343014259303,
+              "actual_l2": 12.947064638552959,
+              "finite": true
+            },
+            {
+              "max_abs": 0.11872858760760607,
+              "relative_l2": 0.0016540464781658378,
+              "reference_l2": 150.7704067463075,
+              "actual_l2": 150.87508915802752,
+              "finite": true
+            },
+            {
+              "max_abs": 0.015618724843989185,
+              "relative_l2": 0.001656650274919079,
+              "reference_l2": 117.77712365482333,
+              "actual_l2": 117.77119401928059,
+              "finite": true
+            }
+          ]
+        }
+      },
+      "group_norm": {
+        "current": {
+          "output": {
+            "max_abs": 0.01292897641093127,
+            "relative_l2": 0.002942533887516697,
+            "reference_l2": 118.81055279605754,
+            "actual_l2": 118.81198646941327,
+            "finite": true
+          },
+          "gradient": [
+            {
+              "max_abs": 0.06507868947468154,
+              "relative_l2": 0.0023361477530703407,
+              "reference_l2": 600.1828073509968,
+              "actual_l2": 600.1993582765823,
+              "finite": true
+            },
+            {
+              "max_abs": 0.4080351136277045,
+              "relative_l2": 0.002230992840759067,
+              "reference_l2": 521.0330482253188,
+              "actual_l2": 520.7910916482017,
+              "finite": true
+            },
+            {
+              "max_abs": 0.119384765625,
+              "relative_l2": 0.0016219471075126495,
+              "reference_l2": 562.2126888910115,
+              "actual_l2": 562.1391364211598,
+              "finite": true
+            }
+          ]
+        },
+        "fla": {
+          "output": {
+            "max_abs": 0.011931476671855457,
+            "relative_l2": 0.0016827115341225638,
+            "reference_l2": 118.81055279605754,
+            "actual_l2": 118.8095552488114,
+            "finite": true
+          },
+          "gradient": [
+            {
+              "max_abs": 0.05992131052531846,
+              "relative_l2": 0.0016619567854303083,
+              "reference_l2": 600.1828073509968,
+              "actual_l2": 600.1937912964268,
+              "finite": true
+            },
+            {
+              "max_abs": 0.4080351136277045,
+              "relative_l2": 0.0016103959972836878,
+              "reference_l2": 521.0330482253188,
+              "actual_l2": 521.0058270837058,
+              "finite": true
+            },
+            {
+              "max_abs": 0.119384765625,
+              "relative_l2": 0.0016219471075126495,
+              "reference_l2": 562.2126888910115,
+              "actual_l2": 562.1391364211598,
+              "finite": true
+            }
+          ]
+        }
+      }
+    },
+    "31": {
+      "correction": {
+        "current": {
+          "output": {
+            "max_abs": 0.6609996504976436,
+            "relative_l2": 0.002845314927080387,
+            "reference_l2": 1703.1288984791029,
+            "actual_l2": 1703.1862236143077,
+            "finite": true
+          },
+          "gradient": [
+            {
+              "max_abs": 0.4921875,
+              "relative_l2": 0.0016076985951036203,
+              "reference_l2": 943.1821327775889,
+              "actual_l2": 943.154972846393,
+              "finite": true
+            },
+            {
+              "max_abs": 0.2943390262048169,
+              "relative_l2": 0.0038235211514129185,
+              "reference_l2": 620.2520313954484,
+              "actual_l2": 620.3126157299913,
+              "finite": true
+            },
+            {
+              "max_abs": 0.3281299325559104,
+              "relative_l2": 0.0036983148083097796,
+              "reference_l2": 855.6254385798313,
+              "actual_l2": 855.6764878081669,
+              "finite": true
+            },
+            {
+              "max_abs": 3.2586388939452036,
+              "relative_l2": 0.0032662645996369218,
+              "reference_l2": 6649.804301927914,
+              "actual_l2": 6648.920132914933,
+              "finite": true
+            },
+            {
+              "max_abs": 883.782197317807,
+              "relative_l2": 0.002367380932624281,
+              "reference_l2": 374155.15601609065,
+              "actual_l2": 375039.10419312457,
+              "finite": true
+            },
+            {
+              "max_abs": 0.5378316451691774,
+              "relative_l2": 0.0029657505642509013,
+              "reference_l2": 1042.7870958382207,
+              "actual_l2": 1042.6429549870766,
+              "finite": true
+            }
+          ]
+        },
+        "fla": {
+          "output": {
+            "max_abs": 0.4614279416326781,
+            "relative_l2": 0.001684523551967518,
+            "reference_l2": 1703.1288984791029,
+            "actual_l2": 1703.032970812042,
+            "finite": true
+          },
+          "gradient": [
+            {
+              "max_abs": 0.4921875,
+              "relative_l2": 0.0016076985951036203,
+              "reference_l2": 943.1821327775889,
+              "actual_l2": 943.154972846393,
+              "finite": true
+            },
+            {
+              "max_abs": 0.12348874943913302,
+              "relative_l2": 0.0016054412841123387,
+              "reference_l2": 620.2520313954484,
+              "actual_l2": 620.2520165267191,
+              "finite": true
+            },
+            {
+              "max_abs": 0.23264461359737254,
+              "relative_l2": 0.001681084358982956,
+              "reference_l2": 855.6254385798313,
+              "actual_l2": 855.6273695960394,
+              "finite": true
+            },
+            {
+              "max_abs": 1.9876190329265455,
+              "relative_l2": 0.0017181079878718607,
+              "reference_l2": 6649.804301927914,
+              "actual_l2": 6650.091338433806,
+              "finite": true
+            },
+            {
+              "max_abs": 883.782197317807,
+              "relative_l2": 0.0023631382766036656,
+              "reference_l2": 374155.15601609065,
+              "actual_l2": 375038.0996221112,
+              "finite": true
+            },
+            {
+              "max_abs": 0.24653462408090832,
+              "relative_l2": 0.0016555171674245068,
+              "reference_l2": 1042.7870958382207,
+              "actual_l2": 1042.7005288477806,
+              "finite": true
+            }
+          ]
+        }
+      },
+      "group_norm": {
+        "current": {
+          "output": {
+            "max_abs": 0.11813494333686236,
+            "relative_l2": 0.002381070488629144,
+            "reference_l2": 846.2498438424628,
+            "actual_l2": 846.2390657882208,
+            "finite": true
+          },
+          "gradient": [
+            {
+              "max_abs": 0.10730932220214484,
+              "relative_l2": 0.0023625176329881833,
+              "reference_l2": 382.8380560456929,
+              "actual_l2": 382.8550360103923,
+              "finite": true
+            },
+            {
+              "max_abs": 0.8320489078217861,
+              "relative_l2": 0.0027973668993745227,
+              "reference_l2": 578.7077401815746,
+              "actual_l2": 579.1046198726131,
+              "finite": true
+            },
+            {
+              "max_abs": 0.121429443359375,
+              "relative_l2": 0.0016455079688917648,
+              "reference_l2": 572.2682881047513,
+              "actual_l2": 572.2986038401234,
+              "finite": true
+            }
+          ]
+        },
+        "fla": {
+          "output": {
+            "max_abs": 0.062383287622576944,
+            "relative_l2": 0.0016885901624597449,
+            "reference_l2": 846.2498438424628,
+            "actual_l2": 846.2374135847853,
+            "finite": true
+          },
+          "gradient": [
+            {
+              "max_abs": 0.031083958577982074,
+              "relative_l2": 0.0016601312577957863,
+              "reference_l2": 382.8380560456929,
+              "actual_l2": 382.82246426113693,
+              "finite": true
+            },
+            {
+              "max_abs": 0.8320489078217861,
+              "relative_l2": 0.0021083503810635693,
+              "reference_l2": 578.7077401815746,
+              "actual_l2": 578.8454864243943,
+              "finite": true
+            },
+            {
+              "max_abs": 0.121429443359375,
+              "relative_l2": 0.0016455079688917648,
+              "reference_l2": 572.2682881047513,
+              "actual_l2": 572.2986038401234,
+              "finite": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "benchmark": {
+    "correction": {
+      "128": {
+        "current": {
+          "samples": [
+            {
+              "gpu_ms": 0.232260799407959,
+              "wall_ms": 0.23407479748129845
+            },
+            {
+              "gpu_ms": 0.23352160453796386,
+              "wall_ms": 0.2347391564399004
+            },
+            {
+              "gpu_ms": 0.22797760963439942,
+              "wall_ms": 0.22908479440957308
+            },
+            {
+              "gpu_ms": 0.23319358825683595,
+              "wall_ms": 0.23439563810825348
+            },
+            {
+              "gpu_ms": 0.22910559177398682,
+              "wall_ms": 0.230152509175241
+            }
+          ],
+          "median_wall_ms": 0.23407479748129845,
+          "median_gpu_ms": 0.232260799407959,
+          "extra_saved_bytes": 1320960,
+          "forward_cuda_kernel_count": 6,
+          "forward_cuda_kernels": [
+            "void at::native::vectorized_elementwise_kernel<8, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul> >(int, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul>)",
+            "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})",
+            "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<c10::BFloat16, at::native::func_wrapper_t<c10::BFloat16, at::native::sum_functor<c10::BFloat16, float, c10::BFloat16>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, c10::BFloat16, 4, 4> >(at::native::ReduceOp<c10::BFloat16, at::native::func_wrapper_t<c10::BFloat16, at::native::sum_functor<c10::BFloat16, float, c10::BFloat16>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, c10::BFloat16, 4, 4>)",
+            "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})",
+            "void at::native::vectorized_elementwise_kernel<8, at::native::CUDAFunctor_add<c10::BFloat16>, std::array<char*, 3ul> >(int, at::native::CUDAFunctor_add<c10::BFloat16>, std::array<char*, 3ul>)",
+            "void at::native::vectorized_elementwise_kernel<8, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul> >(int, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul>)"
+          ]
+        },
+        "fla": {
+          "samples": [
+            {
+              "gpu_ms": 0.32648639678955077,
+              "wall_ms": 0.32789018005132675
+            },
+            {
+              "gpu_ms": 0.3172111988067627,
+              "wall_ms": 0.318528781645
+            },
+            {
+              "gpu_ms": 0.32283840179443357,
+              "wall_ms": 0.32416649628430605
+            },
+            {
+              "gpu_ms": 0.3139552116394043,
+              "wall_ms": 0.31529294792562723
+            },
+            {
+              "gpu_ms": 0.31941120624542235,
+              "wall_ms": 0.3206846537068486
+            }
+          ],
+          "median_wall_ms": 0.3206846537068486,
+          "median_gpu_ms": 0.31941120624542235,
+          "extra_saved_bytes": 0,
+          "forward_cuda_kernel_count": 1,
+          "forward_cuda_kernels": [
+            "gate_output_correction_fwd_kernel"
+          ]
+        }
+      },
+      "512": {
+        "current": {
+          "samples": [
+            {
+              "gpu_ms": 0.26348319053649905,
+              "wall_ms": 0.26544341817498207
+            },
+            {
+              "gpu_ms": 0.26512320041656495,
+              "wall_ms": 0.266586453653872
+            },
+            {
+              "gpu_ms": 0.2594592094421387,
+              "wall_ms": 0.2607371425256133
+            },
+            {
+              "gpu_ms": 0.26587519645690916,
+              "wall_ms": 0.2673452952876687
+            },
+            {
+              "gpu_ms": 0.26097280979156495,
+              "wall_ms": 0.26227254420518875
+            }
+          ],
+          "median_wall_ms": 0.26544341817498207,
+          "median_gpu_ms": 0.26348319053649905,
+          "extra_saved_bytes": 5283840,
+          "forward_cuda_kernel_count": 6,
+          "forward_cuda_kernels": [
+            "void at::native::vectorized_elementwise_kernel<8, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul> >(int, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul>)",
+            "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})",
+            "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<c10::BFloat16, at::native::func_wrapper_t<c10::BFloat16, at::native::sum_functor<c10::BFloat16, float, c10::BFloat16>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, c10::BFloat16, 4, 4> >(at::native::ReduceOp<c10::BFloat16, at::native::func_wrapper_t<c10::BFloat16, at::native::sum_functor<c10::BFloat16, float, c10::BFloat16>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, c10::BFloat16, 4, 4>)",
+            "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})",
+            "void at::native::vectorized_elementwise_kernel<8, at::native::CUDAFunctor_add<c10::BFloat16>, std::array<char*, 3ul> >(int, at::native::CUDAFunctor_add<c10::BFloat16>, std::array<char*, 3ul>)",
+            "void at::native::vectorized_elementwise_kernel<8, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul> >(int, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul>)"
+          ]
+        },
+        "fla": {
+          "samples": [
+            {
+              "gpu_ms": 0.34512159824371336,
+              "wall_ms": 0.34671404864639044
+            },
+            {
+              "gpu_ms": 0.3344383955001831,
+              "wall_ms": 0.3359454916790128
+            },
+            {
+              "gpu_ms": 0.34351201057434083,
+              "wall_ms": 0.34502740018069744
+            },
+            {
+              "gpu_ms": 0.3336463928222656,
+              "wall_ms": 0.33513300586491823
+            },
+            {
+              "gpu_ms": 0.3414704084396362,
+              "wall_ms": 0.3430020995438099
+            }
+          ],
+          "median_wall_ms": 0.3430020995438099,
+          "median_gpu_ms": 0.3414704084396362,
+          "extra_saved_bytes": 0,
+          "forward_cuda_kernel_count": 1,
+          "forward_cuda_kernels": [
+            "gate_output_correction_fwd_kernel"
+          ]
+        }
+      },
+      "2048": {
+        "current": {
+          "samples": [
+            {
+              "gpu_ms": 0.2676367998123169,
+              "wall_ms": 0.26952424086630344
+            },
+            {
+              "gpu_ms": 0.270467209815979,
+              "wall_ms": 0.2719416515901685
+            },
+            {
+              "gpu_ms": 0.2637120008468628,
+              "wall_ms": 0.2650562906637788
+            },
+            {
+              "gpu_ms": 0.26914880275726316,
+              "wall_ms": 0.2705777529627085
+            },
+            {
+              "gpu_ms": 0.2624079942703247,
+              "wall_ms": 0.2636958612129092
+            }
+          ],
+          "median_wall_ms": 0.26952424086630344,
+          "median_gpu_ms": 0.2676367998123169,
+          "extra_saved_bytes": 21135360,
+          "forward_cuda_kernel_count": 6,
+          "forward_cuda_kernels": [
+            "void at::native::vectorized_elementwise_kernel<8, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul> >(int, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul>)",
+            "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})",
+            "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<c10::BFloat16, at::native::func_wrapper_t<c10::BFloat16, at::native::sum_functor<c10::BFloat16, float, c10::BFloat16>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, c10::BFloat16, 4, 4> >(at::native::ReduceOp<c10::BFloat16, at::native::func_wrapper_t<c10::BFloat16, at::native::sum_functor<c10::BFloat16, float, c10::BFloat16>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, c10::BFloat16, 4, 4>)",
+            "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})",
+            "void at::native::vectorized_elementwise_kernel<8, at::native::CUDAFunctor_add<c10::BFloat16>, std::array<char*, 3ul> >(int, at::native::CUDAFunctor_add<c10::BFloat16>, std::array<char*, 3ul>)",
+            "void at::native::vectorized_elementwise_kernel<8, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul> >(int, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul>)"
+          ]
+        },
+        "fla": {
+          "samples": [
+            {
+              "gpu_ms": 0.3475600004196167,
+              "wall_ms": 0.349100842140615
+            },
+            {
+              "gpu_ms": 0.34026079177856444,
+              "wall_ms": 0.34176744520664215
+            },
+            {
+              "gpu_ms": 0.34298880100250245,
+              "wall_ms": 0.34444029442965984
+            },
+            {
+              "gpu_ms": 0.337441611289978,
+              "wall_ms": 0.3390045603737235
+            },
+            {
+              "gpu_ms": 0.343995189666748,
+              "wall_ms": 0.34552535507827997
+            }
+          ],
+          "median_wall_ms": 0.34444029442965984,
+          "median_gpu_ms": 0.34298880100250245,
+          "extra_saved_bytes": 0,
+          "forward_cuda_kernel_count": 1,
+          "forward_cuda_kernels": [
+            "gate_output_correction_fwd_kernel"
+          ]
+        }
+      }
+    },
+    "group_norm": {
+      "128": {
+        "current": {
+          "samples": [
+            {
+              "gpu_ms": 0.1359935998916626,
+              "wall_ms": 0.13823446352034807
+            },
+            {
+              "gpu_ms": 0.13568480014801027,
+              "wall_ms": 0.13703706208616495
+            },
+            {
+              "gpu_ms": 0.13188320398330688,
+              "wall_ms": 0.13313365634530783
+            },
+            {
+              "gpu_ms": 0.13729439973831176,
+              "wall_ms": 0.138606084510684
+            },
+            {
+              "gpu_ms": 0.13226079940795898,
+              "wall_ms": 0.133427488617599
+            }
+          ],
+          "median_wall_ms": 0.13703706208616495,
+          "median_gpu_ms": 0.13568480014801027,
+          "extra_saved_bytes": 20480,
+          "forward_cuda_kernel_count": 2,
+          "forward_cuda_kernels": [
+            "void at::native::(anonymous namespace)::RowwiseMomentsCUDAKernel<c10::BFloat16>(long, c10::BFloat16, c10::BFloat16 const*, c10::BFloat16*, c10::BFloat16*)",
+            "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl_nocast<at::native::(anonymous namespace)::GroupNorm1dForward<c10::BFloat16>(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, long, long, long, at::Tensor&)::{lambda(c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16)#1}>(at::TensorIteratorBase&, at::native::(anonymous namespace)::GroupNorm1dForward<c10::BFloat16>(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, long, long, long, at::Tensor&)::{lambda(c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::(anonymous namespace)::GroupNorm1dForward<c10::BFloat16>(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, long, long, long, at::Tensor&)::{lambda(c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16)#1}>(at::TensorIteratorBase&, at::native::(anonymous namespace)::GroupNorm1dForward<c10::BFloat16>(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, long, long, long, at::Tensor&)::{lambda(c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16)#1} const&)::{lambda(int)#1})"
+          ]
+        },
+        "fla": {
+          "samples": [
+            {
+              "gpu_ms": 0.31969120502471926,
+              "wall_ms": 0.3212549490854144
+            },
+            {
+              "gpu_ms": 0.312992000579834,
+              "wall_ms": 0.31451466493308544
+            },
+            {
+              "gpu_ms": 0.3214128017425537,
+              "wall_ms": 0.32288050279021263
+            },
+            {
+              "gpu_ms": 0.320415997505188,
+              "wall_ms": 0.32193451188504696
+            },
+            {
+              "gpu_ms": 0.32404000759124757,
+              "wall_ms": 0.32553214114159346
+            }
+          ],
+          "median_wall_ms": 0.32193451188504696,
+          "median_gpu_ms": 0.320415997505188,
+          "extra_saved_bytes": 40960,
+          "forward_cuda_kernel_count": 1,
+          "forward_cuda_kernels": [
+            "layer_norm_fwd_kernel"
+          ]
+        }
+      },
+      "512": {
+        "current": {
+          "samples": [
+            {
+              "gpu_ms": 0.142249596118927,
+              "wall_ms": 0.1442590495571494
+            },
+            {
+              "gpu_ms": 0.13840320110321044,
+              "wall_ms": 0.1397331478074193
+            },
+            {
+              "gpu_ms": 0.13440159559249878,
+              "wall_ms": 0.1355971908196807
+            },
+            {
+              "gpu_ms": 0.13914400339126587,
+              "wall_ms": 0.14047820586711168
+            },
+            {
+              "gpu_ms": 0.13308320045471192,
+              "wall_ms": 0.13458423782140017
+            }
+          ],
+          "median_wall_ms": 0.1397331478074193,
+          "median_gpu_ms": 0.13840320110321044,
+          "extra_saved_bytes": 81920,
+          "forward_cuda_kernel_count": 2,
+          "forward_cuda_kernels": [
+            "void at::native::(anonymous namespace)::RowwiseMomentsCUDAKernel<c10::BFloat16>(long, c10::BFloat16, c10::BFloat16 const*, c10::BFloat16*, c10::BFloat16*)",
+            "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl_nocast<at::native::(anonymous namespace)::GroupNorm1dForward<c10::BFloat16>(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, long, long, long, at::Tensor&)::{lambda(c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16)#1}>(at::TensorIteratorBase&, at::native::(anonymous namespace)::GroupNorm1dForward<c10::BFloat16>(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, long, long, long, at::Tensor&)::{lambda(c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::(anonymous namespace)::GroupNorm1dForward<c10::BFloat16>(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, long, long, long, at::Tensor&)::{lambda(c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16)#1}>(at::TensorIteratorBase&, at::native::(anonymous namespace)::GroupNorm1dForward<c10::BFloat16>(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, long, long, long, at::Tensor&)::{lambda(c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16)#1} const&)::{lambda(int)#1})"
+          ]
+        },
+        "fla": {
+          "samples": [
+            {
+              "gpu_ms": 0.3239759922027588,
+              "wall_ms": 0.32554459758102894
+            },
+            {
+              "gpu_ms": 0.3143120050430298,
+              "wall_ms": 0.3158102510496974
+            },
+            {
+              "gpu_ms": 0.32043359279632566,
+              "wall_ms": 0.3219583071768284
+            },
+            {
+              "gpu_ms": 0.31534879207611083,
+              "wall_ms": 0.3168726107105613
+            },
+            {
+              "gpu_ms": 0.3228080034255981,
+              "wall_ms": 0.32455429900437593
+            }
+          ],
+          "median_wall_ms": 0.3219583071768284,
+          "median_gpu_ms": 0.32043359279632566,
+          "extra_saved_bytes": 163840,
+          "forward_cuda_kernel_count": 1,
+          "forward_cuda_kernels": [
+            "layer_norm_fwd_kernel"
+          ]
+        }
+      },
+      "2048": {
+        "current": {
+          "samples": [
+            {
+              "gpu_ms": 0.20372159481048585,
+              "wall_ms": 0.20569509360939264
+            },
+            {
+              "gpu_ms": 0.1980255961418152,
+              "wall_ms": 0.19928794354200363
+            },
+            {
+              "gpu_ms": 0.1961408019065857,
+              "wall_ms": 0.19736159592866898
+            },
+            {
+              "gpu_ms": 0.19797279834747314,
+              "wall_ms": 0.1992562087252736
+            },
+            {
+              "gpu_ms": 0.19616479873657228,
+              "wall_ms": 0.19739179406315088
+            }
+          ],
+          "median_wall_ms": 0.1992562087252736,
+          "median_gpu_ms": 0.19797279834747314,
+          "extra_saved_bytes": 327680,
+          "forward_cuda_kernel_count": 1,
+          "forward_cuda_kernels": [
+            "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl_nocast<at::native::(anonymous namespace)::GroupNorm1dForward<c10::BFloat16>(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, long, long, long, at::Tensor&)::{lambda(c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16)#1}>(at::TensorIteratorBase&, at::native::(anonymous namespace)::GroupNorm1dForward<c10::BFloat16>(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, long, long, long, at::Tensor&)::{lambda(c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::(anonymous namespace)::GroupNorm1dForward<c10::BFloat16>(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, long, long, long, at::Tensor&)::{lambda(c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16)#1}>(at::TensorIteratorBase&, at::native::(anonymous namespace)::GroupNorm1dForward<c10::BFloat16>(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, long, long, long, at::Tensor&)::{lambda(c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16, c10::BFloat16)#1} const&)::{lambda(int)#1})"
+          ]
+        },
+        "fla": {
+          "samples": [
+            {
+              "gpu_ms": 0.3446032047271729,
+              "wall_ms": 0.3462344640865922
+            },
+            {
+              "gpu_ms": 0.32497439384460447,
+              "wall_ms": 0.32648155465722084
+            },
+            {
+              "gpu_ms": 0.33751840591430665,
+              "wall_ms": 0.3390728961676359
+            },
+            {
+              "gpu_ms": 0.32815520763397216,
+              "wall_ms": 0.32975797075778246
+            },
+            {
+              "gpu_ms": 0.33587040901184084,
+              "wall_ms": 0.33768778666853905
+            }
+          ],
+          "median_wall_ms": 0.33768778666853905,
+          "median_gpu_ms": 0.33587040901184084,
+          "extra_saved_bytes": 655360,
+          "forward_cuda_kernel_count": 0,
+          "forward_cuda_kernels": []
+        }
+      }
+    }
+  },
+  "wkv": {
+    "accuracy": {
+      "recompute": {
+        "output": {
+          "max_abs": 0.5825653076171875,
+          "relative_l2": 0.0021731202581896144,
+          "reference_l2": 1038.5993311196862,
+          "actual_l2": 1038.3732494743638,
+          "finite": true
+        },
+        "gradient": [
+          {
+            "max_abs": 0.75531005859375,
+            "relative_l2": 0.0021349100597938247,
+            "reference_l2": 1470.55368390597,
+            "actual_l2": 1470.430152995502,
+            "finite": true
+          },
+          {
+            "max_abs": 2.321746826171875,
+            "relative_l2": 0.002653992657369514,
+            "reference_l2": 1671.5434735274496,
+            "actual_l2": 1671.3193622851495,
+            "finite": true
+          },
+          {
+            "max_abs": 0.21732711791992188,
+            "relative_l2": 0.0034075127042239445,
+            "reference_l2": 763.2851358681829,
+            "actual_l2": 763.018837031032,
+            "finite": true
+          },
+          {
+            "max_abs": 2.8115234375,
+            "relative_l2": 0.002306071938038665,
+            "reference_l2": 7414.866419580476,
+            "actual_l2": 7409.69111024909,
+            "finite": true
+          },
+          {
+            "max_abs": 0.57330322265625,
+            "relative_l2": 0.004431863365134807,
+            "reference_l2": 567.6414781795429,
+            "actual_l2": 566.828803712531,
+            "finite": true
+          },
+          {
+            "max_abs": 0.443634033203125,
+            "relative_l2": 0.0034219012556942607,
+            "reference_l2": 1493.2072765242776,
+            "actual_l2": 1491.8997452005572,
+            "finite": true
+          }
+        ]
+      },
+      "save_intermediates": {
+        "output": {
+          "max_abs": 0.5825653076171875,
+          "relative_l2": 0.0021731202581896144,
+          "reference_l2": 1038.5993311196862,
+          "actual_l2": 1038.3732494743638,
+          "finite": true
+        },
+        "gradient": [
+          {
+            "max_abs": 0.75531005859375,
+            "relative_l2": 0.0021349100597938247,
+            "reference_l2": 1470.55368390597,
+            "actual_l2": 1470.430152995502,
+            "finite": true
+          },
+          {
+            "max_abs": 2.321746826171875,
+            "relative_l2": 0.002653992657369514,
+            "reference_l2": 1671.5434735274496,
+            "actual_l2": 1671.3193622851495,
+            "finite": true
+          },
+          {
+            "max_abs": 0.21732711791992188,
+            "relative_l2": 0.0034075127042239445,
+            "reference_l2": 763.2851358681829,
+            "actual_l2": 763.018837031032,
+            "finite": true
+          },
+          {
+            "max_abs": 2.8115234375,
+            "relative_l2": 0.002306071938038665,
+            "reference_l2": 7414.866419580476,
+            "actual_l2": 7409.69111024909,
+            "finite": true
+          },
+          {
+            "max_abs": 0.57330322265625,
+            "relative_l2": 0.004431863365134807,
+            "reference_l2": 567.6414781795429,
+            "actual_l2": 566.828803712531,
+            "finite": true
+          },
+          {
+            "max_abs": 0.443634033203125,
+            "relative_l2": 0.0034219012556942607,
+            "reference_l2": 1493.2072765242776,
+            "actual_l2": 1491.8997452005572,
+            "finite": true
+          }
+        ],
+        "vs_recompute": {
+          "forward_exact": true,
+          "gradient_exact": true,
+          "gradient": [
+            {
+              "max_abs": 0.0,
+              "relative_l2": 0.0,
+              "reference_l2": 1470.430152995502,
+              "actual_l2": 1470.430152995502,
+              "finite": true
+            },
+            {
+              "max_abs": 0.0,
+              "relative_l2": 0.0,
+              "reference_l2": 1671.3193622851495,
+              "actual_l2": 1671.3193622851495,
+              "finite": true
+            },
+            {
+              "max_abs": 0.0,
+              "relative_l2": 0.0,
+              "reference_l2": 763.018837031032,
+              "actual_l2": 763.018837031032,
+              "finite": true
+            },
+            {
+              "max_abs": 0.0,
+              "relative_l2": 0.0,
+              "reference_l2": 7409.69111024909,
+              "actual_l2": 7409.69111024909,
+              "finite": true
+            },
+            {
+              "max_abs": 0.0,
+              "relative_l2": 0.0,
+              "reference_l2": 566.828803712531,
+              "actual_l2": 566.828803712531,
+              "finite": true
+            },
+            {
+              "max_abs": 0.0,
+              "relative_l2": 0.0,
+              "reference_l2": 1491.8997452005572,
+              "actual_l2": 1491.8997452005572,
+              "finite": true
+            }
+          ]
+        }
+      }
+    },
+    "benchmark": {
+      "128": {
+        "recompute": {
+          "samples": [
+            {
+              "gpu_ms": 1.190113639831543,
+              "wall_ms": 1.1926606995984912
+            },
+            {
+              "gpu_ms": 1.1820015907287598,
+              "wall_ms": 1.1837091529741883
+            },
+            {
+              "gpu_ms": 1.1787216186523437,
+              "wall_ms": 1.180456206202507
+            },
+            {
+              "gpu_ms": 1.1852607727050781,
+              "wall_ms": 1.1869085021317005
+            },
+            {
+              "gpu_ms": 1.2176959991455079,
+              "wall_ms": 1.2194240931421518
+            }
+          ],
+          "median_wall_ms": 1.1869085021317005,
+          "median_gpu_ms": 1.1852607727050781,
+          "extra_saved_bytes": 0,
+          "forward_cuda_kernel_count": 5,
+          "forward_cuda_kernels": [
+            "chunk_dplr_fwd_A_kernel_intra_tensorcore",
+            "prepare_wy_repr_fwd_kernel_safe",
+            "wu_fwd_kernel",
+            "chunk_dplr_fwd_kernel_h",
+            "chunk_dplr_fwd_kernel_o"
+          ]
+        },
+        "save_intermediates": {
+          "samples": [
+            {
+              "gpu_ms": 0.948465633392334,
+              "wall_ms": 0.9502113563939929
+            },
+            {
+              "gpu_ms": 0.921668815612793,
+              "wall_ms": 0.9233924560248852
+            },
+            {
+              "gpu_ms": 0.9192928314208985,
+              "wall_ms": 0.9209837531670928
+            },
+            {
+              "gpu_ms": 0.922811222076416,
+              "wall_ms": 0.9245102060958743
+            },
+            {
+              "gpu_ms": 0.9320416450500488,
+              "wall_ms": 0.9337228024378419
+            }
+          ],
+          "median_wall_ms": 0.9245102060958743,
+          "median_gpu_ms": 0.922811222076416,
+          "extra_saved_bytes": 11141120,
+          "forward_cuda_kernel_count": 5,
+          "forward_cuda_kernels": [
+            "chunk_dplr_fwd_A_kernel_intra_tensorcore",
+            "prepare_wy_repr_fwd_kernel_safe",
+            "wu_fwd_kernel",
+            "chunk_dplr_fwd_kernel_h",
+            "chunk_dplr_fwd_kernel_o"
+          ]
+        }
+      },
+      "512": {
+        "recompute": {
+          "samples": [
+            {
+              "gpu_ms": 1.201915168762207,
+              "wall_ms": 1.2040669564157724
+            },
+            {
+              "gpu_ms": 1.188640022277832,
+              "wall_ms": 1.1903538834303617
+            },
+            {
+              "gpu_ms": 1.184331226348877,
+              "wall_ms": 1.186100346967578
+            },
+            {
+              "gpu_ms": 1.2039360046386718,
+              "wall_ms": 1.2055644998326898
+            },
+            {
+              "gpu_ms": 1.1861200332641602,
+              "wall_ms": 1.1877573328092694
+            }
+          ],
+          "median_wall_ms": 1.1903538834303617,
+          "median_gpu_ms": 1.188640022277832,
+          "extra_saved_bytes": 0,
+          "forward_cuda_kernel_count": 5,
+          "forward_cuda_kernels": [
+            "chunk_dplr_fwd_A_kernel_intra_tensorcore",
+            "prepare_wy_repr_fwd_kernel_safe",
+            "wu_fwd_kernel",
+            "chunk_dplr_fwd_kernel_h",
+            "chunk_dplr_fwd_kernel_o"
+          ]
+        },
+        "save_intermediates": {
+          "samples": [
+            {
+              "gpu_ms": 0.9392111778259278,
+              "wall_ms": 0.9408982470631599
+            },
+            {
+              "gpu_ms": 0.9239279747009277,
+              "wall_ms": 0.925632705911994
+            },
+            {
+              "gpu_ms": 0.9364224433898926,
+              "wall_ms": 0.9381084470078349
+            },
+            {
+              "gpu_ms": 0.9334367752075196,
+              "wall_ms": 0.9351097512990236
+            },
+            {
+              "gpu_ms": 0.9334768295288086,
+              "wall_ms": 0.9352033026516438
+            }
+          ],
+          "median_wall_ms": 0.9352033026516438,
+          "median_gpu_ms": 0.9334768295288086,
+          "extra_saved_bytes": 44564480,
+          "forward_cuda_kernel_count": 5,
+          "forward_cuda_kernels": [
+            "chunk_dplr_fwd_A_kernel_intra_tensorcore",
+            "prepare_wy_repr_fwd_kernel_safe",
+            "wu_fwd_kernel",
+            "chunk_dplr_fwd_kernel_h",
+            "chunk_dplr_fwd_kernel_o"
+          ]
+        }
+      },
+      "2048": {
+        "recompute": {
+          "samples": [
+            {
+              "gpu_ms": 1.2052255630493165,
+              "wall_ms": 1.2070211116224527
+            },
+            {
+              "gpu_ms": 1.205622386932373,
+              "wall_ms": 1.2070422526448965
+            },
+            {
+              "gpu_ms": 1.2022208213806151,
+              "wall_ms": 1.2036367086693645
+            },
+            {
+              "gpu_ms": 1.2126879692077637,
+              "wall_ms": 1.214064098894596
+            },
+            {
+              "gpu_ms": 1.219102382659912,
+              "wall_ms": 1.2205105042085052
+            }
+          ],
+          "median_wall_ms": 1.2070422526448965,
+          "median_gpu_ms": 1.205622386932373,
+          "extra_saved_bytes": 0,
+          "forward_cuda_kernel_count": 5,
+          "forward_cuda_kernels": [
+            "chunk_dplr_fwd_A_kernel_intra_tensorcore",
+            "prepare_wy_repr_fwd_kernel_safe",
+            "wu_fwd_kernel",
+            "chunk_dplr_fwd_kernel_h",
+            "chunk_dplr_fwd_kernel_o"
+          ]
+        },
+        "save_intermediates": {
+          "samples": [
+            {
+              "gpu_ms": 0.9622159957885742,
+              "wall_ms": 0.9636114584282041
+            },
+            {
+              "gpu_ms": 0.9568960189819335,
+              "wall_ms": 0.9582848520949483
+            },
+            {
+              "gpu_ms": 0.9705679893493653,
+              "wall_ms": 0.9720089845359325
+            },
+            {
+              "gpu_ms": 0.9796287536621093,
+              "wall_ms": 0.9810235584154725
+            },
+            {
+              "gpu_ms": 0.9755311965942383,
+              "wall_ms": 0.9769185911864042
+            }
+          ],
+          "median_wall_ms": 0.9720089845359325,
+          "median_gpu_ms": 0.9705679893493653,
+          "extra_saved_bytes": 178257920,
+          "forward_cuda_kernel_count": 5,
+          "forward_cuda_kernels": [
+            "chunk_dplr_fwd_A_kernel_intra_tensorcore",
+            "prepare_wy_repr_fwd_kernel_safe",
+            "wu_fwd_kernel",
+            "chunk_dplr_fwd_kernel_h",
+            "chunk_dplr_fwd_kernel_o"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -41,6 +41,7 @@ def main():
     parser.add_argument('--sequence-length',type=int,default=128)
     parser.add_argument('--token-offset',type=int,default=0)
     parser.add_argument('--tokens-file',type=Path,help='Separate token copy for longer-sequence tests')
+    parser.add_argument('--fla-candidate',choices=('correction','norm','norm-correction','wkv-save'),help='Audit-only unused FLA operator trial')
     parser.add_argument('--recompute',action='store_true',help='Exercise the training activation-checkpoint path')
     parser.add_argument('--split-value-reference',action='store_true')
     parser.add_argument('--shared-value-reference',action='store_true',help='Historical negative control: share WKV/correction value view')
@@ -101,6 +102,10 @@ def main():
     if args.precision_probe:
         from precision_probe import install
         install(model,args.precision_probe)
+    if args.fla_candidate:
+        if args.precision_probe or args.v0_fp32:parser.error('FLA candidate must be tested separately from other probes')
+        from fla_candidate_probe import install
+        install(model,args.fla_candidate)
     trace={};handles=[];retained={}
     def hook(key,transform=lambda t:t.transpose(0,1)):
         def capture(module,inputs,output):
@@ -186,7 +191,7 @@ def main():
     trace_metrics={k:metric(v,reference.trace[k]) for k,v in trace.items() if k in reference.trace}
     gradient_trace={k:metric(v,(reference.live[k].grad.transpose(0,1) if args.aligned_reference else reference.live[k].grad).detach().cpu()) for k,v in actual_grad_trace.items() if k in reference.live and reference.live[k].grad is not None}
     grad_metrics={k:metric(actual_grad[k],v) for k,v in ref_grad.items()}
-    result={'sequence_length':x.shape[1],'token_offset':args.token_offset,'full_3b':args.full,'dtype':str(dtype),'megatron_core':'torch recurrence' if args.naive_core else 'FLA',
+    result={'fla_candidate':args.fla_candidate,'sequence_length':x.shape[1],'token_offset':args.token_offset,'full_3b':args.full,'dtype':str(dtype),'megatron_core':'torch recurrence' if args.naive_core else 'FLA',
         'reference_core':('official CUDA' if args.bf16 else 'independent torch recurrence') if profile=='blinkdl' else args.reference_core,
         'reference_profile':profile,'reference_provenance':reference.provenance() if profile=='blinkdl' else {'kind':'shared-primitive diagnostic; not an official implementation'},
         'recompute':args.recompute,'precision_probe':args.precision_probe,'v0_fp32_diagnostic':args.v0_fp32,'torch_norms':args.torch_norms,'runtime':report(),'loss_megatron':actual_loss,
@@ -207,6 +212,7 @@ def main():
     name+=('-v0-fp32' if args.v0_fp32 else '')
     name+=('-precision-'+args.precision_probe if args.precision_probe else '')
     name+=('-recompute' if args.recompute else '')
+    name+=('-candidate-'+args.fla_candidate if args.fla_candidate else '')
     if args.audit_v0_edges:
         result['v0_edges']={'actual':summarize(actual_edges),'reference':summarize(reference_edges)}
         torch.save({'actual':actual_edges,'reference':reference_edges},PATH/(name+'-v0-edges.pth'))

@@ -1,5 +1,7 @@
 # 单卡 RWKV7 公式、FLA 调用与续训审计
 
+新旧FLA算子评估见`FLA-OPERATOR-OPPORTUNITIES.md`：当前WKV已经使用新版Triton核心。审计中关闭WKV内部重计算，完整3B全部梯度/前向不变，512/2048模型测速约快3.8%/2.6%，代价是保存中间数据。输出修正速度持平，FLA GroupNorm较慢，组合的BF16整体梯度差变大，未切换默认。TileLang在当前H800/batch1配置被上游资格检查拒绝。
+
 L2Wrap与key合并现可从YAML配置：`rwkv_l2wrap_coefficient: 0.0001`、`rwkv_key_fusion: true/false`。L2Wrap默认关闭，公式/算子精度比较仍使用普通CE；显式开启后的官方CUDA loss对照、真实词表分片loss、两微批次训练与完整3B断点恢复验证见`L2WRAP.md`。未认证完整RWKV多卡或FP8。
 
 key合并计算现已正式接入默认训练，内部FP32、输出保持原类型，编译不可用回退纯Torch FP32。完整3B与原型的1,059个梯度/546处前向完全一致；实际四步训练的保存后恢复与连续训练最终模型、优化器、调度和随机状态相同。见`KEY-PRECISION-INTEGRATION.md`；下文“仅审计原型”等描述是历史状态。

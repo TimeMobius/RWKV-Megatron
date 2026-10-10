@@ -25,6 +25,6 @@ def install(model):
         att = layer.self_attention
         att._audit_key_compiled = key_compiled
         modified_forward(att, [
-            ('rep_key, a, b = prepare_key(key, learn_rate, self.beta, self.alpha, self.head_size)',
+            ('rep_key, a, b = prepare_key(key, learn_rate, self.beta, self.alpha, self.head_size, fusion=getattr(self.config, "rwkv_key_fusion", None))',
              'rep_key, a, b = self._audit_key_compiled(key, learn_rate, self.beta, self.alpha, self.head_size)'),
         ])

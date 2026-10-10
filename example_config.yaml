@@ -1,3 +1,9 @@
+# RWKV7-specific options (top level):
+# Set 0.0001 to enable the official max-logit penalty; 0 keeps plain CE.
+rwkv_l2wrap_coefficient: 0.0
+# false selects ordinary Torch FP32 key arithmetic; true enables fusion.
+rwkv_key_fusion: true
+
 language_model:
   # model architecture
   num_layers: 32

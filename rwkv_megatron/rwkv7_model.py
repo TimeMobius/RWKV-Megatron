@@ -1,4 +1,5 @@
 from dataclasses import replace
+import math
 from typing import Dict, List
 
 import torch
@@ -24,10 +25,15 @@ from megatron.core.utils import divide, get_pg_rank
 from einops import rearrange
 
 from .normalization import get_rwkv7_layernorm_impl
+from .l2wrap import wrap_token_loss, max_logit_stats
 from .rwkv7_layer_specs import RWKV7ChannelMix, RWKV7TimeMix
 
 class RWKV7Model(GPTModel):
     def __init__(self, config: TransformerConfig, *args, **kwargs):
+        coefficient = float(getattr(config, "rwkv_l2wrap_coefficient", 0.0))
+        if not math.isfinite(coefficient) or coefficient < 0:
+            raise ValueError("RWKV L2Wrap coefficient must be finite and nonnegative")
+        self.l2wrap_coefficient = coefficient
         config.rwkv7_value_residual = True
         norm = get_rwkv7_layernorm_impl()
         args = list(args)
@@ -56,6 +62,22 @@ class RWKV7Model(GPTModel):
             self.pre_norm = norm(
                 config, config.hidden_size, config.layernorm_epsilon
             )
+
+    def compute_language_model_loss(self, labels: Tensor, logits: Tensor) -> Tensor:
+        if self.l2wrap_coefficient == 0 or not self.training or not torch.is_grad_enabled():
+            return super().compute_language_model_loss(labels, logits)
+        # Detect full-vocabulary vs sharded logits from their actual width.
+        # Only vocabulary-sharded outputs need TP collectives; PP/SP keep the
+        # existing loss/output-layer layout and gradient propagation.
+        group = None
+        if logits.shape[-1] != self.vocab_size:
+            world_size = torch.distributed.get_world_size(self.tp_group)
+            if logits.shape[-1] * world_size != self.vocab_size:
+                raise ValueError("Unexpected vocabulary shard width for RWKV L2Wrap")
+            group = self.tp_group
+        stats = max_logit_stats(logits, group)
+        token_loss = super().compute_language_model_loss(labels, logits)
+        return wrap_token_loss(token_loss, logits, self.l2wrap_coefficient, stats=stats)
 
     def forward(
         self,

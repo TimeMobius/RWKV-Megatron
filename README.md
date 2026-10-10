@@ -2,7 +2,16 @@
 
 RWKV7 的默认 `ln0`、各层 `ln1/ln2` 与 `ln_out` 统一使用 Transformer Engine >=1.9.0 的 LayerNorm；TE 缺失或版本不足时统一回退 Apex FusedLayerNorm（需要 Apex CUDA 扩展）。该选择独立于 `transformer_impl` 的 Linear 后端。GroupNorm 保持原公式；此变更不代表已完成 FP8 全模型训练认证。
 
-RWKV7 的 key 归一化、更新和 a/b 生成现在统一使用 FP32 中间计算，最终结果保留投影输出的 BF16/FP16/FP32 类型。CUDA 默认通过 `torch.compile` 合并计算；编译不可用时提示并回退普通 Torch FP32，也可在启动前设置 `RWKV7_KEY_FUSION=0` 固定选择兼容路径。首次运行有编译开销；断点续训应保持相同后端，两个后端的舍入结果可能不同。单卡测试记录见 [KEY-PRECISION-INTEGRATION.md](training-smoke/audit/KEY-PRECISION-INTEGRATION.md)。
+RWKV7 的 key 归一化、更新和 a/b 生成统一使用 FP32 中间计算，最终结果保留投影输出的原类型。CUDA 默认通过 `torch.compile` 合并计算；编译不可用时提示并回退普通 Torch FP32。YAML 设置 `rwkv_key_fusion: false` 可固定选择兼容路径；未设置时仍支持环境变量 `RWKV7_KEY_FUSION=0`。首次运行有编译开销，断点续训应保持相同后端。测试记录见 [KEY-PRECISION-INTEGRATION.md](training-smoke/audit/KEY-PRECISION-INTEGRATION.md)。
+
+RWKV7 可以在原 CE 后端上增加官方式 L2Wrap 梯度；默认系数为 `0`（关闭），官方系数为 `0.0001`。在 `--rwkv-config` 指定的 YAML 顶层配置：
+
+```yaml
+rwkv_l2wrap_coefficient: 0.0001
+rwkv_key_fusion: true
+```
+
+L2Wrap 不改变显示的 CE loss；只在训练后向中，对每个有效 token 的全词表最大 logit 增加梯度。它跟随原 mask、token 数归一化和梯度缩放；被 mask 的 token 不增加正则梯度。YAML 中明确设置的 key 选项优先于环境变量，命令行 `--rwkv-l2wrap-coefficient`、`--rwkv-key-fusion` / `--no-rwkv-key-fusion` 可覆盖 YAML。测试范围与结果见 [L2WRAP.md](training-smoke/audit/L2WRAP.md)。
 
 <div align="center">
 

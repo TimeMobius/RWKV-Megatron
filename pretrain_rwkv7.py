@@ -115,6 +115,9 @@ def model_provider(pre_process=True, post_process=True, config=None, pg_collecti
         config.D_GATE_LORA = args.D_GATE_LORA
         config.D_MV_LORA = args.D_MV_LORA
 
+    config.rwkv_l2wrap_coefficient = getattr(args, "rwkv_l2wrap_coefficient", 0.0)
+    config.rwkv_key_fusion = getattr(args, "rwkv_key_fusion", None)
+
     assert not getattr(args, "use_legacy_models", False), "RWKV7 only works with Megatron Core"
 
     if args.spec is not None:
@@ -210,6 +213,9 @@ def model_provider_ckpt(pre_process=True, post_process=True) -> GPTModel:
     config.D_DECAY_LORA = args.D_DECAY_LORA
     config.D_GATE_LORA = args.D_GATE_LORA
     config.D_MV_LORA = args.D_MV_LORA
+
+    config.rwkv_l2wrap_coefficient = getattr(args, "rwkv_l2wrap_coefficient", 0.0)
+    config.rwkv_key_fusion = getattr(args, "rwkv_key_fusion", None)
 
     assert not getattr(args, "use_legacy_models", False), "RWKV7 only works with Megatron Core"
 

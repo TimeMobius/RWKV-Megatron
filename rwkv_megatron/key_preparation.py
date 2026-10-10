@@ -32,15 +32,17 @@ _compiled_key = None
 _fusion_unavailable = False
 
 
-def prepare_key(key, learn, beta, alpha, head_size=64):
+def prepare_key(key, learn, beta, alpha, head_size=64, fusion=None):
     """Use compiled CUDA arithmetic, or ordinary Torch FP32 as a fallback.
 
-    RWKV7_KEY_FUSION=0 explicitly selects the fallback (including for training
-    runs that need a fixed backend). Backend changes can change rounding.
+    An explicit fusion boolean (from YAML) overrides RWKV7_KEY_FUSION.
+    If unset, RWKV7_KEY_FUSION=0 selects the fallback. Backend changes can
+    change rounding.
     """
     global _compiled_key, _fusion_unavailable
+    enabled = os.environ.get('RWKV7_KEY_FUSION', '1') != '0' if fusion is None else fusion
     if (not key.is_cuda or key.dtype not in (torch.bfloat16, torch.float16, torch.float32)
-            or os.environ.get('RWKV7_KEY_FUSION', '1') == '0' or _fusion_unavailable):
+            or not enabled or _fusion_unavailable):
         return key_fp32(key, learn, beta, alpha, head_size)
     try:
         if _compiled_key is None:
@@ -54,7 +56,7 @@ def prepare_key(key, learn, beta, alpha, head_size=64):
         _fusion_unavailable = True
         warnings.warn(
             f'RWKV7 key fusion unavailable ({type(error).__name__}); '
-            'using Torch FP32 key preparation. Set RWKV7_KEY_FUSION=0 to '
+            'using Torch FP32 key preparation. Set rwkv_key_fusion=false or RWKV7_KEY_FUSION=0 to '
             'select this backend consistently across runs.', RuntimeWarning,
         )
         return key_fp32(key, learn, beta, alpha, head_size)

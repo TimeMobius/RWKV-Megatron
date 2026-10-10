@@ -661,7 +661,7 @@ class RWKV7TimeMix(MegatronModule):
         current_recipe = get_fp8_recipe() if HAVE_TE else None
         with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe) if HAVE_TE else nullcontext():
             key = self.linear_key(mixed_key.contiguous())[0]
-        rep_key, a, b = prepare_key(key, learn_rate, self.beta, self.alpha, self.head_size)
+        rep_key, a, b = prepare_key(key, learn_rate, self.beta, self.alpha, self.head_size, fusion=getattr(self.config, "rwkv_key_fusion", None))
 
         with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe) if HAVE_TE else nullcontext():
             value = self.linear_value(mixed_value.contiguous())[0]

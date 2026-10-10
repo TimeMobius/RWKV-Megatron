@@ -24,7 +24,7 @@ def install_legacy(model):
         att = layer.self_attention
         att._audit_key_legacy = key_legacy
         modified_forward(att, [
-            ('rep_key, a, b = prepare_key(key, learn_rate, self.beta, self.alpha, self.head_size)',
+            ('rep_key, a, b = prepare_key(key, learn_rate, self.beta, self.alpha, self.head_size, fusion=getattr(self.config, "rwkv_key_fusion", None))',
              'rep_key, a, b = self._audit_key_legacy(key, learn_rate, self.beta, self.alpha, self.head_size)'),
         ])
 
@@ -40,7 +40,7 @@ def install(model,mode):
         att=layer.self_attention
         att._audit_key_eager_high = key_eager_high
         replacements=[
-            ('rep_key, a, b = prepare_key(key, learn_rate, self.beta, self.alpha, self.head_size)',
+            ('rep_key, a, b = prepare_key(key, learn_rate, self.beta, self.alpha, self.head_size, fusion=getattr(self.config, "rwkv_key_fusion", None))',
              'rep_key, a, b = self._audit_key_eager_high(key, learn_rate, self.beta, self.alpha, self.head_size)'),
         ]
         if mode=='all':

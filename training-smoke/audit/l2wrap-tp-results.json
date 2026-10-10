@@ -1,0 +1,23 @@
+{
+  "world_size": 2,
+  "backend": "gloo CPU",
+  "scope": "Loss only; real Megatron vocabulary-parallel CE plus L2Wrap; not full model parallel certification",
+  "mask_and_cross_shard_tie_passed": true,
+  "results": [
+    {
+      "scale": 1.0,
+      "shard_max_abs_gradient_error": 3.725290298461914e-09,
+      "gathered_max_abs_gradient_error": 0.0
+    },
+    {
+      "scale": 8.0,
+      "shard_max_abs_gradient_error": 2.9802322387695312e-08,
+      "gathered_max_abs_gradient_error": 0.0
+    },
+    {
+      "scale": 0.0,
+      "shard_max_abs_gradient_error": 0.0,
+      "gathered_max_abs_gradient_error": 0.0
+    }
+  ]
+}

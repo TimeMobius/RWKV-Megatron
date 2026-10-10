@@ -1,0 +1,2698 @@
+{
+  "disabled_mode": {
+    "loss_exact": true,
+    "logits_exact": true,
+    "parameter_gradients_exact": 1059,
+    "forward_captures_exact": 546
+  },
+  "unit_tests_passed": 91,
+  "subtests_passed": 30,
+  "official_cuda_loss": {
+    "repository": "BlinkDL/RWKV-LM",
+    "commit": "20be0f8cf0bdf506d8c0030c87a9a3416f95b143",
+    "source": "RWKV-v7/train_temp/src/model.py::L2WrapCrossEntropyCUDA",
+    "input": "Saved full 3B seq128 logits, matching MiniPile labels; same input per loss backend",
+    "coefficient": 0.0001,
+    "results": {
+      "torch.float32-scale1.0": {
+        "loss": 2.14341139793396,
+        "official_loss": 2.143411159515381,
+        "loss_abs_delta": 2.384185791015625e-07,
+        "gradient": {
+          "max_abs": 5.122274160385132e-09,
+          "relative_l2": 2.3906791990505164e-07,
+          "reference_l2": 0.06283344167633727,
+          "actual_l2": 0.06283344091887626,
+          "finite": true
+        },
+        "scale": 1.0
+      },
+      "torch.float32-scale8.0": {
+        "loss": 2.14341139793396,
+        "official_loss": 2.143411159515381,
+        "loss_abs_delta": 2.384185791015625e-07,
+        "gradient": {
+          "max_abs": 4.0978193283081055e-08,
+          "relative_l2": 2.3906791990505164e-07,
+          "reference_l2": 0.5026675334106981,
+          "actual_l2": 0.5026675273510101,
+          "finite": true
+        },
+        "scale": 8.0
+      },
+      "torch.bfloat16-scale1.0": {
+        "loss": 2.14341139793396,
+        "official_loss": 2.143411159515381,
+        "loss_abs_delta": 2.384185791015625e-07,
+        "gradient": {
+          "max_abs": 3.0517578125e-05,
+          "relative_l2": 0.0008512030958184027,
+          "reference_l2": 0.06283304324123862,
+          "actual_l2": 0.06283218325007021,
+          "finite": true
+        },
+        "scale": 1.0
+      },
+      "torch.bfloat16-scale8.0": {
+        "loss": 2.14341139793396,
+        "official_loss": 2.143411159515381,
+        "loss_abs_delta": 2.384185791015625e-07,
+        "gradient": {
+          "max_abs": 0.000244140625,
+          "relative_l2": 0.0008512030958184027,
+          "reference_l2": 0.5026643459299089,
+          "actual_l2": 0.5026574660005617,
+          "finite": true
+        },
+        "scale": 8.0
+      }
+    }
+  },
+  "real_tp_loss": {
+    "world_size": 2,
+    "backend": "gloo CPU",
+    "scope": "Loss only; real Megatron vocabulary-parallel CE plus L2Wrap; not full model parallel certification",
+    "mask_and_cross_shard_tie_passed": true,
+    "results": [
+      {
+        "scale": 1.0,
+        "shard_max_abs_gradient_error": 3.725290298461914e-09,
+        "gathered_max_abs_gradient_error": 0.0
+      },
+      {
+        "scale": 8.0,
+        "shard_max_abs_gradient_error": 2.9802322387695312e-08,
+        "gathered_max_abs_gradient_error": 0.0
+      },
+      {
+        "scale": 0.0,
+        "shard_max_abs_gradient_error": 0.0,
+        "gathered_max_abs_gradient_error": 0.0
+      }
+    ]
+  },
+  "whole_small_model_gradient": {
+    "shape": "4 layers hidden256 batch2 seq128",
+    "oracle": "Same CE backend + independent differentiable 0.5e-4*max(logit)^2 per token",
+    "mask": "Every 7th token excluded",
+    "upstream_scale": 3,
+    "results": {
+      "fp32-recomputeFalse": {
+        "coefficient": 0.0001,
+        "forward_ce_exact": true,
+        "parameters": 118,
+        "aggregate_gradient_relative_l2": 0.0,
+        "gradient_by_parameter": {
+          "embedding.word_embeddings.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 2.5037198345518936,
+            "actual_l2": 2.5037198345518936,
+            "finite": true
+          },
+          "decoder.layers.0.input_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.10527130568048164,
+            "actual_l2": 0.10527130568048164,
+            "finite": true
+          },
+          "decoder.layers.0.input_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.1568530765959949,
+            "actual_l2": 0.1568530765959949,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.mix_coeff_input": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.00224997629295214,
+            "actual_l2": 0.00224997629295214,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.rho": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 6.345222714083419e-05,
+            "actual_l2": 6.345222714083419e-05,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.beta": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.004480105690523024,
+            "actual_l2": 0.004480105690523024,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.alpha": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.011562463819614862,
+            "actual_l2": 0.011562463819614862,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_learn.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.003939085120129876,
+            "actual_l2": 0.003939085120129876,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_learn.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.008364813146716804,
+            "actual_l2": 0.008364813146716804,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_learn.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0020908927601834435,
+            "actual_l2": 0.0020908927601834435,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_gate.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.010449421782758213,
+            "actual_l2": 0.010449421782758213,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_gate.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.08680411161187442,
+            "actual_l2": 0.08680411161187442,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_decay.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.00047286886659675674,
+            "actual_l2": 0.00047286886659675674,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_decay.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0008605664224456724,
+            "actual_l2": 0.0008605664224456724,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_decay.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0003223546066236433,
+            "actual_l2": 0.0003223546066236433,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_v.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0,
+            "actual_l2": 0.0,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_v.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0,
+            "actual_l2": 0.0,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_v.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0,
+            "actual_l2": 0.0,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.linear_receptance.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.29456265126731623,
+            "actual_l2": 0.29456265126731623,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.linear_key.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.29542343219908157,
+            "actual_l2": 0.29542343219908157,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.linear_value.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 3.186353385078641,
+            "actual_l2": 3.186353385078641,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.group_norm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.04546543475622724,
+            "actual_l2": 0.04546543475622724,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.group_norm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.33042093053993804,
+            "actual_l2": 0.33042093053993804,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.linear_proj.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 1.1263321018948134,
+            "actual_l2": 1.1263321018948134,
+            "finite": true
+          },
+          "decoder.layers.0.pre_mlp_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.13902135859666817,
+            "actual_l2": 0.13902135859666817,
+            "finite": true
+          },
+          "decoder.layers.0.pre_mlp_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.13836398125540073,
+            "actual_l2": 0.13836398125540073,
+            "finite": true
+          },
+          "decoder.layers.0.mlp.mix_coeffs": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.003709258054495577,
+            "actual_l2": 0.003709258054495577,
+            "finite": true
+          },
+          "decoder.layers.0.mlp.linear_up.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 12.925267300815372,
+            "actual_l2": 12.925267300815372,
+            "finite": true
+          },
+          "decoder.layers.0.mlp.linear_down.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 8.498633069134819,
+            "actual_l2": 8.498633069134819,
+            "finite": true
+          },
+          "decoder.layers.1.input_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.018826799079675677,
+            "actual_l2": 0.018826799079675677,
+            "finite": true
+          },
+          "decoder.layers.1.input_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.028451142847053464,
+            "actual_l2": 0.028451142847053464,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.mix_coeff_input": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.004849124006593574,
+            "actual_l2": 0.004849124006593574,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.rho": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0015084967349327993,
+            "actual_l2": 0.0015084967349327993,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.beta": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.021908640011181847,
+            "actual_l2": 0.021908640011181847,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.alpha": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.011856101484628111,
+            "actual_l2": 0.011856101484628111,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_learn.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.01740538261431697,
+            "actual_l2": 0.01740538261431697,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_learn.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.03298492025642656,
+            "actual_l2": 0.03298492025642656,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_learn.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.002470960555092767,
+            "actual_l2": 0.002470960555092767,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_gate.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.20464842077178905,
+            "actual_l2": 0.20464842077178905,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_gate.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.763793037778613,
+            "actual_l2": 0.763793037778613,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_decay.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.010413198443110581,
+            "actual_l2": 0.010413198443110581,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_decay.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.01142759950097144,
+            "actual_l2": 0.01142759950097144,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_decay.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0035690937427145836,
+            "actual_l2": 0.0035690937427145836,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_v.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.04923040428095942,
+            "actual_l2": 0.04923040428095942,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_v.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.18404953933365154,
+            "actual_l2": 0.18404953933365154,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_v.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.017615072273906275,
+            "actual_l2": 0.017615072273906275,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.linear_receptance.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.5235893751505036,
+            "actual_l2": 0.5235893751505036,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.linear_key.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.7428218258103565,
+            "actual_l2": 0.7428218258103565,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.linear_value.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 5.97748486165582,
+            "actual_l2": 5.97748486165582,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.group_norm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.38279184775822156,
+            "actual_l2": 0.38279184775822156,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.group_norm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.5709027002862802,
+            "actual_l2": 0.5709027002862802,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.linear_proj.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 5.4839194754514216,
+            "actual_l2": 5.4839194754514216,
+            "finite": true
+          },
+          "decoder.layers.1.pre_mlp_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.04183732719601064,
+            "actual_l2": 0.04183732719601064,
+            "finite": true
+          },
+          "decoder.layers.1.pre_mlp_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.05214631513278133,
+            "actual_l2": 0.05214631513278133,
+            "finite": true
+          },
+          "decoder.layers.1.mlp.mix_coeffs": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.001158896542128452,
+            "actual_l2": 0.001158896542128452,
+            "finite": true
+          },
+          "decoder.layers.1.mlp.linear_up.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 2.606655355087467,
+            "actual_l2": 2.606655355087467,
+            "finite": true
+          },
+          "decoder.layers.1.mlp.linear_down.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 1.6128664289275336,
+            "actual_l2": 1.6128664289275336,
+            "finite": true
+          },
+          "decoder.layers.2.input_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.16912860310769565,
+            "actual_l2": 0.16912860310769565,
+            "finite": true
+          },
+          "decoder.layers.2.input_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.2083508107363686,
+            "actual_l2": 0.2083508107363686,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.mix_coeff_input": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.004959152149166135,
+            "actual_l2": 0.004959152149166135,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.rho": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0014724600248610807,
+            "actual_l2": 0.0014724600248610807,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.beta": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.14627408751731022,
+            "actual_l2": 0.14627408751731022,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.alpha": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.1881193149416635,
+            "actual_l2": 0.1881193149416635,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_learn.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.1634840702220827,
+            "actual_l2": 0.1634840702220827,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_learn.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.30537625029372545,
+            "actual_l2": 0.30537625029372545,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_learn.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.05156971233399851,
+            "actual_l2": 0.05156971233399851,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_gate.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.15488794778062892,
+            "actual_l2": 0.15488794778062892,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_gate.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.6014313465245633,
+            "actual_l2": 0.6014313465245633,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_decay.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.5685515676960803,
+            "actual_l2": 0.5685515676960803,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_decay.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.27895018282041373,
+            "actual_l2": 0.27895018282041373,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_decay.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.09784275105317233,
+            "actual_l2": 0.09784275105317233,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_v.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.03167902191309533,
+            "actual_l2": 0.03167902191309533,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_v.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.11497834579574638,
+            "actual_l2": 0.11497834579574638,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_v.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.01725077761253377,
+            "actual_l2": 0.01725077761253377,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.linear_receptance.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 11.315916824255975,
+            "actual_l2": 11.315916824255975,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.linear_key.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 13.109126696183491,
+            "actual_l2": 13.109126696183491,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.linear_value.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 3.52387750962194,
+            "actual_l2": 3.52387750962194,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.group_norm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.25980661630517743,
+            "actual_l2": 0.25980661630517743,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.group_norm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.47621670132076777,
+            "actual_l2": 0.47621670132076777,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.linear_proj.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 3.537655105244904,
+            "actual_l2": 3.537655105244904,
+            "finite": true
+          },
+          "decoder.layers.2.pre_mlp_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.028428004382307203,
+            "actual_l2": 0.028428004382307203,
+            "finite": true
+          },
+          "decoder.layers.2.pre_mlp_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0408975943691698,
+            "actual_l2": 0.0408975943691698,
+            "finite": true
+          },
+          "decoder.layers.2.mlp.mix_coeffs": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0009375962706098789,
+            "actual_l2": 0.0009375962706098789,
+            "finite": true
+          },
+          "decoder.layers.2.mlp.linear_up.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 1.4159540265875032,
+            "actual_l2": 1.4159540265875032,
+            "finite": true
+          },
+          "decoder.layers.2.mlp.linear_down.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.9906640488078376,
+            "actual_l2": 0.9906640488078376,
+            "finite": true
+          },
+          "decoder.layers.3.input_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.02587766130619779,
+            "actual_l2": 0.02587766130619779,
+            "finite": true
+          },
+          "decoder.layers.3.input_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.03106096536651129,
+            "actual_l2": 0.03106096536651129,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.mix_coeff_input": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0015148374474894105,
+            "actual_l2": 0.0015148374474894105,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.rho": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0002655621457109594,
+            "actual_l2": 0.0002655621457109594,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.beta": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.024729513549661204,
+            "actual_l2": 0.024729513549661204,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.alpha": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.019704592960579716,
+            "actual_l2": 0.019704592960579716,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_learn.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.015341445869577287,
+            "actual_l2": 0.015341445869577287,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_learn.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.01825411458037021,
+            "actual_l2": 0.01825411458037021,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_learn.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0036740107838302083,
+            "actual_l2": 0.0036740107838302083,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_gate.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.10317048472725927,
+            "actual_l2": 0.10317048472725927,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_gate.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.5620689158813936,
+            "actual_l2": 0.5620689158813936,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_decay.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.021545197828618714,
+            "actual_l2": 0.021545197828618714,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_decay.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.010390267203542579,
+            "actual_l2": 0.010390267203542579,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_decay.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0039162036043999485,
+            "actual_l2": 0.0039162036043999485,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_v.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.02925237870801012,
+            "actual_l2": 0.02925237870801012,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_v.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.056439968956653944,
+            "actual_l2": 0.056439968956653944,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_v.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.010905047155331147,
+            "actual_l2": 0.010905047155331147,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.linear_receptance.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 1.120845411614053,
+            "actual_l2": 1.120845411614053,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.linear_key.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 1.2041534860411343,
+            "actual_l2": 1.2041534860411343,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.linear_value.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 1.9392247962935538,
+            "actual_l2": 1.9392247962935538,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.group_norm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.2531344652492364,
+            "actual_l2": 0.2531344652492364,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.group_norm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.38839575764148027,
+            "actual_l2": 0.38839575764148027,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.linear_proj.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 3.2907370198527888,
+            "actual_l2": 3.2907370198527888,
+            "finite": true
+          },
+          "decoder.layers.3.pre_mlp_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.028519685948770027,
+            "actual_l2": 0.028519685948770027,
+            "finite": true
+          },
+          "decoder.layers.3.pre_mlp_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.033332657854148136,
+            "actual_l2": 0.033332657854148136,
+            "finite": true
+          },
+          "decoder.layers.3.mlp.mix_coeffs": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.000662039663722026,
+            "actual_l2": 0.000662039663722026,
+            "finite": true
+          },
+          "decoder.layers.3.mlp.linear_up.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 1.0763118667367295,
+            "actual_l2": 1.0763118667367295,
+            "finite": true
+          },
+          "decoder.layers.3.mlp.linear_down.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.833145054787449,
+            "actual_l2": 0.833145054787449,
+            "finite": true
+          },
+          "decoder.final_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.06420072904722576,
+            "actual_l2": 0.06420072904722576,
+            "finite": true
+          },
+          "decoder.final_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.05676148018984486,
+            "actual_l2": 0.05676148018984486,
+            "finite": true
+          },
+          "output_layer.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 14.554824749271095,
+            "actual_l2": 14.554824749271095,
+            "finite": true
+          },
+          "pre_norm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 43.458134303683885,
+            "actual_l2": 43.458134303683885,
+            "finite": true
+          },
+          "pre_norm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 72.49436418021641,
+            "actual_l2": 72.49436418021641,
+            "finite": true
+          }
+        }
+      },
+      "bf16-recomputeFalse": {
+        "coefficient": 0.0001,
+        "forward_ce_exact": true,
+        "parameters": 118,
+        "aggregate_gradient_relative_l2": 0.0,
+        "gradient_by_parameter": {
+          "embedding.word_embeddings.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 2.5009310714560553,
+            "actual_l2": 2.5009310714560553,
+            "finite": true
+          },
+          "decoder.layers.0.input_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.10522313100749536,
+            "actual_l2": 0.10522313100749536,
+            "finite": true
+          },
+          "decoder.layers.0.input_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.15656209307060717,
+            "actual_l2": 0.15656209307060717,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.mix_coeff_input": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.002245897349384938,
+            "actual_l2": 0.002245897349384938,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.rho": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 6.224318512915125e-05,
+            "actual_l2": 6.224318512915125e-05,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.beta": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.004313614480028771,
+            "actual_l2": 0.004313614480028771,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.alpha": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.01111207352812282,
+            "actual_l2": 0.01111207352812282,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_learn.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.00375481346825523,
+            "actual_l2": 0.00375481346825523,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_learn.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.008031171091901405,
+            "actual_l2": 0.008031171091901405,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_learn.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0020080481206299315,
+            "actual_l2": 0.0020080481206299315,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_gate.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.010155170229609364,
+            "actual_l2": 0.010155170229609364,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_gate.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.08647094206084188,
+            "actual_l2": 0.08647094206084188,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_decay.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0004601809464720395,
+            "actual_l2": 0.0004601809464720395,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_decay.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0008425369460035141,
+            "actual_l2": 0.0008425369460035141,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_decay.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.00031539125986894536,
+            "actual_l2": 0.00031539125986894536,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_v.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0,
+            "actual_l2": 0.0,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_v.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0,
+            "actual_l2": 0.0,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_v.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0,
+            "actual_l2": 0.0,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.linear_receptance.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.28676882325300124,
+            "actual_l2": 0.28676882325300124,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.linear_key.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.28482461266854436,
+            "actual_l2": 0.28482461266854436,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.linear_value.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 3.1845889132439233,
+            "actual_l2": 3.1845889132439233,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.group_norm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.044906352862459434,
+            "actual_l2": 0.044906352862459434,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.group_norm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.32875692129940337,
+            "actual_l2": 0.32875692129940337,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.linear_proj.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 1.1225461226640014,
+            "actual_l2": 1.1225461226640014,
+            "finite": true
+          },
+          "decoder.layers.0.pre_mlp_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.13854540661426634,
+            "actual_l2": 0.13854540661426634,
+            "finite": true
+          },
+          "decoder.layers.0.pre_mlp_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.13870988437412138,
+            "actual_l2": 0.13870988437412138,
+            "finite": true
+          },
+          "decoder.layers.0.mlp.mix_coeffs": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0037633822745547774,
+            "actual_l2": 0.0037633822745547774,
+            "finite": true
+          },
+          "decoder.layers.0.mlp.linear_up.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 12.939561934182068,
+            "actual_l2": 12.939561934182068,
+            "finite": true
+          },
+          "decoder.layers.0.mlp.linear_down.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 8.489485704078563,
+            "actual_l2": 8.489485704078563,
+            "finite": true
+          },
+          "decoder.layers.1.input_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.01866749470112212,
+            "actual_l2": 0.01866749470112212,
+            "finite": true
+          },
+          "decoder.layers.1.input_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.028591192060710247,
+            "actual_l2": 0.028591192060710247,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.mix_coeff_input": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0045881141550002565,
+            "actual_l2": 0.0045881141550002565,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.rho": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0015057788880685793,
+            "actual_l2": 0.0015057788880685793,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.beta": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.013951555649129435,
+            "actual_l2": 0.013951555649129435,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.alpha": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.011078771924709999,
+            "actual_l2": 0.011078771924709999,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_learn.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.019452907462536785,
+            "actual_l2": 0.019452907462536785,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_learn.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.041782578962915866,
+            "actual_l2": 0.041782578962915866,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_learn.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0031935244915197347,
+            "actual_l2": 0.0031935244915197347,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_gate.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.20500957477759374,
+            "actual_l2": 0.20500957477759374,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_gate.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.7618003439602901,
+            "actual_l2": 0.7618003439602901,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_decay.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.005336783760152833,
+            "actual_l2": 0.005336783760152833,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_decay.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.00965871317864744,
+            "actual_l2": 0.00965871317864744,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_decay.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.003015079182289523,
+            "actual_l2": 0.003015079182289523,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_v.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.048876699253901576,
+            "actual_l2": 0.048876699253901576,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_v.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.18360161095566235,
+            "actual_l2": 0.18360161095566235,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_v.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.017588152031349683,
+            "actual_l2": 0.017588152031349683,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.linear_receptance.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.5895184312775473,
+            "actual_l2": 0.5895184312775473,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.linear_key.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.7639082301945351,
+            "actual_l2": 0.7639082301945351,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.linear_value.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 5.967294368568106,
+            "actual_l2": 5.967294368568106,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.group_norm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.38115948529518073,
+            "actual_l2": 0.38115948529518073,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.group_norm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.5702547986370827,
+            "actual_l2": 0.5702547986370827,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.linear_proj.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 5.475659469331521,
+            "actual_l2": 5.475659469331521,
+            "finite": true
+          },
+          "decoder.layers.1.pre_mlp_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0416764710977025,
+            "actual_l2": 0.0416764710977025,
+            "finite": true
+          },
+          "decoder.layers.1.pre_mlp_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.05204733938248934,
+            "actual_l2": 0.05204733938248934,
+            "finite": true
+          },
+          "decoder.layers.1.mlp.mix_coeffs": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0011537502769521102,
+            "actual_l2": 0.0011537502769521102,
+            "finite": true
+          },
+          "decoder.layers.1.mlp.linear_up.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 2.6034182146722484,
+            "actual_l2": 2.6034182146722484,
+            "finite": true
+          },
+          "decoder.layers.1.mlp.linear_down.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 1.61243772756833,
+            "actual_l2": 1.61243772756833,
+            "finite": true
+          },
+          "decoder.layers.2.input_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.16897541571581243,
+            "actual_l2": 0.16897541571581243,
+            "finite": true
+          },
+          "decoder.layers.2.input_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.2081539906342403,
+            "actual_l2": 0.2081539906342403,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.mix_coeff_input": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.004974327520646773,
+            "actual_l2": 0.004974327520646773,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.rho": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0014722000454722843,
+            "actual_l2": 0.0014722000454722843,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.beta": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.14625032497264506,
+            "actual_l2": 0.14625032497264506,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.alpha": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.18826209616369075,
+            "actual_l2": 0.18826209616369075,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_learn.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.16345423214422453,
+            "actual_l2": 0.16345423214422453,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_learn.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.3052259772185791,
+            "actual_l2": 0.3052259772185791,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_learn.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.05154614377963198,
+            "actual_l2": 0.05154614377963198,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_gate.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.15454493166689037,
+            "actual_l2": 0.15454493166689037,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_gate.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.600558817615628,
+            "actual_l2": 0.600558817615628,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_decay.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.5680167646758754,
+            "actual_l2": 0.5680167646758754,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_decay.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.27879665438405754,
+            "actual_l2": 0.27879665438405754,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_decay.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.09787753637580984,
+            "actual_l2": 0.09787753637580984,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_v.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.03159198984581361,
+            "actual_l2": 0.03159198984581361,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_v.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.11498427735918132,
+            "actual_l2": 0.11498427735918132,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_v.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.017252872285461716,
+            "actual_l2": 0.017252872285461716,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.linear_receptance.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 11.317058141455584,
+            "actual_l2": 11.317058141455584,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.linear_key.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 13.103605810898246,
+            "actual_l2": 13.103605810898246,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.linear_value.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 3.52552332161012,
+            "actual_l2": 3.52552332161012,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.group_norm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.25987203516152024,
+            "actual_l2": 0.25987203516152024,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.group_norm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.47637898530930717,
+            "actual_l2": 0.47637898530930717,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.linear_proj.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 3.532044586389772,
+            "actual_l2": 3.532044586389772,
+            "finite": true
+          },
+          "decoder.layers.2.pre_mlp_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.028380512481364386,
+            "actual_l2": 0.028380512481364386,
+            "finite": true
+          },
+          "decoder.layers.2.pre_mlp_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.04091945385782224,
+            "actual_l2": 0.04091945385782224,
+            "finite": true
+          },
+          "decoder.layers.2.mlp.mix_coeffs": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0009396124107593789,
+            "actual_l2": 0.0009396124107593789,
+            "finite": true
+          },
+          "decoder.layers.2.mlp.linear_up.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 1.415677022870726,
+            "actual_l2": 1.415677022870726,
+            "finite": true
+          },
+          "decoder.layers.2.mlp.linear_down.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.9906120864481578,
+            "actual_l2": 0.9906120864481578,
+            "finite": true
+          },
+          "decoder.layers.3.input_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.025875735761928125,
+            "actual_l2": 0.025875735761928125,
+            "finite": true
+          },
+          "decoder.layers.3.input_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.031090094044537043,
+            "actual_l2": 0.031090094044537043,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.mix_coeff_input": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0015186254805486573,
+            "actual_l2": 0.0015186254805486573,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.rho": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.00026560464588606605,
+            "actual_l2": 0.00026560464588606605,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.beta": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.024806907995130356,
+            "actual_l2": 0.024806907995130356,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.alpha": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.01977554361637635,
+            "actual_l2": 0.01977554361637635,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_learn.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.01546639725414569,
+            "actual_l2": 0.01546639725414569,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_learn.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.018350364048262357,
+            "actual_l2": 0.018350364048262357,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_learn.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.00370094381027766,
+            "actual_l2": 0.00370094381027766,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_gate.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.1033809887348842,
+            "actual_l2": 0.1033809887348842,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_gate.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.5620450901617035,
+            "actual_l2": 0.5620450901617035,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_decay.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.02180776229835897,
+            "actual_l2": 0.02180776229835897,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_decay.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.010475025516111229,
+            "actual_l2": 0.010475025516111229,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_decay.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.00394905966602502,
+            "actual_l2": 0.00394905966602502,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_v.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.02933492992911934,
+            "actual_l2": 0.02933492992911934,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_v.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0564351994380426,
+            "actual_l2": 0.0564351994380426,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_v.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.010908128172496156,
+            "actual_l2": 0.010908128172496156,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.linear_receptance.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 1.1243257574375218,
+            "actual_l2": 1.1243257574375218,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.linear_key.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 1.2093198275844688,
+            "actual_l2": 1.2093198275844688,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.linear_value.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 1.9387480661187426,
+            "actual_l2": 1.9387480661187426,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.group_norm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.2527211956650281,
+            "actual_l2": 0.2527211956650281,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.group_norm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.38868791757551996,
+            "actual_l2": 0.38868791757551996,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.linear_proj.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 3.2890312187307025,
+            "actual_l2": 3.2890312187307025,
+            "finite": true
+          },
+          "decoder.layers.3.pre_mlp_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.028641054600681986,
+            "actual_l2": 0.028641054600681986,
+            "finite": true
+          },
+          "decoder.layers.3.pre_mlp_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.033398366927961824,
+            "actual_l2": 0.033398366927961824,
+            "finite": true
+          },
+          "decoder.layers.3.mlp.mix_coeffs": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0006639743909907498,
+            "actual_l2": 0.0006639743909907498,
+            "finite": true
+          },
+          "decoder.layers.3.mlp.linear_up.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 1.0778101329014829,
+            "actual_l2": 1.0778101329014829,
+            "finite": true
+          },
+          "decoder.layers.3.mlp.linear_down.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.8337781003719063,
+            "actual_l2": 0.8337781003719063,
+            "finite": true
+          },
+          "decoder.final_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0643171038469629,
+            "actual_l2": 0.0643171038469629,
+            "finite": true
+          },
+          "decoder.final_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.056741966324868255,
+            "actual_l2": 0.056741966324868255,
+            "finite": true
+          },
+          "output_layer.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 14.553886965143905,
+            "actual_l2": 14.553886965143905,
+            "finite": true
+          },
+          "pre_norm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 43.36809408179901,
+            "actual_l2": 43.36809408179901,
+            "finite": true
+          },
+          "pre_norm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 72.39317383036713,
+            "actual_l2": 72.39317383036713,
+            "finite": true
+          }
+        }
+      },
+      "bf16-recomputeTrue": {
+        "coefficient": 0.0001,
+        "forward_ce_exact": true,
+        "parameters": 118,
+        "aggregate_gradient_relative_l2": 0.0,
+        "gradient_by_parameter": {
+          "embedding.word_embeddings.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 2.5009310714560553,
+            "actual_l2": 2.5009310714560553,
+            "finite": true
+          },
+          "decoder.layers.0.input_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.10522313100749536,
+            "actual_l2": 0.10522313100749536,
+            "finite": true
+          },
+          "decoder.layers.0.input_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.15656209307060717,
+            "actual_l2": 0.15656209307060717,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.mix_coeff_input": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.002245897349384938,
+            "actual_l2": 0.002245897349384938,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.rho": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 6.224318512915125e-05,
+            "actual_l2": 6.224318512915125e-05,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.beta": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.004313614480028771,
+            "actual_l2": 0.004313614480028771,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.alpha": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.01111207352812282,
+            "actual_l2": 0.01111207352812282,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_learn.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.00375481346825523,
+            "actual_l2": 0.00375481346825523,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_learn.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.008031171091901405,
+            "actual_l2": 0.008031171091901405,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_learn.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0020080481206299315,
+            "actual_l2": 0.0020080481206299315,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_gate.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.010155170229609364,
+            "actual_l2": 0.010155170229609364,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_gate.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.08647094206084188,
+            "actual_l2": 0.08647094206084188,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_decay.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0004601809464720395,
+            "actual_l2": 0.0004601809464720395,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_decay.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0008425369460035141,
+            "actual_l2": 0.0008425369460035141,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_decay.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.00031539125986894536,
+            "actual_l2": 0.00031539125986894536,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_v.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0,
+            "actual_l2": 0.0,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_v.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0,
+            "actual_l2": 0.0,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.bottleneck_v.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0,
+            "actual_l2": 0.0,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.linear_receptance.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.28676882325300124,
+            "actual_l2": 0.28676882325300124,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.linear_key.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.28482461266854436,
+            "actual_l2": 0.28482461266854436,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.linear_value.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 3.1845889132439233,
+            "actual_l2": 3.1845889132439233,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.group_norm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.044906352862459434,
+            "actual_l2": 0.044906352862459434,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.group_norm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.32875692129940337,
+            "actual_l2": 0.32875692129940337,
+            "finite": true
+          },
+          "decoder.layers.0.self_attention.linear_proj.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 1.1225461226640014,
+            "actual_l2": 1.1225461226640014,
+            "finite": true
+          },
+          "decoder.layers.0.pre_mlp_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.13854540661426634,
+            "actual_l2": 0.13854540661426634,
+            "finite": true
+          },
+          "decoder.layers.0.pre_mlp_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.13870988437412138,
+            "actual_l2": 0.13870988437412138,
+            "finite": true
+          },
+          "decoder.layers.0.mlp.mix_coeffs": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0037633822745547774,
+            "actual_l2": 0.0037633822745547774,
+            "finite": true
+          },
+          "decoder.layers.0.mlp.linear_up.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 12.939561934182068,
+            "actual_l2": 12.939561934182068,
+            "finite": true
+          },
+          "decoder.layers.0.mlp.linear_down.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 8.489485704078563,
+            "actual_l2": 8.489485704078563,
+            "finite": true
+          },
+          "decoder.layers.1.input_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.01866749470112212,
+            "actual_l2": 0.01866749470112212,
+            "finite": true
+          },
+          "decoder.layers.1.input_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.028591192060710247,
+            "actual_l2": 0.028591192060710247,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.mix_coeff_input": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0045881141550002565,
+            "actual_l2": 0.0045881141550002565,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.rho": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0015057788880685793,
+            "actual_l2": 0.0015057788880685793,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.beta": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.013951555649129435,
+            "actual_l2": 0.013951555649129435,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.alpha": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.011078771924709999,
+            "actual_l2": 0.011078771924709999,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_learn.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.019452907462536785,
+            "actual_l2": 0.019452907462536785,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_learn.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.041782578962915866,
+            "actual_l2": 0.041782578962915866,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_learn.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0031935244915197347,
+            "actual_l2": 0.0031935244915197347,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_gate.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.20500957477759374,
+            "actual_l2": 0.20500957477759374,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_gate.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.7618003439602901,
+            "actual_l2": 0.7618003439602901,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_decay.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.005336783760152833,
+            "actual_l2": 0.005336783760152833,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_decay.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.00965871317864744,
+            "actual_l2": 0.00965871317864744,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_decay.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.003015079182289523,
+            "actual_l2": 0.003015079182289523,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_v.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.048876699253901576,
+            "actual_l2": 0.048876699253901576,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_v.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.18360161095566235,
+            "actual_l2": 0.18360161095566235,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.bottleneck_v.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.017588152031349683,
+            "actual_l2": 0.017588152031349683,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.linear_receptance.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.5895184312775473,
+            "actual_l2": 0.5895184312775473,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.linear_key.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.7639082301945351,
+            "actual_l2": 0.7639082301945351,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.linear_value.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 5.967294368568106,
+            "actual_l2": 5.967294368568106,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.group_norm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.38115948529518073,
+            "actual_l2": 0.38115948529518073,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.group_norm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.5702547986370827,
+            "actual_l2": 0.5702547986370827,
+            "finite": true
+          },
+          "decoder.layers.1.self_attention.linear_proj.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 5.475659469331521,
+            "actual_l2": 5.475659469331521,
+            "finite": true
+          },
+          "decoder.layers.1.pre_mlp_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0416764710977025,
+            "actual_l2": 0.0416764710977025,
+            "finite": true
+          },
+          "decoder.layers.1.pre_mlp_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.05204733938248934,
+            "actual_l2": 0.05204733938248934,
+            "finite": true
+          },
+          "decoder.layers.1.mlp.mix_coeffs": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0011537502769521102,
+            "actual_l2": 0.0011537502769521102,
+            "finite": true
+          },
+          "decoder.layers.1.mlp.linear_up.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 2.6034182146722484,
+            "actual_l2": 2.6034182146722484,
+            "finite": true
+          },
+          "decoder.layers.1.mlp.linear_down.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 1.61243772756833,
+            "actual_l2": 1.61243772756833,
+            "finite": true
+          },
+          "decoder.layers.2.input_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.16897541571581243,
+            "actual_l2": 0.16897541571581243,
+            "finite": true
+          },
+          "decoder.layers.2.input_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.2081539906342403,
+            "actual_l2": 0.2081539906342403,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.mix_coeff_input": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.004974327520646773,
+            "actual_l2": 0.004974327520646773,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.rho": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0014722000454722843,
+            "actual_l2": 0.0014722000454722843,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.beta": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.14625032497264506,
+            "actual_l2": 0.14625032497264506,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.alpha": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.18826209616369075,
+            "actual_l2": 0.18826209616369075,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_learn.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.16345423214422453,
+            "actual_l2": 0.16345423214422453,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_learn.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.3052259772185791,
+            "actual_l2": 0.3052259772185791,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_learn.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.05154614377963198,
+            "actual_l2": 0.05154614377963198,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_gate.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.15454493166689037,
+            "actual_l2": 0.15454493166689037,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_gate.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.600558817615628,
+            "actual_l2": 0.600558817615628,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_decay.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.5680167646758754,
+            "actual_l2": 0.5680167646758754,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_decay.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.27879665438405754,
+            "actual_l2": 0.27879665438405754,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_decay.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.09787753637580984,
+            "actual_l2": 0.09787753637580984,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_v.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.03159198984581361,
+            "actual_l2": 0.03159198984581361,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_v.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.11498427735918132,
+            "actual_l2": 0.11498427735918132,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.bottleneck_v.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.017252872285461716,
+            "actual_l2": 0.017252872285461716,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.linear_receptance.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 11.317058141455584,
+            "actual_l2": 11.317058141455584,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.linear_key.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 13.103605810898246,
+            "actual_l2": 13.103605810898246,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.linear_value.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 3.52552332161012,
+            "actual_l2": 3.52552332161012,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.group_norm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.25987203516152024,
+            "actual_l2": 0.25987203516152024,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.group_norm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.47637898530930717,
+            "actual_l2": 0.47637898530930717,
+            "finite": true
+          },
+          "decoder.layers.2.self_attention.linear_proj.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 3.532044586389772,
+            "actual_l2": 3.532044586389772,
+            "finite": true
+          },
+          "decoder.layers.2.pre_mlp_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.028380512481364386,
+            "actual_l2": 0.028380512481364386,
+            "finite": true
+          },
+          "decoder.layers.2.pre_mlp_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.04091945385782224,
+            "actual_l2": 0.04091945385782224,
+            "finite": true
+          },
+          "decoder.layers.2.mlp.mix_coeffs": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0009396124107593789,
+            "actual_l2": 0.0009396124107593789,
+            "finite": true
+          },
+          "decoder.layers.2.mlp.linear_up.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 1.415677022870726,
+            "actual_l2": 1.415677022870726,
+            "finite": true
+          },
+          "decoder.layers.2.mlp.linear_down.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.9906120864481578,
+            "actual_l2": 0.9906120864481578,
+            "finite": true
+          },
+          "decoder.layers.3.input_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.025875735761928125,
+            "actual_l2": 0.025875735761928125,
+            "finite": true
+          },
+          "decoder.layers.3.input_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.031090094044537043,
+            "actual_l2": 0.031090094044537043,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.mix_coeff_input": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0015186254805486573,
+            "actual_l2": 0.0015186254805486573,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.rho": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.00026560464588606605,
+            "actual_l2": 0.00026560464588606605,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.beta": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.024806907995130356,
+            "actual_l2": 0.024806907995130356,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.alpha": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.01977554361637635,
+            "actual_l2": 0.01977554361637635,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_learn.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.01546639725414569,
+            "actual_l2": 0.01546639725414569,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_learn.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.018350364048262357,
+            "actual_l2": 0.018350364048262357,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_learn.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.00370094381027766,
+            "actual_l2": 0.00370094381027766,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_gate.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.1033809887348842,
+            "actual_l2": 0.1033809887348842,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_gate.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.5620450901617035,
+            "actual_l2": 0.5620450901617035,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_decay.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.02180776229835897,
+            "actual_l2": 0.02180776229835897,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_decay.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.010475025516111229,
+            "actual_l2": 0.010475025516111229,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_decay.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.00394905966602502,
+            "actual_l2": 0.00394905966602502,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_v.weight_down": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.02933492992911934,
+            "actual_l2": 0.02933492992911934,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_v.weight_up": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0564351994380426,
+            "actual_l2": 0.0564351994380426,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.bottleneck_v.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.010908128172496156,
+            "actual_l2": 0.010908128172496156,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.linear_receptance.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 1.1243257574375218,
+            "actual_l2": 1.1243257574375218,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.linear_key.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 1.2093198275844688,
+            "actual_l2": 1.2093198275844688,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.linear_value.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 1.9387480661187426,
+            "actual_l2": 1.9387480661187426,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.group_norm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.2527211956650281,
+            "actual_l2": 0.2527211956650281,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.group_norm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.38868791757551996,
+            "actual_l2": 0.38868791757551996,
+            "finite": true
+          },
+          "decoder.layers.3.self_attention.linear_proj.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 3.2890312187307025,
+            "actual_l2": 3.2890312187307025,
+            "finite": true
+          },
+          "decoder.layers.3.pre_mlp_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.028641054600681986,
+            "actual_l2": 0.028641054600681986,
+            "finite": true
+          },
+          "decoder.layers.3.pre_mlp_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.033398366927961824,
+            "actual_l2": 0.033398366927961824,
+            "finite": true
+          },
+          "decoder.layers.3.mlp.mix_coeffs": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0006639743909907498,
+            "actual_l2": 0.0006639743909907498,
+            "finite": true
+          },
+          "decoder.layers.3.mlp.linear_up.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 1.0778101329014829,
+            "actual_l2": 1.0778101329014829,
+            "finite": true
+          },
+          "decoder.layers.3.mlp.linear_down.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.8337781003719063,
+            "actual_l2": 0.8337781003719063,
+            "finite": true
+          },
+          "decoder.final_layernorm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.0643171038469629,
+            "actual_l2": 0.0643171038469629,
+            "finite": true
+          },
+          "decoder.final_layernorm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 0.056741966324868255,
+            "actual_l2": 0.056741966324868255,
+            "finite": true
+          },
+          "output_layer.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 14.553886965143905,
+            "actual_l2": 14.553886965143905,
+            "finite": true
+          },
+          "pre_norm.weight": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 43.36809408179901,
+            "actual_l2": 43.36809408179901,
+            "finite": true
+          },
+          "pre_norm.bias": {
+            "max_abs": 0.0,
+            "relative_l2": 0.0,
+            "reference_l2": 72.39317383036713,
+            "actual_l2": 72.39317383036713,
+            "finite": true
+          }
+        }
+      }
+    }
+  },
+  "full_3b_resume": {
+    "loss_and_grad_norm_exact_at_logged_precision": true,
+    "rows": {
+      "1": {
+        "samples": 2,
+        "lr": 1.568009e-05,
+        "loss": 2.751729,
+        "grad_norm": 165.219,
+        "skipped": 0,
+        "nan": 0
+      },
+      "2": {
+        "samples": 4,
+        "lr": 1.567466e-05,
+        "loss": 2.58536,
+        "grad_norm": 129.132,
+        "skipped": 0,
+        "nan": 0
+      },
+      "3": {
+        "samples": 6,
+        "lr": 1.566942e-05,
+        "loss": 2.672099,
+        "grad_norm": 725.865,
+        "skipped": 0,
+        "nan": 0
+      },
+      "4": {
+        "samples": 8,
+        "lr": 1.566437e-05,
+        "loss": 2.623571,
+        "grad_norm": 804.049,
+        "skipped": 0,
+        "nan": 0
+      }
+    },
+    "checkpoint_comparisons": {
+      "model": {
+        "tensor_count": 968,
+        "tensor_elements": 2948065280,
+        "differences": []
+      },
+      "optimizer": {
+        "tensor_count": 0,
+        "tensor_elements": 0,
+        "differences": []
+      },
+      "opt_param_scheduler": {
+        "tensor_count": 0,
+        "tensor_elements": 0,
+        "differences": []
+      },
+      "rng_state": {
+        "tensor_count": 5,
+        "tensor_elements": 5120,
+        "differences": []
+      },
+      "iteration": {
+        "tensor_count": 0,
+        "tensor_elements": 0,
+        "differences": []
+      },
+      "distrib_optim.pt": {
+        "tensor_count": 3,
+        "tensor_elements": 8844195840,
+        "differences": []
+      }
+    },
+    "exact_model_optimizer_scheduler": true,
+    "rng_exact": true
+  },
+  "full_3b_per_token_eager_smoke": {
+    "key_fusion_yaml": false,
+    "coefficient": 0.0001,
+    "per_token_loss": true,
+    "microbatches": 2,
+    "iterations": [
+      [
+        "1",
+        "2.760324E+00",
+        "171.409",
+        "0",
+        "0"
+      ],
+      [
+        "2",
+        "2.587640E+00",
+        "130.543",
+        "0",
+        "0"
+      ]
+    ]
+  },
+  "multi_gpu_rwkv_model_or_fp8_certified": false
+}

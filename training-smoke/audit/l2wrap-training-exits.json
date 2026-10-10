@@ -1,0 +1,38 @@
+{
+  "save": {
+    "command": [
+      "bash",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/launch-training-l2wrap.sh",
+      "single-training-save-l2wrap",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/config-3b-single-save-l2wrap.yaml"
+    ],
+    "exit_code": 0,
+    "l2wrap_coefficient": 0.0001,
+    "key_fusion_config": true,
+    "microbatches": 2
+  },
+  "resume": {
+    "command": [
+      "bash",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/launch-training-l2wrap.sh",
+      "single-training-resume-l2wrap",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/config-3b-single-resume-l2wrap.yaml"
+    ],
+    "exit_code": 0,
+    "l2wrap_coefficient": 0.0001,
+    "key_fusion_config": true,
+    "microbatches": 2
+  },
+  "continuous": {
+    "command": [
+      "bash",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/launch-training-l2wrap.sh",
+      "single-training-continuous-l2wrap",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/config-3b-single-continuous-l2wrap.yaml"
+    ],
+    "exit_code": 0,
+    "l2wrap_coefficient": 0.0001,
+    "key_fusion_config": true,
+    "microbatches": 2
+  }
+}

@@ -99,3 +99,18 @@ def test_backend_compile_failure_uses_fp32_fallback(monkeypatch):
             outputs = impl.prepare_key(*tensors, 64)
         gradients = torch.autograd.grad(outputs, tensors, [torch.ones_like(t) for t in outputs])
     assert impl._fusion_unavailable and all(torch.isfinite(t).all() for t in gradients)
+
+
+@pytest.mark.skipif(not torch.cuda.is_available(), reason='CUDA required for configuration precedence')
+def test_yaml_setting_overrides_environment(monkeypatch):
+    monkeypatch.setenv('RWKV7_KEY_FUSION', '1')
+    monkeypatch.setattr(impl, '_fusion_unavailable', False)
+    tensors = inputs('cuda', torch.bfloat16)
+    with patch.object(impl, '_compiled_key', side_effect=AssertionError('fusion explicitly disabled')):
+        actual = impl.prepare_key(*tensors, fusion=False)
+    for a, b in zip(actual, impl.key_fp32(*tensors)):
+        torch.testing.assert_close(a, b, rtol=0, atol=0)
+    monkeypatch.setenv('RWKV7_KEY_FUSION', '0')
+    with patch.object(impl, '_compiled_key', side_effect=lambda *x: impl.key_fp32(*x)) as compiled:
+        impl.prepare_key(*tensors, fusion=True)
+        assert compiled.call_count == 1

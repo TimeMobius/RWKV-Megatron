@@ -5,6 +5,30 @@ import torch.nn.functional as F
 from v0_fp32 import modified_forward
 
 
+def key_eager_high(key, learn, beta, alpha, head_size):
+    from rwkv_megatron.rwkv7_layer_specs import update_key
+    k = key.float()
+    kk = F.normalize((k * beta.float()).reshape(*key.shape[:-1], -1, head_size), dim=-1).reshape_as(k)
+    return (update_key(k, learn.float(), alpha.float()).to(key.dtype),
+            (-kk).to(key.dtype), (learn.float() * kk).to(key.dtype))
+
+
+def key_legacy(key, learn, beta, alpha, head_size):
+    from rwkv_megatron.rwkv7_layer_specs import update_key
+    kk = F.normalize((key * beta).reshape(*key.shape[:-1], -1, head_size), dim=-1).reshape_as(key)
+    return update_key(key, learn, alpha), -kk, learn * kk
+
+
+def install_legacy(model):
+    for layer in model.decoder.layers:
+        att = layer.self_attention
+        att._audit_key_legacy = key_legacy
+        modified_forward(att, [
+            ('rep_key, a, b = prepare_key(key, learn_rate, self.beta, self.alpha, self.head_size)',
+             'rep_key, a, b = self._audit_key_legacy(key, learn_rate, self.beta, self.alpha, self.head_size)'),
+        ])
+
+
 def install(model,mode):
     assert model.config.tensor_model_parallel_size==1 and model.config.pipeline_model_parallel_size==1
     assert model.config.bf16 and not model.config.sequence_parallel
@@ -14,14 +38,10 @@ def install(model,mode):
         return
     for layer in model.decoder.layers:
         att=layer.self_attention
+        att._audit_key_eager_high = key_eager_high
         replacements=[
-            ('key = self.linear_key(mixed_key.contiguous())[0]',
-             'key = self.linear_key(mixed_key.contiguous())[0].float()'),
-            ('rem_key = key * self.beta','rem_key = key * self.beta.float()'),
-            ('rep_key = update_key(key, learn_rate, self.alpha)',
-             'rep_key = update_key(key, learn_rate.float(), self.alpha.float()).to(hidden_states.dtype)'),
-            ('a = rem_key_norm.neg()','a = rem_key_norm.neg().to(hidden_states.dtype)'),
-            ('b = learn_rate * rem_key_norm','b = (learn_rate.float() * rem_key_norm).to(hidden_states.dtype)'),
+            ('rep_key, a, b = prepare_key(key, learn_rate, self.beta, self.alpha, self.head_size)',
+             'rep_key, a, b = self._audit_key_eager_high(key, learn_rate, self.beta, self.alpha, self.head_size)'),
         ]
         if mode=='all':
             # Original linear outputs stay BF16; bias addition and sigmoid are

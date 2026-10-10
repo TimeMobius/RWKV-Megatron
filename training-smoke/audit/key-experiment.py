@@ -146,7 +146,7 @@ def model_benchmark():
     from megatron.training import global_vars
     from rwkv_megatron.rwkv7_model import RWKV7Model
     from rwkv_megatron.rwkv7_layer_specs import get_rwkv7_layer_spec
-    from precision_probe import install
+    from precision_probe import install, install_legacy
     ps.initialize_model_parallel(tensor_model_parallel_size=1,pipeline_model_parallel_size=1)
     model_parallel_cuda_manual_seed(1234)
     global_vars._GLOBAL_ARGS=SimpleNamespace(transformer_impl='local')
@@ -183,6 +183,7 @@ def model_benchmark():
                     att.forward=forward
                     if hasattr(att,'_audit_forward_source'):del att._audit_forward_source
                 if name!='bf16':install(model,name)
+                else:install_legacy(model)
                 if name not in warmed:
                     for _ in range(3):step()
                     warmed.add(name)

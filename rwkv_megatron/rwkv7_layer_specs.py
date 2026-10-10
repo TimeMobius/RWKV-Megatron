@@ -64,6 +64,7 @@ from megatron.core import parallel_state
 from megatron.training import print_rank_0
 
 from .normalization import get_rwkv7_layernorm_impl
+from .key_preparation import prepare_key
 from .rwkv7_transformer_layer import RWKV7TransformerLayer
 
 def mix_inputs(hidden_states, delta, coefficients):
@@ -660,15 +661,7 @@ class RWKV7TimeMix(MegatronModule):
         current_recipe = get_fp8_recipe() if HAVE_TE else None
         with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe) if HAVE_TE else nullcontext():
             key = self.linear_key(mixed_key.contiguous())[0]
-        rem_key = key * self.beta
-        # rem_batch = rem_key.shape[1]
-        # rem_seq = rem_key.shape[0]
-
-        temp_rearranged = rearrange(rem_key, 't b (h n) -> b t h n', h=self.num_heads_per_partition)
-        normalized_rearranged = torch.nn.functional.normalize(temp_rearranged, dim=-1, p=2.0)
-        rem_key_norm = rearrange(normalized_rearranged, 'b t h n -> t b (h n)')
-
-        rep_key = update_key(key, learn_rate, self.alpha)
+        rep_key, a, b = prepare_key(key, learn_rate, self.beta, self.alpha, self.head_size)
 
         with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe) if HAVE_TE else nullcontext():
             value = self.linear_value(mixed_value.contiguous())[0]
@@ -695,8 +688,6 @@ class RWKV7TimeMix(MegatronModule):
             receptance = self.linear_receptance(mixed_receptance.contiguous())[0]
         gate = self.bottleneck_gate(mixed_gate.contiguous())
 
-        a = rem_key_norm.neg()
-        b = learn_rate * rem_key_norm
 
         output = self.core_attention(receptance, rep_key, value, weight, a, b)
 

@@ -24,16 +24,7 @@ def install(model):
     for layer in model.decoder.layers:
         att = layer.self_attention
         att._audit_key_compiled = key_compiled
-        source = getattr(att, '_audit_forward_source', None)
-        if source is None:
-            import inspect
-            import textwrap
-            source = textwrap.dedent(inspect.getsource(type(att).forward))
-        start = source.index('    rem_key = key * self.beta')
-        end = source.index('\n', source.index('    rep_key = update_key(key, learn_rate, self.alpha)', start))
-        before = source[start:end]
-        after = ('    rep_key, a, b = self._audit_key_compiled(\n'
-                 '        key, learn_rate, self.beta, self.alpha, self.head_size)')
-        modified_forward(att, [(before, after),
-                              ('a = rem_key_norm.neg()', '# a returned by fused key calculation'),
-                              ('b = learn_rate * rem_key_norm', '# b returned by fused key calculation')])
+        modified_forward(att, [
+            ('rep_key, a, b = prepare_key(key, learn_rate, self.beta, self.alpha, self.head_size)',
+             'rep_key, a, b = self._audit_key_compiled(key, learn_rate, self.beta, self.alpha, self.head_size)'),
+        ])

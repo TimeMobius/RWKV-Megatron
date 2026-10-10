@@ -2,6 +2,8 @@
 
 RWKV7 的默认 `ln0`、各层 `ln1/ln2` 与 `ln_out` 统一使用 Transformer Engine >=1.9.0 的 LayerNorm；TE 缺失或版本不足时统一回退 Apex FusedLayerNorm（需要 Apex CUDA 扩展）。该选择独立于 `transformer_impl` 的 Linear 后端。GroupNorm 保持原公式；此变更不代表已完成 FP8 全模型训练认证。
 
+RWKV7 的 key 归一化、更新和 a/b 生成现在统一使用 FP32 中间计算，最终结果保留投影输出的 BF16/FP16/FP32 类型。CUDA 默认通过 `torch.compile` 合并计算；编译不可用时提示并回退普通 Torch FP32，也可在启动前设置 `RWKV7_KEY_FUSION=0` 固定选择兼容路径。首次运行有编译开销；断点续训应保持相同后端，两个后端的舍入结果可能不同。单卡测试记录见 [KEY-PRECISION-INTEGRATION.md](training-smoke/audit/KEY-PRECISION-INTEGRATION.md)。
+
 <div align="center">
 
 <img src="/assets/logo.png" width="300px">

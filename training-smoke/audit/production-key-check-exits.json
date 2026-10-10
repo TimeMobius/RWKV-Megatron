@@ -1,0 +1,94 @@
+{
+  "production-full": {
+    "command": [
+      "bash",
+      "training-smoke/audit/launch-single.sh",
+      "--full",
+      "--bf16",
+      "--all-gradients",
+      "--reference-profile",
+      "blinkdl",
+      "--capture-output",
+      "full-production-key-fusion",
+      "--result-tag=-production-key-fusion"
+    ],
+    "exit_code": 0
+  },
+  "fallback-full": {
+    "command": [
+      "bash",
+      "training-smoke/audit/launch-single.sh",
+      "--full",
+      "--bf16",
+      "--all-gradients",
+      "--reference-profile",
+      "blinkdl",
+      "--capture-output",
+      "full-production-key-eager",
+      "--result-tag=-production-key-eager"
+    ],
+    "exit_code": 0,
+    "environment": {
+      "RWKV7_KEY_FUSION": "0",
+      "CUDA_VISIBLE_DEVICES": "3",
+      "AUDIT_MASTER_PORT": "51289"
+    }
+  },
+  "production-small": {
+    "command": [
+      "bash",
+      "training-smoke/audit/launch-single.sh",
+      "--bf16",
+      "--all-gradients",
+      "--reference-profile",
+      "blinkdl",
+      "--capture-output",
+      "small-production-key-fusion",
+      "--result-tag=-production-key-fusion"
+    ],
+    "exit_code": 0
+  },
+  "production-small-recompute": {
+    "command": [
+      "bash",
+      "training-smoke/audit/launch-single.sh",
+      "--bf16",
+      "--all-gradients",
+      "--reference-profile",
+      "blinkdl",
+      "--recompute",
+      "--capture-output",
+      "small-production-key-fusion-recompute",
+      "--result-tag=-production-key-fusion"
+    ],
+    "exit_code": 0
+  },
+  "tests": {
+    "command": [
+      "bash",
+      "training-smoke/audit/launch-key-tests.sh",
+      "tests/test_rwkv7_timemix_sharded_state_dict.py",
+      "tests/test_rwkv_sequence_parallel_param_tags.py",
+      "tests/test_rwkv7_v0_tp_pp_sp.py",
+      "tests/test_rwkv7_v0_tp_pp_no_sp.py"
+    ],
+    "exit_code": 0,
+    "passed": 75,
+    "subtests_passed": 30
+  },
+  "resume-compare": {
+    "command": [
+      "/mnt/data/anaconda3/envs/train_mobius_py312/bin/python",
+      "training-smoke/audit/compare-single-resume.py",
+      "--suffix=-key-fusion"
+    ],
+    "exit_code": 0
+  },
+  "validation": {
+    "command": [
+      "/mnt/data/anaconda3/envs/train_mobius_py312/bin/python",
+      "training-smoke/audit/validate-production-key.py"
+    ],
+    "exit_code": 0
+  }
+}

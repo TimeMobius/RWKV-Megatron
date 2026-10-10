@@ -1,0 +1,32 @@
+{
+  "save": {
+    "command": [
+      "bash",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/launch-training-key-fusion.sh",
+      "single-training-save-key-fusion",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/config-3b-single-save-key-fusion.yaml"
+    ],
+    "exit_code": 0,
+    "fusion_enabled": true
+  },
+  "resume": {
+    "command": [
+      "bash",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/launch-training-key-fusion.sh",
+      "single-training-resume-key-fusion",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/config-3b-single-resume-key-fusion.yaml"
+    ],
+    "exit_code": 0,
+    "fusion_enabled": true
+  },
+  "continuous": {
+    "command": [
+      "bash",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/launch-training-key-fusion.sh",
+      "single-training-continuous-key-fusion",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/config-3b-single-continuous-key-fusion.yaml"
+    ],
+    "exit_code": 0,
+    "fusion_enabled": true
+  }
+}

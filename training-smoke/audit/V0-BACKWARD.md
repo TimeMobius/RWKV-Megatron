@@ -1,5 +1,7 @@
 # 第 0 层 v0 后向汇合定位
 
+最新FP32汇总实测见`PRECISION-DIAGNOSIS.md`：离线0.545%→0.165%已在真实完整3B后向复现，前向/CE和固定入边不变。它对整个模型相对独立FP32的误差只带来小幅改善，未启用为生产默认行为。
+
 2026-10-10，独立工作区，单卡 H800。当前 Megatron c2876aaa、FLA 40850297、TE 2.19.0、Python 3.12.14 / Torch 2.9.1。这里讨论 BF16；不是 FP16，也不是前一轮新旧 FLA decay kernel 的差异。
 
 后续参考修正：本文“原参考”指我编写的历史共享原语诊断脚本，不是 BlinkDL 官方代码。当前默认已改为加载 BlinkDL 源码 forward/CUDA 算子；见 `BLINKDL-ALIGNMENT.md`。历史共享 view 仅保留为 `--shared-value-reference` 负向控制。下面0.1943%的解释不代表与实际官方BF16算子已对齐。

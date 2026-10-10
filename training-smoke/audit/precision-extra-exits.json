@@ -1,0 +1,43 @@
+{
+  "operator-initial": {
+    "exit_code": 1,
+    "log": "training-smoke/logs/audit-operator-precision.log",
+    "reason": "Audit adapter passed official key arguments in the wrong order; corrected adapter"
+  },
+  "operator-corrected": {
+    "exit_code": 0,
+    "log": "training-smoke/logs/audit-operator-precision-input-order.log"
+  },
+  "small-v0-fp32": {
+    "exit_code": 0,
+    "log": "training-smoke/logs/audit-v0-fp32-small.log"
+  },
+  "small-precision-all": {
+    "exit_code": 0,
+    "log": "training-smoke/logs/audit-precision-all-small.log"
+  },
+  "fp32-oracle": {
+    "exit_code": 0,
+    "log": "training-smoke/logs/audit-precision-fp32-oracle.log"
+  },
+  "key-gradient-capture": {
+    "exit_code": 0,
+    "log": "training-smoke/logs/audit-precision-key-oracle.log"
+  },
+  "small-recompute-baseline": {
+    "exit_code": 0,
+    "log": "training-smoke/logs/audit-v0-recompute-baseline.log"
+  },
+  "small-recompute-fp32": {
+    "exit_code": 0,
+    "log": "training-smoke/logs/audit-v0-recompute-fp32.log"
+  },
+  "full-gradient-analysis": {
+    "exit_code": 0,
+    "log": "training-smoke/logs/audit-precision-analysis.log"
+  },
+  "operator-forward-comparison": {
+    "exit_code": 0,
+    "log": "training-smoke/logs/audit-operator-precision-forward-comparison.log"
+  }
+}

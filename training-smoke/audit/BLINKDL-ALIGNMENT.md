@@ -1,5 +1,7 @@
 # BlinkDL 官方结构与算子精度对照
 
+后续更细的同输入算子检查、独立FP32全模型比较，以及v0实际FP32汇总实验，见`PRECISION-DIAGNOSIS.md`。本报告保留原官方BF16比较；后续12.6530%/6.1086%整体梯度指标以独立FP32为参照，不与这里的13.5362%混用。
+
 2026-10-10，独立工作区 `RWKV-Megatron-upstream-test`，单卡 H800。生产代码、子模块、环境、原工作区与输入材料未修改；修改前审计脚本备份为 `training-smoke/reference/audit-before-blinkdl-alignment.tar.gz`。
 
 ## 参考已修正

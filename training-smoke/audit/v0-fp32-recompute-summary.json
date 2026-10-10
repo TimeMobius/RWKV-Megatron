@@ -1,0 +1,9 @@
+{
+  "cropped_layers": 4,
+  "batch": 2,
+  "sequence": 128,
+  "forward_matches_baseline": true,
+  "loss_matches_baseline": true,
+  "checkpoint_vs_non_checkpoint_parameter_gradients_exact": 135,
+  "full_3b_checkpoint_certified": false
+}

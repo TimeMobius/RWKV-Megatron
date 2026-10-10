@@ -86,5 +86,5 @@ def summarize(case):
                      'Gather' not in r['node'] and 'StackBackward' not in r['node']]
         all_branches=exact_future+sum(p.double() for p in local_parts)
         result['total_vs_fp64_all_branch_sum']=metric(case['total'],all_branches)
-        result['one_final_bf16_round_vs_fp64_all_branch_sum']=metric(all_branches.to(case['total'].dtype),all_branches)
+        result['one_final_bf16_round_vs_fp64_all_branch_sum']=metric(all_branches.to(torch.bfloat16),all_branches)
     return result

@@ -10,6 +10,7 @@ import copy
 import hashlib
 import os
 import subprocess
+from functools import lru_cache
 from pathlib import Path
 from types import MethodType
 
@@ -36,7 +37,8 @@ def source_method(path, class_name, namespace):
     return namespace.pop('forward')
 
 
-def fast_namespace():
+@lru_cache(maxsize=1)
+def _fast_namespace():
     from torch.utils.cpp_extension import load
 
     path = SOURCE / 'src/model.py'
@@ -78,6 +80,13 @@ def fast_namespace():
             node.decorator_list = []
     exec(compile(ast.Module(body=nodes, type_ignores=[]), str(path), 'exec'), namespace)
     return namespace, loaded
+
+
+def fast_namespace():
+    namespace, loaded = _fast_namespace()
+    # Forward tracing binds per-model closures into the namespace. Do not share
+    # those bindings, or register the same CUDA autograd operators twice.
+    return dict(namespace), list(loaded)
 
 
 class BlinkDLReference(NativeReference):

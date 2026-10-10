@@ -33,8 +33,12 @@ def main():
     parser.add_argument('--te-reference-norms',action='store_true')
     parser.add_argument('--result-tag',default='')
     parser.add_argument('--capture-output',help='Optional audit capture basename (stored under the audit directory)')
+    parser.add_argument('--capture-reference-output',help='Optional reference capture basename for independent gradient comparisons')
     parser.add_argument('--capture-core-gradients',action='store_true')
     parser.add_argument('--audit-v0-edges',action='store_true')
+    parser.add_argument('--v0-fp32',action='store_true',help='Single-GPU diagnostic FP32 value-gradient accumulation')
+    parser.add_argument('--precision-probe',choices=('key','all'),help='Audit-only FP32 intermediates; production source stays unchanged')
+    parser.add_argument('--recompute',action='store_true',help='Exercise the training activation-checkpoint path')
     parser.add_argument('--split-value-reference',action='store_true')
     parser.add_argument('--shared-value-reference',action='store_true',help='Historical negative control: share WKV/correction value view')
     parser.add_argument('--reference-profile',choices=('blinkdl','diagnostic'),help='Default: BlinkDL source bodies; diagnostic flags retain their explicit shared-primitive mode')
@@ -43,6 +47,13 @@ def main():
     parser.add_argument('--carrier-chain-reference',action='store_true')
     parser.add_argument('--reference-core',choices=('recurrent','fla'),default='recurrent')
     args=parser.parse_args()
+    if args.v0_fp32 and not args.bf16:parser.error('v0-fp32 requires bf16')
+    if args.precision_probe and not args.bf16:parser.error('precision-probe requires bf16')
+    if args.recompute and args.audit_v0_edges:parser.error('edge observation needs the non-checkpointed graph')
+    if args.precision_probe and args.full and not args.capture_output:
+        args.capture_output='full-precision-probe-'+args.precision_probe+('-v0-fp32' if args.v0_fp32 else '')
+    if args.precision_probe=='key' and args.full and not args.capture_reference_output:
+        args.capture_reference_output='full-official-bf16-precision-reference'
     diagnostic_flags=any((args.aligned_reference,args.apex_reference_norms,args.te_reference_norms,
                           args.shared_pointops,args.te_final_reference,args.carrier_chain_reference,
                           args.split_value_reference,args.shared_value_reference))
@@ -65,7 +76,7 @@ def main():
         audit.prepare_fixture();state=torch.load(PATH/'cropped-native.pth',weights_only=True)
         gen=torch.Generator().manual_seed(20261009);tokens=torch.randint(1,128,(2,129),generator=gen).cuda()
     x,y=tokens[:,:-1],tokens[:,1:]
-    cfg=audit.config_for(1,1,False,False,fp32=not args.bf16)
+    cfg=audit.config_for(1,1,False,args.recompute,fp32=not args.bf16)
     model=RWKV7Model(cfg,transformer_layer_spec=specs.get_rwkv7_layer_spec(),vocab_size=dim['vocab'],
         max_sequence_length=128,pre_process=True,post_process=True,parallel_output=False,
         share_embeddings_and_output_weights=False,position_embedding_type='none').cuda().to(dtype)
@@ -77,6 +88,12 @@ def main():
             def norm_forward(x,module=module):
                 return F.layer_norm(x,(x.shape[-1],),module.weight,module.bias,1e-5)
             module.forward=norm_forward
+    if args.v0_fp32:
+        from v0_fp32 import install
+        install(model)
+    if args.precision_probe:
+        from precision_probe import install
+        install(model,args.precision_probe)
     trace={};handles=[];retained={}
     def hook(key,transform=lambda t:t.transpose(0,1)):
         def capture(module,inputs,output):
@@ -114,7 +131,8 @@ def main():
     loss=F.cross_entropy(logits.float().reshape(-1,dim['vocab']),y.reshape(-1))
     if args.audit_v0_edges:
         from v0_edges import V0Edges, summarize
-        edge_audit=V0Edges(loss,retained['0.v-raw'][0])
+        edge_source=model.decoder.layers[0].self_attention.audit_v0_source if args.v0_fp32 else retained['0.v-raw'][0]
+        edge_audit=V0Edges(loss,edge_source)
     loss.backward()
     if args.audit_v0_edges:actual_edges=edge_audit.finish()
     selected=None
@@ -136,7 +154,8 @@ def main():
         if Path(args.capture_output).name != args.capture_output:
             raise ValueError('capture-output must be a basename')
         torch.save(dict(logits=actual_logits,loss=actual_loss,gradients=actual_grad,
-                        trace=trace,v0_gradient=first_value_grad,gradient_trace=actual_grad_trace),
+                        trace=trace,v0_gradient=first_value_grad,gradient_trace=actual_grad_trace,
+                        v0_fp32=args.v0_fp32),
                    PATH/(args.capture_output+'.pth'))
     retained.clear()
     for handle in handles:handle.remove()
@@ -150,13 +169,20 @@ def main():
     if args.audit_v0_edges:edge_audit=V0Edges(ref_loss,reference.v_first)
     ref_loss.backward();ref_grad=reference.native_gradients(selected)
     if args.audit_v0_edges:reference_edges=edge_audit.finish()
+    if args.capture_reference_output:
+        if Path(args.capture_reference_output).name!=args.capture_reference_output:
+            raise ValueError('capture-reference-output must be a basename')
+        reference_v0=reference.v_first.grad.detach()
+        if args.aligned_reference:reference_v0=reference_v0.transpose(0,1)
+        torch.save(dict(logits=ref_logits.detach().cpu(),loss=ref_loss.item(),gradients=ref_grad,
+                        trace=reference.trace,v0_gradient=reference_v0.cpu()),PATH/(args.capture_reference_output+'.pth'))
     trace_metrics={k:metric(v,reference.trace[k]) for k,v in trace.items() if k in reference.trace}
     gradient_trace={k:metric(v,(reference.live[k].grad.transpose(0,1) if args.aligned_reference else reference.live[k].grad).detach().cpu()) for k,v in actual_grad_trace.items() if k in reference.live and reference.live[k].grad is not None}
     grad_metrics={k:metric(actual_grad[k],v) for k,v in ref_grad.items()}
     result={'full_3b':args.full,'dtype':str(dtype),'megatron_core':'torch recurrence' if args.naive_core else 'FLA',
         'reference_core':('official CUDA' if args.bf16 else 'independent torch recurrence') if profile=='blinkdl' else args.reference_core,
         'reference_profile':profile,'reference_provenance':reference.provenance() if profile=='blinkdl' else {'kind':'shared-primitive diagnostic; not an official implementation'},
-        'torch_norms':args.torch_norms,'runtime':report(),'loss_megatron':actual_loss,
+        'recompute':args.recompute,'precision_probe':args.precision_probe,'v0_fp32_diagnostic':args.v0_fp32,'torch_norms':args.torch_norms,'runtime':report(),'loss_megatron':actual_loss,
         'loss_native':ref_loss.item(),'loss_delta':actual_loss-ref_loss.item(),
         'gradient_trace':gradient_trace,'logits':metric(actual_logits,ref_logits.detach().cpu()),'trace':trace_metrics,
         'gradient_by_parameter':grad_metrics,'gradient_scope':'selected' if selected else 'all',
@@ -171,6 +197,9 @@ def main():
     name+=('-split-value' if args.split_value_reference else '')
     name+=('-shared-value' if args.shared_value_reference else '')
     name+=('-blinkdl-source' if profile=='blinkdl' else '')
+    name+=('-v0-fp32' if args.v0_fp32 else '')
+    name+=('-precision-'+args.precision_probe if args.precision_probe else '')
+    name+=('-recompute' if args.recompute else '')
     if args.audit_v0_edges:
         result['v0_edges']={'actual':summarize(actual_edges),'reference':summarize(reference_edges)}
         torch.save({'actual':actual_edges,'reference':reference_edges},PATH/(name+'-v0-edges.pth'))

@@ -143,7 +143,9 @@ In training configuration files, `data_path` should point to this prefix without
 
 #### YAML Configuration Examples
 
-Several YAML configurations are already provided in [configs](./configs):
+For the current single-GPU RWKV7 3B reference, use [config-rwkv7-3b-reference.yaml](configs/config-rwkv7-3b-reference.yaml) and run `CUDA_VISIBLE_DEVICES=0 bash training-smoke/launch-3b-reference.sh`. It uses BF16, disables FP8 and checkpoint writes, and runs four training steps with fixed validation samples. Actual H800 validation passed with no NaNs or skipped steps. The absolute paths target the local test environment; update them when using another machine. See the [configuration notes](configs/config-rwkv7-3b-reference.md) and [Chinese README](README.md) for the full setup and training changes.
+
+Other YAML examples are provided in [configs](./configs). The historical `example_config.yaml` needs migration before use with the current RWKV7 implementation:
 
 - `configs/config-rwkv7-task24-4d-smoke.yaml`
 - `configs/config-rwkv7-task23-scratch-init-verify.yaml`
@@ -225,7 +227,7 @@ conda activate train_rwkv_nvidia_megatron_rwkv7
 cd /path/to/RWKV_Megatron
 
 torchrun --master_port 51281 --nproc-per-node 8 --nnodes 1 \
-  pretrain_rwkv7.py --yaml-cfg /path/to/config_rwkv7.yaml | tee output.log
+  pretrain_rwkv7.py --rwkv-config /path/to/config_rwkv7.yaml | tee output.log
 ```
 
 A simple example script is also available:

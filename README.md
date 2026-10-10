@@ -156,33 +156,65 @@ python preprocess_data.py \
 
 #### 配置 YAML 示例
 
-仓库提供了多个可直接参考的 YAML 配置文件，详见 [configs](./configs)：
+当前 RWKV7 3B 优先参考 [config-rwkv7-3b-reference.yaml](configs/config-rwkv7-3b-reference.yaml)，详细说明见 [配置说明](configs/config-rwkv7-3b-reference.md)。它已在 H800 单卡、Python 3.12.14 / Torch 2.9.1+cu128 / TE 2.19.0 环境中完成完整 3B 的 4 步训练和 5 次 eval，零 NaN、零跳步。116 个配置项均被当前解析器识别或明确转换。
 
-- `configs/config-rwkv7-task24-4d-smoke.yaml`
-- `configs/config-rwkv7-task23-scratch-init-verify.yaml`
-- `configs/config-mobius-r7-pretrain-14b-megatron.yaml`
-- `example_config.yaml`
+其他配置见 [configs](./configs)。`example_config.yaml` 是历史模板，仍包含旧字段，缺少当前 RWKV7 的四个 LoRA 尺寸，不能直接作为新版 3B 的运行配置。
 
-典型配置项包括：
+#### 已验证的 3B 参考配置
+
+以下为关键参数，运行时使用上面链接的完整 YAML：
 
 ```yaml
 language_model:
   num_layers: 32
-  hidden_size: 8192
-  num_attention_heads: 32
-  ffn_hidden_size: 28672
+  hidden_size: 2560
+  num_attention_heads: 40
+  kv_channels: 64
+  ffn_hidden_size: 10240
+  D_AAA_LORA: 96
+  D_DECAY_LORA: 96
+  D_GATE_LORA: 320
+  D_MV_LORA: 64
+  activation_func: squaredrelu
+  fp8: false
 
 model_parallel:
-  tensor_model_parallel_size: 8
+  tensor_model_parallel_size: 1
   pipeline_model_parallel_size: 1
-  sequence_parallel: True
-  bf16: True
+  context_parallel_size: 1
+  sequence_parallel: false
+  bf16: true
 
+transformer_impl: local
+rwkv_key_fusion: true
+rwkv_l2wrap_coefficient: 0.0001
+fixed_eval_samples: true
+rwkv_fp8_scope: ffn
 optimizer: adam
-lr: 2.5e-4
-global_batch_size: 64
-seq_length: 4096
+lr: 1.56e-05
+lr_decay_style: constant
+micro_batch_size: 1
+global_batch_size: 2
+seq_length: 128
+train_iters: 4
+eval_iters: 2
+eval_interval: 1
+save: null
 ```
+
+完整配置使用原始 3B `.pth` 权重、MiniPile 的 `.bin/.idx` 前缀和 XiaoKe tokenizer。词表有 65,534 个条目，按最高 ID 加一并补齐后的模型行数为 65,536，由 tokenizer 自动计算。每次 eval 使用相同的 4 个样本，断点恢复后也使用同一组。
+
+当前本地工作区可以直接运行配套脚本：
+
+```bash
+CUDA_VISIBLE_DEVICES=0 bash training-smoke/launch-3b-reference.sh
+```
+
+脚本激活 `train_mobius_py312`、配置 CUDA 库路径，并调用 `pretrain_rwkv7.py --rwkv-config configs/config-rwkv7-3b-reference.yaml`。配置和脚本中的绝对路径对应当前本地环境；换机器或工作区时需修改环境、仓库、模型、数据及 tokenizer 路径。
+
+这是 4 步短跑模板，固定学习率为 `1.56e-5`，默认不写大检查点。正式训练先另存一份，再调整序列长度、batch、训练步数、学习率调度和 `save` 输出目录；续训使用 `load` 指向完整训练检查点。当前格式由 `ckpt_format` 决定，旧的 `use_dist_ckpt` / `dist_ckpt_format` 已不生效。
+
+FP8 默认关闭。实验时在 YAML 中设置 `language_model.fp8: hybrid`、`language_model.fp8_recipe: tensorwise` 和 `transformer_impl: transformer_engine`；`rwkv_fp8_scope: ffn` 限定为 FFN 的两个大矩阵乘法。当前测试仍建议正式训练使用 BF16，精度和速度记录见 [FP8.md](training-smoke/audit/FP8.md)。配置解析与实际短跑记录见 [参数验证](training-smoke/audit/3b-reference-config-validation.json) 和 [训练验证](training-smoke/audit/3b-reference-training-validation.json)。
 
 如需启用 Muon，可在优化器配置中切换为：
 
@@ -238,7 +270,7 @@ conda activate train_rwkv_nvidia_megatron_rwkv7
 cd /path/to/RWKV_Megatron
 
 torchrun --master_port 51281 --nproc-per-node 8 --nnodes 1 \
-  pretrain_rwkv7.py --yaml-cfg /path/to/config_rwkv7.yaml | tee output.log
+  pretrain_rwkv7.py --rwkv-config /path/to/config_rwkv7.yaml | tee output.log
 ```
 
 仓库中亦提供了一个简单示例脚本：

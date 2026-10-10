@@ -4,6 +4,8 @@ Changes are saved on the local `2026-10-10` branches; they have not been pushed.
 
 `root-tracked.patch` captures tracked parent-repository changes, including submodule pointers. `megatron-adaptation.patch` captures local compatibility fixes on Megatron upstream `d113016bb2850c4b7d804f24ba72c055d7d4f861`. FLA upstream `79d12e8ec0ae72bc7f2189b4244d6532ce8c268c` has no additional local changes. These patches do not include untracked files.
 
+After the 2026-10-10 follow-up, FLA points at upstream40850297 with no custom source changes. The root patch excludes training-smoke because its scripts/reports are already saved in the source archive; this prevents generated patches from recursively including earlier copies of themselves.
+
 `current-source.tar.gz` preserves the complete changed RWKV Python source, tests, and lightweight training-smoke scripts/configuration/reports, including untracked files. It excludes logs, caches, checkpoints, frozen replay snapshots and native build trees. Keep these excluded artifacts in place: checkpoints and source/native-extension build trees are separately retained in `../checkpoints/` and `../vendor/`.
 
 To recover from local Git commits, use the root `2026-10-10` branch and its recorded submodule commits. For archive recovery, select the recorded parent and upstream submodule baselines, apply the Megatron patch inside its submodule, and restore the RWKV files from the source archive. Review existing local changes before applying patches or extracting an archive. Launch scripts and configurations currently contain absolute paths to this machine's isolated workspace and environment. The refreshed patches are cumulative relative to the recorded baselines even after committing.

@@ -1,7 +1,7 @@
 {
   "root_commit": "34e447cdc186a2763ae3e56f3b776772be8f719c",
   "megatron_upstream": "d113016bb2850c4b7d804f24ba72c055d7d4f861",
-  "fla_upstream": "79d12e8ec0ae72bc7f2189b4244d6532ce8c268c",
+  "fla_upstream": "40850297f9f977d7d33eb9d87fcf9a460554b553",
   "megatron_baseline_snapshot": "c11ea0b3cd8121a289b27985fdcd402322444996",
   "fla_baseline": "3cf180339b8a1cbad823f553541cd531d18670ea",
   "python": "3.12.14",
@@ -74,5 +74,15 @@
     "megatron_origin": "https://github.com/TimeMobius/Megatron-LM-RWKV7.git",
     "fla_custom_code": false,
     "old_muon_branches_preserved": true
+  },
+  "fla_update_20261010": {
+    "previous_commit": "79d12e8ec0ae72bc7f2189b4244d6532ce8c268c",
+    "new_commits": 29,
+    "report": "audit/FLA-UPDATE-20261010.md",
+    "provenance": "audit/fla-update-provenance.json",
+    "fla_custom_code": false,
+    "backward_bit_exact_across_versions": false,
+    "diagnosed_kernel": "chunk_dplr_bwd_dgk_kernel",
+    "published": false
   }
 }

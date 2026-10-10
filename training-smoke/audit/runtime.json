@@ -20,7 +20,7 @@
   "modules_from_expected_locations": true,
   "submodule_commits": {
     "megatron": "c2876aaa0029df2b5567c893b8cbf2f6ea62a1b9",
-    "fla": "79d12e8ec0ae72bc7f2189b4244d6532ce8c268c"
+    "fla": "40850297f9f977d7d33eb9d87fcf9a460554b553"
   },
   "ld_library_path": "/mnt/data/anaconda3/envs/train_mobius_py312/lib:/mnt/data/anaconda3/envs/train_mobius_py312/targets/x86_64-linux/lib:/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/nvidia/cublas/lib:/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/nvidia/cusparse/lib:/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/nvidia/cusolver/lib:/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/nvidia/cudnn/lib:/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/nvidia/nccl/lib:",
   "source_sha256": {

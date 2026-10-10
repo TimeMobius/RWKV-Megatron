@@ -1,5 +1,7 @@
 # 本地提交版本
 
+后续FLA更新：2026-10-10从79d12e8e快进到40850297，本次新更新尚未push；之前分支是否已发布以远程为准。当前子模块指针以主仓库gitlink和environment/provenance.json为准。无自定义FLA代码，新增回归/数值检查和跨版本反向差异诊断见audit/FLA-UPDATE-20261010.md。
+
 2026-10-10。本工作区是同一主仓库的独立 Git worktree：
 
 - 工作区：`/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test`。

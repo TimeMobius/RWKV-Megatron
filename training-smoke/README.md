@@ -1,5 +1,7 @@
 # RWKV 3B 上游更新与适配验证
 
+> 2026-10-10再次将FLA更新到40850297（29个提交），仍为上游原样。独立公式、原算子容差与短训练检查通过；初始前向逐元素一致，BF16后向/训练轨迹有已定位差异。见[audit/FLA-UPDATE-20261010.md](audit/FLA-UPDATE-20261010.md)。历史表不能认证此更新的性能或续训。
+
 > 后续已统一 RWKV7 的 ln0、ln1/ln2、ln_out：TE>=1.9.0 时使用 TE，否则统一回退 Apex。无需旧 checkpoint 兼容开关。变更与新验证见 [audit/TE-UNIFICATION.md](audit/TE-UNIFICATION.md)。下面的历史单卡/性能结果不能替代新后端验证。
 
 > 2026-10-09 单卡公式审计发现并修复了 FLA 点算子的 token 布局/分派问题。下面的历史 30 步性能和 loss 表均为该修复之前的结果，不能视为当前代码的重新认证。单卡结论与复现见 [audit/SINGLE-GPU.md](audit/SINGLE-GPU.md)，待查问题见 [audit/ISSUES.md](audit/ISSUES.md)。本轮暂停多卡排查。

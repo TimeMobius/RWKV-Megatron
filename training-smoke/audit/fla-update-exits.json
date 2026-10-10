@@ -1,0 +1,33 @@
+{
+  "upstream-rwkv7-fla-40850297": {
+    "command": [
+      "bash",
+      "training-smoke/audit/launch-fla-update-tests.sh"
+    ],
+    "exit_code": 0
+  },
+  "single-training-fla-40850297": {
+    "command": [
+      "bash",
+      "training-smoke/audit/launch-training-single.sh",
+      "single-training-fla-40850297",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/config-3b-single-fla-40850297.yaml"
+    ],
+    "exit_code": 0
+  },
+  "compare-exact-before-diagnosis": {
+    "command": [
+      "/mnt/data/anaconda3/envs/train_mobius_py312/bin/python",
+      "training-smoke/audit/compare-fla-update.py"
+    ],
+    "exit_code": 1
+  },
+  "compare-report-fla-40850297": {
+    "command": [
+      "python",
+      "training-smoke/audit/compare-fla-update.py",
+      "--report-only"
+    ],
+    "exit_code": 0
+  }
+}

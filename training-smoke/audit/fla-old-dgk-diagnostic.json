@@ -1,0 +1,21 @@
+{
+  "trace": {
+    "total": 546,
+    "exact": 546
+  },
+  "gradients": {
+    "total": 356,
+    "exact": 356
+  },
+  "gradient_trace": {
+    "total": 482,
+    "exact": 482
+  },
+  "v0_exact": true,
+  "layer31_decay": {
+    "exact": true,
+    "relative_l2": 0.0,
+    "max_abs": 0.0
+  },
+  "diagnostic_override": "Only chunk_dplr_bwd_dgk_kernel replaced by frozen old source; production FLA unchanged."
+}

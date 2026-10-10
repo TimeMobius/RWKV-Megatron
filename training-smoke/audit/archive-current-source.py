@@ -10,7 +10,11 @@ PATH = ROOT / 'training-smoke/patches'
 provenance = json.loads((ROOT / 'training-smoke/environment/provenance.json').read_text())
 for repo, target, baseline in ((ROOT, 'root-tracked.patch', provenance['root_commit']),
                      (ROOT / '3rdparty/Megatron-LM-0.11.0', 'megatron-adaptation.patch', provenance['megatron_upstream'])):
-    (PATH / target).write_bytes(subprocess.check_output(['git', 'diff', '--binary', baseline], cwd=repo))
+    command = ['git', 'diff', '--binary', baseline]
+    if repo == ROOT:
+        # Reports are archived separately; avoid recursively embedding generated patches.
+        command.extend(['--', '.', ':(exclude)training-smoke'])
+    (PATH / target).write_bytes(subprocess.check_output(command, cwd=repo))
 for repo, target in ((ROOT, 'root-status.txt'),
                      (ROOT / '3rdparty/Megatron-LM-0.11.0', 'megatron-status.txt')):
     (PATH / target).write_bytes(subprocess.check_output(['git', 'status', '--short'], cwd=repo))

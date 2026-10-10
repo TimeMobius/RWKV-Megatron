@@ -1,0 +1,43 @@
+{
+  "old_commit": "79d12e8ec0ae72bc7f2189b4244d6532ce8c268c",
+  "new_commit": "40850297f9f977d7d33eb9d87fcf9a460554b553",
+  "fast_forward_commits": 29,
+  "custom_fla_changes": false,
+  "root_regression_passed": 88,
+  "upstream_rwkv7_tests_passed": 31,
+  "kernel_reference_sequences": [
+    64,
+    128,
+    129
+  ],
+  "independent_fp32": {
+    "parameters": 1059,
+    "loss_delta": 0.0,
+    "aggregate_gradient_relative_l2": 9.20055957238052e-06,
+    "max_parameter_gradient_relative_l2": 2.8207606120443383e-05
+  },
+  "bf16_reference_forward_exact": true,
+  "old_new_546_forward_exact": true,
+  "old_new_gradients_exact": false,
+  "old_new_v0_gradient_relative_l2": 0.00938412853401926,
+  "max_selected_parameter_old_new_relative_l2": 0.05415232552611875,
+  "first_core_difference": {
+    "exact": false,
+    "max_abs": 2.9802322387695312e-08,
+    "relative_l2": 1.767444215120702e-06
+  },
+  "diagnosis": "Only restoring the old chunk_dplr_bwd_dgk_kernel in a diagnostic process makes all356 selected parameter gradients and all482 backward captures exact again.",
+  "pointops_128_4096_output_gradient_exact": true,
+  "repeat_old_new_v0_exact": true,
+  "four_step_training_zero_nan_skips": true,
+  "four_step_loss_gradient_trajectory_exact": false,
+  "validation_passed": true,
+  "cross_version_bit_exact_gate_passed": false,
+  "limitations": [
+    "Single-GPU 3B prefix128 and four training steps; no long-run convergence claim.",
+    "BF16 cross-version backward/optimizer trajectory changes despite identical initial forward.",
+    "Old-kernel override is diagnostic only; production FLA remains upstream unmodified.",
+    "No new SP/TP/PP/FP8 or checkpoint-resume certification after this FLA update.",
+    "No throughput improvement claimed."
+  ]
+}

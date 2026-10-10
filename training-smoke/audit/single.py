@@ -32,6 +32,8 @@ def main():
     parser.add_argument('--apex-reference-norms',action='store_true')
     parser.add_argument('--te-reference-norms',action='store_true')
     parser.add_argument('--result-tag',default='')
+    parser.add_argument('--capture-output',help='Optional audit capture basename (stored under the audit directory)')
+    parser.add_argument('--capture-core-gradients',action='store_true')
     parser.add_argument('--shared-pointops',action='store_true')
     parser.add_argument('--te-final-reference',action='store_true')
     parser.add_argument('--carrier-chain-reference',action='store_true')
@@ -90,6 +92,9 @@ def main():
         def core_pre(module,inputs,index=index):
             for name,tensor in zip(('r','k','v','decay','a','b'),inputs):
                 trace[f'{index}.core-{name}']=tensor.transpose(0,1).detach().cpu()
+                if args.capture_core_gradients and tensor.requires_grad:
+                    tensor.retain_grad()
+                    retained[f'{index}.core-{name}']=(tensor,lambda t:t.transpose(0,1))
         handles.append(layer.self_attention.core_attention.register_forward_pre_hook(core_pre))
         handles.append(layer.self_attention.register_forward_hook(hook(f'{index}.att',lambda t:t[0].transpose(0,1))))
         handles.append(layer.register_forward_hook(hook(f'{index}.hidden',lambda t:t[0].transpose(0,1))))
@@ -110,6 +115,12 @@ def main():
     actual_logits=logits.detach().cpu();actual_loss=loss.item()
     first_value_grad=retained['0.v-raw'][0].grad.transpose(0,1).detach().cpu()
     actual_grad_trace={key:transform(tensor.grad).detach().cpu() for key,(tensor,transform) in retained.items() if tensor.grad is not None}
+    if args.capture_output:
+        if Path(args.capture_output).name != args.capture_output:
+            raise ValueError('capture-output must be a basename')
+        torch.save(dict(logits=actual_logits,loss=actual_loss,gradients=actual_grad,
+                        trace=trace,v0_gradient=first_value_grad,gradient_trace=actual_grad_trace),
+                   PATH/(args.capture_output+'.pth'))
     retained.clear()
     for handle in handles:handle.remove()
     del logits,loss,model;gc.collect();torch.cuda.empty_cache()

@@ -1,0 +1,26 @@
+{
+  "128": {
+    "passed": true,
+    "shape": [
+      1,
+      128,
+      2560
+    ],
+    "mix_autotune": {
+      "forward": "BT: 2, num_warps: 8, num_ctas: 1, num_stages: 2, maxnreg: None",
+      "backward": "BT: 4, num_warps: 16, num_ctas: 1, num_stages: 2, maxnreg: None"
+    }
+  },
+  "4096": {
+    "passed": true,
+    "shape": [
+      1,
+      4096,
+      2560
+    ],
+    "mix_autotune": {
+      "forward": "BT: 2, num_warps: 8, num_ctas: 1, num_stages: 2, maxnreg: None",
+      "backward": "BT: 4, num_warps: 16, num_ctas: 1, num_stages: 2, maxnreg: None"
+    }
+  }
+}

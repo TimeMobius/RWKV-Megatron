@@ -1,0 +1,32 @@
+{
+  "independent_fp32": {
+    "all_gradients": 1059,
+    "loss_delta": 2.384185791015625e-07,
+    "logits_relative_l2": 7.934051066518083e-07,
+    "aggregate_gradient_relative_l2": 1.0397896975039278e-05,
+    "max_parameter_gradient_relative_l2": 0.00022897559570823862,
+    "first_value_gradient_relative_l2": 6.5353486384150076e-06
+  },
+  "bf16_shared_primitives_wiring": {
+    "forward_checkpoints": 546,
+    "logits_bit_exact": true,
+    "loss_exact": true,
+    "first_value_gradient_relative_l2": 0.0019546497452492275,
+    "max_selected_gradient_relative_l2": 0.0036912291894454436,
+    "gradient_scope": "selected; not every full 3B parameter"
+  },
+  "resume_model_optimizer_scheduler_rng_exact": true,
+  "fla_kernel_reference_sequences": [
+    64,
+    128,
+    129
+  ],
+  "production_change": "Fix pointwise FLA token layout/dispatch",
+  "limitations": [
+    "One full-model MiniPile prefix, 128 tokens, one sample.",
+    "FP32 formula oracle uses torch recurrence, not FLA.",
+    "BF16 exact-forward diagnostic intentionally shares precision primitives.",
+    "BF16 gradients retain small rounding/accumulation differences.",
+    "Multi-GPU validation paused; previous speed numbers precede this fix."
+  ]
+}

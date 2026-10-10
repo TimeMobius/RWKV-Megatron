@@ -223,11 +223,11 @@ def test_timemix_scratch_init_uses_global_layer_id_under_pp():
     hidden_size = 8
     num_heads = 2
     num_layers = 8
-    layer_number = 1
+    layer_number = 5  # Upstream passes the global layer number to TimeMix.
     layer_offset = 4
     tp_size = 2
     tp_rank = 1
-    global_layer_id = layer_number + layer_offset - 1
+    global_layer_id = layer_number - 1
 
     module = _build_timemix(
         hidden_size=hidden_size,

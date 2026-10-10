@@ -1,5 +1,7 @@
 # RWKV-Megatron
 
+Default RWKV7 `ln0`, per-layer `ln1/ln2`, and `ln_out` use Transformer Engine LayerNorm when TE >=1.9.0 is available, otherwise all fall back to Apex FusedLayerNorm (Apex CUDA extensions required). This selection is independent of the `transformer_impl` Linear backend. GroupNorm retains its original formula; this change does not certify full-model FP8 training.
+
 <div align="center">
 
 <img src="/assets/logo.png" width="300px">
@@ -238,6 +240,29 @@ A simple example script is also available:
 python rwkv_conversion.py \
   --load-dir /path/to/model \
   --save-dir /path/to/save
+```
+
+By default, the converter reads `latest_checkpointed_iteration.txt` in the checkpoint
+root. Use `--iteration 121500` to select an iteration without reading the tracker,
+or pass `--load-dir /path/to/model/iter_0121500/` directly. If both are provided,
+they must agree. The output remains `/path/to/save/iter_0121500/rwkv_state_dict.pth`.
+
+`--norm-offset` automatically defaults to `+1` for checkpoints with
+`layernorm_zero_centered_gamma` enabled and `0` otherwise. It affects only the
+gamma of `ln0`, `ln1`, `ln2`, and `ln_out`. An explicit `--norm-offset 0` disables
+the offset. GroupNorm and all biases are unchanged.
+
+Before saving, the converter strictly validates all RWKV parameter keys, shapes,
+finite values, and TP shard consistency. Validation failures do not overwrite an
+existing model or update the output tracker. Successful writes atomically replace
+the model through a temporary file, then update the tracker. Only evenly divided
+PP layers are supported; virtual and nonuniform pipelines are rejected. Attention
+head shapes follow the training configuration and are never silently regrouped.
+
+Run the converter unit tests and TP/PP regression tests with:
+
+```bash
+python -m unittest discover -s tests -p 'test_rwkv_conversion.py' -v
 ```
 
 #### 2. `pth -> HuggingFace` Style Conversion

@@ -1,0 +1,50 @@
+{
+  "single-fixed-small-fp32": {
+    "command": [
+      "bash",
+      "training-smoke/audit/launch-single.sh",
+      "--naive-core"
+    ],
+    "exit_code": 0
+  },
+  "single-fixed-full-bf16": {
+    "command": [
+      "bash",
+      "training-smoke/audit/launch-single.sh",
+      "--full",
+      "--bf16",
+      "--reference-core",
+      "fla",
+      "--aligned-reference",
+      "--apex-reference-norms"
+    ],
+    "exit_code": 0
+  },
+  "single-training-save-fixed": {
+    "command": [
+      "bash",
+      "training-smoke/audit/launch-training-single.sh",
+      "single-training-save-fixed",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/config-3b-single-save-fixed.yaml"
+    ],
+    "exit_code": 0
+  },
+  "single-training-resume-fixed": {
+    "command": [
+      "bash",
+      "training-smoke/audit/launch-training-single.sh",
+      "single-training-resume-fixed",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/config-3b-single-resume-fixed.yaml"
+    ],
+    "exit_code": 0
+  },
+  "single-training-continuous-fixed": {
+    "command": [
+      "bash",
+      "training-smoke/audit/launch-training-single.sh",
+      "single-training-continuous-fixed",
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/config-3b-single-continuous-fixed.yaml"
+    ],
+    "exit_code": 0
+  }
+}

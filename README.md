@@ -1,5 +1,7 @@
 # RWKV-Megatron
 
+RWKV7 的默认 `ln0`、各层 `ln1/ln2` 与 `ln_out` 统一使用 Transformer Engine >=1.9.0 的 LayerNorm；TE 缺失或版本不足时统一回退 Apex FusedLayerNorm（需要 Apex CUDA 扩展）。该选择独立于 `transformer_impl` 的 Linear 后端。GroupNorm 保持原公式；此变更不代表已完成 FP8 全模型训练认证。
+
 <div align="center">
 
 <img src="/assets/logo.png" width="300px">
@@ -238,6 +240,26 @@ torchrun --master_port 51281 --nproc-per-node 8 --nnodes 1 \
 python rwkv_conversion.py \
   --load-dir /path/to/model \
   --save-dir /path/to/save
+```
+
+默认读取根目录的 `latest_checkpointed_iteration.txt`。指定旧迭代时可传
+`--iteration 121500`，此时不读取 tracker；也可直接传入
+`--load-dir /path/to/model/iter_0121500/`。同时提供目录和迭代时，两者必须一致。
+输出仍为 `/path/to/save/iter_0121500/rwkv_state_dict.pth`。
+
+`--norm-offset` 默认根据 checkpoint 的 `layernorm_zero_centered_gamma` 自动选择
+`+1` 或 `0`，仅作用于 `ln0`、`ln1`、`ln2` 和 `ln_out` 的 gamma；显式传入
+`--norm-offset 0` 可关闭偏移。GroupNorm 和所有 bias 保持不变。
+
+脚本在保存前严格检查全部 RWKV 参数的 key、shape 和有限值，以及 TP shard
+的一致性；失败不会覆盖已有模型或更新输出 tracker。成功时通过临时文件原子替换
+模型，再更新 tracker。目前支持均匀 PP 分层，不支持虚拟流水线或非均匀分层。
+注意力头 shape 按训练配置导出，不会自动转换为另一种头分组。
+
+转换器单元测试和 TP/PP 回归测试：
+
+```bash
+python -m unittest discover -s tests -p 'test_rwkv_conversion.py' -v
 ```
 
 #### 2. `pth -> HuggingFace` 相关格式转换

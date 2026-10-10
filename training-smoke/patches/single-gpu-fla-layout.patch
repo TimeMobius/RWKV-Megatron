@@ -1,0 +1,48 @@
+--- a/rwkv_megatron/rwkv7_layer_specs.py
++++ b/rwkv_megatron/rwkv7_layer_specs.py
+@@ -67,6 +67,27 @@
+ 
+ from .rwkv7_transformer_layer import RWKV7TransformerLayer
+ 
++def mix_inputs(hidden_states, delta, coefficients):
++    """Flatten independent tokens into FLA's [batch, time, hidden] layout."""
++    shape = hidden_states.shape
++    mixed = fused_addcmul_rwkv7(
++        hidden_states.reshape(1, -1, shape[-1]),
++        delta.reshape(1, -1, shape[-1]),
++        *coefficients,
++    )
++    return tuple(value.reshape(shape) for value in mixed)
++
++
++def update_key(key, learn_rate, alpha):
++    """Keep training tokens out of FLA's one-token decode fallback."""
++    shape = key.shape
++    return fused_k_rwkv7(
++        key.reshape(1, -1, shape[-1]),
++        learn_rate.reshape(1, -1, shape[-1]),
++        alpha,
++    ).reshape(shape)
++
++
+ def get_fp8_recipe():
+     # 获取同时包含 TP 和 DP 的通信组 (排除 PP)
+     # 注意：在较新的 Megatron-Core 版本中，AMAX reduction group 通常由框架维护
+@@ -634,7 +655,7 @@
+             hidden_states, 0, self.config.sequence_parallel
+         )
+         delta_shift = shifted_hidden_states - hidden_states
+-        mixed_receptance, mixed_decay, mixed_key, mixed_value, mixed_learn_rate, mixed_gate = fused_addcmul_rwkv7(hidden_states, delta_shift, *[self.mix_coeff_input[i] for i in range(6)])
++        mixed_receptance, mixed_decay, mixed_key, mixed_value, mixed_learn_rate, mixed_gate = mix_inputs(hidden_states, delta_shift, self.mix_coeff_input.unbind(0))
+ 
+         learn_rate = torch.sigmoid(self.bottleneck_learn(mixed_learn_rate.contiguous()))
+         current_recipe = get_fp8_recipe()
+@@ -648,7 +669,7 @@
+         normalized_rearranged = torch.nn.functional.normalize(temp_rearranged, dim=-1, p=2.0)
+         rem_key_norm = rearrange(normalized_rearranged, 'b t h n -> t b (h n)')
+ 
+-        rep_key = fused_k_rwkv7(key, learn_rate, self.alpha)
++        rep_key = update_key(key, learn_rate, self.alpha)
+ 
+         with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe):
+             value = self.linear_value(mixed_value.contiguous())[0]

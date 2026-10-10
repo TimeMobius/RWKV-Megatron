@@ -1,11 +1,11 @@
-import copy
+import argparse
+import math
 import os
 import re
-import shutil
+import tempfile
 from collections import OrderedDict
 
 import torch
-import argparse
 
 # 定义 tensor parallel 切分维度
 tp_split_dim = {
@@ -26,8 +26,10 @@ tp_split_dim = {
     'group_norm.weight': 0,
     'group_norm.bias': 0,
     'head.weight': 0,
-    'layernorm.weight': -1,
-    'layernorm.bias': -1,
+    'input_layernorm.weight': -1,
+    'input_layernorm.bias': -1,
+    'pre_mlp_layernorm.weight': -1,
+    'pre_mlp_layernorm.bias': -1,
     'final_layernorm.weight': -1,
     'final_layernorm.bias': -1,
     'bottleneck_v.weight_down': -1,
@@ -46,14 +48,23 @@ tp_split_dim = {
 
 def get_split_dim(tensor_name):
     for key in tp_split_dim.keys():
-        if key in tensor_name:
+        if tensor_name == key or tensor_name.endswith('.' + key):
             return tp_split_dim[key]
-    raise Exception(f"Unknown tensor name {tensor_name}")
+    raise ValueError(f"Unknown tensor name {tensor_name}")
 
 def combine_tp_tensors(key, dim, tensors):
+    if not tensors or any(not isinstance(tensor, torch.Tensor) for tensor in tensors):
+        raise ValueError(f"Expected tensor shards for {key}")
+    if any(tensor.dtype != tensors[0].dtype for tensor in tensors):
+        raise ValueError(f"TP dtype mismatch for {key}")
     if dim == -1:
-        # [修改 1] 这里添加 clone，防止引用原始大块内存，便于 GC 回收
+        if any(not torch.equal(tensors[0], tensor) for tensor in tensors[1:]):
+            raise ValueError(f"Replicated TP tensors differ for {key}")
         return tensors[0].clone()
+    if any(tensor.ndim <= dim for tensor in tensors):
+        raise ValueError(f"Invalid TP split dimension {dim} for {key}")
+    if any(tensor.shape != tensors[0].shape for tensor in tensors):
+        raise ValueError(f"TP shape mismatch for {key}")
     return torch.cat(tensors, dim=dim)
 
 def map_megatron_to_rwkv_key(megatron_key, num_layers, norm_offset):
@@ -157,152 +168,267 @@ def map_megatron_to_rwkv_key(megatron_key, num_layers, norm_offset):
     
     return None
 
-def main(args):
-    print("\n====RUNNING RWKV CHECKPOINT CONVERSION (With Compaction)====\n")
+def resolve_checkpoint(load_dir, iteration=None):
+    load_dir = os.path.abspath(os.fspath(load_dir))
+    match = re.fullmatch(r'iter_(\d+)', os.path.basename(load_dir))
+    if match:
+        directory_iteration = int(match.group(1))
+        if iteration is not None and iteration != directory_iteration:
+            raise ValueError(f"--iteration {iteration} conflicts with {load_dir}")
+        iteration = directory_iteration
+        input_model_dir = load_dir
+    else:
+        if iteration is None:
+            tracker_filename = os.path.join(load_dir, 'latest_checkpointed_iteration.txt')
+            with open(tracker_filename) as tracker:
+                try:
+                    iteration = int(tracker.read().strip())
+                except ValueError as error:
+                    raise ValueError(f"Invalid iteration in {tracker_filename}") from error
+        input_model_dir = os.path.join(load_dir, f'iter_{iteration:07d}')
+    if iteration < 0:
+        raise ValueError("Checkpoint iteration must be nonnegative")
+    if not os.path.isdir(input_model_dir):
+        raise FileNotFoundError(f"Checkpoint directory not found: {input_model_dir}")
+    return input_model_dir, iteration
 
-    # 读取最新迭代
-    tracker_filename = os.path.join(args.load_dir, 'latest_checkpointed_iteration.txt')
+
+def validate_model_config(config):
+    for name in ('tensor_model_parallel_size', 'pipeline_model_parallel_size',
+                 'num_layers', 'hidden_size', 'num_attention_heads'):
+        value = getattr(config, name)
+        if not isinstance(value, int) or value <= 0:
+            raise ValueError(f"Invalid model config {name}={value}")
+    if config.hidden_size % config.num_attention_heads:
+        raise ValueError("hidden_size must be divisible by num_attention_heads")
+    if config.num_attention_heads % config.tensor_model_parallel_size:
+        raise ValueError("num_attention_heads must be divisible by tensor_model_parallel_size")
+    if config.num_layers % config.pipeline_model_parallel_size:
+        raise ValueError("Only evenly divided pipeline layers are supported")
+    if any(getattr(config, name, None) is not None for name in (
+        'virtual_pipeline_model_parallel_size', 'num_layers_in_first_pipeline_stage',
+        'num_layers_in_last_pipeline_stage',
+        'decoder_first_pipeline_num_layers', 'decoder_last_pipeline_num_layers',
+        'pipeline_model_parallel_layout',
+    )):
+        raise ValueError("Virtual or nonuniform pipeline layouts are not supported")
+
+
+def resolve_norm_offset(config, norm_offset=None):
+    if norm_offset is None:
+        norm_offset = 1.0 if getattr(config, 'layernorm_zero_centered_gamma', False) else 0.0
+    if not math.isfinite(norm_offset):
+        raise ValueError("--norm-offset must be finite")
+    return norm_offset
+
+
+def convert_pipeline_stage(tp_models, pp_rank, config, norm_offset):
+    if len(tp_models) != config.tensor_model_parallel_size:
+        raise ValueError(f"Wrong number of TP shards for pipeline rank {pp_rank}")
+    if any(set(model) != set(tp_models[0]) for model in tp_models[1:]):
+        raise ValueError(f"TP key mismatch for pipeline rank {pp_rank}")
+    layers_per_stage = config.num_layers // config.pipeline_model_parallel_size
+    state_dict = OrderedDict()
+    for source_key in tp_models[0]:
+        if source_key.endswith('._extra_state'):
+            continue
+        layer_match = re.search(r'layers\.(\d+)\.', source_key)
+        megatron_key = source_key
+        if layer_match:
+            local_layer = int(layer_match.group(1))
+            if local_layer >= layers_per_stage:
+                raise ValueError(f"Invalid local pipeline layer in {source_key}")
+            global_layer = local_layer + pp_rank * layers_per_stage
+            megatron_key = re.sub(r'layers\.\d+\.', f'layers.{global_layer}.', source_key, count=1)
+        rwkv_key = map_megatron_to_rwkv_key(megatron_key, config.num_layers, norm_offset)
+        if rwkv_key is None:
+            if megatron_key in {
+                'decoder.layers.0.self_attention.bottleneck_v.weight_down',
+                'decoder.layers.0.self_attention.bottleneck_v.weight_up',
+                'decoder.layers.0.self_attention.bottleneck_v.bias',
+            }:
+                continue
+            raise ValueError(f"Unmapped checkpoint parameter: {megatron_key}")
+        tensor = combine_tp_tensors(
+            source_key, get_split_dim(source_key), [model[source_key] for model in tp_models]
+        ).detach().contiguous()
+        if isinstance(rwkv_key, list):
+            if tuple(tensor.shape) != (6, config.hidden_size):
+                raise ValueError(f"Invalid mix_coeff_input shape for {megatron_key}: {tensor.shape}")
+            mapped = [
+                (key, tensor[index:index + 1].reshape(1, 1, config.hidden_size).clone())
+                for index, key in enumerate(rwkv_key)
+            ]
+        else:
+            if rwkv_key.endswith('.att.r_k'):
+                tensor = tensor.reshape(config.num_attention_heads,
+                                        config.hidden_size // config.num_attention_heads)
+            if rwkv_key.endswith(('.att.k_k', '.att.k_a', '.att.v0', '.att.a0', '.att.w0', '.ffn.x_k')):
+                tensor = tensor.reshape(1, 1, -1)
+            if rwkv_key == 'ln_out.weight' or re.fullmatch(r'blocks\.\d+\.ln[012]\.weight', rwkv_key):
+                tensor = tensor + norm_offset
+            mapped = [(rwkv_key, tensor)]
+        for key, value in mapped:
+            if key in state_dict:
+                raise ValueError(f"Duplicate output parameter: {key}")
+            state_dict[key] = value
+    return state_dict
+
+
+def expected_rwkv_shapes(config, state_dict):
+    hidden_size = config.hidden_size
+    heads = config.num_attention_heads
+    embedding = state_dict.get('emb.weight')
+    vocab_size = getattr(config, 'padded_vocab_size', None)
+    if vocab_size is None:
+        if embedding is None or embedding.ndim != 2:
+            raise ValueError("Missing or invalid emb.weight")
+        vocab_size = embedding.shape[0]
+    ffn_size = getattr(config, 'ffn_hidden_size', None)
+    if ffn_size is None:
+        ffn = state_dict.get('blocks.0.ffn.key.weight')
+        if ffn is None or ffn.ndim != 2:
+            raise ValueError("Missing or invalid blocks.0.ffn.key.weight")
+        ffn_size = ffn.shape[0]
+    shapes = {
+        'emb.weight': (vocab_size, hidden_size),
+        'head.weight': (vocab_size, hidden_size),
+        'ln_out.weight': (hidden_size,), 'ln_out.bias': (hidden_size,),
+        'blocks.0.ln0.weight': (hidden_size,), 'blocks.0.ln0.bias': (hidden_size,),
+    }
+    for layer in range(config.num_layers):
+        prefix = f'blocks.{layer}.'
+        suffix_shapes = {
+            'ln1.weight': (hidden_size,), 'ln1.bias': (hidden_size,),
+            'ln2.weight': (hidden_size,), 'ln2.bias': (hidden_size,),
+            'att.r_k': (heads, hidden_size // heads),
+            'att.ln_x.weight': (hidden_size,), 'att.ln_x.bias': (hidden_size,),
+            'ffn.x_k': (1, 1, hidden_size),
+            'ffn.key.weight': (ffn_size, hidden_size),
+            'ffn.value.weight': (hidden_size, ffn_size),
+        }
+        for channel in 'rwkvag':
+            suffix_shapes[f'att.x_{channel}'] = (1, 1, hidden_size)
+        for suffix in ('k_k', 'k_a', 'w0', 'a0'):
+            suffix_shapes[f'att.{suffix}'] = (1, 1, hidden_size)
+        for projection in ('receptance', 'key', 'value', 'output'):
+            suffix_shapes[f'att.{projection}.weight'] = (hidden_size, hidden_size)
+        for family, config_name in (
+            ('w', 'D_DECAY_LORA'), ('a', 'D_AAA_LORA'),
+            ('g', 'D_GATE_LORA'), ('v', 'D_MV_LORA'),
+        ):
+            if family == 'v' and layer == 0:
+                continue
+            rank = getattr(config, config_name, None)
+            if rank is None:
+                down = state_dict.get(prefix + f'att.{family}1')
+                if down is None or down.ndim != 2:
+                    raise ValueError(f"Missing or invalid {prefix}att.{family}1")
+                rank = down.shape[1]
+            if rank <= 0:
+                raise ValueError(f"Invalid bottleneck rank for {prefix}att.{family}1")
+            suffix_shapes[f'att.{family}1'] = (hidden_size, rank)
+            suffix_shapes[f'att.{family}2'] = (rank, hidden_size)
+            if family == 'v':
+                suffix_shapes['att.v0'] = (1, 1, hidden_size)
+        shapes.update((prefix + suffix, shape) for suffix, shape in suffix_shapes.items())
+    return shapes
+
+
+def validate_rwkv_state_dict(state_dict, config):
+    shapes = expected_rwkv_shapes(config, state_dict)
+    missing = sorted(set(shapes) - set(state_dict))
+    unexpected = sorted(set(state_dict) - set(shapes))
+    if missing or unexpected:
+        raise ValueError(f"Invalid RWKV keys: missing={missing}, unexpected={unexpected}")
+    for key, tensor in state_dict.items():
+        if not isinstance(tensor, torch.Tensor) or not tensor.is_floating_point():
+            raise ValueError(f"Expected floating-point tensor for {key}")
+        if tuple(tensor.shape) != shapes[key]:
+            raise ValueError(f"Invalid shape for {key}: {tuple(tensor.shape)}, expected {shapes[key]}")
+        if not torch.isfinite(tensor).all().item():
+            raise ValueError(f"Nonfinite values in {key}")
+
+
+def atomic_save(state_dict, save_file):
+    descriptor, temporary_file = tempfile.mkstemp(prefix='.rwkv-', suffix='.pth',
+                                                dir=os.path.dirname(save_file))
+    os.close(descriptor)
     try:
-        with open(tracker_filename, 'r') as f:
-            metastring = f.read().strip()
-            iteration = int(metastring)
-    except FileNotFoundError:
-        raise Exception(f"Tracker file {tracker_filename} not found")
+        torch.save(state_dict, temporary_file)
+        os.replace(temporary_file, save_file)
+    finally:
+        if os.path.exists(temporary_file):
+            os.unlink(temporary_file)
 
-    # 加载样本模型（仅提取 args 和 model）
-    input_model_dir = os.path.join(args.load_dir, f'iter_{iteration:07d}')
+
+def main(args):
+    input_model_dir, iteration = resolve_checkpoint(args.load_dir, getattr(args, 'iteration', None))
     input_sub_models = sorted(
-        entry
-        for entry in os.listdir(input_model_dir)
-        if entry.startswith("mp_rank_")
+        entry for entry in os.listdir(input_model_dir)
+        if re.fullmatch(r'mp_rank_\d+(?:_\d+)?', entry)
         and os.path.isdir(os.path.join(input_model_dir, entry))
     )
     if not input_sub_models:
-        raise Exception(f"No mp_rank_* checkpoint shards found under {input_model_dir}")
-
-    sample_model_file = os.path.join(input_model_dir, input_sub_models[0], "model_optim_rng.pt")
-    try:
-        sample_model = torch.load(sample_model_file, map_location='cpu', weights_only=False)  # 加载整个检查点
-        sample_args = sample_model['args']
-        del sample_model  # 释放内存
-    except Exception as e:
-        raise Exception(f"Failed to load sample model {sample_model_file}: {str(e)}")
-    print(f"Sample model {sample_model_file} is loaded.\n")
-
-    # 获取输入 TP 和 PP 大小
-    input_tp_rank = sample_args.tensor_model_parallel_size
-    input_pp_rank = sample_args.pipeline_model_parallel_size
-    num_layers = sample_args.num_layers
-    head_num = sample_args.num_attention_heads
-    head_dim = sample_args.hidden_size // head_num
-    num_layers_per_pipeline_rank = num_layers // input_pp_rank
-    print(f"Model config: TP={input_tp_rank}, PP={input_pp_rank}, num_layers={num_layers}, num_layers_per_pipeline_rank={num_layers_per_pipeline_rank}")
-
-    # 构建完整模型
-    full_model = OrderedDict()
-    for pp in range(input_pp_rank):
-        print(f"[INFO] Processing input pipeline rank {pp}")
+        raise ValueError(f"No mp_rank_* checkpoint shards found under {input_model_dir}")
+    sample_file = os.path.join(input_model_dir, input_sub_models[0], 'model_optim_rng.pt')
+    sample = torch.load(sample_file, map_location='cpu', weights_only=False)
+    config = sample['args']
+    del sample
+    validate_model_config(config)
+    norm_offset = resolve_norm_offset(config, getattr(args, 'norm_offset', None))
+    print(f"Converting {input_model_dir}: TP={config.tensor_model_parallel_size}, "
+          f"PP={config.pipeline_model_parallel_size}, layers={config.num_layers}, "
+          f"head_shape=({config.num_attention_heads}, {config.hidden_size // config.num_attention_heads}), "
+          f"norm_offset={norm_offset}")
+    state_dict = OrderedDict()
+    config_fields = (
+        'tensor_model_parallel_size', 'pipeline_model_parallel_size', 'num_layers',
+        'hidden_size', 'num_attention_heads', 'ffn_hidden_size', 'padded_vocab_size',
+        'layernorm_zero_centered_gamma', 'D_DECAY_LORA', 'D_AAA_LORA', 'D_GATE_LORA', 'D_MV_LORA',
+    )
+    for pp_rank in range(config.pipeline_model_parallel_size):
         tp_models = []
-        for tp in range(input_tp_rank):
-            dir_name = f"mp_rank_{tp:02d}"
-            if input_pp_rank > 1:
-                dir_name += f"_{pp:03d}"
-            model_file = os.path.join(input_model_dir, dir_name, "model_optim_rng.pt")
-            try:
-                model_data = torch.load(model_file, map_location='cpu', weights_only=False)
-                tp_models.append(model_data['model'])
-                del model_data  # 释放内存
-            except Exception as e:
-                raise Exception(f"Failed to load model {model_file}: {str(e)}")
-            print(f"Model {model_file} is loaded.")
-
-        # 合并 TP 分片
-        combined_tp_model = OrderedDict()
-        for key, original_tensor in tp_models[0].items():
-            if "_extra_state" in key:
-                combined_tp_model[key] = original_tensor
-                continue
-
-            split_dim = get_split_dim(key)
-            print(f"key: {key}, shape: {tp_models[0][key].shape}, split_dim: {split_dim}")
-            if split_dim != -1 and input_tp_rank > 1:
-                try:
-                    combined_tensor = combine_tp_tensors(
-                        key, split_dim,
-                        [tp_models[j][key].cpu() for j in range(input_tp_rank)] # 如果是被切分的模型，那么tp_models[1]是和tp_models[0]不一样的，否则一样
-                    )
-                    combined_tp_model[key] = combined_tensor
-                    print(f"Combined {key}: {combined_tensor.shape}")
-                except Exception as e:
-                    raise Exception(f"Failed to combine TP tensors for {key}: {str(e)}")
-            else:
-                # [修改 2] 使用 .clone() 确保切断与原始大文件的联系
-                combined_tp_model[key] = original_tensor.clone()
-
-        # 重新映射层编号
-        for key, tensor in combined_tp_model.items():
-            try:
-                layer_num = int(re.search(r'layers\.(\d+)\.', key).group(1))
-                new_key = key.replace(f'layers.{layer_num}', f'layers.{layer_num + pp * num_layers_per_pipeline_rank}')
-            except:
-                new_key = key
-            full_model[new_key] = tensor
-        del tp_models  # 释放内存
-    print("\n[INFO] Loaded combined model\n")
-
-    # 转换为 RWKV 原始格式
-    rwkv_state_dict = OrderedDict()
-    for megatron_key, tensor in full_model.items():
-        if "_extra_state" in megatron_key:
-            continue
-        rwkv_key = map_megatron_to_rwkv_key(megatron_key, num_layers, args.norm_offset)
-        if rwkv_key is None:
-            print(f"Skipping unmapped key: {megatron_key}")
-            continue
-
-        # 特殊处理
-        if isinstance(rwkv_key, list):
-            for i, key in enumerate(rwkv_key):
-                # [修改 3] 添加 .clone().detach().contiguous() 确保内存连续且无额外 Storage 占用
-                rwkv_state_dict[key] = tensor[i:i+1].view(1, 1, -1).clone().detach().contiguous()
-            # 注意：这里我们取 list 中的一个 key 来打印 shape 提示，这只是为了打印信息不报错
-            print(f"Mapped {megatron_key} -> {rwkv_key}: {rwkv_state_dict[rwkv_key[0]].shape}")
-            continue
-        
-        if 'r_k' in rwkv_key:
-            tensor = tensor.view(head_num, head_dim)  # 转换为 [head_num, head_dim]
-        if any(x in rwkv_key for x in ['k_k', 'k_a', 'v0', 'a0', 'w0', "x_k"]):
-            tensor = tensor.view(1, 1, -1)  # 转换为 [1, 1, 5120]
-        
-        # [修改 4] 添加 .clone().detach().contiguous() 确保内存连续且无额外 Storage 占用
-        rwkv_state_dict[rwkv_key] = tensor.clone().detach().contiguous()
-        print(f"Mapped {megatron_key} -> {rwkv_key}: {tensor.shape}")
-
-    # 保存转换后的权重
+        for tp_rank in range(config.tensor_model_parallel_size):
+            rank_dir = f'mp_rank_{tp_rank:02d}'
+            if config.pipeline_model_parallel_size > 1:
+                rank_dir += f'_{pp_rank:03d}'
+            model_file = os.path.join(input_model_dir, rank_dir, 'model_optim_rng.pt')
+            model_data = torch.load(model_file, map_location='cpu', weights_only=False)
+            if model_data.get('iteration', iteration) != iteration:
+                raise ValueError(f"Checkpoint iteration mismatch in {model_file}")
+            if any(getattr(model_data['args'], name, None) != getattr(config, name, None)
+                   for name in config_fields):
+                raise ValueError(f"Checkpoint config mismatch in {model_file}")
+            tp_models.append(model_data['model'])
+            del model_data
+        stage = convert_pipeline_stage(tp_models, pp_rank, config, norm_offset)
+        overlap = set(state_dict) & set(stage)
+        if overlap:
+            raise ValueError(f"Duplicate output parameters across pipeline stages: {sorted(overlap)}")
+        state_dict.update(stage)
+        del stage, tp_models
+        print(f"Converted pipeline rank {pp_rank}")
+    validate_rwkv_state_dict(state_dict, config)
     save_dir = os.path.join(args.save_dir, f'iter_{iteration:07d}')
     os.makedirs(save_dir, exist_ok=True)
-    save_file = os.path.join(save_dir, "rwkv_state_dict.pth")
-    torch.save(rwkv_state_dict, save_file)
-    print(f"Converted RWKV state dict saved to {save_file}")
+    save_file = os.path.join(save_dir, 'rwkv_state_dict.pth')
+    atomic_save(state_dict, save_file)
+    with open(os.path.join(args.save_dir, 'latest_checkpointed_iteration.txt'), 'w') as tracker:
+        tracker.write(str(iteration))
+    print(f"Validated {len(state_dict)} tensors; converted RWKV state dict saved to {save_file}")
+    return save_file
 
-    # 验证输出权重
-    expected_keys = [f'blocks.{i}.att.r_k' for i in range(num_layers)] + \
-                    [f'blocks.{i}.ffn.key.weight' for i in range(num_layers)] + \
-                    ['emb.weight', 'head.weight']
-    missing_keys = [key for key in expected_keys if key not in rwkv_state_dict]
-    if missing_keys:
-        print(f"Warning: Missing keys in output state_dict: {missing_keys}")
 
-    # 更新 tracker 文件
-    tracker_filename_out = os.path.join(args.save_dir, 'latest_checkpointed_iteration.txt')
-    with open(tracker_filename_out, 'w') as f:
-        f.write(str(iteration))
+def build_parser():
+    parser = argparse.ArgumentParser(description="Convert Megatron RWKV7 checkpoints to native RWKV weights")
+    parser.add_argument('--load-dir', required=True, help="检查点根目录或指定的 iter_* 目录")
+    parser.add_argument('--save-dir', required=True, help="输出检查点目录")
+    parser.add_argument('--iteration', type=int, help="指定迭代，覆盖根目录的 latest tracker")
+    parser.add_argument('--norm-offset', type=float, default=None,
+                        help="LayerNorm gamma 偏移；默认按 zero-centered gamma 自动选择 +1 或 0")
+    return parser
+
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--load-dir', type=str, required=True, help="输入检查点目录")
-    parser.add_argument('--save-dir', type=str, required=True, help="输出检查点目录")
-    parser.add_argument('--norm-offset', type=float, default=0.0, help="LayerNorm 偏移（用于 zero-centered gamma）")
-
-    args = parser.parse_args()
-    main(args)
+    main(build_parser().parse_args())

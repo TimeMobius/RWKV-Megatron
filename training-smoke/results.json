@@ -1,0 +1,520 @@
+{
+  "date": "2026-10-09",
+  "warmup_excluded_steps": 5,
+  "groups": {
+    "baseline": {
+      "runs": [
+        {
+          "log": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/logs/baseline-warm.log",
+          "steps": 30,
+          "first_step_ms": 8574.2,
+          "warmup_excluded_steps": 5,
+          "median_step_ms": 741.0,
+          "mean_step_ms": 743.828,
+          "p95_step_ms": 765.7,
+          "tokens_per_step": 32768,
+          "tokens_per_second": 44053.195093489354,
+          "tokens_per_second_per_gpu": 5506.649386686169,
+          "loss_by_step": {
+            "1": 1.478801,
+            "2": 1.783225,
+            "3": 2.003933,
+            "4": 2.062878,
+            "5": 1.694495,
+            "6": 2.316577,
+            "7": 2.092421,
+            "8": 2.049969,
+            "9": 1.679899,
+            "10": 2.009764,
+            "11": 1.751452,
+            "12": 1.378866,
+            "13": 2.207766,
+            "14": 1.962797,
+            "15": 2.226336,
+            "16": 1.652022,
+            "17": 1.552094,
+            "18": 2.02824,
+            "19": 1.818324,
+            "20": 1.851722,
+            "21": 1.950013,
+            "22": 1.946897,
+            "23": 1.512124,
+            "24": 1.633419,
+            "25": 1.719239,
+            "26": 1.771592,
+            "27": 1.774981,
+            "28": 1.753048,
+            "29": 1.779199,
+            "30": 1.729018
+          },
+          "validation_loss": {
+            "15": 1.91229,
+            "30": 1.966091,
+            "30-final": 1.981133
+          },
+          "skipped_iterations": 0,
+          "nan_iterations": 0,
+          "launcher_exit_code": 0
+        },
+        {
+          "log": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/logs/baseline-warm-repeat.log",
+          "steps": 30,
+          "first_step_ms": 8544.9,
+          "warmup_excluded_steps": 5,
+          "median_step_ms": 741.3,
+          "mean_step_ms": 742.796,
+          "p95_step_ms": 760.0,
+          "tokens_per_step": 32768,
+          "tokens_per_second": 44114.40018524601,
+          "tokens_per_second_per_gpu": 5514.300023155752,
+          "loss_by_step": {
+            "1": 1.478801,
+            "2": 1.783225,
+            "3": 2.003933,
+            "4": 2.062878,
+            "5": 1.694495,
+            "6": 2.316577,
+            "7": 2.092421,
+            "8": 2.049969,
+            "9": 1.679899,
+            "10": 2.009764,
+            "11": 1.751452,
+            "12": 1.378866,
+            "13": 2.207766,
+            "14": 1.962797,
+            "15": 2.226336,
+            "16": 1.652022,
+            "17": 1.552094,
+            "18": 2.02824,
+            "19": 1.818324,
+            "20": 1.851722,
+            "21": 1.950013,
+            "22": 1.946897,
+            "23": 1.512124,
+            "24": 1.633419,
+            "25": 1.719239,
+            "26": 1.771592,
+            "27": 1.774981,
+            "28": 1.753048,
+            "29": 1.779199,
+            "30": 1.729018
+          },
+          "validation_loss": {
+            "15": 1.91229,
+            "30": 1.966091,
+            "30-final": 1.981133
+          },
+          "skipped_iterations": 0,
+          "nan_iterations": 0,
+          "launcher_exit_code": 0
+        }
+      ],
+      "mean_tokens_per_second": 44083.79763936768,
+      "mean_step_ms": 743.312,
+      "repeat_tps_spread_percent": 0.1388380653076995,
+      "repeat_loss_exact_at_logged_precision": true,
+      "speedup_vs_baseline": 1.0,
+      "max_train_loss_delta_vs_baseline": 0.0,
+      "validation_loss_delta_vs_baseline": {
+        "15": 0.0,
+        "30": 0.0,
+        "30-final": 0.0
+      }
+    },
+    "fla_only": {
+      "runs": [
+        {
+          "log": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/logs/fla-only-warm.log",
+          "steps": 30,
+          "first_step_ms": 8372.8,
+          "warmup_excluded_steps": 5,
+          "median_step_ms": 718.5,
+          "mean_step_ms": 718.948,
+          "p95_step_ms": 721.5,
+          "tokens_per_step": 32768,
+          "tokens_per_second": 45577.70520260157,
+          "tokens_per_second_per_gpu": 5697.213150325197,
+          "loss_by_step": {
+            "1": 1.478886,
+            "2": 1.783344,
+            "3": 2.002847,
+            "4": 2.059866,
+            "5": 1.691862,
+            "6": 2.318547,
+            "7": 2.089109,
+            "8": 2.051,
+            "9": 1.67895,
+            "10": 2.008265,
+            "11": 1.748592,
+            "12": 1.383306,
+            "13": 2.215747,
+            "14": 1.967053,
+            "15": 2.232141,
+            "16": 1.65085,
+            "17": 1.551548,
+            "18": 2.035327,
+            "19": 1.829848,
+            "20": 1.853397,
+            "21": 1.946397,
+            "22": 1.949987,
+            "23": 1.509894,
+            "24": 1.624434,
+            "25": 1.720748,
+            "26": 1.775113,
+            "27": 1.774063,
+            "28": 1.746,
+            "29": 1.785238,
+            "30": 1.736884
+          },
+          "validation_loss": {
+            "15": 1.902394,
+            "30": 1.967026,
+            "30-final": 1.997927
+          },
+          "skipped_iterations": 0,
+          "nan_iterations": 0,
+          "launcher_exit_code": 0
+        },
+        {
+          "log": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/logs/fla-only-warm-repeat.log",
+          "steps": 30,
+          "first_step_ms": 8433.8,
+          "warmup_excluded_steps": 5,
+          "median_step_ms": 717.7,
+          "mean_step_ms": 719.04,
+          "p95_step_ms": 720.9,
+          "tokens_per_step": 32768,
+          "tokens_per_second": 45571.87360925679,
+          "tokens_per_second_per_gpu": 5696.484201157099,
+          "loss_by_step": {
+            "1": 1.478886,
+            "2": 1.783344,
+            "3": 2.002847,
+            "4": 2.059866,
+            "5": 1.691862,
+            "6": 2.318547,
+            "7": 2.089109,
+            "8": 2.051,
+            "9": 1.67895,
+            "10": 2.008265,
+            "11": 1.748592,
+            "12": 1.383306,
+            "13": 2.215747,
+            "14": 1.967053,
+            "15": 2.232141,
+            "16": 1.65085,
+            "17": 1.551548,
+            "18": 2.035327,
+            "19": 1.829848,
+            "20": 1.853397,
+            "21": 1.946397,
+            "22": 1.949987,
+            "23": 1.509894,
+            "24": 1.624434,
+            "25": 1.720748,
+            "26": 1.775113,
+            "27": 1.774063,
+            "28": 1.746,
+            "29": 1.785238,
+            "30": 1.736884
+          },
+          "validation_loss": {
+            "15": 1.902394,
+            "30": 1.967026,
+            "30-final": 1.997927
+          },
+          "skipped_iterations": 0,
+          "nan_iterations": 0,
+          "launcher_exit_code": 0
+        }
+      ],
+      "mean_tokens_per_second": 45574.78940592919,
+      "mean_step_ms": 718.9939999999999,
+      "repeat_tps_spread_percent": 0.012795656152878376,
+      "repeat_loss_exact_at_logged_precision": true,
+      "speedup_vs_baseline": 1.033821763241877,
+      "max_train_loss_delta_vs_baseline": 0.011523999999999868,
+      "validation_loss_delta_vs_baseline": {
+        "15": -0.009896000000000127,
+        "30": 0.0009349999999999081,
+        "30-final": 0.016793999999999976
+      }
+    },
+    "full_upstream": {
+      "runs": [
+        {
+          "log": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/logs/megatron-upstream-30-final.log",
+          "steps": 30,
+          "first_step_ms": 363179.3,
+          "warmup_excluded_steps": 5,
+          "median_step_ms": 720.6,
+          "mean_step_ms": 721.204,
+          "p95_step_ms": 726.3,
+          "tokens_per_step": 32768,
+          "tokens_per_second": 45435.13347125086,
+          "tokens_per_second_per_gpu": 5679.391683906358,
+          "loss_by_step": {
+            "1": 1.478886,
+            "2": 1.783344,
+            "3": 2.003163,
+            "4": 2.060127,
+            "5": 1.691864,
+            "6": 2.312361,
+            "7": 2.084654,
+            "8": 2.049809,
+            "9": 1.677278,
+            "10": 2.0057,
+            "11": 1.746012,
+            "12": 1.374585,
+            "13": 2.209938,
+            "14": 1.965259,
+            "15": 2.22547,
+            "16": 1.650474,
+            "17": 1.550889,
+            "18": 2.022047,
+            "19": 1.811772,
+            "20": 1.847556,
+            "21": 1.949926,
+            "22": 1.945549,
+            "23": 1.513969,
+            "24": 1.628593,
+            "25": 1.711912,
+            "26": 1.766038,
+            "27": 1.769475,
+            "28": 1.744211,
+            "29": 1.777857,
+            "30": 1.75816
+          },
+          "validation_loss": {
+            "15": 1.903288,
+            "30": 1.962515,
+            "30-final": 1.984971
+          },
+          "skipped_iterations": 0,
+          "nan_iterations": 0,
+          "launcher_exit_code": 0
+        },
+        {
+          "log": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/logs/megatron-upstream-30-final-repeat.log",
+          "steps": 30,
+          "first_step_ms": 12383.3,
+          "warmup_excluded_steps": 5,
+          "median_step_ms": 718.0,
+          "mean_step_ms": 718.816,
+          "p95_step_ms": 720.9,
+          "tokens_per_step": 32768,
+          "tokens_per_second": 45586.0748786894,
+          "tokens_per_second_per_gpu": 5698.259359836175,
+          "loss_by_step": {
+            "1": 1.478886,
+            "2": 1.783344,
+            "3": 2.003163,
+            "4": 2.060127,
+            "5": 1.691864,
+            "6": 2.312361,
+            "7": 2.084654,
+            "8": 2.049809,
+            "9": 1.677278,
+            "10": 2.0057,
+            "11": 1.746012,
+            "12": 1.374585,
+            "13": 2.209938,
+            "14": 1.965259,
+            "15": 2.22547,
+            "16": 1.650474,
+            "17": 1.550889,
+            "18": 2.022047,
+            "19": 1.811772,
+            "20": 1.847556,
+            "21": 1.949926,
+            "22": 1.945549,
+            "23": 1.513969,
+            "24": 1.628593,
+            "25": 1.711912,
+            "26": 1.766038,
+            "27": 1.769475,
+            "28": 1.744211,
+            "29": 1.777857,
+            "30": 1.75816
+          },
+          "validation_loss": {
+            "15": 1.903288,
+            "30": 1.962515,
+            "30-final": 1.984971
+          },
+          "skipped_iterations": 0,
+          "nan_iterations": 0,
+          "launcher_exit_code": 0
+        }
+      ],
+      "mean_tokens_per_second": 45510.604174970125,
+      "mean_step_ms": 720.01,
+      "repeat_tps_spread_percent": 0.3316620602491354,
+      "repeat_loss_exact_at_logged_precision": true,
+      "speedup_vs_baseline": 1.0323657808992455,
+      "max_train_loss_delta_vs_baseline": 0.029142,
+      "validation_loss_delta_vs_baseline": {
+        "15": -0.009001999999999954,
+        "30": -0.0035760000000000236,
+        "30-final": 0.003838000000000008
+      }
+    }
+  },
+  "resume": {
+    "exact_at_logged_precision": true,
+    "saved_steps": [
+      1,
+      2
+    ],
+    "resumed_steps": [
+      3,
+      4
+    ],
+    "compared_metrics": [
+      "samples",
+      "lr",
+      "loss",
+      "grad_norm",
+      "skipped",
+      "nan"
+    ],
+    "uninterrupted": {
+      "1": {
+        "samples": 8,
+        "lr": 1.568009e-05,
+        "loss": 1.478886,
+        "grad_norm": 24.478,
+        "skipped": 0,
+        "nan": 0
+      },
+      "2": {
+        "samples": 16,
+        "lr": 1.567466e-05,
+        "loss": 1.783344,
+        "grad_norm": 77.049,
+        "skipped": 0,
+        "nan": 0
+      },
+      "3": {
+        "samples": 24,
+        "lr": 1.566942e-05,
+        "loss": 2.003163,
+        "grad_norm": 3805.869,
+        "skipped": 0,
+        "nan": 0
+      },
+      "4": {
+        "samples": 32,
+        "lr": 1.566437e-05,
+        "loss": 2.060127,
+        "grad_norm": 1923.706,
+        "skipped": 0,
+        "nan": 0
+      }
+    }
+  },
+  "data_alignment": {
+    "train": [
+      {
+        "index": "document_index",
+        "equal": true,
+        "shape": [
+          1000395
+        ],
+        "files": [
+          "training-smoke/cache/e9841bdde4d0eda1dac255c6df373f3b-GPTDataset-train-document_index.npy",
+          "training-smoke/cache/701f2fe16f226f1580b9b04e170b8f3e-GPTDataset-train-document_index.npy"
+        ],
+        "sha256": [
+          "1e6a3744d82bcc95b35962808ca2ca4a3d4c9ed9823330515a254fab6ef4b9c4",
+          "1e6a3744d82bcc95b35962808ca2ca4a3d4c9ed9823330515a254fab6ef4b9c4"
+        ]
+      },
+      {
+        "index": "sample_index",
+        "equal": true,
+        "shape": [
+          362368,
+          2
+        ],
+        "files": [
+          "training-smoke/cache/e9841bdde4d0eda1dac255c6df373f3b-GPTDataset-train-sample_index.npy",
+          "training-smoke/cache/701f2fe16f226f1580b9b04e170b8f3e-GPTDataset-train-sample_index.npy"
+        ],
+        "sha256": [
+          "fb5b59bc5e4023a6c600e054f15fa0b656209dd01a33e77394f4dbeaf66fad85",
+          "fb5b59bc5e4023a6c600e054f15fa0b656209dd01a33e77394f4dbeaf66fad85"
+        ]
+      },
+      {
+        "index": "shuffle_index",
+        "equal": true,
+        "shape": [
+          362367
+        ],
+        "files": [
+          "training-smoke/cache/e9841bdde4d0eda1dac255c6df373f3b-GPTDataset-train-shuffle_index.npy",
+          "training-smoke/cache/701f2fe16f226f1580b9b04e170b8f3e-GPTDataset-train-shuffle_index.npy"
+        ],
+        "sha256": [
+          "e6b814d9f04c7cbae44f273002be33cb3c0c9bb2d2f0d71695a125590f13ea37",
+          "e6b814d9f04c7cbae44f273002be33cb3c0c9bb2d2f0d71695a125590f13ea37"
+        ]
+      }
+    ],
+    "valid": [
+      {
+        "index": "document_index",
+        "equal": true,
+        "shape": [
+          10105
+        ],
+        "files": [
+          "training-smoke/cache/74399f36c81d9aee99164e631176aed7-GPTDataset-valid-document_index.npy",
+          "training-smoke/cache/6d98595ef1e6ce44f6901013a110c9e6-GPTDataset-valid-document_index.npy"
+        ],
+        "sha256": [
+          "95e8c1a5ef1de561e73a7c793ade82de272b676dd8f926fcd8de4598fcb87017",
+          "95e8c1a5ef1de561e73a7c793ade82de272b676dd8f926fcd8de4598fcb87017"
+        ]
+      },
+      {
+        "index": "sample_index",
+        "equal": true,
+        "shape": [
+          3411,
+          2
+        ],
+        "files": [
+          "training-smoke/cache/74399f36c81d9aee99164e631176aed7-GPTDataset-valid-sample_index.npy",
+          "training-smoke/cache/6d98595ef1e6ce44f6901013a110c9e6-GPTDataset-valid-sample_index.npy"
+        ],
+        "sha256": [
+          "a219663ebb1e47868d1ba1ccb8e436cfb7f2734bb4845c5eb52b29973b96e87d",
+          "a219663ebb1e47868d1ba1ccb8e436cfb7f2734bb4845c5eb52b29973b96e87d"
+        ]
+      },
+      {
+        "index": "shuffle_index",
+        "equal": true,
+        "shape": [
+          3410
+        ],
+        "files": [
+          "training-smoke/cache/74399f36c81d9aee99164e631176aed7-GPTDataset-valid-shuffle_index.npy",
+          "training-smoke/cache/6d98595ef1e6ce44f6901013a110c9e6-GPTDataset-valid-shuffle_index.npy"
+        ],
+        "sha256": [
+          "ba1562fbad9b272d505fbd014340703d9e8c4e81116ea5729d4d61fb4aa91f30",
+          "ba1562fbad9b272d505fbd014340703d9e8c4e81116ea5729d4d61fb4aa91f30"
+        ]
+      }
+    ]
+  },
+  "limitations": [
+    "Thirty steps do not establish convergence or downstream accuracy equivalence.",
+    "Full update includes Python and TransformerEngine changes.",
+    "Cold autotuning can change numerical trajectories; final results use repeated warm runs.",
+    "Validated checkpoints use torch format and unchanged TP/PP topology."
+  ]
+}

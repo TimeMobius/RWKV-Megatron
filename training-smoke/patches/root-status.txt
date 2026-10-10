@@ -1,0 +1,5 @@
+ M training-smoke/audit/archive-current-source.py
+ M training-smoke/config-3b-tp2.yaml
+ M training-smoke/config-3b.yaml
+ M training-smoke/patches/root-tracked.patch
+?? .gitattributes

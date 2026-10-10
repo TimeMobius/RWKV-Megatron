@@ -1,0 +1,23 @@
+{
+  "mode": "missing",
+  "norm_types": [
+    "megatron.core.fusions.fused_layer_norm.FusedLayerNorm",
+    "megatron.core.fusions.fused_layer_norm.FusedLayerNorm",
+    "megatron.core.fusions.fused_layer_norm.FusedLayerNorm",
+    "megatron.core.fusions.fused_layer_norm.FusedLayerNorm",
+    "megatron.core.fusions.fused_layer_norm.FusedLayerNorm",
+    "megatron.core.fusions.fused_layer_norm.FusedLayerNorm",
+    "megatron.core.fusions.fused_layer_norm.FusedLayerNorm",
+    "megatron.core.fusions.fused_layer_norm.FusedLayerNorm",
+    "megatron.core.fusions.fused_layer_norm.FusedLayerNorm",
+    "megatron.core.fusions.fused_layer_norm.FusedLayerNorm"
+  ],
+  "loss": 5.068352699279785,
+  "finite_forward_backward": true,
+  "converter_validated": true,
+  "native_tensors": 135,
+  "sequence_parallel_param_tags": true,
+  "zero_centered_gamma_relative_l2": 0.0024651510175317526,
+  "te_imported": false,
+  "first_value_weight_gradient_norm": 1.0831807851791382
+}

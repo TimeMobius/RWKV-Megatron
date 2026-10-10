@@ -1,3 +1,4 @@
+from contextlib import nullcontext
 from dataclasses import dataclass
 from typing import Optional, Tuple
 
@@ -17,7 +18,6 @@ from megatron.core.parallel_state import (
 )
 from megatron.core.dist_checkpointing.mapping import ShardedStateDict
 from megatron.core.fusions.fused_bias_dropout import get_bias_dropout_add
-from megatron.core.fusions.fused_layer_norm import FusedLayerNorm
 from megatron.core.tensor_parallel.layers import (
     ColumnParallelLinear,
     RowParallelLinear,
@@ -37,7 +37,7 @@ from megatron.core.transformer.transformer_layer import (
     TransformerLayerSubmodules,
     get_transformer_layer_offset,
 )
-from megatron.core.transformer.utils import make_sharded_tensors_for_checkpoint
+from megatron.core.transformer.utils import make_sharded_tensors_for_checkpoint, sharded_state_dict_default
 from megatron.core.utils import divide
 
 from einops import einsum, rearrange
@@ -46,24 +46,46 @@ from einops import einsum, rearrange
 from unittest.mock import patch
 from transformers import AutoConfig, AutoModel, AutoModelForCausalLM
 
-from megatron.core.utils import is_te_min_version
 from megatron.training import get_args
-import transformer_engine.pytorch as te
-from transformer_engine.common import recipe
 
 try:
+    import transformer_engine.pytorch as te
+    from transformer_engine.common import recipe
     from megatron.core.extensions.transformer_engine import (
+        HAVE_TE,
         TEColumnParallelLinear,
         TELayerNormColumnParallelLinear,
-        TENorm,
         TERowParallelLinear,
     )
-
-    HAVE_TE = True
 except ImportError:
     HAVE_TE = False
+    te = recipe = None
 from megatron.core import parallel_state
 from megatron.training import print_rank_0
+
+from .normalization import get_rwkv7_layernorm_impl
+from .rwkv7_transformer_layer import RWKV7TransformerLayer
+
+def mix_inputs(hidden_states, delta, coefficients):
+    """Flatten independent tokens into FLA's [batch, time, hidden] layout."""
+    shape = hidden_states.shape
+    mixed = fused_addcmul_rwkv7(
+        hidden_states.reshape(1, -1, shape[-1]),
+        delta.reshape(1, -1, shape[-1]),
+        *coefficients,
+    )
+    return tuple(value.reshape(shape) for value in mixed)
+
+
+def update_key(key, learn_rate, alpha):
+    """Keep training tokens out of FLA's one-token decode fallback."""
+    shape = key.shape
+    return fused_k_rwkv7(
+        key.reshape(1, -1, shape[-1]),
+        learn_rate.reshape(1, -1, shape[-1]),
+        alpha,
+    ).reshape(shape)
+
 
 def get_fp8_recipe():
     # 获取同时包含 TP 和 DP 的通信组 (排除 PP)
@@ -81,7 +103,6 @@ def get_fp8_recipe():
     
     return recipe.DelayedScaling(
         margin=0,
-        interval=16,
         fp8_format=recipe.Format.HYBRID
         # amax_reduce_group=fp8_group  # <--- 关键修复：指定通信组
     )
@@ -92,7 +113,7 @@ def _rwkv7_build_channel_positions(hidden_size: int, device) -> Tensor:
 
 
 def _rwkv7_get_global_layer_id(config: TransformerConfig, layer_number: int) -> int:
-    return layer_number + get_transformer_layer_offset(config) - 1
+    return layer_number - 1
 
 
 def _rwkv7_time_mix_init_tensors(
@@ -453,6 +474,10 @@ class RWKV7TimeMix(MegatronModule):
         self,
         config: TransformerConfig,
         layer_number: int,
+        pg_collection=None,
+        is_mtp_layer=False,
+        name=None,
+        pp_layer_offset=None,
     ):
         super().__init__(config=config)
 
@@ -609,6 +634,7 @@ class RWKV7TimeMix(MegatronModule):
         inference_context=None,
         rotary_pos_cos=None,
         rotary_pos_sin=None,
+        rotary_pos_cos_sin=None,
         attention_bias=None,
         sequence_len_offset=None,
     ):        
@@ -628,11 +654,11 @@ class RWKV7TimeMix(MegatronModule):
             hidden_states, 0, self.config.sequence_parallel
         )
         delta_shift = shifted_hidden_states - hidden_states
-        mixed_receptance, mixed_decay, mixed_key, mixed_value, mixed_learn_rate, mixed_gate = fused_addcmul_rwkv7(hidden_states, delta_shift, *[self.mix_coeff_input[i] for i in range(6)])
+        mixed_receptance, mixed_decay, mixed_key, mixed_value, mixed_learn_rate, mixed_gate = mix_inputs(hidden_states, delta_shift, self.mix_coeff_input.unbind(0))
 
         learn_rate = torch.sigmoid(self.bottleneck_learn(mixed_learn_rate.contiguous()))
-        current_recipe = get_fp8_recipe()
-        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe):
+        current_recipe = get_fp8_recipe() if HAVE_TE else None
+        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe) if HAVE_TE else nullcontext():
             key = self.linear_key(mixed_key.contiguous())[0]
         rem_key = key * self.beta
         # rem_batch = rem_key.shape[1]
@@ -642,9 +668,9 @@ class RWKV7TimeMix(MegatronModule):
         normalized_rearranged = torch.nn.functional.normalize(temp_rearranged, dim=-1, p=2.0)
         rem_key_norm = rearrange(normalized_rearranged, 'b t h n -> t b (h n)')
 
-        rep_key = fused_k_rwkv7(key, learn_rate, self.alpha)
+        rep_key = update_key(key, learn_rate, self.alpha)
 
-        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe):
+        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe) if HAVE_TE else nullcontext():
             value = self.linear_value(mixed_value.contiguous())[0]
 
         if v0 is None and self.layer_number == 1 and pp_rank == 0:
@@ -665,7 +691,7 @@ class RWKV7TimeMix(MegatronModule):
 
         decay = self.bottleneck_decay(mixed_decay.contiguous())
         weight = torch.exp(torch.tensor(-0.5)) * torch.sigmoid(decay)
-        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe):
+        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe) if HAVE_TE else nullcontext():
             receptance = self.linear_receptance(mixed_receptance.contiguous())[0]
         gate = self.bottleneck_gate(mixed_gate.contiguous())
 
@@ -698,7 +724,7 @@ class RWKV7TimeMix(MegatronModule):
         #    将 (B, T, H, N) -> (T, B, H*N)
         ut = rearrange(ut_intermediate, 'b t h n -> t b (h n)')
         output += ut
-        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe):
+        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe) if HAVE_TE else nullcontext():
             output, bias = self.linear_proj(output * gate) 
 
         if self.config.sequence_parallel:
@@ -741,7 +767,7 @@ class RWKV7TimeMix(MegatronModule):
 
 
 class RWKV7ChannelMix(MegatronModule):
-    def __init__(self, config: TransformerConfig):
+    def __init__(self, config: TransformerConfig, pg_collection=None, is_mtp_layer=False, name=None, hash_moe_layer_threshold=None):
         super().__init__(config)
 
         args = get_args()
@@ -788,34 +814,35 @@ class RWKV7ChannelMix(MegatronModule):
             with torch.no_grad():
                 self.mix_coeffs.copy_(init_tensor.to(self.mix_coeffs.dtype))
 
-    def forward(self, hidden_states: Tensor):
+    def forward(self, hidden_states: Tensor, padding_mask=None):
         shifted_hidden_states = _token_shift(
             hidden_states, 0, self.config.sequence_parallel
         )
         delta_shift = shifted_hidden_states - hidden_states 
         mixed_up = torch.addcmul(hidden_states, delta_shift, self.mix_coeffs)
 
-        current_recipe = get_fp8_recipe()
+        current_recipe = get_fp8_recipe() if HAVE_TE else None
 
-        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe):
+        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe) if HAVE_TE else nullcontext():
             ffn_hidden_states, bias = self.linear_up(mixed_up.contiguous())
         assert bias is None
         ffn_hidden_states = torch.square(torch.relu(ffn_hidden_states))
-        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe):
+        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe) if HAVE_TE else nullcontext():
             output, bias = self.linear_down(ffn_hidden_states)
         assert bias is None
         return output, None
 
 
 def get_rwkv7_layer_spec() -> ModuleSpec:
+    norm = get_rwkv7_layernorm_impl()
     return ModuleSpec(
-        module=TransformerLayer,
+        module=RWKV7TransformerLayer,
         submodules=TransformerLayerSubmodules(
-            input_layernorm=FusedLayerNorm,
+            input_layernorm=norm,
             self_attention=ModuleSpec(module=RWKV7TimeMix),
             self_attn_bda=get_bias_dropout_add,
-            pre_mlp_layernorm=FusedLayerNorm,
-            mlp=ModuleSpec(module=RWKV7ChannelMix),
+            pre_mlp_layernorm=norm,
+            mlp=RWKV7ChannelMix,
             mlp_bda=get_bias_dropout_add,
         ),
     )
@@ -824,16 +851,4 @@ def get_rwkv7_layer_spec() -> ModuleSpec:
     added by zgz, date:20250619
 '''
 def get_rwkv7_with_transformer_engine_spec() -> ModuleSpec:
-    inp_norm = pre_norm = TENorm if is_te_min_version("1.9.0") else FusedLayerNorm
-    return ModuleSpec(
-        module=TransformerLayer,
-        submodules=TransformerLayerSubmodules(
-            input_layernorm=inp_norm,
-            self_attention=ModuleSpec(module=RWKV7TimeMix),
-            self_attn_bda=get_bias_dropout_add,
-            pre_mlp_layernorm=pre_norm,
-            mlp=ModuleSpec(module=RWKV7ChannelMix),
-            mlp_bda=get_bias_dropout_add,
-        ),
-
-    )
+    return get_rwkv7_layer_spec()

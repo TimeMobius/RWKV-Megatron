@@ -1,0 +1,4 @@
+# Frozen source/input copies and patch context retain original byte formatting.
+training-smoke/reference/** -whitespace
+training-smoke/patches/*.patch -whitespace
+training-smoke/environment/nvidia-smi.txt -whitespace

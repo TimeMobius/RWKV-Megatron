@@ -1,3 +1,4 @@
+from dataclasses import replace
 from typing import Dict, List
 
 import torch
@@ -6,8 +7,8 @@ import torch.distributed
 
 from megatron.core.inference_params import InferenceParams
 from megatron.core.models.gpt import GPTModel
-from megatron.core.fusions.fused_layer_norm import FusedLayerNorm
 from megatron.core.packed_seq_params import PackedSeqParams
+from megatron.core.transformer.transformer_block import _get_block_submodules
 from megatron.core.transformer.transformer_config import TransformerConfig
 from megatron.core.parallel_state import (
     get_pipeline_model_parallel_rank,
@@ -18,20 +19,41 @@ from megatron.core.parallel_state import (
     get_tensor_model_parallel_world_size,
 )
 from megatron.core.transformer.transformer_layer import TransformerLayer
-from megatron.core.utils import divide
+from megatron.core.utils import divide, get_pg_rank
 
 from einops import rearrange
 
+from .normalization import get_rwkv7_layernorm_impl
 from .rwkv7_layer_specs import RWKV7ChannelMix, RWKV7TimeMix
 
 class RWKV7Model(GPTModel):
     def __init__(self, config: TransformerConfig, *args, **kwargs):
+        config.rwkv7_value_residual = True
+        norm = get_rwkv7_layernorm_impl()
+        args = list(args)
+        spec = args[0] if args else kwargs["transformer_layer_spec"]
+        pg_collection = kwargs.get("pg_collection")
+        pp_rank = (
+            get_pg_rank(pg_collection.pp)
+            if pg_collection is not None
+            else get_pipeline_model_parallel_rank()
+        )
+        # Pass an explicit final norm so the upstream TE-availability default
+        # cannot disagree with RWKV's minimum-version fallback.
+        block_spec = replace(
+            _get_block_submodules(config, spec, kwargs.get("vp_stage"), pp_rank),
+            layer_norm=norm,
+        )
+        if args:
+            args[0] = block_spec
+        else:
+            kwargs["transformer_layer_spec"] = block_spec
         super().__init__(config, *args, **kwargs)
 
         self.check_against_pretrained = False
 
         if self.pre_process:
-            self.pre_norm = FusedLayerNorm(
+            self.pre_norm = norm(
                 config, config.hidden_size, config.layernorm_epsilon
             )
 
@@ -181,6 +203,11 @@ class RWKV7Model(GPTModel):
             exit(0)
 
         return result
+
+    def _postprocess(self, hidden_states, *args, **kwargs):
+        if self.post_process and hidden_states.ndim == 4:
+            hidden_states = hidden_states[0]
+        return super()._postprocess(hidden_states, *args, **kwargs)
 
     def _get_layers_start(self):
         local_layers = len(self.decoder.layers) 

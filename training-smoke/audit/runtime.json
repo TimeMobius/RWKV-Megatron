@@ -1,0 +1,32 @@
+{
+  "executable": "/mnt/data/anaconda3/envs/train_mobius_py312/bin/python",
+  "prefix": "/mnt/data/anaconda3/envs/train_mobius_py312",
+  "python": "3.12.14 (main, Sep  2 2026, 23:27:36) [GCC 15.3.0]",
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "triton": "3.5.1",
+  "transformer_engine": "2.19.0",
+  "sources": {
+    "megatron": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/3rdparty/Megatron-LM-0.11.0/megatron/core/__init__.py",
+    "fla": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/3rdparty/flash-linear-attention-260115/fla/__init__.py",
+    "schedule": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/3rdparty/Megatron-LM-0.11.0/megatron/core/pipeline_parallel/schedules.py",
+    "torch": "/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/torch/__init__.py",
+    "triton": "/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/triton/__init__.py",
+    "transformer_engine": "/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/transformer_engine/__init__.py",
+    "apex_layernorm": "/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/fused_layer_norm_cuda.cpython-312-x86_64-linux-gnu.so",
+    "apex_wgrad": "/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/fused_weight_gradient_mlp_cuda.cpython-312-x86_64-linux-gnu.so"
+  },
+  "rwkv_kernel": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/3rdparty/flash-linear-attention-260115/fla/ops/rwkv7/chunk.py",
+  "modules_from_expected_locations": true,
+  "submodule_commits": {
+    "megatron": "c2876aaa0029df2b5567c893b8cbf2f6ea62a1b9",
+    "fla": "79d12e8ec0ae72bc7f2189b4244d6532ce8c268c"
+  },
+  "ld_library_path": "/mnt/data/anaconda3/envs/train_mobius_py312/lib:/mnt/data/anaconda3/envs/train_mobius_py312/targets/x86_64-linux/lib:/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/nvidia/cublas/lib:/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/nvidia/cusparse/lib:/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/nvidia/cusolver/lib:/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/nvidia/cudnn/lib:/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/nvidia/nccl/lib:",
+  "source_sha256": {
+    "rwkv_megatron/rwkv7_layer_specs.py": "6241e8c85a4b13fac0e2a47953fe5299abc136c1f609cd96ac2e1f972b3112f7",
+    "rwkv_megatron/rwkv7_transformer_layer.py": "33ec55821abf3ea2f6818b358093207f2aebe0461150411f47a9846c96f5bb73",
+    "rwkv_megatron/normalization.py": "c45ed2bd165f56ad2a56f4bba79424fbc20f8c09bee7c344bb2c1cbb15f696ba",
+    "rwkv_megatron/rwkv7_model.py": "0c0aebf9a0e16df2c9e0200e0f92de96955128a423f921e15b4da211d8519456"
+  }
+}

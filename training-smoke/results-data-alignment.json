@@ -1,0 +1,98 @@
+{
+  "train": [
+    {
+      "index": "document_index",
+      "equal": true,
+      "shape": [
+        1000395
+      ],
+      "files": [
+        "training-smoke/cache/e9841bdde4d0eda1dac255c6df373f3b-GPTDataset-train-document_index.npy",
+        "training-smoke/cache/701f2fe16f226f1580b9b04e170b8f3e-GPTDataset-train-document_index.npy"
+      ],
+      "sha256": [
+        "1e6a3744d82bcc95b35962808ca2ca4a3d4c9ed9823330515a254fab6ef4b9c4",
+        "1e6a3744d82bcc95b35962808ca2ca4a3d4c9ed9823330515a254fab6ef4b9c4"
+      ]
+    },
+    {
+      "index": "sample_index",
+      "equal": true,
+      "shape": [
+        362368,
+        2
+      ],
+      "files": [
+        "training-smoke/cache/e9841bdde4d0eda1dac255c6df373f3b-GPTDataset-train-sample_index.npy",
+        "training-smoke/cache/701f2fe16f226f1580b9b04e170b8f3e-GPTDataset-train-sample_index.npy"
+      ],
+      "sha256": [
+        "fb5b59bc5e4023a6c600e054f15fa0b656209dd01a33e77394f4dbeaf66fad85",
+        "fb5b59bc5e4023a6c600e054f15fa0b656209dd01a33e77394f4dbeaf66fad85"
+      ]
+    },
+    {
+      "index": "shuffle_index",
+      "equal": true,
+      "shape": [
+        362367
+      ],
+      "files": [
+        "training-smoke/cache/e9841bdde4d0eda1dac255c6df373f3b-GPTDataset-train-shuffle_index.npy",
+        "training-smoke/cache/701f2fe16f226f1580b9b04e170b8f3e-GPTDataset-train-shuffle_index.npy"
+      ],
+      "sha256": [
+        "e6b814d9f04c7cbae44f273002be33cb3c0c9bb2d2f0d71695a125590f13ea37",
+        "e6b814d9f04c7cbae44f273002be33cb3c0c9bb2d2f0d71695a125590f13ea37"
+      ]
+    }
+  ],
+  "valid": [
+    {
+      "index": "document_index",
+      "equal": true,
+      "shape": [
+        10105
+      ],
+      "files": [
+        "training-smoke/cache/74399f36c81d9aee99164e631176aed7-GPTDataset-valid-document_index.npy",
+        "training-smoke/cache/6d98595ef1e6ce44f6901013a110c9e6-GPTDataset-valid-document_index.npy"
+      ],
+      "sha256": [
+        "95e8c1a5ef1de561e73a7c793ade82de272b676dd8f926fcd8de4598fcb87017",
+        "95e8c1a5ef1de561e73a7c793ade82de272b676dd8f926fcd8de4598fcb87017"
+      ]
+    },
+    {
+      "index": "sample_index",
+      "equal": true,
+      "shape": [
+        3411,
+        2
+      ],
+      "files": [
+        "training-smoke/cache/74399f36c81d9aee99164e631176aed7-GPTDataset-valid-sample_index.npy",
+        "training-smoke/cache/6d98595ef1e6ce44f6901013a110c9e6-GPTDataset-valid-sample_index.npy"
+      ],
+      "sha256": [
+        "a219663ebb1e47868d1ba1ccb8e436cfb7f2734bb4845c5eb52b29973b96e87d",
+        "a219663ebb1e47868d1ba1ccb8e436cfb7f2734bb4845c5eb52b29973b96e87d"
+      ]
+    },
+    {
+      "index": "shuffle_index",
+      "equal": true,
+      "shape": [
+        3410
+      ],
+      "files": [
+        "training-smoke/cache/74399f36c81d9aee99164e631176aed7-GPTDataset-valid-shuffle_index.npy",
+        "training-smoke/cache/6d98595ef1e6ce44f6901013a110c9e6-GPTDataset-valid-shuffle_index.npy"
+      ],
+      "sha256": [
+        "ba1562fbad9b272d505fbd014340703d9e8c4e81116ea5729d4d61fb4aa91f30",
+        "ba1562fbad9b272d505fbd014340703d9e8c4e81116ea5729d4d61fb4aa91f30"
+      ]
+    }
+  ]
+}

@@ -24,15 +24,7 @@ SCHEDULES_PATH = (
     / "pipeline_parallel"
     / "schedules.py"
 )
-TRANSFORMER_LAYER_PATH = (
-    REPO_ROOT
-    / "3rdparty"
-    / "Megatron-LM-0.11.0"
-    / "megatron"
-    / "core"
-    / "transformer"
-    / "transformer_layer.py"
-)
+TRANSFORMER_LAYER_PATH = REPO_ROOT / "rwkv_megatron" / "rwkv7_transformer_layer.py"
 
 
 def _parse(path: Path) -> ast.Module:
@@ -166,15 +158,16 @@ def test_task7_tp_pp_sp_protocol_stays_consistent_across_three_codepaths():
 
     get_tensor_shapes = _get_function(schedules, "get_tensor_shapes")
     schedules_dump = _node_dump(get_tensor_shapes)
-    assert "get_tensor_model_parallel_world_size" in schedules_dump
+    assert "rwkv7_value_residual" in schedules_dump
+    assert "tp_group" in schedules_dump
     assert "value=1" in schedules_dump, "SP+PP schedule should reserve 1 + TP slots"
 
-    transformer_cls = _get_class(transformer_layer, "TransformerLayer")
+    transformer_cls = _get_class(transformer_layer, "RWKV7TransformerLayer")
     transformer_forward = _get_function(transformer_cls, "forward")
     transformer_source = TRANSFORMER_LAYER_PATH.read_text(encoding="utf-8")
-    assert "hidden_states, v0 = hidden_states[0], hidden_states[1:]" in transformer_source
-    assert "torch.cat([input_layernorm_output.unsqueeze(0), v0], dim=0)" in transformer_source
-    assert "attention_output_with_bias[0][1:]" in transformer_source
+    assert "values = hidden_states[1:]" in transformer_source
+    assert "torch.cat((normalized.unsqueeze(0), values), dim=0)" in transformer_source
+    assert "values = attention_output[1:]" in transformer_source
 
     timemix_cls = _get_class(layer_specs, "RWKV7TimeMix")
     timemix_forward = _get_function(timemix_cls, "forward")

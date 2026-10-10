@@ -1,0 +1,23 @@
+--- a/rwkv_conversion.py
++++ b/rwkv_conversion.py
+@@ -208,6 +208,8 @@
+     if any(getattr(config, name, None) is not None for name in (
+         'virtual_pipeline_model_parallel_size', 'num_layers_in_first_pipeline_stage',
+         'num_layers_in_last_pipeline_stage',
++        'decoder_first_pipeline_num_layers', 'decoder_last_pipeline_num_layers',
++        'pipeline_model_parallel_layout',
+     )):
+         raise ValueError("Virtual or nonuniform pipeline layouts are not supported")
+ 
+--- a/tests/test_rwkv_conversion.py
++++ b/tests/test_rwkv_conversion.py
+@@ -416,6 +416,9 @@
+         for name, value in [('virtual_pipeline_model_parallel_size', 2),
+                             ('num_layers_in_first_pipeline_stage', 1),
+                             ('num_layers_in_last_pipeline_stage', 1),
++                            ('decoder_first_pipeline_num_layers', 1),
++                            ('decoder_last_pipeline_num_layers', 1),
++                            ('pipeline_model_parallel_layout', 'Et|tt|tL'),
+                             ('num_layers', 3), ('num_attention_heads', 3),
+                             ('tensor_model_parallel_size', 8), ('hidden_size', 0)]:
+             with self.subTest(name=name):

@@ -1,0 +1,53 @@
+{
+  "exact_at_logged_precision": true,
+  "saved_steps": [
+    1,
+    2
+  ],
+  "resumed_steps": [
+    3,
+    4
+  ],
+  "compared_metrics": [
+    "samples",
+    "lr",
+    "loss",
+    "grad_norm",
+    "skipped",
+    "nan"
+  ],
+  "uninterrupted": {
+    "1": {
+      "samples": 8,
+      "lr": 1.568009e-05,
+      "loss": 1.478886,
+      "grad_norm": 24.478,
+      "skipped": 0,
+      "nan": 0
+    },
+    "2": {
+      "samples": 16,
+      "lr": 1.567466e-05,
+      "loss": 1.783344,
+      "grad_norm": 77.049,
+      "skipped": 0,
+      "nan": 0
+    },
+    "3": {
+      "samples": 24,
+      "lr": 1.566942e-05,
+      "loss": 2.003163,
+      "grad_norm": 3805.869,
+      "skipped": 0,
+      "nan": 0
+    },
+    "4": {
+      "samples": 32,
+      "lr": 1.566437e-05,
+      "loss": 2.060127,
+      "grad_norm": 1923.706,
+      "skipped": 0,
+      "nan": 0
+    }
+  }
+}

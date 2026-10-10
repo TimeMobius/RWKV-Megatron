@@ -52,7 +52,7 @@ from megatron.core.models.gpt import GPTModel
 from megatron.training import pretrain
 from megatron.core.utils import StragglerDetector
 from megatron.core.transformer.spec_utils import import_module
-from megatron.training.utils import (
+from megatron.core.utils import (
     get_batch_on_this_cp_rank,
     get_batch_on_this_tp_rank,
 )
@@ -69,7 +69,7 @@ from rwkv_megatron.rwkv7_model import RWKV7Model
 stimer = StragglerDetector()
 
 
-def model_provider(pre_process=True, post_process=True) -> GPTModel:
+def model_provider(pre_process=True, post_process=True, config=None, pg_collection=None, vp_stage=None) -> GPTModel:
     """
     RWKV7模型提供者，负责构建和初始化模型实例
 
@@ -115,7 +115,7 @@ def model_provider(pre_process=True, post_process=True) -> GPTModel:
         config.D_GATE_LORA = args.D_GATE_LORA
         config.D_MV_LORA = args.D_MV_LORA
 
-    assert not args.use_legacy_models, "RWKV7 only works with Megatron Core"
+    assert not getattr(args, "use_legacy_models", False), "RWKV7 only works with Megatron Core"
 
     if args.spec is not None:
         transformer_layer_spec = import_module(args.spec)
@@ -139,6 +139,8 @@ def model_provider(pre_process=True, post_process=True) -> GPTModel:
         share_embeddings_and_output_weights=not args.untie_embeddings_and_output_weights,
         position_embedding_type=args.position_embedding_type,
         rotary_percent=args.rotary_percent,
+        pg_collection=pg_collection,
+        vp_stage=vp_stage,
     )
 
     if args.load is None and args.load_pretrained_rwkv is not None:
@@ -209,7 +211,7 @@ def model_provider_ckpt(pre_process=True, post_process=True) -> GPTModel:
     config.D_GATE_LORA = args.D_GATE_LORA
     config.D_MV_LORA = args.D_MV_LORA
 
-    assert not args.use_legacy_models, "RWKV7 only works with Megatron Core"
+    assert not getattr(args, "use_legacy_models", False), "RWKV7 only works with Megatron Core"
 
     if args.spec is not None:
         transformer_layer_spec = import_module(args.spec)
@@ -286,12 +288,30 @@ def get_batch(data_iterator):
         return None, None, None, None, None
 
     # get batches based on the TP rank you are on
-    batch = get_batch_on_this_tp_rank(data_iterator)
-
-    # slice batch along sequence dimension for context parallelism
-    batch = get_batch_on_this_cp_rank(batch)
-
-    return batch.values()
+    args = get_args()
+    keys = ("tokens", "labels", "loss_mask", "attention_mask", "position_ids")
+    batch = {}
+    if mpu.get_tensor_model_parallel_rank() == 0:
+        data = next(data_iterator)
+        batch = {key: data[key].cuda(non_blocking=True) if data.get(key) is not None else None for key in keys}
+    batch = get_batch_on_this_tp_rank(
+        batch,
+        has_cu_seqlens=False,
+        is_hybrid_cp=False,
+        create_attention_mask_in_dataloader=args.create_attention_mask_in_dataloader,
+        broadcast_src_rank=mpu.get_tensor_model_parallel_src_rank(),
+        broadcast_group=mpu.get_tensor_model_parallel_group(),
+        cp_size=args.context_parallel_size,
+        tp_rank=mpu.get_tensor_model_parallel_rank(),
+        micro_batch_size=args.micro_batch_size,
+        seq_length=args.seq_length,
+        mtp_on_this_rank=False,
+        pipeline_model_parallel_size=args.pipeline_model_parallel_size,
+        is_pipeline_first_stage=mpu.is_pipeline_first_stage(),
+        is_pipeline_last_stage=mpu.is_pipeline_last_stage(),
+    )
+    batch = get_batch_on_this_cp_rank(batch, is_hybrid_cp=False, cp_group=mpu.get_context_parallel_group())
+    return [batch[key] for key in keys]
 
 
 def loss_func(loss_mask: torch.Tensor, output_tensor: torch.Tensor):
@@ -336,13 +356,12 @@ def loss_func(loss_mask: torch.Tensor, output_tensor: torch.Tensor):
 
     # Reduce loss for logging.
     reporting_loss = loss.clone().detach()
-    torch.distributed.all_reduce(reporting_loss, group=mpu.get_data_parallel_group())
 
     local_num_tokens = loss[1].clone().detach().to(torch.int)
     return (
         loss[0] * args.context_parallel_size,
         local_num_tokens,
-        {"lm loss": (reporting_loss[0], reporting_loss[1])},
+        {"lm loss": reporting_loss},
     )
 
 
@@ -409,7 +428,7 @@ def core_gpt_dataset_config_from_args(args):
         reset_attention_mask=args.reset_attention_mask,
         eod_mask_loss=args.eod_mask_loss,
         create_attention_mask=args.create_attention_mask_in_dataloader,
-        shuffle_blend_datasets=getattr(args, 'shuffle_blend_datasets', False),
+        shuffle_blend_datasets=args.shuffle_blend_datasets,
     )
 
 
@@ -643,10 +662,19 @@ if __name__ == "__main__":
         "transformers.dynamic_module_utils.resolve_trust_remote_code",
         return_value=True,
     ):
+        from megatron.training.arguments import parse_and_validate_args
+        from megatron.training.argument_utils import pretrain_cfg_container_from_args
+        from megatron.training.global_vars import initialize_runtime_services
+        from rwkv_megatron.arguments import add_rwkv_arguments
+
+        args = parse_and_validate_args(extra_args_provider=add_rwkv_arguments)
+        initialize_runtime_services(args)
+        get_train_iters()
+        full_config = pretrain_cfg_container_from_args(args)
         pretrain(
+            full_config,
             train_valid_test_datasets_provider,
-            model_provider,
             ModelType.encoder_or_decoder,
             forward_step,
-            get_train_iters
+            model_provider=model_provider,
         )

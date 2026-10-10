@@ -1,0 +1,20 @@
+{
+  "fla": {
+    "origin": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/fla-only-replay/fla/__init__.py",
+    "search_paths": [
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/3rdparty/flash-linear-attention-260115/fla"
+    ]
+  },
+  "rwkv_megatron": {
+    "origin": null,
+    "search_paths": [
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/baseline-replay/rwkv_megatron"
+    ]
+  },
+  "megatron": {
+    "origin": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/fla-only-replay/megatron/__init__.py",
+    "search_paths": [
+      "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/baseline-replay/meg-source/megatron"
+    ]
+  }
+}

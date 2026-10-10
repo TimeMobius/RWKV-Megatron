@@ -1,0 +1,35 @@
+{
+  "runs": [
+    {
+      "log": "training-smoke/logs/upstream-tp2-pp2.log",
+      "steps": 10,
+      "first_step_ms": 360630.4,
+      "warmup_excluded_steps": 2,
+      "median_step_ms": 1221.05,
+      "mean_step_ms": 1218.5,
+      "p95_step_ms": 1231.7,
+      "tokens_per_step": 32768,
+      "tokens_per_second": 26892.080426754208,
+      "tokens_per_second_per_gpu": 3361.510053344276,
+      "loss_by_step": {
+        "1": 1.478968,
+        "2": 1.783326,
+        "3": 2.002795,
+        "4": 2.058889,
+        "5": 1.693079,
+        "6": 2.314723,
+        "7": 2.09512,
+        "8": 2.056324,
+        "9": 1.68287,
+        "10": 2.007334
+      },
+      "validation_loss": {
+        "5": 1.926389,
+        "10": 1.90711,
+        "10-final": 1.950178
+      },
+      "skipped_iterations": 0,
+      "nan_iterations": 0
+    }
+  ]
+}

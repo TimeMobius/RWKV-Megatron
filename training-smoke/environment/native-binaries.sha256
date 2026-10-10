@@ -1,0 +1,16 @@
+5e94d6deedb2f6856a0880a42f06d77b95f509128eb6bed6fbd75cf0d9041002  training-smoke/vendor/TransformerEngine-5e52befd5262c06289106338c308079d6adb391f/build/lib.linux-x86_64-cpython-312/transformer_engine/libtransformer_engine.so
+1191c67277302a097b057245b8d2e70c96740f24c109c97cc4dc101f6672f1e0  training-smoke/vendor/TransformerEngine-5e52befd5262c06289106338c308079d6adb391f/build/lib.linux-x86_64-cpython-312/transformer_engine/transformer_engine_torch.cpython-312-x86_64-linux-gnu.so
+2cdfc96c10c14e7dbcfe4994740849b6f823c656a43e53c7c13b19d01fbae127  training-smoke/vendor/apex-master/build/lib.linux-x86_64-cpython-312/amp_C.cpython-312-x86_64-linux-gnu.so
+6594451d1f21b692e10982f5b9d7fbcece05028d0983e0dd2aef4de0c4285344  training-smoke/vendor/apex-master/build/lib.linux-x86_64-cpython-312/apex_C.cpython-312-x86_64-linux-gnu.so
+c0355dd813e7ee36b54dbf329c43e9c292696a7779159de07458c26c577d000f  training-smoke/vendor/apex-master/build/lib.linux-x86_64-cpython-312/fused_dense_cuda.cpython-312-x86_64-linux-gnu.so
+564426a6d5831e687d69ccc7625ba2ab73df8df5b65c6c6cd4bbb575a19d49d8  training-smoke/vendor/apex-master/build/lib.linux-x86_64-cpython-312/fused_layer_norm_cuda.cpython-312-x86_64-linux-gnu.so
+57c1177b14e53fb383e9fbad2427954d864b1c6c42f89b5e1ded39a18d754927  training-smoke/vendor/apex-master/build/lib.linux-x86_64-cpython-312/fused_rotary_positional_embedding.cpython-312-x86_64-linux-gnu.so
+f7bc2e29b3ef6c4b9dc1b1fe7fd4ffc64c478eeac526df159dab6e5570f6ff35  training-smoke/vendor/apex-master/build/lib.linux-x86_64-cpython-312/fused_weight_gradient_mlp_cuda.cpython-312-x86_64-linux-gnu.so
+e58ced467065fafce20d72a034b06e8acdff725ad9e4fc38dc856410ac794cdc  training-smoke/vendor/apex-master/build/lib.linux-x86_64-cpython-312/generic_scaled_masked_softmax_cuda.cpython-312-x86_64-linux-gnu.so
+ec6e79fc196b86a5a229cc709ed4788ebbbc85cfb325a67d88e5e768fef9d944  training-smoke/vendor/apex-master/build/lib.linux-x86_64-cpython-312/mlp_cuda.cpython-312-x86_64-linux-gnu.so
+80a87b1234ec23e2e5df61563723bfc80500662b964ef472d42c1ce3953326ac  training-smoke/vendor/apex-master/build/lib.linux-x86_64-cpython-312/scaled_masked_softmax_cuda.cpython-312-x86_64-linux-gnu.so
+bb4426a4baacb57482202da42581db8339c860f355deedf940cb7010f16e91f1  training-smoke/vendor/apex-master/build/lib.linux-x86_64-cpython-312/scaled_softmax_cuda.cpython-312-x86_64-linux-gnu.so
+ffbc558e251fc1b076b20f2fc3616a8a0efa4462da99f9ddeb2566a15a22e302  training-smoke/vendor/apex-master/build/lib.linux-x86_64-cpython-312/scaled_upper_triang_masked_softmax_cuda.cpython-312-x86_64-linux-gnu.so
+171f1742ca5abaaa7f3ef1e48fae8f5e9a2cb82cca44a884c3a4412e21495834  training-smoke/vendor/apex-master/build/lib.linux-x86_64-cpython-312/syncbn.cpython-312-x86_64-linux-gnu.so
+5e94d6deedb2f6856a0880a42f06d77b95f509128eb6bed6fbd75cf0d9041002  training-smoke/vendor/installed-native/libtransformer_engine.so
+1191c67277302a097b057245b8d2e70c96740f24c109c97cc4dc101f6672f1e0  training-smoke/vendor/installed-native/transformer_engine_torch.cpython-312-x86_64-linux-gnu.so

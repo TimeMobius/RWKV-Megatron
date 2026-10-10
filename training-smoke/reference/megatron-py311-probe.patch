@@ -1,0 +1,58 @@
+diff --git a/megatron/core/optimizer/fully_sharded_optimizer.py b/megatron/core/optimizer/fully_sharded_optimizer.py
+index 8fbbbd01b..95028fcb0 100644
+--- a/megatron/core/optimizer/fully_sharded_optimizer.py
++++ b/megatron/core/optimizer/fully_sharded_optimizer.py
+@@ -2,7 +2,9 @@
+ 
+ """MCore optimizer wrapper for experimental Megatron-FSDP v2."""
+ 
+-from typing import Callable, List, Optional, override
++from typing import Callable, List, Optional
++
++from typing_extensions import override
+ 
+ import torch
+ from torch.distributed.tensor import DTensor
+diff --git a/megatron/core/tokenizers/text/libraries/huggingface_tokenizer.py b/megatron/core/tokenizers/text/libraries/huggingface_tokenizer.py
+index 57f230227..82c5503b2 100644
+--- a/megatron/core/tokenizers/text/libraries/huggingface_tokenizer.py
++++ b/megatron/core/tokenizers/text/libraries/huggingface_tokenizer.py
+@@ -377,7 +377,7 @@ class HuggingFaceTokenizer(MegatronTokenizerTextAbstract):
+     @property
+     def vocab_size(self) -> int:
+         """Returns size of tokenizer vocabulary."""
+-        return len(self.tokenizer)
++        return max(self.tokenizer.get_vocab().values()) + 1
+ 
+     @property
+     def pad_id(self) -> int:
+diff --git a/megatron/training/models/gpt.py b/megatron/training/models/gpt.py
+index 6a5601bb2..a9d070d00 100644
+--- a/megatron/training/models/gpt.py
++++ b/megatron/training/models/gpt.py
+@@ -2,7 +2,9 @@
+ 
+ import inspect
+ import logging
+-from typing import Any, Callable, ClassVar, Literal, override
++from typing import Any, Callable, ClassVar, Literal
++
++from typing_extensions import override
+ 
+ from megatron.core.models.gpt.heterogeneous.heterogeneous_layer_specs import get_gpt_heterogeneous_layer_spec
+ from megatron.core.transformer.heterogeneous.heterogeneous_config import HeterogeneousTransformerConfig
+diff --git a/megatron/training/models/hybrid.py b/megatron/training/models/hybrid.py
+index 9af9b7c39..6c9b6286d 100644
+--- a/megatron/training/models/hybrid.py
++++ b/megatron/training/models/hybrid.py
+@@ -2,7 +2,9 @@
+ 
+ import logging
+ from dataclasses import dataclass
+-from typing import Any, Callable, ClassVar, Literal, override
++from typing import Any, Callable, ClassVar, Literal
++
++from typing_extensions import override
+ 
+ import torch
+ 

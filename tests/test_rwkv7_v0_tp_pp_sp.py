@@ -15,6 +15,7 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Optional
 
 import torch
 
@@ -55,6 +56,8 @@ def _load_get_tensor_shapes(tp_size: int = TP_SIZE, cp_size: int = 1):
         get_tensor_model_parallel_world_size=lambda: tp_size,
     )
     namespace = {
+        "torch": torch,
+        "Optional": Optional,
         "parallel_state": parallel_state,
         "ModelType": model_type,
     }
@@ -124,16 +127,15 @@ def later_stage_mix_value_sp(
 
 def test_sp_non_interleaved_pipeline_shape_uses_one_v0_cache_slot_per_tp_rank():
     get_tensor_shapes, model_type = _load_get_tensor_shapes()
-    config = SimpleNamespace(sequence_parallel=True, hidden_size=HIDDEN)
+    config = SimpleNamespace(sequence_parallel=True, hidden_size=HIDDEN, variable_seq_lengths=False, rwkv7_value_residual=True)
 
     tensor_shapes = get_tensor_shapes(
-        rank=0,
-        model_type=model_type.encoder_or_decoder,
         seq_length=8,
         micro_batch_size=2,
         decoder_seq_length=None,
         config=config,
-        encoder_decoder_xattn=False,
+        tp_group=SimpleNamespace(size=lambda: TP_SIZE),
+        cp_group=SimpleNamespace(size=lambda: 1),
     )
 
     assert tensor_shapes == [(1 + TP_SIZE, 4, 2, HIDDEN)]

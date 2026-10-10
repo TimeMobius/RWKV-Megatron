@@ -1,4 +1,3 @@
-from contextlib import nullcontext
 from dataclasses import dataclass
 from typing import Optional, Tuple
 
@@ -49,8 +48,6 @@ from transformers import AutoConfig, AutoModel, AutoModelForCausalLM
 from megatron.training import get_args
 
 try:
-    import transformer_engine.pytorch as te
-    from transformer_engine.common import recipe
     from megatron.core.extensions.transformer_engine import (
         HAVE_TE,
         TEColumnParallelLinear,
@@ -59,12 +56,10 @@ try:
     )
 except ImportError:
     HAVE_TE = False
-    te = recipe = None
-from megatron.core import parallel_state
-from megatron.training import print_rank_0
 
 from .normalization import get_rwkv7_layernorm_impl
 from .key_preparation import prepare_key
+from .precision import keep_time_mix_bf16, validate_rwkv_precision
 from .rwkv7_transformer_layer import RWKV7TransformerLayer
 
 def mix_inputs(hidden_states, delta, coefficients):
@@ -86,27 +81,6 @@ def update_key(key, learn_rate, alpha):
         learn_rate.reshape(1, -1, shape[-1]),
         alpha,
     ).reshape(shape)
-
-
-def get_fp8_recipe():
-    # 获取同时包含 TP 和 DP 的通信组 (排除 PP)
-    # 注意：在较新的 Megatron-Core 版本中，AMAX reduction group 通常由框架维护
-    # 如果你是手动调用 te.fp8_autocast，必须显式传入这个组
-    
-    # 这种组通常称为 "Model Parallel Group" (排除 PP) 或者需要自己构造
-    # 在标准 Megatron 中，通常 TE 会复用 tensor_model_parallel_group 
-    # 或者你需要一个包含 (TP + DP) 的组。
-    
-    # 最安全的做法是只在 Tensor Parallel 组内同步 (如果 DP 不需要同步 AMAX)
-    # 或者使用 parallel_state.get_tensor_and_data_parallel_group() (如果该函数存在)
-    
-    fp8_group = parallel_state.get_tensor_model_parallel_group()
-    
-    return recipe.DelayedScaling(
-        margin=0,
-        fp8_format=recipe.Format.HYBRID
-        # amax_reduce_group=fp8_group  # <--- 关键修复：指定通信组
-    )
 
 
 def _rwkv7_build_channel_positions(hidden_size: int, device) -> Tensor:
@@ -556,6 +530,8 @@ class RWKV7TimeMix(MegatronModule):
             self.mix_coeff_input, "sequence_parallel", self.config.sequence_parallel
         )
 
+        validate_rwkv_precision(config, have_te=use_te)
+        # Inherit the decoder's Megatron FP8 context, recipe and amax group.
         col_linear_factory = lambda name: (TEColumnParallelLinear if use_te else ColumnParallelLinear)(
             self.config.hidden_size,
             self.config.hidden_size,
@@ -624,6 +600,7 @@ class RWKV7TimeMix(MegatronModule):
                 self.alpha.copy_(alpha_full[shard_start:shard_end].to(self.alpha.dtype))
     
 
+    @keep_time_mix_bf16
     def forward(
         self,
         hidden_states: Tensor,
@@ -658,13 +635,10 @@ class RWKV7TimeMix(MegatronModule):
         mixed_receptance, mixed_decay, mixed_key, mixed_value, mixed_learn_rate, mixed_gate = mix_inputs(hidden_states, delta_shift, self.mix_coeff_input.unbind(0))
 
         learn_rate = torch.sigmoid(self.bottleneck_learn(mixed_learn_rate.contiguous()))
-        current_recipe = get_fp8_recipe() if HAVE_TE else None
-        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe) if HAVE_TE else nullcontext():
-            key = self.linear_key(mixed_key.contiguous())[0]
+        key = self.linear_key(mixed_key.contiguous())[0]
         rep_key, a, b = prepare_key(key, learn_rate, self.beta, self.alpha, self.head_size, fusion=getattr(self.config, "rwkv_key_fusion", None))
 
-        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe) if HAVE_TE else nullcontext():
-            value = self.linear_value(mixed_value.contiguous())[0]
+        value = self.linear_value(mixed_value.contiguous())[0]
 
         if v0 is None and self.layer_number == 1 and pp_rank == 0:
             v0 = gather_from_tensor_model_parallel_region(value)
@@ -684,8 +658,7 @@ class RWKV7TimeMix(MegatronModule):
 
         decay = self.bottleneck_decay(mixed_decay.contiguous())
         weight = torch.exp(torch.tensor(-0.5)) * torch.sigmoid(decay)
-        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe) if HAVE_TE else nullcontext():
-            receptance = self.linear_receptance(mixed_receptance.contiguous())[0]
+        receptance = self.linear_receptance(mixed_receptance.contiguous())[0]
         gate = self.bottleneck_gate(mixed_gate.contiguous())
 
 
@@ -715,8 +688,7 @@ class RWKV7TimeMix(MegatronModule):
         #    将 (B, T, H, N) -> (T, B, H*N)
         ut = rearrange(ut_intermediate, 'b t h n -> t b (h n)')
         output += ut
-        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe) if HAVE_TE else nullcontext():
-            output, bias = self.linear_proj(output * gate) 
+        output, bias = self.linear_proj(output * gate)
 
         if self.config.sequence_parallel:
             # reshape v0 to match output shape
@@ -763,6 +735,7 @@ class RWKV7ChannelMix(MegatronModule):
 
         args = get_args()
         use_te = args.transformer_impl == "transformer_engine" and HAVE_TE
+        validate_rwkv_precision(config, have_te=use_te)
         self.layer_number = None
         self.mix_coeffs = torch.nn.Parameter( 
             torch.empty(config.hidden_size, device=torch.cuda.current_device())
@@ -812,14 +785,11 @@ class RWKV7ChannelMix(MegatronModule):
         delta_shift = shifted_hidden_states - hidden_states 
         mixed_up = torch.addcmul(hidden_states, delta_shift, self.mix_coeffs)
 
-        current_recipe = get_fp8_recipe() if HAVE_TE else None
 
-        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe) if HAVE_TE else nullcontext():
-            ffn_hidden_states, bias = self.linear_up(mixed_up.contiguous())
+        ffn_hidden_states, bias = self.linear_up(mixed_up.contiguous())
         assert bias is None
         ffn_hidden_states = torch.square(torch.relu(ffn_hidden_states))
-        with te.fp8_autocast(enabled=False, fp8_recipe=current_recipe) if HAVE_TE else nullcontext():
-            output, bias = self.linear_down(ffn_hidden_states)
+        output, bias = self.linear_down(ffn_hidden_states)
         assert bias is None
         return output, None
 

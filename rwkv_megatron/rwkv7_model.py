@@ -25,11 +25,13 @@ from megatron.core.utils import divide, get_pg_rank
 from einops import rearrange
 
 from .normalization import get_rwkv7_layernorm_impl
+from .precision import validate_rwkv_precision
 from .l2wrap import wrap_token_loss, max_logit_stats
-from .rwkv7_layer_specs import RWKV7ChannelMix, RWKV7TimeMix
+from .rwkv7_layer_specs import HAVE_TE, RWKV7ChannelMix, RWKV7TimeMix
 
 class RWKV7Model(GPTModel):
     def __init__(self, config: TransformerConfig, *args, **kwargs):
+        validate_rwkv_precision(config, have_te=HAVE_TE)
         coefficient = float(getattr(config, "rwkv_l2wrap_coefficient", 0.0))
         if not math.isfinite(coefficient) or coefficient < 0:
             raise ValueError("RWKV L2Wrap coefficient must be finite and nonnegative")

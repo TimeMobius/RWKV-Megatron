@@ -117,6 +117,7 @@ def model_provider(pre_process=True, post_process=True, config=None, pg_collecti
 
     config.rwkv_l2wrap_coefficient = getattr(args, "rwkv_l2wrap_coefficient", 0.0)
     config.rwkv_key_fusion = getattr(args, "rwkv_key_fusion", None)
+    config.rwkv_fp8_scope = getattr(args, "rwkv_fp8_scope", "ffn")
 
     assert not getattr(args, "use_legacy_models", False), "RWKV7 only works with Megatron Core"
 

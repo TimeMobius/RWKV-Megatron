@@ -1,0 +1,545 @@
+{
+  "runtime": {
+    "executable": "/mnt/data/anaconda3/envs/train_mobius_py312/bin/python",
+    "prefix": "/mnt/data/anaconda3/envs/train_mobius_py312",
+    "python": "3.12.14 (main, Sep  2 2026, 23:27:36) [GCC 15.3.0]",
+    "torch": "2.9.1+cu128",
+    "cuda": "12.8",
+    "triton": "3.5.1",
+    "transformer_engine": "2.19.0",
+    "sources": {
+      "megatron": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/3rdparty/Megatron-LM-0.11.0/megatron/core/__init__.py",
+      "fla": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/3rdparty/flash-linear-attention-260115/fla/__init__.py",
+      "schedule": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/3rdparty/Megatron-LM-0.11.0/megatron/core/pipeline_parallel/schedules.py",
+      "torch": "/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/torch/__init__.py",
+      "triton": "/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/triton/__init__.py",
+      "transformer_engine": "/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/transformer_engine/__init__.py",
+      "apex_layernorm": "/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/fused_layer_norm_cuda.cpython-312-x86_64-linux-gnu.so",
+      "apex_wgrad": "/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/fused_weight_gradient_mlp_cuda.cpython-312-x86_64-linux-gnu.so"
+    },
+    "rwkv_kernel": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/3rdparty/flash-linear-attention-260115/fla/ops/rwkv7/chunk.py",
+    "modules_from_expected_locations": true,
+    "submodule_commits": {
+      "megatron": "31b59d876571259fc992babf11a477ee60e5a54c",
+      "fla": "40850297f9f977d7d33eb9d87fcf9a460554b553"
+    },
+    "ld_library_path": "/mnt/data/anaconda3/envs/train_mobius_py312/lib:/mnt/data/anaconda3/envs/train_mobius_py312/targets/x86_64-linux/lib:/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/nvidia/cublas/lib:/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/nvidia/cusparse/lib:/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/nvidia/cusolver/lib:/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/nvidia/cudnn/lib:/mnt/data/anaconda3/envs/train_mobius_py312/lib/python3.12/site-packages/nvidia/nccl/lib:",
+    "source_sha256": {
+      "rwkv_megatron/rwkv7_layer_specs.py": "572f6fb08ee2b64a071940df5a872596a04d14f76a4808510a3d8f26cee60c65",
+      "rwkv_megatron/rwkv7_transformer_layer.py": "33ec55821abf3ea2f6818b358093207f2aebe0461150411f47a9846c96f5bb73",
+      "rwkv_megatron/normalization.py": "c45ed2bd165f56ad2a56f4bba79424fbc20f8c09bee7c344bb2c1cbb15f696ba",
+      "rwkv_megatron/rwkv7_model.py": "13266555937c7d188ce1d0036ecd59ca9d22e22423d30046eef85db03d150985"
+    }
+  },
+  "full_3b": false,
+  "cases": {
+    "bf16-te": {
+      "name": "bf16-te",
+      "fp8_recipe": null,
+      "fp8_wgrad": true,
+      "recompute": false,
+      "first_last_bf16": false,
+      "losses": [
+        5.065277099609375,
+        5.065277099609375,
+        5.065277099609375,
+        5.065277099609375,
+        5.065277099609375,
+        5.065277099609375,
+        5.065277099609375,
+        5.065277099609375
+      ],
+      "median_forward_backward_seconds": 0.02960288804024458,
+      "tokens_per_second": 8647.804891602898,
+      "fp8_linear_count": 0,
+      "linear_count": 24,
+      "wkv_dtypes": [
+        "torch.bfloat16"
+      ],
+      "dispatch_groups": [
+        {
+          "fp8": false,
+          "recipe": "NoneType",
+          "quantizers": [],
+          "amax_group_present": false,
+          "module_names": [
+            "decoder.layers.0.self_attention.linear_receptance",
+            "decoder.layers.0.self_attention.linear_key",
+            "decoder.layers.0.self_attention.linear_value",
+            "decoder.layers.0.self_attention.linear_proj",
+            "decoder.layers.0.mlp.linear_up",
+            "decoder.layers.0.mlp.linear_down",
+            "decoder.layers.1.self_attention.linear_receptance",
+            "decoder.layers.1.self_attention.linear_key",
+            "decoder.layers.1.self_attention.linear_value",
+            "decoder.layers.1.self_attention.linear_proj",
+            "decoder.layers.1.mlp.linear_up",
+            "decoder.layers.1.mlp.linear_down",
+            "decoder.layers.2.self_attention.linear_receptance",
+            "decoder.layers.2.self_attention.linear_key",
+            "decoder.layers.2.self_attention.linear_value",
+            "decoder.layers.2.self_attention.linear_proj",
+            "decoder.layers.2.mlp.linear_up",
+            "decoder.layers.2.mlp.linear_down",
+            "decoder.layers.3.self_attention.linear_receptance",
+            "decoder.layers.3.self_attention.linear_key",
+            "decoder.layers.3.self_attention.linear_value",
+            "decoder.layers.3.self_attention.linear_proj",
+            "decoder.layers.3.mlp.linear_up",
+            "decoder.layers.3.mlp.linear_down"
+          ]
+        }
+      ]
+    },
+    "legacy-disabled": {
+      "name": "legacy-disabled",
+      "fp8_recipe": "delayed",
+      "fp8_wgrad": true,
+      "recompute": false,
+      "first_last_bf16": false,
+      "losses": [
+        5.065277099609375,
+        5.065277099609375,
+        5.065277099609375,
+        5.065277099609375,
+        5.065277099609375,
+        5.065277099609375,
+        5.065277099609375,
+        5.065277099609375
+      ],
+      "median_forward_backward_seconds": 0.03086655819788575,
+      "tokens_per_second": 8293.765646262922,
+      "fp8_linear_count": 0,
+      "linear_count": 24,
+      "wkv_dtypes": [
+        "torch.bfloat16"
+      ],
+      "logits": {
+        "relative_l2": 0.0,
+        "max_abs": 0.0,
+        "first_pass_relative_l2": 0.0
+      },
+      "gradients": {
+        "parameter_gradient_count": 115,
+        "relative_l2": 0.0,
+        "max_abs": 0.0,
+        "first_layer_value_weight_relative_l2": 0.0
+      },
+      "loss_abs_difference": 0.0,
+      "dispatch_groups": [
+        {
+          "fp8": false,
+          "recipe": "NoneType",
+          "quantizers": [],
+          "amax_group_present": false,
+          "module_names": [
+            "decoder.layers.0.self_attention.linear_receptance",
+            "decoder.layers.0.self_attention.linear_key",
+            "decoder.layers.0.self_attention.linear_value",
+            "decoder.layers.0.self_attention.linear_proj",
+            "decoder.layers.0.mlp.linear_up",
+            "decoder.layers.0.mlp.linear_down",
+            "decoder.layers.1.self_attention.linear_receptance",
+            "decoder.layers.1.self_attention.linear_key",
+            "decoder.layers.1.self_attention.linear_value",
+            "decoder.layers.1.self_attention.linear_proj",
+            "decoder.layers.1.mlp.linear_up",
+            "decoder.layers.1.mlp.linear_down",
+            "decoder.layers.2.self_attention.linear_receptance",
+            "decoder.layers.2.self_attention.linear_key",
+            "decoder.layers.2.self_attention.linear_value",
+            "decoder.layers.2.self_attention.linear_proj",
+            "decoder.layers.2.mlp.linear_up",
+            "decoder.layers.2.mlp.linear_down",
+            "decoder.layers.3.self_attention.linear_receptance",
+            "decoder.layers.3.self_attention.linear_key",
+            "decoder.layers.3.self_attention.linear_value",
+            "decoder.layers.3.self_attention.linear_proj",
+            "decoder.layers.3.mlp.linear_up",
+            "decoder.layers.3.mlp.linear_down"
+          ]
+        }
+      ]
+    },
+    "delayed": {
+      "name": "delayed",
+      "fp8_recipe": "delayed",
+      "fp8_wgrad": true,
+      "recompute": false,
+      "first_last_bf16": false,
+      "losses": [
+        5.0599164962768555,
+        5.061614990234375,
+        5.061363220214844,
+        5.060685157775879,
+        5.060858249664307,
+        5.060956954956055,
+        5.060953617095947,
+        5.060953617095947
+      ],
+      "median_forward_backward_seconds": 0.03422937309369445,
+      "tokens_per_second": 7478.956722323347,
+      "fp8_linear_count": 24,
+      "linear_count": 24,
+      "wkv_dtypes": [
+        "torch.bfloat16"
+      ],
+      "logits": {
+        "relative_l2": 0.04750487953424454,
+        "max_abs": 0.1953125,
+        "first_pass_relative_l2": 0.05883608013391495
+      },
+      "gradients": {
+        "parameter_gradient_count": 115,
+        "relative_l2": 0.19162156201916183,
+        "max_abs": 2.4921875,
+        "first_layer_value_weight_relative_l2": 0.19410271899663833
+      },
+      "loss_abs_difference": 0.004323482513427734,
+      "dispatch_groups": [
+        {
+          "fp8": true,
+          "recipe": "TEDelayedScaling",
+          "quantizers": [
+            "Float8Quantizer",
+            "Float8Quantizer",
+            "Float8Quantizer"
+          ],
+          "amax_group_present": true,
+          "module_names": [
+            "decoder.layers.0.self_attention.linear_receptance",
+            "decoder.layers.0.self_attention.linear_key",
+            "decoder.layers.0.self_attention.linear_value",
+            "decoder.layers.0.self_attention.linear_proj",
+            "decoder.layers.0.mlp.linear_up",
+            "decoder.layers.0.mlp.linear_down",
+            "decoder.layers.1.self_attention.linear_receptance",
+            "decoder.layers.1.self_attention.linear_key",
+            "decoder.layers.1.self_attention.linear_value",
+            "decoder.layers.1.self_attention.linear_proj",
+            "decoder.layers.1.mlp.linear_up",
+            "decoder.layers.1.mlp.linear_down",
+            "decoder.layers.2.self_attention.linear_receptance",
+            "decoder.layers.2.self_attention.linear_key",
+            "decoder.layers.2.self_attention.linear_value",
+            "decoder.layers.2.self_attention.linear_proj",
+            "decoder.layers.2.mlp.linear_up",
+            "decoder.layers.2.mlp.linear_down",
+            "decoder.layers.3.self_attention.linear_receptance",
+            "decoder.layers.3.self_attention.linear_key",
+            "decoder.layers.3.self_attention.linear_value",
+            "decoder.layers.3.self_attention.linear_proj",
+            "decoder.layers.3.mlp.linear_up",
+            "decoder.layers.3.mlp.linear_down"
+          ]
+        }
+      ]
+    },
+    "delayed-recompute": {
+      "name": "delayed-recompute",
+      "fp8_recipe": "delayed",
+      "fp8_wgrad": true,
+      "recompute": true,
+      "first_last_bf16": false,
+      "losses": [
+        5.0599164962768555,
+        5.061614990234375,
+        5.061363220214844,
+        5.060685157775879,
+        5.060858249664307,
+        5.060956954956055,
+        5.060953617095947,
+        5.060953617095947
+      ],
+      "median_forward_backward_seconds": 0.05086776381358504,
+      "tokens_per_second": 5032.656849987794,
+      "fp8_linear_count": 24,
+      "linear_count": 24,
+      "wkv_dtypes": [
+        "torch.bfloat16"
+      ],
+      "logits": {
+        "relative_l2": 0.04750487953424454,
+        "max_abs": 0.1953125,
+        "first_pass_relative_l2": 0.05883608013391495
+      },
+      "gradients": {
+        "parameter_gradient_count": 115,
+        "relative_l2": 0.19162156201916183,
+        "max_abs": 2.4921875,
+        "first_layer_value_weight_relative_l2": 0.19410271899663833
+      },
+      "loss_abs_difference": 0.004323482513427734,
+      "recompute_loss_exact_vs_plain": true,
+      "dispatch_groups": [
+        {
+          "fp8": true,
+          "recipe": "TEDelayedScaling",
+          "quantizers": [
+            "Float8Quantizer",
+            "Float8Quantizer",
+            "Float8Quantizer"
+          ],
+          "amax_group_present": true,
+          "module_names": [
+            "decoder.layers.0.self_attention.linear_receptance",
+            "decoder.layers.0.self_attention.linear_key",
+            "decoder.layers.0.self_attention.linear_value",
+            "decoder.layers.0.self_attention.linear_proj",
+            "decoder.layers.0.mlp.linear_up",
+            "decoder.layers.0.mlp.linear_down",
+            "decoder.layers.1.self_attention.linear_receptance",
+            "decoder.layers.1.self_attention.linear_key",
+            "decoder.layers.1.self_attention.linear_value",
+            "decoder.layers.1.self_attention.linear_proj",
+            "decoder.layers.1.mlp.linear_up",
+            "decoder.layers.1.mlp.linear_down",
+            "decoder.layers.2.self_attention.linear_receptance",
+            "decoder.layers.2.self_attention.linear_key",
+            "decoder.layers.2.self_attention.linear_value",
+            "decoder.layers.2.self_attention.linear_proj",
+            "decoder.layers.2.mlp.linear_up",
+            "decoder.layers.2.mlp.linear_down",
+            "decoder.layers.3.self_attention.linear_receptance",
+            "decoder.layers.3.self_attention.linear_key",
+            "decoder.layers.3.self_attention.linear_value",
+            "decoder.layers.3.self_attention.linear_proj",
+            "decoder.layers.3.mlp.linear_up",
+            "decoder.layers.3.mlp.linear_down"
+          ]
+        }
+      ]
+    },
+    "delayed-bf16-wgrad": {
+      "name": "delayed-bf16-wgrad",
+      "fp8_recipe": "delayed",
+      "fp8_wgrad": false,
+      "recompute": false,
+      "first_last_bf16": false,
+      "losses": [
+        5.0599164962768555,
+        5.061614990234375,
+        5.061363220214844,
+        5.060685157775879,
+        5.060858249664307,
+        5.060956954956055,
+        5.060953617095947,
+        5.060953617095947
+      ],
+      "median_forward_backward_seconds": 0.03407160984352231,
+      "tokens_per_second": 7513.586859432493,
+      "fp8_linear_count": 24,
+      "linear_count": 24,
+      "wkv_dtypes": [
+        "torch.bfloat16"
+      ],
+      "logits": {
+        "relative_l2": 0.04750487953424454,
+        "max_abs": 0.1953125,
+        "first_pass_relative_l2": 0.05883608013391495
+      },
+      "gradients": {
+        "parameter_gradient_count": 115,
+        "relative_l2": 0.19162156201916183,
+        "max_abs": 2.4921875,
+        "first_layer_value_weight_relative_l2": 0.19410271899663833
+      },
+      "loss_abs_difference": 0.004323482513427734,
+      "dispatch_groups": [
+        {
+          "fp8": true,
+          "recipe": "TEDelayedScaling",
+          "quantizers": [
+            "Float8Quantizer",
+            "Float8Quantizer",
+            "Float8Quantizer"
+          ],
+          "amax_group_present": true,
+          "module_names": [
+            "decoder.layers.0.self_attention.linear_receptance",
+            "decoder.layers.0.self_attention.linear_key",
+            "decoder.layers.0.self_attention.linear_value",
+            "decoder.layers.0.self_attention.linear_proj",
+            "decoder.layers.0.mlp.linear_up",
+            "decoder.layers.0.mlp.linear_down",
+            "decoder.layers.1.self_attention.linear_receptance",
+            "decoder.layers.1.self_attention.linear_key",
+            "decoder.layers.1.self_attention.linear_value",
+            "decoder.layers.1.self_attention.linear_proj",
+            "decoder.layers.1.mlp.linear_up",
+            "decoder.layers.1.mlp.linear_down",
+            "decoder.layers.2.self_attention.linear_receptance",
+            "decoder.layers.2.self_attention.linear_key",
+            "decoder.layers.2.self_attention.linear_value",
+            "decoder.layers.2.self_attention.linear_proj",
+            "decoder.layers.2.mlp.linear_up",
+            "decoder.layers.2.mlp.linear_down",
+            "decoder.layers.3.self_attention.linear_receptance",
+            "decoder.layers.3.self_attention.linear_key",
+            "decoder.layers.3.self_attention.linear_value",
+            "decoder.layers.3.self_attention.linear_proj",
+            "decoder.layers.3.mlp.linear_up",
+            "decoder.layers.3.mlp.linear_down"
+          ]
+        }
+      ]
+    },
+    "tensorwise": {
+      "name": "tensorwise",
+      "fp8_recipe": "tensorwise",
+      "fp8_wgrad": true,
+      "recompute": false,
+      "first_last_bf16": false,
+      "losses": [
+        5.062593460083008,
+        5.062593460083008,
+        5.062593460083008,
+        5.062593460083008,
+        5.062593460083008,
+        5.062593460083008,
+        5.062593460083008,
+        5.062593460083008
+      ],
+      "median_forward_backward_seconds": 0.03496217215433717,
+      "tokens_per_second": 7322.199515233563,
+      "fp8_linear_count": 24,
+      "linear_count": 24,
+      "wkv_dtypes": [
+        "torch.bfloat16"
+      ],
+      "logits": {
+        "relative_l2": 0.023866405710577965,
+        "max_abs": 0.12109375,
+        "first_pass_relative_l2": 0.023866405710577965
+      },
+      "gradients": {
+        "parameter_gradient_count": 115,
+        "relative_l2": 0.2149718966552376,
+        "max_abs": 1.28125,
+        "first_layer_value_weight_relative_l2": 0.08205523004314445
+      },
+      "loss_abs_difference": 0.0026836395263671875,
+      "dispatch_groups": [
+        {
+          "fp8": true,
+          "recipe": "Float8CurrentScaling",
+          "quantizers": [
+            "Float8CurrentScalingQuantizer",
+            "Float8CurrentScalingQuantizer",
+            "Float8CurrentScalingQuantizer"
+          ],
+          "amax_group_present": true,
+          "module_names": [
+            "decoder.layers.0.self_attention.linear_receptance",
+            "decoder.layers.0.self_attention.linear_key",
+            "decoder.layers.0.self_attention.linear_value",
+            "decoder.layers.0.self_attention.linear_proj",
+            "decoder.layers.0.mlp.linear_up",
+            "decoder.layers.0.mlp.linear_down",
+            "decoder.layers.1.self_attention.linear_receptance",
+            "decoder.layers.1.self_attention.linear_key",
+            "decoder.layers.1.self_attention.linear_value",
+            "decoder.layers.1.self_attention.linear_proj",
+            "decoder.layers.1.mlp.linear_up",
+            "decoder.layers.1.mlp.linear_down",
+            "decoder.layers.2.self_attention.linear_receptance",
+            "decoder.layers.2.self_attention.linear_key",
+            "decoder.layers.2.self_attention.linear_value",
+            "decoder.layers.2.self_attention.linear_proj",
+            "decoder.layers.2.mlp.linear_up",
+            "decoder.layers.2.mlp.linear_down",
+            "decoder.layers.3.self_attention.linear_receptance",
+            "decoder.layers.3.self_attention.linear_key",
+            "decoder.layers.3.self_attention.linear_value",
+            "decoder.layers.3.self_attention.linear_proj",
+            "decoder.layers.3.mlp.linear_up",
+            "decoder.layers.3.mlp.linear_down"
+          ]
+        }
+      ]
+    },
+    "tensorwise-first-last-bf16": {
+      "name": "tensorwise-first-last-bf16",
+      "fp8_recipe": "tensorwise",
+      "fp8_wgrad": true,
+      "recompute": false,
+      "first_last_bf16": true,
+      "losses": [
+        5.062868118286133,
+        5.062868118286133,
+        5.062868118286133,
+        5.062868118286133,
+        5.062868118286133,
+        5.062868118286133,
+        5.062868118286133,
+        5.062868118286133
+      ],
+      "median_forward_backward_seconds": 0.03241399023681879,
+      "tokens_per_second": 7897.824307641447,
+      "fp8_linear_count": 12,
+      "linear_count": 24,
+      "wkv_dtypes": [
+        "torch.bfloat16"
+      ],
+      "logits": {
+        "relative_l2": 0.024237902835011482,
+        "max_abs": 0.109375,
+        "first_pass_relative_l2": 0.024237902835011482
+      },
+      "gradients": {
+        "parameter_gradient_count": 115,
+        "relative_l2": 0.18189182143058463,
+        "max_abs": 1.4375,
+        "first_layer_value_weight_relative_l2": 0.07662088294204576
+      },
+      "loss_abs_difference": 0.0024089813232421875,
+      "dispatch_groups": [
+        {
+          "fp8": false,
+          "recipe": "NoneType",
+          "quantizers": [],
+          "amax_group_present": false,
+          "module_names": [
+            "decoder.layers.0.self_attention.linear_receptance",
+            "decoder.layers.0.self_attention.linear_key",
+            "decoder.layers.0.self_attention.linear_value",
+            "decoder.layers.0.self_attention.linear_proj",
+            "decoder.layers.0.mlp.linear_up",
+            "decoder.layers.0.mlp.linear_down",
+            "decoder.layers.3.self_attention.linear_receptance",
+            "decoder.layers.3.self_attention.linear_key",
+            "decoder.layers.3.self_attention.linear_value",
+            "decoder.layers.3.self_attention.linear_proj",
+            "decoder.layers.3.mlp.linear_up",
+            "decoder.layers.3.mlp.linear_down"
+          ]
+        },
+        {
+          "fp8": true,
+          "recipe": "Float8CurrentScaling",
+          "quantizers": [
+            "Float8CurrentScalingQuantizer",
+            "Float8CurrentScalingQuantizer",
+            "Float8CurrentScalingQuantizer"
+          ],
+          "amax_group_present": true,
+          "module_names": [
+            "decoder.layers.1.self_attention.linear_receptance",
+            "decoder.layers.1.self_attention.linear_key",
+            "decoder.layers.1.self_attention.linear_value",
+            "decoder.layers.1.self_attention.linear_proj",
+            "decoder.layers.1.mlp.linear_up",
+            "decoder.layers.1.mlp.linear_down",
+            "decoder.layers.2.self_attention.linear_receptance",
+            "decoder.layers.2.self_attention.linear_key",
+            "decoder.layers.2.self_attention.linear_value",
+            "decoder.layers.2.self_attention.linear_proj",
+            "decoder.layers.2.mlp.linear_up",
+            "decoder.layers.2.mlp.linear_down"
+          ]
+        }
+      ]
+    }
+  },
+  "all_checks_passed": true
+}

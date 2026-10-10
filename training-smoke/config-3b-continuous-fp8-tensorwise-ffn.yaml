@@ -1,0 +1,375 @@
+language_model:
+  num_layers: 32
+  num_layers_in_first_pipeline_stage: null
+  num_layers_in_last_pipeline_stage: null
+  account_for_loss_in_pipeline_split: false
+  hidden_size: 2560
+  num_attention_heads: 40
+  attention_backend: null
+  softmax_scale: null
+  num_query_groups: null
+  ffn_hidden_size: 10240
+  kv_channels: 64
+  hidden_dropout: 0.0
+  attention_dropout: 0.0
+  fp32_residual_connection: false
+  apply_residual_connection_post_layernorm: false
+  layernorm_epsilon: 1.0e-05
+  layernorm_zero_centered_gamma: false
+  add_bias_linear: false
+  add_qkv_bias: false
+  gated_linear_unit: true
+  activation_func: swiglu
+  activation_func_fp8_input_store: false
+  num_moe_experts: null
+  rotary_interleaved: false
+  window_size: null
+  normalization: LayerNorm
+  qk_layernorm: false
+  test_mode: false
+  calculate_per_token_loss: false
+  multi_latent_attention: false
+  account_for_embedding_in_pipeline_split: false
+  init_method: null
+  output_layer_init_method: null
+  init_method_std: 0.02
+  init_model_with_meta_device: false
+  apply_query_key_layer_scaling: false
+  attention_softmax_in_fp32: false
+  bias_activation_fusion: false
+  masked_softmax_fusion: true
+  persist_layer_norm: false
+  memory_efficient_layer_norm: false
+  bias_dropout_fusion: true
+  apply_rope_fusion: false
+  recompute_granularity: full
+  recompute_method: uniform
+  recompute_num_layers: 1
+  distribute_saved_activations: null
+  fp8: hybrid
+  fp8_margin: 0
+  fp8_interval: 1
+  fp8_amax_history_len: 1
+  fp8_amax_compute_algo: most_recent
+  fp8_wgrad: true
+  fp8_dot_product_attention: false
+  fp8_multi_head_attention: false
+  tp_only_amax_red: false
+  first_last_layers_bf16: false
+  moe_shared_expert_intermediate_size: null
+  moe_shared_expert_overlap: false
+  moe_layer_freq: 1
+  moe_ffn_hidden_size: null
+  moe_router_load_balancing_type: aux_loss
+  moe_router_topk: 2
+  moe_router_topk_limited_devices: null
+  moe_router_num_groups: null
+  moe_router_group_topk: null
+  moe_router_pre_softmax: false
+  moe_router_topk_scaling_factor: null
+  moe_router_score_function: softmax
+  moe_router_dtype: null
+  moe_router_enable_expert_bias: false
+  moe_router_bias_update_rate: 1e-3
+  moe_grouped_gemm: false
+  moe_use_legacy_grouped_gemm: false
+  moe_aux_loss_coeff: 0
+  moe_z_loss_coeff: null
+  moe_input_jitter_eps: null
+  moe_token_dropping: false
+  moe_token_dispatcher_type: null
+  moe_enable_deepep: false
+  moe_per_layer_logging: null
+  moe_expert_capacity_factor: null
+  moe_pad_expert_input_to_capacity: null
+  moe_token_drop_policy: null
+  moe_layer_recompute: null
+  moe_permute_fusion: false
+  cp_comm_type: null
+  enable_cuda_graph: false
+  cuda_graph_use_single_mempool: false
+  cuda_graph_retain_backward_graph: false
+  cuda_graph_warmup_steps: 3
+  external_cuda_graph: false
+  cuda_graph_scope: full
+  clone_scatter_output_in_embedding: true
+  disable_parameter_transpose_cache: null
+  config_logger_dir: ''
+  flash_decode: false
+  use_te_rng_tracker: false
+  inference_rng_tracker: false
+  use_custom_fsdp: false
+  is_hybrid_model: false
+  D_AAA_LORA: 96
+  D_DECAY_LORA: 96
+  D_GATE_LORA: 320
+  D_MV_LORA: 64
+  fp8_recipe: tensorwise
+model_parallel:
+  tensor_model_parallel_size: 1
+  pipeline_model_parallel_size: 1
+  virtual_pipeline_model_parallel_size: null
+  sequence_parallel: false
+  context_parallel_size: 1
+  hierarchical_context_parallel_sizes: null
+  expert_model_parallel_size: 1
+  expert_tensor_parallel_size: null
+  pipeline_model_parallel_comm_backend: null
+  num_distributed_optimizer_instances: 1
+  encoder_pipeline_model_parallel_size: 0
+  encoder_tensor_model_parallel_size: 0
+  async_tensor_model_parallel_allreduce: false
+  perform_initialization: false
+  use_cpu_initialization: false
+  enable_gloo_process_groups: false
+  fp16: false
+  bf16: true
+  params_dtype: null
+  enable_autocast: false
+  autocast_dtype: null
+  deterministic_mode: false
+  num_microbatches_with_partial_activation_checkpoints: null
+  gradient_accumulation_fusion: true
+  tp_comm_overlap: false
+  tp_comm_bulk_wgrad: true
+  tp_comm_bulk_dgrad: true
+  tp_comm_overlap_ag: false
+  tp_comm_overlap_rs: false
+  tp_comm_overlap_rs_dgrad: false
+  cross_entropy_loss_fusion: false
+  cross_entropy_fusion_impl: native
+  tp_comm_overlap_disable_qkv: false
+  tp_comm_overlap_disable_fc1: false
+  tp_comm_bootstrap_backend: nccl
+  tp_comm_split_ag: true
+  tp_comm_atomic_ag: true
+  tp_comm_split_rs: true
+  tp_comm_atomic_rs: true
+  bias_swiglu_fusion: false
+  pipeline_dtype: null
+  variable_seq_lengths: false
+  overlap_p2p_comm: false
+  batch_p2p_comm: true
+  batch_p2p_sync: true
+  use_ring_exchange_p2p: false
+  deallocate_pipeline_outputs: false
+  defer_embedding_wgrad_compute: false
+  wgrad_deferral_limit: 0
+  pipeline_model_parallel_split_rank: null
+  overlap_p2p_comm_warmup_flush: false
+  microbatch_group_size_per_vp_stage: null
+  cpu_offloading: false
+  cpu_offloading_num_layers: 0
+  cpu_offloading_activations: true
+  cpu_offloading_weights: false
+  barrier_with_L1_time: true
+  moe_extended_tp: false
+  _cpu_offloading_context: null
+  finalize_model_grads_func: null
+  grad_scale_func: null
+  no_sync_func: null
+  grad_sync_func: null
+  param_sync_func: null
+  timers: null
+use_legacy_models: false
+spec: null
+micro_batch_size: 1
+global_batch_size: 2
+rampup_batch_size: null
+check_for_nan_in_loss_and_grad: true
+num_layers_per_virtual_pipeline_stage: null
+decrease_batch_size_if_needed: null
+use_torch_fsdp2: false
+check_for_large_grads: false
+ddp_num_buckets: null
+ddp_pad_buckets_for_high_nccl_busbw: false
+overlap_param_gather_with_optimizer_step: false
+moe_use_upcycling: false
+run_workload_inspector_server: false
+iterations_to_skip: []
+skipped_train_samples: 0
+record_memory_history: false
+train_sync_interval: null
+encoder_num_layers: null
+decoder_num_layers: null
+rotary_seq_len_interpolation_factor: null
+add_position_embedding: false
+make_vocab_size_divisible_by: 128
+group_query_attention: false
+vision_pretraining: false
+vision_pretraining_type: classify
+exit_signal_handler: false
+exit_duration_in_mins: null
+exit_interval: null
+rerun_mode: disabled
+error_injection_rate: 0
+error_injection_type: transient_error
+result_rejected_tracker_filename: null
+untie_embeddings_and_output_weights: true
+position_embedding_type: none
+rotary_percent: 0.5
+openai_gelu: false
+squared_relu: true
+swiglu: false
+onnx_safe: null
+bert_binary_head: true
+max_position_embeddings: 16384
+enable_ft_package: false
+transformer_impl: transformer_engine
+use_flash_attn: false
+seed: 1234
+data_parallel_random_init: false
+optimizer: adam
+lr: 0.00017
+lr_decay_style: WSD
+lr_decay_iters: 30
+lr_decay_samples: null
+lr_warmup_fraction: 0.01
+lr_warmup_iters: 0
+lr_warmup_samples: 0
+lr_warmup_init: 0.0
+lr_wsd_decay_iters: 2000
+lr_wsd_decay_style: cosine
+min_lr: 1.56e-05
+decoupled_lr: null
+weight_decay: 0.1
+start_weight_decay: null
+end_weight_decay: null
+weight_decay_incr_style: constant
+clip_grad: 1.0
+gradient_clipping: 1.0
+adam_beta1: 0.9
+adam_beta2: 0.995
+adam_eps: 1.0e-08
+sgd_momentum: 0.9
+override_opt_param_scheduler: false
+use_checkpoint_opt_param_scheduler: false
+save: /mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/single-continuous-fp8-tensorwise-ffn
+save_interval: 4
+no_save_optim: null
+no_save_rng: null
+pretrained_checkpoint: null
+finetune: false
+use_checkpoint_args: false
+exit_on_missing_checkpoint: false
+non_persistent_ckpt_type: null
+non_persistent_local_ckpt_dir: null
+loss_scale: null
+initial_loss_scale: 4294967296
+min_loss_scale: 1.0
+loss_scale_window: 10
+hysteresis: 2
+accumulate_allreduce_grads_in_fp32: false
+fp16_lm_cross_entropy: false
+distributed_backend: nccl
+distributed_timeout_minutes: 100
+overlap_grad_reduce: false
+delay_grad_reduce: true
+overlap_param_gather: false
+delay_param_gather: false
+scatter_gather_tensors_in_pipeline: true
+local_rank: null
+lazy_mpu_init: null
+empty_unused_memory_level: 0
+standalone_embedding_stage: false
+use_distributed_optimizer: true
+nccl_communicator_config_path: null
+use_tp_pp_dp_mapping: false
+ddp_bucket_size: null
+ddp_average_in_collective: false
+check_weight_hash_across_dp_replicas_interval: 128
+te_rng_tracker: false
+train_iters: 4
+eval_iters: 2
+eval_interval: 1
+skip_train: false
+auto_train_iters: false
+adlr_autoresume: false
+adlr_autoresume_interval: 1000
+manual_gc: false
+manual_gc_interval: 0
+manual_gc_eval: true
+tp_comm_overlap_cfg: null
+data_path:
+- /mnt/data/Datasets/minipile/minipile_text_document
+split: 99,1,0
+train_data_path: null
+valid_data_path: null
+test_data_path: null
+data_cache_path: /mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/cache
+num_dataset_builder_threads: 2
+mock_data: false
+vocab_file: null
+merge_file: null
+vocab_extra_ids: 0
+seq_length: 128
+encoder_seq_length: null
+decoder_seq_length: null
+retriever_seq_length: 256
+sample_rate: 1.0
+mask_prob: 0.15
+short_seq_prob: 0.1
+num_workers: 2
+mmap_bin_files: true
+reset_position_ids: false
+reset_attention_mask: false
+eod_mask_loss: false
+create_attention_mask_in_dataloader: false
+train_samples: null
+dataloader_type: null
+vocab_size: null
+tokenizer_type: HuggingFaceTokenizer
+trust_remote_code: true
+tokenizer_model: /hikscale/models/XiaoKe/Xiaoke-5-13B-2608
+retro_project_dir: null
+retro_cyclic_train_iters: null
+profile: false
+profile_ranks:
+- 0
+profile_step_end: 2
+profile_step_start: 1
+logging_level: null
+log_params_norm: false
+log_num_zeros_in_grad: false
+log_throughput: true
+log_progress: true
+timing_log_level: 0
+timing_log_option: minmax
+tensorboard_dir: null
+tensorboard_log_interval: 1
+tensorboard_queue_size: 1000
+log_timers_to_tensorboard: true
+log_batch_size_to_tensorboard: true
+log_learning_rate_to_tensorboard: true
+log_validation_ppl_to_tensorboard: true
+log_memory_to_tensorboard: false
+log_world_size_to_tensorboard: true
+log_loss_scale_to_tensorboard: true
+wandb_project: ''
+wandb_exp_name: ''
+wandb_save_dir: null
+enable_one_logger: false
+one_logger_project: e2e-tracking
+one_logger_entity: hwinf_dcm
+one_logger_run_name: null
+log_interval: 1
+log_straggler: false
+straggler_minmax_count: 1
+async_save: null
+use_dist_ckpt: false
+dist_ckpt_format: torch
+ckpt_format: torch
+ckpt_fully_parallel_save: true
+ckpt_assume_constant_structure: null
+non_persistent_save_interval: null
+ckpt_convert_format: null
+load: null
+replication: false
+debug_dump: false
+load_pretrained_rwkv: /mnt/data/Models/RWKV-7/rwkv7-g1j-2.9b-20260831-ctx16384.pth
+load_pretrained_rwkv_source_type: rwkv-lm
+check_against_pretrained: false
+rwkv_l2wrap_coefficient: 0.0001
+rwkv_key_fusion: true
+fixed_eval_samples: true
+rwkv_fp8_scope: ffn

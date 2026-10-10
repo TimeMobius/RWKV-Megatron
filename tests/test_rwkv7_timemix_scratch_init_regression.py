@@ -18,6 +18,7 @@ from unittest.mock import patch
 
 import torch
 
+from rwkv_megatron.precision import keep_time_mix_bf16, validate_rwkv_precision
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SOURCE_PATH = REPO_ROOT / "rwkv_megatron" / "rwkv7_layer_specs.py"
@@ -101,7 +102,8 @@ def _load_rwkv7_timemix_class(tp_size: int, tp_rank: int, layer_offset: int):
         "get_args": lambda: SimpleNamespace(transformer_impl="local"),
         "HAVE_TE": False,
         "te": SimpleNamespace(fp8_autocast=lambda **kwargs: None),
-        "get_fp8_recipe": lambda: None,
+        "keep_time_mix_bf16": keep_time_mix_bf16,
+        "validate_rwkv_precision": validate_rwkv_precision,
         "get_tensor_model_parallel_world_size": lambda: tp_size,
         "get_tensor_model_parallel_rank": lambda: tp_rank,
         "get_pipeline_model_parallel_rank": lambda: 0,

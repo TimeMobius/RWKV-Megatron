@@ -27,6 +27,8 @@ def add_rwkv_arguments(parser):
                         help="Fuse FP32 key calculation; overrides RWKV7_KEY_FUSION when set")
     parser.add_argument("--fixed-eval-samples", action=argparse.BooleanOptionalAction, default=False,
                         help="Restart validation at the same first samples on every evaluation")
+    parser.add_argument("--rwkv-fp8-scope", choices=("ffn", "all"), default="ffn",
+                        help="FP8 FFN only (default), or all six large linears (experimental)")
     for name in ("D_AAA_LORA", "D_DECAY_LORA", "D_GATE_LORA", "D_MV_LORA"):
         parser.add_argument(f"--{name}", type=int)
 
@@ -58,12 +60,16 @@ def add_rwkv_arguments(parser):
     )
     if not language.get("fp8"):
         settings["fp8"] = None
+    elif language["fp8"] not in ("hybrid", "e4m3"):
+        raise ValueError("language_model.fp8 must be 'hybrid', 'e4m3', or false")
     if 'rwkv_l2wrap_coefficient' in settings:
         settings['rwkv_l2wrap_coefficient'] = nonnegative_float(settings['rwkv_l2wrap_coefficient'])
     if settings.get('rwkv_key_fusion') is not None and not isinstance(settings['rwkv_key_fusion'], bool):
         raise ValueError('rwkv_key_fusion must be a YAML boolean (true/false)')
     if not isinstance(settings.get('fixed_eval_samples', False), bool):
         raise ValueError('fixed_eval_samples must be a YAML boolean (true/false)')
+    if settings.get('rwkv_fp8_scope', 'ffn') not in ('ffn', 'all'):
+        raise ValueError("rwkv_fp8_scope must be 'ffn' or 'all'")
     # Position encoding is selected by position_embedding_type upstream.
     settings["add_position_embedding"] = True
     parser.set_defaults(**settings)

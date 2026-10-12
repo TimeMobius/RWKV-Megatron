@@ -18,6 +18,8 @@ from unittest.mock import patch
 
 import torch
 
+from rwkv_megatron.precision import validate_rwkv_precision
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SOURCE_PATH = REPO_ROOT / "rwkv_megatron" / "rwkv7_layer_specs.py"
@@ -77,6 +79,7 @@ def _load_rwkv7_channelmix_class():
         "TERowParallelLinear": _DummyRowParallelLinear,
         "get_args": lambda: SimpleNamespace(transformer_impl="local"),
         "HAVE_TE": False,
+        "validate_rwkv_precision": validate_rwkv_precision,
     }
     exec(code, namespace)
     return namespace["RWKV7ChannelMix"]

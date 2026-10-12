@@ -26,3 +26,44 @@ launcher从已用过的单卡脚本复制，自动激活当前环境、配置CUD
 最终配置已通过完整原始3B的4步训练和5次eval，零NaN、零跳步，未生成检查点。配置解析、实际生效参数与短跑验证结果保存在 `training-smoke/audit/3b-reference-config-validation.json` 和 `3b-reference-training-validation.json`；训练日志为 `training-smoke/logs/3b-reference-final-20261010.log`。这份模板是单卡短跑参考，修改为TP/SP/PP或长训练后仍需对应验证。
 
 配置和launcher中的绝对路径对应当前本地环境；换机器或工作区时需修改环境、仓库、模型、数据及tokenizer路径。
+
+## 检查点保存与断点续训
+
+以下字段均写在 YAML 顶层。`ckpt_format` 决定保存格式，`load` 指定续训读取的目录；旧的 `use_dist_ckpt`、`dist_ckpt_format` 不再控制格式，可以删除。框架内部仍会从 `ckpt_format` 推导 `use_dist_ckpt`，不需要手工配置。
+
+首次训练并保存：
+
+```yaml
+ckpt_format: torch
+save: /你的路径/checkpoints/rwkv7-3b
+save_interval: 1000
+load: null
+no_save_optim: false
+no_save_rng: false
+```
+
+断点续训：
+
+```yaml
+ckpt_format: torch
+load: /你的路径/checkpoints/rwkv7-3b
+save: /你的路径/checkpoints/rwkv7-3b
+save_interval: 1000
+finetune: false
+no_load_optim: false
+no_load_rng: false
+no_save_optim: false
+no_save_rng: false
+exit_on_missing_checkpoint: true
+```
+
+`load` 指向包含 `latest_checkpointed_iteration.txt` 的训练检查点根目录，程序读取其中记录的训练步。`save` 可以与 `load` 相同，也可以换成新目录。保留优化器和随机状态才能完整续训；同时保持模型、数据、tokenizer、并行配置及训练调度一致。`load_pretrained_rwkv` 只加载原版 `.pth` 权重进行初始化，不包含训练步、优化器和随机状态；设置 `load` 后，当前 RWKV7 入口会跳过这条初始化路径。默认模板的 `save: null` 不生成可续训检查点。
+
+| `ckpt_format` | 用途 | 当前 RWKV7 验证情况 |
+| --- | --- | --- |
+| `torch` | 传统格式，也支持多卡；模型文件位于 `iter_*/mp_rank_*/model_optim_rng.pt`，分布式优化器可能另存状态文件 | 已验证单卡完整保存和续训，推荐继续使用；当前 converter 也按此格式读取 |
+| `torch_dist` | Megatron 分布式格式，可以处理分片检查点 | 上游支持，但当前 RWKV7 的完整续训、改变并行配置和 converter 导出仍需对应验证 |
+
+加载时可设置 `auto_detect_ckpt_format: true` 自动识别输入检查点格式，后续保存仍由 `ckpt_format` 决定。没有常规的独立 `load_ckpt_format` 配置。自动识别不保证不同格式、不同并行配置之间能完整恢复训练。`torch_dcp` 和 `fsdp_dtensor` 是特定 FSDP 路径使用的格式，不适用于当前参考配置。
+
+Muon 的测试配置见 [config-rwkv7-3b-muon.yaml](config-rwkv7-3b-muon.yaml)，使用方式、当前保存兼容开关和实际续训验证见 [MUON.md](../training-smoke/audit/MUON.md)。切换优化器不能直接沿用另一种优化器的检查点状态。

@@ -1,0 +1,294 @@
+{
+  "validated_exact": true,
+  "files": [
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/progress.txt",
+      "bytes": 510
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/latest_checkpointed_iteration.txt",
+      "bytes": 1
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000002/run_config.yaml",
+      "bytes": 11390
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000002/mp_rank_00_001/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000002/mp_rank_00_001/model_optim_rng.pt",
+      "bytes": 808634774
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000002/mp_rank_02_001/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000002/mp_rank_02_001/model_optim_rng.pt",
+      "bytes": 808634774
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000002/mp_rank_03_001/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000002/mp_rank_03_001/model_optim_rng.pt",
+      "bytes": 808634774
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000002/mp_rank_03_000/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000002/mp_rank_03_000/model_optim_rng.pt",
+      "bytes": 808634838
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000002/mp_rank_02_000/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000002/mp_rank_02_000/model_optim_rng.pt",
+      "bytes": 808634838
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000002/mp_rank_01_001/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000002/mp_rank_01_001/model_optim_rng.pt",
+      "bytes": 808634774
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000002/mp_rank_01_000/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000002/mp_rank_01_000/model_optim_rng.pt",
+      "bytes": 808634838
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000002/mp_rank_00_000/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000002/mp_rank_00_000/model_optim_rng.pt",
+      "bytes": 808634838
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000004/run_config.yaml",
+      "bytes": 11524
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000004/mp_rank_03_000/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000004/mp_rank_03_000/model_optim_rng.pt",
+      "bytes": 808635030
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000004/mp_rank_01_000/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000004/mp_rank_01_000/model_optim_rng.pt",
+      "bytes": 808635030
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000004/mp_rank_00_001/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000004/mp_rank_00_001/model_optim_rng.pt",
+      "bytes": 808635030
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000004/mp_rank_02_000/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000004/mp_rank_02_000/model_optim_rng.pt",
+      "bytes": 808635030
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000004/mp_rank_00_000/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000004/mp_rank_00_000/model_optim_rng.pt",
+      "bytes": 808635030
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000004/mp_rank_03_001/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000004/mp_rank_03_001/model_optim_rng.pt",
+      "bytes": 808635030
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000004/mp_rank_02_001/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000004/mp_rank_02_001/model_optim_rng.pt",
+      "bytes": 808635030
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000004/mp_rank_01_001/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-resume/iter_0000004/mp_rank_01_001/model_optim_rng.pt",
+      "bytes": 808635030
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/progress.txt",
+      "bytes": 458
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/latest_checkpointed_iteration.txt",
+      "bytes": 1
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000002/run_config.yaml",
+      "bytes": 11397
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000002/mp_rank_03_001/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000002/mp_rank_03_001/model_optim_rng.pt",
+      "bytes": 808634774
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000002/mp_rank_01_000/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000002/mp_rank_01_000/model_optim_rng.pt",
+      "bytes": 808634838
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000002/mp_rank_03_000/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000002/mp_rank_03_000/model_optim_rng.pt",
+      "bytes": 808634838
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000002/mp_rank_01_001/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000002/mp_rank_01_001/model_optim_rng.pt",
+      "bytes": 808634774
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000002/mp_rank_02_001/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000002/mp_rank_02_001/model_optim_rng.pt",
+      "bytes": 808634774
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000002/mp_rank_00_001/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000002/mp_rank_00_001/model_optim_rng.pt",
+      "bytes": 808634774
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000002/mp_rank_02_000/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000002/mp_rank_02_000/model_optim_rng.pt",
+      "bytes": 808634838
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000002/mp_rank_00_000/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000002/mp_rank_00_000/model_optim_rng.pt",
+      "bytes": 808634838
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000004/run_config.yaml",
+      "bytes": 11397
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000004/mp_rank_01_001/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000004/mp_rank_01_001/model_optim_rng.pt",
+      "bytes": 808634774
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000004/mp_rank_01_000/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000004/mp_rank_01_000/model_optim_rng.pt",
+      "bytes": 808634838
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000004/mp_rank_03_001/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000004/mp_rank_03_001/model_optim_rng.pt",
+      "bytes": 808634774
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000004/mp_rank_00_000/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000004/mp_rank_00_000/model_optim_rng.pt",
+      "bytes": 808634838
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000004/mp_rank_00_001/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000004/mp_rank_00_001/model_optim_rng.pt",
+      "bytes": 808634774
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000004/mp_rank_02_001/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000004/mp_rank_02_001/model_optim_rng.pt",
+      "bytes": 808634774
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000004/mp_rank_03_000/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000004/mp_rank_03_000/model_optim_rng.pt",
+      "bytes": 808634838
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000004/mp_rank_02_000/distrib_optim.pt",
+      "bytes": 4850874615
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/multigpu-20261012-tp4-sp-pp2-continuous/iter_0000004/mp_rank_02_000/model_optim_rng.pt",
+      "bytes": 808634838
+    }
+  ],
+  "bytes": 181104349942
+}

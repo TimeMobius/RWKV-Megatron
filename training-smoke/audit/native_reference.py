@@ -12,7 +12,7 @@ import torch.nn.functional as F
 
 
 class NativeReference(torch.nn.Module):
-    def __init__(self,state,dtype,core='recurrent',aligned=False,apex_norms=False,shared_pointops=False,te_final=False,carrier_chain=False,te_norms=False,split_value_views=True):
+    def __init__(self,state,dtype,core='recurrent',aligned=False,apex_norms=False,shared_pointops=False,te_final=False,carrier_chain=False,te_norms=False,split_value_views=True,production_key=False):
         super().__init__()
         self.weights=torch.nn.ParameterDict({key.replace('.','__'):torch.nn.Parameter(value.cuda().to(dtype).clone())
                                              for key,value in state.items()})
@@ -23,6 +23,7 @@ class NativeReference(torch.nn.Module):
         self.aligned=aligned
         self.apex_norms=apex_norms
         self.shared_pointops=shared_pointops
+        self.production_key=production_key
         self.te_final=te_final
         self.carrier_chain=carrier_chain
         self.te_norms=te_norms
@@ -122,17 +123,24 @@ class NativeReference(torch.nn.Module):
                 raw=raw_key
                 k=fused_k_rwkv7(raw.reshape(1,-1,raw.shape[-1]),a.reshape(1,-1,a.shape[-1]),
                                self.w(att+'k_a').reshape(-1)).reshape_as(raw)
+            core_a,core_b=-kk,kk*a.reshape_as(kk)
+            if self.production_key:
+                # Shared primitive ONLY for wiring/v_first diagnostics. Official
+                # and independent FP32 references never enable this option.
+                from rwkv_megatron.key_preparation import prepare_key
+                k,core_a,core_b=prepare_key(raw_key,a,self.w(att+'k_k').reshape(-1),
+                                          self.w(att+'k_a').reshape(-1),self.head_size,fusion=True)
             reshape=lambda t:t.reshape(*t.shape[:2],self.heads,self.head_size).contiguous()
             r,w,k,v=map(reshape,(r,w,k,v))
-            a=reshape(a)
-            if self.aligned:r,w,k,v,a,kk=[t.transpose(0,1).contiguous() for t in (r,w,k,v,a,kk)]
-            for name,value in zip(('r','k','v','decay','a','b'),(r,k,v,-w,-kk,kk*a)):
+            core_a,core_b=reshape(core_a),reshape(core_b)
+            if self.aligned:r,w,k,v,core_a,core_b=[t.transpose(0,1).contiguous() for t in (r,w,k,v,core_a,core_b)]
+            for name,value in zip(('r','k','v','decay','a','b'),(r,k,v,-w,core_a,core_b)):
                 shaped=value.flatten(2).transpose(0,1) if self.aligned else value.flatten(2)
                 self.mark(f'{layer}.core-{name}',shaped)
             if self.core=='fla':
                 from fla.ops.rwkv7 import chunk_rwkv7
-                o=chunk_rwkv7(r,w,k,v,-kk,kk*a,scale=1.,safe_gate=True,chunk_size=64)[0]
-            else:o=self.recurrent(r,w,k,v,-kk,kk*a)
+                o=chunk_rwkv7(r,w,k,v,core_a,core_b,scale=1.,safe_gate=True,chunk_size=64)[0]
+            else:o=self.recurrent(r,w,k,v,core_a,core_b)
             if self.aligned:o=o.transpose(0,1).contiguous()
             o=self.mark(f'{layer}.wkv',o.flatten(2))
             o=F.group_norm(o.reshape(-1,o.shape[-1]),self.heads,self.w(att+'ln_x.weight'),

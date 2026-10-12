@@ -1,0 +1,164 @@
+# RWKV7 3B Muon 单卡测试配置，2026-10-10。
+# 学习率沿用 Adam 参考配置仅用于短跑验证，不代表 Muon 最优学习率。
+# 基于 training-smoke/config-3b-continuous-fixed-eval.yaml 整理。
+# 启动：bash training-smoke/launch-3b-reference.sh 3b-muon configs/config-rwkv7-3b-muon.yaml
+# 使用 --rwkv-config；不要使用旧的 --yaml-cfg。
+# 默认单卡、seq128、4步短跑，便于确认环境与训练逻辑。
+# 正式训练时另存副本，再修改 seq_length、batch、训练步数、学习率和 save。
+
+language_model:
+  # 必须与下面加载的 3B 权重匹配，不能沿用 14B 的尺寸。
+  num_layers: 32
+  hidden_size: 2560
+  num_attention_heads: 40
+  kv_channels: 64
+  ffn_hidden_size: 10240
+  D_AAA_LORA: 96
+  D_DECAY_LORA: 96
+  D_GATE_LORA: 320
+  D_MV_LORA: 64
+
+  hidden_dropout: 0.0
+  attention_dropout: 0.0
+  add_bias_linear: false
+  add_qkv_bias: false
+  activation_func: squaredrelu
+  normalization: LayerNorm
+  layernorm_epsilon: 1.0e-05
+  persist_layer_norm: false
+  bias_dropout_fusion: true
+  apply_rope_fusion: false
+  calculate_per_token_loss: false
+
+  # 整层重计算；与已经验证的训练方式一致。
+  recompute_granularity: full
+  recompute_method: uniform
+  recompute_num_layers: 1
+
+  # FP8 默认关闭。实验时改成 hybrid，同时将顶层 transformer_impl 改为
+  # transformer_engine。tensorwise 是目前测试中误差较小的 FP8 配置。
+  fp8: false
+  fp8_recipe: tensorwise
+  fp8_wgrad: true  # 当前 TE 的 false 不保证 BF16 权重梯度计算。
+  first_last_layers_bf16: false
+
+model_parallel:
+  tensor_model_parallel_size: 1
+  pipeline_model_parallel_size: 1
+  context_parallel_size: 1
+  sequence_parallel: false  # TP1 时新版也会自动关闭 SP。
+  bf16: true
+  fp16: false
+  perform_initialization: false  # 下面会完整加载原始模型权重。
+  gradient_accumulation_fusion: true
+  tp_comm_overlap: false
+  overlap_p2p_comm: false
+  cross_entropy_loss_fusion: false
+  cross_entropy_fusion_impl: native
+  # 不配置 deallocate_pipeline_outputs、batch_p2p_comm、pipeline_dtype：
+  # 当前 Megatron 训练入口会推导这些值，不读取旧 YAML 的同名开关。
+
+# local 控制大矩阵乘法的实现；LayerNorm 仍统一优先使用 TE，TE 不可用或版本不足时回退 Apex。
+transformer_impl: local
+rwkv_fp8_scope: ffn  # 仅在开启 FP8 后生效；all 仅供进一步精度实验。
+rwkv_key_fusion: true  # 合并 FP32 key 计算；不可用时自动回退 Torch FP32。
+rwkv_l2wrap_coefficient: 0.0001  # 官方梯度正则；设为 0 可关闭。
+fixed_eval_samples: true  # 每次 eval 以及断点恢复均使用验证集开头同一组。
+
+untie_embeddings_and_output_weights: true
+position_embedding_type: none
+max_position_embeddings: 16384
+load_pretrained_rwkv: /mnt/data/Models/RWKV-7/rwkv7-g1j-2.9b-20260831-ctx16384.pth
+load_pretrained_rwkv_source_type: rwkv-lm
+check_against_pretrained: false
+
+# MiniPile 使用 .bin/.idx 的共同前缀，而不是目录名或具体文件名。
+data_path:
+  - /mnt/data/Datasets/minipile/minipile_text_document
+split: '99,1,0'
+data_cache_path: /mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/cache
+tokenizer_type: HuggingFaceTokenizer
+tokenizer_model: /hikscale/models/XiaoKe/Xiaoke-5-13B-2608
+trust_remote_code: true
+# 词表条目为 65534；模型行数按最高 ID + 1 计算并补齐为 65536。
+# 不手填 vocab_size: 65534，也不采用 HF 重复特殊 token 导致的 65539。
+make_vocab_size_divisible_by: 128
+seq_length: 128
+dataloader_type: single
+num_workers: 2
+num_dataset_builder_threads: 2
+mmap_bin_files: true
+create_attention_mask_in_dataloader: false
+reset_position_ids: false
+reset_attention_mask: false
+eod_mask_loss: false
+seed: 1234
+
+micro_batch_size: 1
+global_batch_size: 2
+eval_micro_batch_size: 1
+eval_global_batch_size: 2
+train_iters: 4
+auto_train_iters: false
+eval_iters: 2  # 每次共 2 × 2 = 4 个验证样本。
+eval_interval: 1
+
+optimizer: muon
+use_distributed_optimizer: true
+use_layer_wise_param_layout: false  # 当前默认新布局的 torch 保存接口缺失，使用兼容模式。
+muon_momentum: 0.95
+muon_nesterov: true
+muon_split_qkv: false  # RWKV7 没有合并的 QKV 投影。
+muon_scale_mode: spectral
+muon_num_ns_steps: 5
+muon_coefficient_type: quintic
+muon_fp32_matmul_prec: medium
+muon_tp_mode: duplicated
+muon_use_syrk: false  # emerging-optimizers 0.3.0 不支持 TP 路径的 SYRK。
+muon_extra_scale_factor: 1.0
+muon_scalar_optimizer: adam
+adam_beta1: 0.9
+adam_beta2: 0.995
+adam_eps: 1.0e-08
+weight_decay: 0.1
+clip_grad: 1.0
+accumulate_allreduce_grads_in_fp32: true
+check_for_nan_in_loss_and_grad: true
+rerun_mode: disabled
+overlap_grad_reduce: false
+overlap_param_gather: false
+# 短跑使用固定学习率，不复制原测试的长 WSD 调度；后续正式训练需自行设计调度。
+lr: 1.56e-05
+min_lr: 1.56e-05
+lr_decay_style: constant
+lr_decay_iters: 4
+lr_warmup_iters: 0
+
+# 默认不保存测试检查点，避免重复短跑产生几十 GiB 文件。
+# 正式训练时将 save 改为自己的新输出目录，设置保存周期；
+# 恢复时设置 load 为该目录，保留优化器、随机状态及原来的数据/模型配置。
+save: null
+save_interval: 1000
+load: null
+ckpt_format: torch
+no_save_optim: false
+no_save_rng: false
+no_load_optim: false
+no_load_rng: false
+use_checkpoint_args: false
+async_save: false
+
+distributed_backend: nccl
+distributed_timeout_minutes: 100
+manual_gc_eval: true
+logging_level: 20  # INFO；新版这里要求数字，不能写字符串 INFO。
+log_interval: 1
+log_throughput: true
+log_progress: true
+timing_log_level: 0
+timing_log_option: minmax
+tensorboard_dir: null
+wandb_project: ''
+wandb_exp_name: ''
+wandb_save_dir: null
+enable_one_logger: false

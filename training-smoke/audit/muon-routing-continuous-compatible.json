@@ -1,0 +1,7702 @@
+{
+  "parameters": [
+    {
+      "name": "module.module.decoder.layers.0.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.0.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.0.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.0.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.0.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.0.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.0.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.0.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.0.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.0.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.0.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.0.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.0.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.0.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.1.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.1.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.1.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.1.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.1.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.1.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.1.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.1.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.1.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.1.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.1.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.1.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.1.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.1.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.2.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.2.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.2.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.2.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.2.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.2.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.2.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.2.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.2.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.2.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.2.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.2.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.2.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.2.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.3.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.3.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.3.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.3.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.3.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.3.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.3.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.3.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.3.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.3.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.3.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.3.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.3.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.3.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.4.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.4.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.4.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.4.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.4.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.4.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.4.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.4.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.4.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.4.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.4.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.4.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.4.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.4.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.5.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.5.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.5.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.5.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.5.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.5.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.5.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.5.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.5.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.5.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.5.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.5.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.5.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.5.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.6.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.6.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.6.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.6.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.6.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.6.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.6.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.6.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.6.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.6.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.6.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.6.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.6.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.6.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.7.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.7.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.7.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.7.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.7.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.7.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.7.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.7.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.7.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.7.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.7.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.7.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.7.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.7.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.8.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.8.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.8.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.8.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.8.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.8.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.8.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.8.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.8.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.8.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.8.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.8.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.8.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.8.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.9.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.9.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.9.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.9.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.9.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.9.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.9.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.9.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.9.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.9.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.9.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.9.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.9.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.9.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.10.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.10.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.10.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.10.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.10.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.10.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.10.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.10.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.10.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.10.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.10.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.10.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.10.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.10.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.11.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.11.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.11.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.11.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.11.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.11.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.11.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.11.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.11.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.11.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.11.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.11.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.11.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.11.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.12.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.12.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.12.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.12.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.12.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.12.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.12.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.12.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.12.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.12.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.12.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.12.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.12.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.12.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.13.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.13.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.13.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.13.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.13.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.13.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.13.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.13.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.13.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.13.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.13.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.13.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.13.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.13.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.14.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.14.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.14.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.14.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.14.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.14.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.14.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.14.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.14.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.14.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.14.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.14.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.14.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.14.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.15.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.15.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.15.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.15.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.15.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.15.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.15.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.15.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.15.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.15.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.15.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.15.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.15.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.15.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.16.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.16.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.16.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.16.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.16.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.16.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.16.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.16.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.16.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.16.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.16.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.16.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.16.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.16.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.17.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.17.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.17.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.17.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.17.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.17.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.17.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.17.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.17.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.17.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.17.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.17.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.17.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.17.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.18.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.18.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.18.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.18.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.18.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.18.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.18.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.18.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.18.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.18.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.18.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.18.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.18.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.18.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.19.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.19.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.19.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.19.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.19.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.19.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.19.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.19.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.19.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.19.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.19.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.19.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.19.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.19.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.20.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.20.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.20.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.20.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.20.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.20.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.20.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.20.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.20.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.20.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.20.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.20.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.20.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.20.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.21.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.21.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.21.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.21.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.21.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.21.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.21.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.21.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.21.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.21.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.21.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.21.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.21.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.21.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.22.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.22.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.22.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.22.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.22.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.22.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.22.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.22.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.22.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.22.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.22.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.22.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.22.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.22.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.23.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.23.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.23.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.23.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.23.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.23.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.23.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.23.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.23.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.23.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.23.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.23.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.23.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.23.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.24.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.24.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.24.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.24.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.24.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.24.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.24.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.24.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.24.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.24.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.24.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.24.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.24.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.24.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.25.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.25.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.25.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.25.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.25.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.25.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.25.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.25.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.25.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.25.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.25.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.25.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.25.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.25.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.26.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.26.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.26.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.26.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.26.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.26.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.26.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.26.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.26.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.26.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.26.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.26.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.26.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.26.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.27.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.27.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.27.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.27.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.27.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.27.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.27.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.27.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.27.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.27.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.27.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.27.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.27.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.27.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.28.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.28.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.28.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.28.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.28.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.28.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.28.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.28.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.28.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.28.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.28.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.28.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.28.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.28.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.29.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.29.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.29.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.29.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.29.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.29.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.29.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.29.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.29.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.29.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.29.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.29.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.29.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.29.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.30.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.30.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.30.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.30.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.30.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.30.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.30.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.30.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.30.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.30.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.30.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.30.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.30.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.30.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.31.self_attention.bottleneck_learn.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.31.self_attention.bottleneck_learn.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.31.self_attention.bottleneck_gate.weight_down",
+      "shape": [
+        2560,
+        320
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.31.self_attention.bottleneck_gate.weight_up",
+      "shape": [
+        320,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 819200
+    },
+    {
+      "name": "module.module.decoder.layers.31.self_attention.bottleneck_decay.weight_down",
+      "shape": [
+        2560,
+        96
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.31.self_attention.bottleneck_decay.weight_up",
+      "shape": [
+        96,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 245760
+    },
+    {
+      "name": "module.module.decoder.layers.31.self_attention.bottleneck_v.weight_down",
+      "shape": [
+        2560,
+        64
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.31.self_attention.bottleneck_v.weight_up",
+      "shape": [
+        64,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 163840
+    },
+    {
+      "name": "module.module.decoder.layers.31.self_attention.linear_receptance.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.31.self_attention.linear_key.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.31.self_attention.linear_value.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.31.self_attention.linear_proj.weight",
+      "shape": [
+        2560,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 6553600
+    },
+    {
+      "name": "module.module.decoder.layers.31.mlp.linear_up.weight",
+      "shape": [
+        10240,
+        2560
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.decoder.layers.31.mlp.linear_down.weight",
+      "shape": [
+        2560,
+        10240
+      ],
+      "optimizer": "muon",
+      "elements": 26214400
+    },
+    {
+      "name": "module.module.embedding.word_embeddings.weight",
+      "shape": [
+        65536,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 167772160
+    },
+    {
+      "name": "module.module.decoder.layers.0.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.1.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.2.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.3.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.4.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.5.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.6.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.7.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.8.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.9.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.10.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.11.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.12.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.13.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.14.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.15.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.16.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.17.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.18.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.19.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.20.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.21.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.22.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.23.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.24.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.25.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.26.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.27.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.28.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.29.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.30.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.decoder.layers.31.self_attention.mix_coeff_input",
+      "shape": [
+        6,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 15360
+    },
+    {
+      "name": "module.module.output_layer.weight",
+      "shape": [
+        65536,
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 167772160
+    },
+    {
+      "name": "module.module.decoder.layers.0.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.0.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.0.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.0.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.0.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.0.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.0.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.0.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.0.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.0.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.0.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.0.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.0.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.1.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.1.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.1.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.1.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.1.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.1.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.1.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.1.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.1.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.1.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.1.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.1.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.1.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.2.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.2.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.2.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.2.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.2.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.2.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.2.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.2.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.2.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.2.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.2.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.2.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.2.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.3.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.3.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.3.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.3.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.3.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.3.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.3.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.3.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.3.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.3.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.3.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.3.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.3.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.4.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.4.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.4.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.4.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.4.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.4.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.4.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.4.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.4.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.4.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.4.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.4.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.4.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.5.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.5.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.5.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.5.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.5.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.5.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.5.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.5.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.5.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.5.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.5.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.5.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.5.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.6.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.6.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.6.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.6.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.6.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.6.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.6.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.6.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.6.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.6.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.6.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.6.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.6.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.7.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.7.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.7.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.7.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.7.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.7.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.7.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.7.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.7.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.7.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.7.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.7.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.7.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.8.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.8.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.8.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.8.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.8.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.8.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.8.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.8.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.8.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.8.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.8.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.8.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.8.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.9.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.9.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.9.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.9.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.9.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.9.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.9.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.9.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.9.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.9.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.9.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.9.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.9.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.10.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.10.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.10.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.10.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.10.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.10.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.10.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.10.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.10.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.10.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.10.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.10.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.10.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.11.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.11.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.11.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.11.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.11.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.11.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.11.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.11.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.11.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.11.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.11.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.11.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.11.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.12.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.12.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.12.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.12.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.12.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.12.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.12.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.12.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.12.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.12.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.12.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.12.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.12.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.13.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.13.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.13.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.13.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.13.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.13.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.13.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.13.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.13.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.13.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.13.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.13.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.13.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.14.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.14.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.14.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.14.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.14.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.14.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.14.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.14.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.14.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.14.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.14.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.14.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.14.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.15.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.15.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.15.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.15.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.15.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.15.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.15.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.15.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.15.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.15.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.15.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.15.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.15.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.16.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.16.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.16.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.16.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.16.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.16.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.16.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.16.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.16.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.16.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.16.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.16.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.16.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.17.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.17.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.17.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.17.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.17.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.17.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.17.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.17.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.17.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.17.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.17.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.17.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.17.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.18.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.18.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.18.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.18.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.18.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.18.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.18.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.18.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.18.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.18.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.18.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.18.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.18.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.19.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.19.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.19.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.19.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.19.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.19.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.19.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.19.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.19.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.19.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.19.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.19.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.19.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.20.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.20.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.20.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.20.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.20.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.20.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.20.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.20.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.20.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.20.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.20.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.20.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.20.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.21.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.21.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.21.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.21.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.21.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.21.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.21.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.21.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.21.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.21.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.21.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.21.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.21.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.22.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.22.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.22.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.22.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.22.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.22.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.22.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.22.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.22.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.22.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.22.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.22.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.22.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.23.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.23.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.23.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.23.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.23.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.23.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.23.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.23.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.23.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.23.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.23.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.23.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.23.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.24.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.24.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.24.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.24.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.24.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.24.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.24.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.24.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.24.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.24.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.24.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.24.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.24.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.25.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.25.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.25.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.25.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.25.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.25.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.25.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.25.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.25.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.25.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.25.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.25.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.25.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.26.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.26.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.26.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.26.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.26.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.26.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.26.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.26.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.26.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.26.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.26.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.26.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.26.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.27.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.27.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.27.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.27.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.27.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.27.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.27.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.27.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.27.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.27.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.27.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.27.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.27.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.28.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.28.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.28.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.28.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.28.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.28.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.28.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.28.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.28.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.28.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.28.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.28.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.28.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.29.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.29.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.29.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.29.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.29.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.29.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.29.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.29.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.29.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.29.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.29.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.29.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.29.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.30.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.30.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.30.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.30.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.30.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.30.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.30.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.30.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.30.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.30.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.30.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.30.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.30.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.31.input_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.31.input_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.31.self_attention.rho",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.31.self_attention.beta",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.31.self_attention.alpha",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.31.self_attention.bottleneck_learn.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.31.self_attention.bottleneck_decay.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.31.self_attention.bottleneck_v.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.31.self_attention.group_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.31.self_attention.group_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.31.pre_mlp_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.31.pre_mlp_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.layers.31.mlp.mix_coeffs",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.final_layernorm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.decoder.final_layernorm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.pre_norm.weight",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    },
+    {
+      "name": "module.module.pre_norm.bias",
+      "shape": [
+        2560
+      ],
+      "optimizer": "adam",
+      "elements": 2560
+    }
+  ]
+}

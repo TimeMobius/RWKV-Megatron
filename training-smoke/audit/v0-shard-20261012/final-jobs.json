@@ -1,0 +1,38 @@
+[
+  {
+    "name": "v0-full-before-fp32-tp4-sp-pp2",
+    "gpus": 8,
+    "exit_code": 0,
+    "log": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/logs/multigpu-v0-full-before-fp32-tp4-sp-pp2-20261012.log"
+  },
+  {
+    "name": "v0-selective-before-fp32-tp2-sp-pp2",
+    "gpus": 4,
+    "exit_code": 0,
+    "log": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/logs/multigpu-v0-selective-before-fp32-tp2-sp-pp2-20261012.log"
+  },
+  {
+    "name": "v0-full-after-fp32-tp4-sp-pp2",
+    "gpus": 8,
+    "exit_code": 0,
+    "log": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/logs/multigpu-v0-full-after-fp32-tp4-sp-pp2-20261012.log"
+  },
+  {
+    "name": "v0-selective-after-fp32-tp2-sp-pp2",
+    "gpus": 4,
+    "exit_code": 0,
+    "log": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/logs/multigpu-v0-selective-after-fp32-tp2-sp-pp2-20261012.log"
+  },
+  {
+    "name": "v0-pp4-before-tp2-sp-pp4",
+    "gpus": 8,
+    "exit_code": 0,
+    "log": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/logs/multigpu-v0-pp4-before-tp2-sp-pp4-20261012.log"
+  },
+  {
+    "name": "v0-pp4-after-tp2-sp-pp4",
+    "gpus": 8,
+    "exit_code": 0,
+    "log": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/logs/multigpu-v0-pp4-after-tp2-sp-pp4-20261012.log"
+  }
+]

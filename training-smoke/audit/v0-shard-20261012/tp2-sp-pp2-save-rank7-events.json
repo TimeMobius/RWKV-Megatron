@@ -1,0 +1,54 @@
+[
+  {
+    "kind": "train",
+    "iteration": 1,
+    "consumed_train_samples": 0,
+    "batch_hashes": [],
+    "losses": {
+      "lm loss": 2.6688952445983887
+    },
+    "skipped": 0,
+    "grad_norm": 98.00682830810547,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 1,
+      "dp": 1
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 2,
+    "consumed_train_samples": 4,
+    "batch_hashes": [],
+    "losses": {
+      "lm loss": 2.6686995029449463
+    },
+    "skipped": 0,
+    "grad_norm": 521.0866088867188,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 1,
+      "dp": 1
+    }
+  },
+  {
+    "kind": "eval",
+    "iteration": 2,
+    "consumed_valid_before": 0,
+    "batch_hashes": [],
+    "losses": {
+      "lm loss": 2.472411632537842
+    },
+    "consumed_valid_after": 4,
+    "cuda_peak_mib": 9177.20849609375,
+    "cuda_allocated_mib": 8994.84326171875,
+    "tp_replicated_parameters_exact": true,
+    "replicated_parameters_checked": 226,
+    "dp_parameter_sample_exact": true,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 1,
+      "dp": 1
+    }
+  }
+]

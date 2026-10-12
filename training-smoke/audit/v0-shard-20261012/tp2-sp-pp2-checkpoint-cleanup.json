@@ -1,0 +1,166 @@
+{
+  "validated_exact": true,
+  "bytes": 170430096742,
+  "files": [
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-resume/progress.txt",
+      "bytes": 510
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-resume/latest_checkpointed_iteration.txt",
+      "bytes": 1
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-resume/iter_0000002/run_config.yaml",
+      "bytes": 11390
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-resume/iter_0000004/run_config.yaml",
+      "bytes": 11524
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-resume/iter_0000002/mp_rank_00_000/distrib_optim.pt",
+      "bytes": 9130047747
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-resume/iter_0000002/mp_rank_00_000/model_optim_rng.pt",
+      "bytes": 1521830358
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-resume/iter_0000002/mp_rank_01_000/distrib_optim.pt",
+      "bytes": 9130047747
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-resume/iter_0000002/mp_rank_01_000/model_optim_rng.pt",
+      "bytes": 1521830358
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-resume/iter_0000002/mp_rank_01_001/distrib_optim.pt",
+      "bytes": 9130047747
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-resume/iter_0000002/mp_rank_01_001/model_optim_rng.pt",
+      "bytes": 1521830294
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-resume/iter_0000002/mp_rank_00_001/distrib_optim.pt",
+      "bytes": 9130047747
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-resume/iter_0000002/mp_rank_00_001/model_optim_rng.pt",
+      "bytes": 1521830294
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-resume/iter_0000004/mp_rank_00_000/distrib_optim.pt",
+      "bytes": 9130047747
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-resume/iter_0000004/mp_rank_00_000/model_optim_rng.pt",
+      "bytes": 1521830550
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-resume/iter_0000004/mp_rank_00_001/distrib_optim.pt",
+      "bytes": 9130047747
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-resume/iter_0000004/mp_rank_00_001/model_optim_rng.pt",
+      "bytes": 1521830550
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-resume/iter_0000004/mp_rank_01_000/distrib_optim.pt",
+      "bytes": 9130047747
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-resume/iter_0000004/mp_rank_01_000/model_optim_rng.pt",
+      "bytes": 1521830550
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-resume/iter_0000004/mp_rank_01_001/distrib_optim.pt",
+      "bytes": 9130047747
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-resume/iter_0000004/mp_rank_01_001/model_optim_rng.pt",
+      "bytes": 1521830550
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-continuous/progress.txt",
+      "bytes": 458
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-continuous/latest_checkpointed_iteration.txt",
+      "bytes": 1
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-continuous/iter_0000002/run_config.yaml",
+      "bytes": 11397
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-continuous/iter_0000004/run_config.yaml",
+      "bytes": 11397
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-continuous/iter_0000002/mp_rank_01_000/distrib_optim.pt",
+      "bytes": 9130047747
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-continuous/iter_0000002/mp_rank_01_000/model_optim_rng.pt",
+      "bytes": 1521830358
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-continuous/iter_0000002/mp_rank_01_001/distrib_optim.pt",
+      "bytes": 9130047747
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-continuous/iter_0000002/mp_rank_01_001/model_optim_rng.pt",
+      "bytes": 1521830294
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-continuous/iter_0000002/mp_rank_00_001/distrib_optim.pt",
+      "bytes": 9130047747
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-continuous/iter_0000002/mp_rank_00_001/model_optim_rng.pt",
+      "bytes": 1521830294
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-continuous/iter_0000002/mp_rank_00_000/distrib_optim.pt",
+      "bytes": 9130047747
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-continuous/iter_0000002/mp_rank_00_000/model_optim_rng.pt",
+      "bytes": 1521830358
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-continuous/iter_0000004/mp_rank_00_001/distrib_optim.pt",
+      "bytes": 9130047747
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-continuous/iter_0000004/mp_rank_00_001/model_optim_rng.pt",
+      "bytes": 1521830294
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-continuous/iter_0000004/mp_rank_01_001/distrib_optim.pt",
+      "bytes": 9130047747
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-continuous/iter_0000004/mp_rank_01_001/model_optim_rng.pt",
+      "bytes": 1521830294
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-continuous/iter_0000004/mp_rank_01_000/distrib_optim.pt",
+      "bytes": 9130047747
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-continuous/iter_0000004/mp_rank_01_000/model_optim_rng.pt",
+      "bytes": 1521830358
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-continuous/iter_0000004/mp_rank_00_000/distrib_optim.pt",
+      "bytes": 9130047747
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/v0-shard-20261012-tp2-sp-pp2-continuous/iter_0000004/mp_rank_00_000/model_optim_rng.pt",
+      "bytes": 1521830358
+    }
+  ]
+}

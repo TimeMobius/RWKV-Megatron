@@ -1,0 +1,178 @@
+[
+  {
+    "kind": "train",
+    "iteration": 1,
+    "consumed_train_samples": 0,
+    "batch_hashes": [
+      "ff837b6e92ace93976ffc9fec004f2efbcf57672f86a2c3da2e3e6cb2cd595e1",
+      "9e9c26dcdc5e5ceea80e88ee0acbf619a12479acae3d839d3c7f8661d111f8b9",
+      "3db55ba370540b05b6d3b9bd1bdfc052efa8ac64c563c001b076424812bd19bf",
+      "79ff721842b588acc567033186d96e5da2c53d6cf2b24cf86a0dec19c85e5c29"
+    ],
+    "losses": {
+      "lm loss": 1.6749179363250732
+    },
+    "skipped": 0,
+    "grad_norm": 180.84034729003906,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 1,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 2,
+    "consumed_train_samples": 8,
+    "batch_hashes": [
+      "844a1bf265e4dffec10a50bb16620948da64101046084a12ba479ad190688855",
+      "5a5d7af0c82cf25aa10948f4330fb0f5e4c2ca6f45a045c793f460565edad6b2",
+      "e4de3a22272afac6ddbccb4f3b37ab11f48dace43a0d41442df6dbdd87950614",
+      "d48a3a0e4a53c47d0ae16377ff517e5dd45421eadb8e4be1fede6d238b51aefe"
+    ],
+    "losses": {
+      "lm loss": 1.9052565097808838
+    },
+    "skipped": 0,
+    "grad_norm": 7289.18603515625,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 1,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 3,
+    "consumed_train_samples": 16,
+    "batch_hashes": [
+      "35cdff0adb2cae6879fab75cd3f64a89a46811e8cb8427976f5c6689ead2978b",
+      "d4ff689be1b19188b3a16c60781318542de55f4ea64dc4919777318602fcc93c",
+      "0d08026dced61144e0bba03dfe823554a14748123a853680008fbb5b771a3ace",
+      "9311136eee19a1a182124fa499bc66eb502a37b9de7a43bb853a1ff93b8c7bb6"
+    ],
+    "losses": {
+      "lm loss": 2.041792869567871
+    },
+    "skipped": 0,
+    "grad_norm": 960.7407836914062,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 1,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 4,
+    "consumed_train_samples": 24,
+    "batch_hashes": [
+      "3dc4a059d33768d8af674a86cc3864283b78319dff6a07b859923d296dd507dc",
+      "470c6e2ec4730418e4526ee9cd1c4f476963a47660015547c01322f6692f9add",
+      "fb783cd8bc503f8d1ffedac5cfb77dcc1b28abf2dc565950d838d9356adac516",
+      "d18d252e968ae4cfc13e52a08c8fe0a5f28e57560a5f8bc6d31f6d9552f78e86"
+    ],
+    "losses": {
+      "lm loss": 1.7845468521118164
+    },
+    "skipped": 0,
+    "grad_norm": 242.79335021972656,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 1,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 5,
+    "consumed_train_samples": 32,
+    "batch_hashes": [
+      "2b443bb008dfbd469e5689ad521be36ac0685fe92379bf85d652a7627a5e2cf5",
+      "d2de6d80b9feba9e42d627af2b3b54588fadd3f8cf3585d530c90243cc532802",
+      "ca3aae2bfdad871d59ba877250467bc4a5b8da3608f982322f4868c13786abd2",
+      "a80968757494b23920b33542e0640cce0fdafe449a5e54a6c176faf92358c128"
+    ],
+    "losses": {
+      "lm loss": 1.935326099395752
+    },
+    "skipped": 0,
+    "grad_norm": 181.6928253173828,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 1,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 6,
+    "consumed_train_samples": 40,
+    "batch_hashes": [
+      "31ab299824bd7fa1d1d0494cbc1893a5fcf16d8d3de6e26611974fb9c4c62b3b",
+      "f298780624f54d6e8a9da69abad2bbce1ba523b63f349b5e27576ab3afb5d386",
+      "d0532c2d109e4278f0d0a8d16384119a1ccd79b1db52591703f9995e99054e00",
+      "7f0e78519d2d5361098063624baa7d507e86cf55f06b6cb78878910cc7543ca4"
+    ],
+    "losses": {
+      "lm loss": 2.2361040115356445
+    },
+    "skipped": 0,
+    "grad_norm": 34.930450439453125,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 1,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "eval",
+    "iteration": 6,
+    "consumed_valid_before": 0,
+    "batch_hashes": [
+      "51fb49d44eb446054686f916098e49b6fd658d3b34fc81fb69fbd11c1fb1764c",
+      "f9ba858a8d565be6bb25039da6ed9733eee6aece03b93aa4d0f949c5a4d388ba",
+      "b0bcd74aa65525a89a0888db549be311ed051deaa5cd0f11135ffcf544eb4318",
+      "1058fd7bb7d9fc7bdb1602453029c24e79b5641a63ecec442c9563da78e0443b"
+    ],
+    "losses": {
+      "lm loss": 1.8977234363555908
+    },
+    "consumed_valid_after": 8,
+    "cuda_peak_mib": 9705.6376953125,
+    "cuda_allocated_mib": 9013.59326171875,
+    "tp_replicated_parameters_exact": true,
+    "replicated_parameters_checked": 226,
+    "dp_parameter_sample_exact": true,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 1,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "eval",
+    "iteration": 6,
+    "consumed_valid_before": 8,
+    "batch_hashes": [
+      "51fb49d44eb446054686f916098e49b6fd658d3b34fc81fb69fbd11c1fb1764c",
+      "f9ba858a8d565be6bb25039da6ed9733eee6aece03b93aa4d0f949c5a4d388ba",
+      "b0bcd74aa65525a89a0888db549be311ed051deaa5cd0f11135ffcf544eb4318",
+      "1058fd7bb7d9fc7bdb1602453029c24e79b5641a63ecec442c9563da78e0443b"
+    ],
+    "losses": {
+      "lm loss": 1.8977234363555908
+    },
+    "consumed_valid_after": 16,
+    "cuda_peak_mib": 9705.6376953125,
+    "cuda_allocated_mib": 9013.59326171875,
+    "tp_replicated_parameters_exact": true,
+    "replicated_parameters_checked": 226,
+    "dp_parameter_sample_exact": true,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 1,
+      "dp": 0
+    }
+  }
+]

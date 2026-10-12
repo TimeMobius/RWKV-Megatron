@@ -47,6 +47,7 @@ def main():
     parser.add_argument('--shared-value-reference',action='store_true',help='Historical negative control: share WKV/correction value view')
     parser.add_argument('--reference-profile',choices=('blinkdl','diagnostic'),help='Default: BlinkDL source bodies; diagnostic flags retain their explicit shared-primitive mode')
     parser.add_argument('--shared-pointops',action='store_true')
+    parser.add_argument('--production-key-reference',action='store_true',help='Diagnostic only: share current FP32 key primitive with direct v_first reference')
     parser.add_argument('--te-final-reference',action='store_true')
     parser.add_argument('--carrier-chain-reference',action='store_true')
     parser.add_argument('--reference-core',choices=('recurrent','fla'),default='recurrent')
@@ -61,7 +62,7 @@ def main():
         args.capture_reference_output='full-official-bf16-precision-reference'
     diagnostic_flags=any((args.aligned_reference,args.apex_reference_norms,args.te_reference_norms,
                           args.shared_pointops,args.te_final_reference,args.carrier_chain_reference,
-                          args.split_value_reference,args.shared_value_reference))
+                          args.split_value_reference,args.shared_value_reference,args.production_key_reference))
     profile=args.reference_profile or ('diagnostic' if diagnostic_flags else 'blinkdl')
     if profile=='blinkdl' and diagnostic_flags:
         parser.error('BlinkDL reference cannot use Megatron-aligned norm/pointop/carrier flags')
@@ -176,7 +177,7 @@ def main():
         from blinkdl_reference import BlinkDLReference
         reference=BlinkDLReference(state,dtype)
     else:
-        reference=NativeReference(state,dtype,core=args.reference_core,aligned=args.aligned_reference,apex_norms=args.apex_reference_norms,shared_pointops=args.shared_pointops,te_final=args.te_final_reference,carrier_chain=args.carrier_chain_reference,te_norms=args.te_reference_norms,split_value_views=not args.shared_value_reference)
+        reference=NativeReference(state,dtype,core=args.reference_core,aligned=args.aligned_reference,apex_norms=args.apex_reference_norms,shared_pointops=args.shared_pointops,te_final=args.te_final_reference,carrier_chain=args.carrier_chain_reference,te_norms=args.te_reference_norms,split_value_views=not args.shared_value_reference,production_key=args.production_key_reference)
     ref_logits=reference(x);ref_loss=F.cross_entropy(ref_logits.float().reshape(-1,dim['vocab']),y.reshape(-1))
     if args.audit_v0_edges:edge_audit=V0Edges(ref_loss,reference.v_first)
     ref_loss.backward();ref_grad=reference.native_gradients(selected)
@@ -193,7 +194,7 @@ def main():
     grad_metrics={k:metric(actual_grad[k],v) for k,v in ref_grad.items()}
     result={'fla_candidate':args.fla_candidate,'sequence_length':x.shape[1],'token_offset':args.token_offset,'full_3b':args.full,'dtype':str(dtype),'megatron_core':'torch recurrence' if args.naive_core else 'FLA',
         'reference_core':('official CUDA' if args.bf16 else 'independent torch recurrence') if profile=='blinkdl' else args.reference_core,
-        'reference_profile':profile,'reference_provenance':reference.provenance() if profile=='blinkdl' else {'kind':'shared-primitive diagnostic; not an official implementation'},
+        'reference_profile':profile,'production_key_reference':args.production_key_reference,'reference_provenance':reference.provenance() if profile=='blinkdl' else {'kind':'shared-primitive diagnostic; not an official implementation'},
         'recompute':args.recompute,'precision_probe':args.precision_probe,'v0_fp32_diagnostic':args.v0_fp32,'torch_norms':args.torch_norms,'runtime':report(),'loss_megatron':actual_loss,
         'loss_native':ref_loss.item(),'loss_delta':actual_loss-ref_loss.item(),
         'gradient_trace':gradient_trace,'logits':metric(actual_logits,ref_logits.detach().cpu()),'trace':trace_metrics,

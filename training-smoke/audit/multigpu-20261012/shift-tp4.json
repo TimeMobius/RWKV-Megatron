@@ -1,0 +1,38 @@
+[
+  {
+    "local_seq": 1,
+    "batch": 1,
+    "forward_exact": true,
+    "backward_exact": true
+  },
+  {
+    "local_seq": 1,
+    "batch": 3,
+    "forward_exact": true,
+    "backward_exact": true
+  },
+  {
+    "local_seq": 2,
+    "batch": 1,
+    "forward_exact": true,
+    "backward_exact": true
+  },
+  {
+    "local_seq": 2,
+    "batch": 3,
+    "forward_exact": true,
+    "backward_exact": true
+  },
+  {
+    "local_seq": 32,
+    "batch": 1,
+    "forward_exact": true,
+    "backward_exact": true
+  },
+  {
+    "local_seq": 32,
+    "batch": 3,
+    "forward_exact": true,
+    "backward_exact": true
+  }
+]

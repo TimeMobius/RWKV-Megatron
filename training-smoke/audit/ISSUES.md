@@ -1,5 +1,16 @@
 # RWKV7 审计待查问题（2026-10-09）
 
+## 2026-10-12：SP 的 v0 通道分片已完成
+
+见 `V0-SHARD-20261012.md` / `v0-shard-20261012/validation.json`。每卡保留完整序列、本地head的v0，不再通道gather，跨普通PP固定两份载体，实际消息字节TP2减少33%、TP4减少60%。pack/unpack使用连续内存视图并复用打包槽。完整3B BF16默认/兼容key前向和loss相同，1,052/1,059参数梯度相同，整体差约0.065%/0.131%（默认融合TP2/4），只在第零层value上游汇总舍入；全部cache分支梯度相同。完整3B FP32整体差2.44e-8。SP/nonSP、PP2/4、full/LayerNorm selective均验证；两种八卡Adam续训model/optimizer/RNG/loss/fixed eval严格相同。seq2048六步短跑吞吐约+1.50%/+0.98%，最高单卡峰值已分配显存约少95/165MiB，主要收益为通信量和显存，非大幅TPS提升。主仓库与Megatron子模块改动需一同使用；本轮未commit/push。
+
+
+## 2026-10-12：多卡重新验证与LayerNorm选择性重算修复
+
+见 `MULTI-GPU-20261012.md` 和 `multigpu-20261012/validation.json`。完整3B FP32全部1,059个梯度支持TP/SP/非交错PP数学和通信正确；真实PP激活/梯度逐元素运输正确。TP2+SP+PP2+DP2以及TP4+SP+PP2的第2步保存→恢复4步与连续4步，所有rank的loss/梯度/数据、全部模型/optimizer分片、scheduler/RNG和固定eval均严格相同。BF16 TP2整体梯度相对单卡约14.94%、TP4+SP+PP2+整层重算约21.32%，不是长期精度认证。主要数值机会在RowParallel部分BF16结果先保存再通信；审计FP32部分输出使TP2该差降至5.06%，尚未生产接入。融合key在不同编译/grad布局下有微小重放舍入差，eager兼容路径消除本次全部WKV重放差；最终PP2复测全部1,059梯度与单卡相同。
+
+确认并修复RWKV7TransformerLayer漏注册LayerNorm selective重算回调：修复后135梯度FP32逐元素相同，3B八卡真实训练通过。selective/core_attn当前不会实际WKV重算；交错PP/vPP通信形状未适配v0，不能视为已支持。seq2048短测单卡/DP8/TP2SPPP2DP2/TP4SPPP2总TPS约6065/34500/13368/7704。最终133tests和30subtests通过、2历史negative-control xfail。助手生成的本轮训练测试checkpoint删除约327.39GiB，不修改用户ckpt。旧多卡条目仅为历史记录。
+
 ## 2026-10-10：FLA未使用算子的评估，默认训练未改
 
 见`FLA-OPERATOR-OPPORTUNITIES.md`。WKV保存中间结果的完整3B前向/1,059个梯度与当前相同，模型测速约快2.6%–3.8%，可作为下一步配置候选，长序列显存成本待评估。输出修正速度持平；FLA GroupNorm慢约2%–3%；二者组合对独立FP32的整体梯度差约19.88%，高于当前8.49%，不适合默认替换。组合的小模型FP32独立公式/全部135梯度检查通过，未发现该检查范围内的逻辑错误，但完整BF16组合差异未逐点定位。TileLang对当前H800/batch1/head40/chunk64回退Triton，无需为当前配置安装。只修改审计材料，未改生产、子模块或环境。

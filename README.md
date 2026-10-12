@@ -212,17 +212,32 @@ CUDA_VISIBLE_DEVICES=0 bash training-smoke/launch-3b-reference.sh
 
 脚本激活 `train_mobius_py312`、配置 CUDA 库路径，并调用 `pretrain_rwkv7.py --rwkv-config configs/config-rwkv7-3b-reference.yaml`。配置和脚本中的绝对路径对应当前本地环境；换机器或工作区时需修改环境、仓库、模型、数据及 tokenizer 路径。
 
-这是 4 步短跑模板，固定学习率为 `1.56e-5`，默认不写大检查点。正式训练先另存一份，再调整序列长度、batch、训练步数、学习率调度和 `save` 输出目录；续训使用 `load` 指向完整训练检查点。当前格式由 `ckpt_format` 决定，旧的 `use_dist_ckpt` / `dist_ckpt_format` 已不生效。
+这是 4 步短跑模板，固定学习率为 `1.56e-5`，默认不写大检查点。正式训练先另存一份，再调整序列长度、batch、训练步数、学习率调度和 `save` 输出目录；续训使用 `load` 指向完整训练检查点。当前格式由 `ckpt_format` 决定，旧的 `use_dist_ckpt` / `dist_ckpt_format` 已不生效。保存、续训及自动识别格式的 YAML 示例见 [检查点说明](configs/config-rwkv7-3b-reference.md#检查点保存与断点续训)。
 
 FP8 默认关闭。实验时在 YAML 中设置 `language_model.fp8: hybrid`、`language_model.fp8_recipe: tensorwise` 和 `transformer_impl: transformer_engine`；`rwkv_fp8_scope: ffn` 限定为 FFN 的两个大矩阵乘法。当前测试仍建议正式训练使用 BF16，精度和速度记录见 [FP8.md](training-smoke/audit/FP8.md)。配置解析与实际短跑记录见 [参数验证](training-smoke/audit/3b-reference-config-validation.json) 和 [训练验证](training-smoke/audit/3b-reference-training-validation.json)。
 
-如需启用 Muon，可在优化器配置中切换为：
+Muon 依赖 `emerging-optimizers`，当前测试环境安装的是 `0.3.0`。在 YAML 顶层配置：
 
 ```yaml
 optimizer: muon
+use_distributed_optimizer: true
+use_layer_wise_param_layout: false
+muon_momentum: 0.95
+muon_nesterov: true
+muon_split_qkv: false
+muon_num_ns_steps: 5
+muon_scale_mode: spectral
+muon_tp_mode: duplicated
+muon_scalar_optimizer: adam
 ```
 
-Muon 相关超参数沿用 Megatron 参数命名方式，例如 `muon_matched_adamw_rms`、`muon_momentum` 与 `muon_ns_steps`。
+完整测试副本见 [config-rwkv7-3b-muon.yaml](configs/config-rwkv7-3b-muon.yaml)。矩阵权重和 LoRA 矩阵使用 Muon；embedding、输出层、归一化及逐元素混合系数使用 Adam。`use_distributed_optimizer: true` 会由新版 Megatron 自动转为 Muon 的层级分布式优化器路径。当前默认新布局保存 `torch` 检查点会报 `ChainedOptimizer` 缺少保存接口，暂用 `use_layer_wise_param_layout: false` 兼容模式。旧的 `muon_ns_steps` 应改为 `muon_num_ns_steps`；`muon_matched_adamw_rms` 已不被当前解析器识别，不能照搬旧配置。依赖 `0.3.0` 时保持 `muon_use_syrk: false`。
+
+```bash
+CUDA_VISIBLE_DEVICES=0 bash training-smoke/launch-3b-reference.sh 3b-muon configs/config-rwkv7-3b-muon.yaml
+```
+
+模板学习率仅用于短跑验证，Muon 的正式训练学习率需要单独调试。Adam 检查点不能直接恢复为 Muon 优化器状态；切换优化器属于新的训练实验。单卡测试与续训记录见 [MUON.md](training-smoke/audit/MUON.md)。
 
 #### 分布式训练配置
 
@@ -238,6 +253,8 @@ Muon 相关超参数沿用 Megatron 参数命名方式，例如 `muon_matched_ad
 # 启用序列并行
 --sequence-parallel --tensor-model-parallel-size 8
 ```
+
+RWKV7 在 `sequence_parallel: true` 时，`v0` 自动只保留本 TP 卡的通道，并以两份数据（隐藏状态＋本地 `v0`）跨普通 PP 传递。TP2/TP4 的完整消息体分别减少约 33%/60%。模型参数和检查点张量形状不变；主仓库与 Megatron 子模块的通信形状改动需要一起使用。完整 3B 前后向及两种 8 卡组合的固定 eval/断点续训已验证，细节见 [v0 分片报告](training-smoke/audit/V0-SHARD-20261012.md)。目前仍使用非交错 PP、CP1；交错 PP、FP8 和 Muon 多卡另行验证。
 
 #### 编写启动脚本
 

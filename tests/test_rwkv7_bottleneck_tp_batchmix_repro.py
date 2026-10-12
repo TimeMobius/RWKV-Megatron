@@ -8,6 +8,7 @@ Expected workflow:
    should disappear.
 """
 
+import pytest
 import torch
 
 from rwkv7_bottleneck_batchmix_test_utils import (
@@ -17,6 +18,7 @@ from rwkv7_bottleneck_batchmix_test_utils import (
 )
 
 
+@pytest.mark.xfail(strict=True, reason="Historical pre-fix bug reproduction; fixed code must fail this assertion")
 def test_non_sequence_parallel_reproduces_batch_mixing():
     single_batch = torch.tensor([[[0.0, 1.0, 2.0, 3.0]]])
     multi_batch = torch.tensor([[[0.0, 1.0, 2.0, 3.0], [100.0, 101.0, 102.0, 103.0]]])
@@ -35,6 +37,7 @@ def test_non_sequence_parallel_reproduces_batch_mixing():
     assert multi_expected[0][0, 1].tolist() == [100.0, 101.0]
 
 
+@pytest.mark.xfail(strict=True, reason="Historical pre-fix bug reproduction; fixed code must fail this assertion")
 def test_sequence_parallel_reproduces_batch_mixing():
     global_x = torch.tensor(
         [

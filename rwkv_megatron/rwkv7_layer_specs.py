@@ -61,6 +61,7 @@ from .normalization import get_rwkv7_layernorm_impl
 from .key_preparation import prepare_key
 from .precision import keep_time_mix_bf16, validate_rwkv_precision
 from .rwkv7_transformer_layer import RWKV7TransformerLayer
+from .value_residual import pack_sharded_value, unpack_sharded_value
 
 def mix_inputs(hidden_states, delta, coefficients):
     """Flatten independent tokens into FLA's [batch, time, hidden] layout."""
@@ -526,6 +527,8 @@ class RWKV7TimeMix(MegatronModule):
         )
         setattr(self.alpha, "allreduce", True)
 
+        # Six independent elementwise coefficient vectors, not a linear weight matrix.
+        self.mix_coeff_input.use_muon = False
         setattr(
             self.mix_coeff_input, "sequence_parallel", self.config.sequence_parallel
         )
@@ -622,9 +625,11 @@ class RWKV7TimeMix(MegatronModule):
         pp_rank = get_pipeline_model_parallel_rank()
 
         v0 = None
+        packed_v0 = None
         if len(hidden_states.shape) == 4:
             if self.config.sequence_parallel:
-                hidden_states, v0 = hidden_states[0], rearrange(hidden_states[1:], 'n t b d -> (n t) b d')
+                packed_v0 = hidden_states[1]
+                hidden_states, v0 = hidden_states[0], unpack_sharded_value(packed_v0, tp_size)
             else:
                 hidden_states, v0 = hidden_states[0], hidden_states[1]
 
@@ -641,7 +646,9 @@ class RWKV7TimeMix(MegatronModule):
         value = self.linear_value(mixed_value.contiguous())[0]
 
         if v0 is None and self.layer_number == 1 and pp_rank == 0:
-            v0 = gather_from_tensor_model_parallel_region(value)
+            # SP projections already hold every token for this rank's heads.
+            # Keep those heads locally; their gradients flow directly to value.
+            v0 = value if self.config.sequence_parallel else gather_from_tensor_model_parallel_region(value)
 
         elif v0 is not None:
             if pp_rank == 0 and self.layer_number == 1: 
@@ -649,7 +656,7 @@ class RWKV7TimeMix(MegatronModule):
             shard_size = divide(self.config.hidden_size, tp_size)
             start_idx = tp_rank * shard_size
             end_idx = start_idx + shard_size
-            v0_shard = v0[:, :, start_idx:end_idx]
+            v0_shard = v0 if self.config.sequence_parallel else v0[:, :, start_idx:end_idx]
 
             vt = torch.sigmoid(self.bottleneck_v(mixed_value.contiguous()))
             # value = value + (v0_shard - value) * vt
@@ -691,10 +698,10 @@ class RWKV7TimeMix(MegatronModule):
         output, bias = self.linear_proj(output * gate)
 
         if self.config.sequence_parallel:
-            # reshape v0 to match output shape
-            # v0 = v0.reshape(-1, output.shape[0], output.shape[1], output.shape[2])
-            v0  = rearrange(v0, '(n t) b d -> n t b d', t=output.shape[0])
-            output = torch.cat([output.unsqueeze(0), v0], dim=0)
+            # Reuse the packed cache in later layers instead of folding it again.
+            if packed_v0 is None:
+                packed_v0 = pack_sharded_value(v0, tp_size)
+            output = torch.stack((output, packed_v0), dim=0)
         else:
             if v0.shape != output.shape:
                 raise ValueError(f"v0 shape {v0.shape} does not match output shape {output.shape}")

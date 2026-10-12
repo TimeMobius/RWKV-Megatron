@@ -1,0 +1,114 @@
+[
+  {
+    "kind": "train",
+    "iteration": 1,
+    "consumed_train_samples": 0,
+    "batch_hashes": [
+      "eb79def7a8ffea1c5cbbee752fb0dc16a88194b998b5264d89431c24e4b41921"
+    ],
+    "losses": {
+      "lm loss": 1.674572229385376
+    },
+    "skipped": 0,
+    "grad_norm": 188.55169677734375,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 0,
+      "dp": 5
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 2,
+    "consumed_train_samples": 8,
+    "batch_hashes": [
+      "33066c5c37922f861d0d83a0e15e566e1a798add171d9c2c7613a3bdd4e61b08"
+    ],
+    "losses": {
+      "lm loss": 1.8899339437484741
+    },
+    "skipped": 0,
+    "grad_norm": 7188.3896484375,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 0,
+      "dp": 5
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 3,
+    "consumed_train_samples": 16,
+    "batch_hashes": [
+      "29ccc63cf72b8e47f17feefbcbc7beadc4a9357e4a4483f08761eead19dd9c35"
+    ],
+    "losses": {
+      "lm loss": 2.038757085800171
+    },
+    "skipped": 0,
+    "grad_norm": 790.614501953125,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 0,
+      "dp": 5
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 4,
+    "consumed_train_samples": 24,
+    "batch_hashes": [
+      "b2a4946ca697b9e4306425800e8fd08259969339babb4f94a56864e9219e1e3b"
+    ],
+    "losses": {
+      "lm loss": 1.7805055379867554
+    },
+    "skipped": 0,
+    "grad_norm": 227.9404754638672,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 0,
+      "dp": 5
+    }
+  },
+  {
+    "kind": "eval",
+    "iteration": 4,
+    "consumed_valid_before": 0,
+    "batch_hashes": [
+      "49297a0d07721b43d0b591224a269f02953eb08da920ebba5ba5f838bddf80e9"
+    ],
+    "losses": {
+      "lm loss": 1.9176740646362305
+    },
+    "consumed_valid_after": 8,
+    "tp_replicated_parameters_exact": true,
+    "replicated_parameters_checked": 450,
+    "dp_parameter_sample_exact": true,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 0,
+      "dp": 5
+    }
+  },
+  {
+    "kind": "eval",
+    "iteration": 4,
+    "consumed_valid_before": 8,
+    "batch_hashes": [
+      "49297a0d07721b43d0b591224a269f02953eb08da920ebba5ba5f838bddf80e9"
+    ],
+    "losses": {
+      "lm loss": 1.9176740646362305
+    },
+    "consumed_valid_after": 16,
+    "tp_replicated_parameters_exact": true,
+    "replicated_parameters_checked": 450,
+    "dp_parameter_sample_exact": true,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 0,
+      "dp": 5
+    }
+  }
+]

@@ -1,5 +1,7 @@
 # 单卡 RWKV7 公式、FLA 调用与续训审计
 
+**最新结论与当前代码复测：见 [单卡最终复核（2026-10-12）](SINGLE-GPU-FINAL-20261012.md)。下方保留历史检查过程，其中“仅CE”“未切换key精度”“Apex混合后端”等描述不是当前状态。**
+
 新增YAML选项`fixed_eval_samples: true`，每次验证及恢复后均读取验证集开头同一组；默认false保留继续往后读。完整3B实际token哈希、同权重重复loss、恢复/连续对应eval与最终检查点一致；关闭时五次验证读取五组不同数据。98项主仓库测试及3项Megatron专用测试通过，见`FIXED-EVAL.md`。
 
 新旧FLA算子评估见`FLA-OPERATOR-OPPORTUNITIES.md`：当前WKV已经使用新版Triton核心。审计中关闭WKV内部重计算，完整3B全部梯度/前向不变，512/2048模型测速约快3.8%/2.6%，代价是保存中间数据。输出修正速度持平，FLA GroupNorm较慢，组合的BF16整体梯度差变大，未切换默认。TileLang在当前H800/batch1配置被上游资格检查拒绝。

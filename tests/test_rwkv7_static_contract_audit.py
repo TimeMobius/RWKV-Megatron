@@ -160,7 +160,7 @@ def test_task7_tp_pp_sp_protocol_stays_consistent_across_three_codepaths():
     schedules_dump = _node_dump(get_tensor_shapes)
     assert "rwkv7_value_residual" in schedules_dump
     assert "tp_group" in schedules_dump
-    assert "value=1" in schedules_dump, "SP+PP schedule should reserve 1 + TP slots"
+    assert "value=2" in schedules_dump, "SP+PP schedule should reserve hidden states and local-head v0"
 
     transformer_cls = _get_class(transformer_layer, "RWKV7TransformerLayer")
     transformer_forward = _get_function(transformer_cls, "forward")
@@ -172,12 +172,12 @@ def test_task7_tp_pp_sp_protocol_stays_consistent_across_three_codepaths():
     timemix_cls = _get_class(layer_specs, "RWKV7TimeMix")
     timemix_forward = _get_function(timemix_cls, "forward")
     timemix_source = LAYER_SPECS_PATH.read_text(encoding="utf-8")
-    assert "rearrange(hidden_states[1:], 'n t b d -> (n t) b d')" in timemix_source
+    assert "unpack_sharded_value(packed_v0, tp_size)" in timemix_source
     assert "gather_from_tensor_model_parallel_region(value)" in timemix_source
     assert "v0[:, :, start_idx:end_idx]" in timemix_source
     assert "torch.lerp(value, v0_shard, vt)" in timemix_source
-    assert "rearrange(v0, '(n t) b d -> n t b d', t=output.shape[0])" in timemix_source
-    assert "torch.cat([output.unsqueeze(0), v0], dim=0)" in timemix_source
+    assert "pack_sharded_value(v0, tp_size)" in timemix_source
+    assert "torch.stack((output, packed_v0), dim=0)" in timemix_source
 
 
 def test_context_parallel_is_still_explicitly_rejected_for_rwkv_token_shift():

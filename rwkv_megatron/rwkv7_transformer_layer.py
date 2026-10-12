@@ -48,6 +48,13 @@ class RWKV7TransformerLayer(TransformerLayer):
             packed_seq_params=packed_seq_params,
             sequence_len_offset=sequence_len_offset,
         )
+        if self._input_layernorm_checkpoint_active:
+            # Register on the complete carrier: layer zero's normalized input
+            # also feeds v0, whose gradient can arrive independently of the
+            # hidden-state slot. Restore the norm before either path uses it.
+            self.input_layernorm_checkpoint.discard_output_and_register_recompute(
+                attention_output
+            )
         values = attention_output[1:]
         hidden_states = self._apply_self_attn_bda_step((attention_output[0], bias), residual, state)
         hidden_states, context = self._run_cross_attention(

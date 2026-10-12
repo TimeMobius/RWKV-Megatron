@@ -1,0 +1,147 @@
+[
+  {
+    "kind": "train",
+    "iteration": 1,
+    "consumed_train_samples": 0,
+    "batch_hashes": [
+      "bafc48dcbee4b845fc1914774b50f59c90f3b62780c2dfd1797c61eb1a411fcf",
+      "2c78febaa943b432796c73836d413caff520305c269085e1431b65655eb943e0",
+      "9e02d4f8919eadb1733e01c93a438a9bb67e07429954f3e39922fa54b8627802",
+      "fe779cca88b6a1eb8deb899cf0855446b5ac77cae03e7077dd4aa8c7c77b119a"
+    ],
+    "losses": {},
+    "skipped": 0,
+    "grad_norm": 93.88055419921875,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 0,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 2,
+    "consumed_train_samples": 4,
+    "batch_hashes": [
+      "c8736b78017f8a9d14aefbe47165820553dda7d4d6d9e84307fb6d476a1db9cf",
+      "3f46ff860adf9ca0859697ecacfb2791b345dc3cba9ac6bd6615a4f8339f4880",
+      "f8fcbdfc37734472d99de157703e1aec1dc16503f4569fe071de7e6d33a894fc",
+      "8b3d3188779b5c4ea7ebc961cf7a2eff3a6ad73555370d1bb99c8bbbaa748160"
+    ],
+    "losses": {},
+    "skipped": 0,
+    "grad_norm": 526.2083129882812,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 0,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "eval",
+    "iteration": 2,
+    "consumed_valid_before": 0,
+    "batch_hashes": [
+      "b3f022f530cca9e4465305e4826928b83923ceb55f7ab8646f17730de89ae6cb",
+      "8648b54acb86856eb9fb5bd387c991feb629fe92fe7cb99e748d6ca9d1f23603",
+      "3983be9775d765f981406e9a804850c59be867130ed6d3037219a7f42844552b",
+      "585c0981508405975c19862842479a32a79e4ea7cba6e99fee9061abf42215c2"
+    ],
+    "losses": {},
+    "consumed_valid_after": 4,
+    "cuda_peak_mib": 7204.6572265625,
+    "cuda_allocated_mib": 7022.60546875,
+    "tp_replicated_parameters_exact": true,
+    "replicated_parameters_checked": 224,
+    "dp_parameter_sample_exact": true,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 0,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 3,
+    "consumed_train_samples": 8,
+    "batch_hashes": [
+      "3643fd56a04cb739747622d41377313713fe77fb1ae8f4a406bc130bb4a03645",
+      "2be440b7b413fc4cdb5b568e3a26a1481739bc7566ad6450f378d78c15b1bcf0",
+      "054ca6b579e6f0062bd5607179bbf41f299bfa0cb2b2e61038c23ea04da5f2ae",
+      "10fde5b2ce495586c26009d49dbe8142d4faec6ce1bc0357e5069833471d0511"
+    ],
+    "losses": {},
+    "skipped": 0,
+    "grad_norm": 237.86253356933594,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 0,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 4,
+    "consumed_train_samples": 12,
+    "batch_hashes": [
+      "16f35d6a96b23de8071856ad7bdd3341b497f8e8bc76c9e0da446ddc71b3ac86",
+      "90ddb87634479ca1271764cd290884a42dd8ddfc6d20733fce3392b0649ced7d",
+      "b2ee32e5cf23190546b09cfb7aa085598a5e974ccec752cbe9f9c4ed40d6a642",
+      "9e89a526028e9fdc9d87503eb841df8c341718e030cf8e06ef3e5597500d9cdf"
+    ],
+    "losses": {},
+    "skipped": 0,
+    "grad_norm": 178.3675537109375,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 0,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "eval",
+    "iteration": 4,
+    "consumed_valid_before": 4,
+    "batch_hashes": [
+      "b3f022f530cca9e4465305e4826928b83923ceb55f7ab8646f17730de89ae6cb",
+      "8648b54acb86856eb9fb5bd387c991feb629fe92fe7cb99e748d6ca9d1f23603",
+      "3983be9775d765f981406e9a804850c59be867130ed6d3037219a7f42844552b",
+      "585c0981508405975c19862842479a32a79e4ea7cba6e99fee9061abf42215c2"
+    ],
+    "losses": {},
+    "consumed_valid_after": 8,
+    "cuda_peak_mib": 7204.6572265625,
+    "cuda_allocated_mib": 7022.60546875,
+    "tp_replicated_parameters_exact": true,
+    "replicated_parameters_checked": 224,
+    "dp_parameter_sample_exact": true,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 0,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "eval",
+    "iteration": 4,
+    "consumed_valid_before": 8,
+    "batch_hashes": [
+      "b3f022f530cca9e4465305e4826928b83923ceb55f7ab8646f17730de89ae6cb",
+      "8648b54acb86856eb9fb5bd387c991feb629fe92fe7cb99e748d6ca9d1f23603",
+      "3983be9775d765f981406e9a804850c59be867130ed6d3037219a7f42844552b",
+      "585c0981508405975c19862842479a32a79e4ea7cba6e99fee9061abf42215c2"
+    ],
+    "losses": {},
+    "consumed_valid_after": 12,
+    "cuda_peak_mib": 7204.6572265625,
+    "cuda_allocated_mib": 7022.60546875,
+    "tp_replicated_parameters_exact": true,
+    "replicated_parameters_checked": 224,
+    "dp_parameter_sample_exact": true,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 0,
+      "dp": 0
+    }
+  }
+]

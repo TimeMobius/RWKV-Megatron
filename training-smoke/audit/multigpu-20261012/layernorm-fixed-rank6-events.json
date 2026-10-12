@@ -1,0 +1,82 @@
+[
+  {
+    "kind": "train",
+    "iteration": 1,
+    "consumed_train_samples": 0,
+    "batch_hashes": [
+      "2c78febaa943b432796c73836d413caff520305c269085e1431b65655eb943e0",
+      "fe779cca88b6a1eb8deb899cf0855446b5ac77cae03e7077dd4aa8c7c77b119a"
+    ],
+    "losses": {
+      "lm loss": 2.6695847511291504
+    },
+    "skipped": 0,
+    "grad_norm": 98.23210144042969,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 1,
+      "dp": 1
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 2,
+    "consumed_train_samples": 4,
+    "batch_hashes": [
+      "3f46ff860adf9ca0859697ecacfb2791b345dc3cba9ac6bd6615a4f8339f4880",
+      "8b3d3188779b5c4ea7ebc961cf7a2eff3a6ad73555370d1bb99c8bbbaa748160"
+    ],
+    "losses": {
+      "lm loss": 2.6694388389587402
+    },
+    "skipped": 0,
+    "grad_norm": 528.7739868164062,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 1,
+      "dp": 1
+    }
+  },
+  {
+    "kind": "eval",
+    "iteration": 2,
+    "consumed_valid_before": 0,
+    "batch_hashes": [
+      "8648b54acb86856eb9fb5bd387c991feb629fe92fe7cb99e748d6ca9d1f23603",
+      "585c0981508405975c19862842479a32a79e4ea7cba6e99fee9061abf42215c2"
+    ],
+    "losses": {
+      "lm loss": 2.469728946685791
+    },
+    "consumed_valid_after": 4,
+    "tp_replicated_parameters_exact": true,
+    "replicated_parameters_checked": 226,
+    "dp_parameter_sample_exact": true,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 1,
+      "dp": 1
+    }
+  },
+  {
+    "kind": "eval",
+    "iteration": 2,
+    "consumed_valid_before": 4,
+    "batch_hashes": [
+      "8648b54acb86856eb9fb5bd387c991feb629fe92fe7cb99e748d6ca9d1f23603",
+      "585c0981508405975c19862842479a32a79e4ea7cba6e99fee9061abf42215c2"
+    ],
+    "losses": {
+      "lm loss": 2.469728946685791
+    },
+    "consumed_valid_after": 8,
+    "tp_replicated_parameters_exact": true,
+    "replicated_parameters_checked": 226,
+    "dp_parameter_sample_exact": true,
+    "parallel_ranks": {
+      "tp": 0,
+      "pp": 1,
+      "dp": 1
+    }
+  }
+]

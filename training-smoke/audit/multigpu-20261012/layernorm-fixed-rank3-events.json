@@ -1,0 +1,62 @@
+[
+  {
+    "kind": "train",
+    "iteration": 1,
+    "consumed_train_samples": 0,
+    "batch_hashes": [],
+    "losses": {},
+    "skipped": 0,
+    "grad_norm": 98.23210144042969,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 0,
+      "dp": 1
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 2,
+    "consumed_train_samples": 4,
+    "batch_hashes": [],
+    "losses": {},
+    "skipped": 0,
+    "grad_norm": 528.7739868164062,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 0,
+      "dp": 1
+    }
+  },
+  {
+    "kind": "eval",
+    "iteration": 2,
+    "consumed_valid_before": 0,
+    "batch_hashes": [],
+    "losses": {},
+    "consumed_valid_after": 4,
+    "tp_replicated_parameters_exact": true,
+    "replicated_parameters_checked": 224,
+    "dp_parameter_sample_exact": true,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 0,
+      "dp": 1
+    }
+  },
+  {
+    "kind": "eval",
+    "iteration": 2,
+    "consumed_valid_before": 4,
+    "batch_hashes": [],
+    "losses": {},
+    "consumed_valid_after": 8,
+    "tp_replicated_parameters_exact": true,
+    "replicated_parameters_checked": 224,
+    "dp_parameter_sample_exact": true,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 0,
+      "dp": 1
+    }
+  }
+]

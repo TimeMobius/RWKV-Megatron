@@ -173,13 +173,28 @@ global_batch_size: 64
 seq_length: 4096
 ```
 
-To enable Muon, switch the optimizer field to:
+Muon requires `emerging-optimizers` (version `0.3.0` in the tested environment). Configure these top-level YAML fields:
 
 ```yaml
 optimizer: muon
+use_distributed_optimizer: true
+use_layer_wise_param_layout: false
+muon_momentum: 0.95
+muon_nesterov: true
+muon_split_qkv: false
+muon_num_ns_steps: 5
+muon_scale_mode: spectral
+muon_tp_mode: duplicated
+muon_scalar_optimizer: adam
 ```
 
-Muon-related hyperparameters follow Megatron naming conventions, such as `muon_matched_adamw_rms`, `muon_momentum`, and `muon_ns_steps`.
+Use [config-rwkv7-3b-muon.yaml](configs/config-rwkv7-3b-muon.yaml) for the complete single-GPU example. Linear and LoRA matrices use Muon; embeddings, output weights, norms and elementwise mixing coefficients use Adam. Megatron maps `use_distributed_optimizer: true` to the layer-wise Muon path. The default new layout currently fails to save `torch` checkpoints because the outer `ChainedOptimizer` lacks the file-saving interface; use compatibility mode `use_layer_wise_param_layout: false`. Rename the legacy `muon_ns_steps` to `muon_num_ns_steps`; `muon_matched_adamw_rms` is no longer recognized. Keep `muon_use_syrk: false` with dependency version `0.3.0`.
+
+```bash
+CUDA_VISIBLE_DEVICES=0 bash training-smoke/launch-3b-reference.sh 3b-muon configs/config-rwkv7-3b-muon.yaml
+```
+
+The template learning rate is for a short smoke test and needs tuning for production. Adam optimizer checkpoints cannot be directly resumed as Muon optimizer state. See [MUON.md](training-smoke/audit/MUON.md) for validation, and [checkpoint configuration](configs/config-rwkv7-3b-reference.md#检查点保存与断点续训) for saving and resuming.
 
 #### Distributed Training Configuration
 
@@ -195,6 +210,8 @@ Different parallel strategies can be organized according to the available hardwa
 # Enable Sequence Parallelism
 --sequence-parallel --tensor-model-parallel-size 8
 ```
+
+With RWKV7 `sequence_parallel: true`, each TP rank carries only its own `v0` channels across ordinary PP stages. The payload has two slots (hidden states and local-head `v0`), reducing total message bytes by 33% for TP2 and 60% for TP4. Model and checkpoint tensor shapes stay unchanged; use the matching root and Megatron submodule changes together. Full 3B gradients and fixed-eval continuation on two eight-GPU layouts were validated; see the [audit report](training-smoke/audit/V0-SHARD-20261012.md). Interleaved PP, CP, FP8 and multi-GPU Muon require separate validation.
 
 #### Launch Scripts
 

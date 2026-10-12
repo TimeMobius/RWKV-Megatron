@@ -1,15 +1,4 @@
-"""
-Regression test for RWKV7 v0 / v_first handling with tensor parallel + pipeline
-parallel when sequence parallel is enabled.
-
-This test checks the intended sequence-parallel contract:
-1. Each TP rank carries only its local-sequence chunk across PP stages.
-2. Each carried v0 cache slot keeps full hidden size for one TP rank's
-   full-sequence cache after Megatron's SP all-gather inside ColumnParallelLinear.
-3. Non-interleaved PP schedules should therefore use 1 + TP tensor slots:
-   hidden states + one v0 cache per TP rank.
-"""
-
+"""SP pipeline payload keeps full-sequence local heads in a single v0 slot."""
 from __future__ import annotations
 
 import ast
@@ -17,20 +6,13 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Optional
 
+import pytest
 import torch
 
+from rwkv_megatron.value_residual import pack_sharded_value, unpack_sharded_value
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-SCHEDULES_PATH = (
-    REPO_ROOT
-    / "3rdparty"
-    / "Megatron-LM-0.11.0"
-    / "megatron"
-    / "core"
-    / "pipeline_parallel"
-    / "schedules.py"
-)
-
+SCHEDULES_PATH = REPO_ROOT / "3rdparty/Megatron-LM-0.11.0/megatron/core/pipeline_parallel/schedules.py"
 TP_SIZE = 2
 HIDDEN = 4
 
@@ -65,142 +47,71 @@ def _load_get_tensor_shapes(tp_size: int = TP_SIZE, cp_size: int = 1):
     return namespace["get_tensor_shapes"], model_type
 
 
-def stage0_build_v0_sp(gathered_full_sequence_full_hidden: torch.Tensor):
-    """Emulate the SP first-layer branch in RWKV7TimeMix.forward()."""
-    layer_number = 1
-    pp_rank = 0
-    v0 = None
-
-    if v0 is None and layer_number == 1 and pp_rank == 0:
-        v0 = gathered_full_sequence_full_hidden
-
-    return v0
-
-
-def transformer_layer_pack_sp(
-    hidden_states: torch.Tensor, v0_full_sequence_full_hidden: torch.Tensor
-):
-    """Emulate TransformerLayer's SP pack protocol with one v0 cache slot per TP rank."""
-    local_seq = hidden_states.shape[0]
-    v0_slots = list(v0_full_sequence_full_hidden.split(local_seq, dim=0))
-    return torch.cat(
-        [hidden_states.unsqueeze(0), *[slot.unsqueeze(0) for slot in v0_slots]],
-        dim=0,
-    )
+@pytest.mark.parametrize("tp_size", [1, 2, 4])
+@pytest.mark.parametrize("batch", [1, 3])
+def test_pipeline_shape_reserves_two_slots(tp_size, batch):
+    get_shapes, _ = _load_get_tensor_shapes(tp_size)
+    config = SimpleNamespace(sequence_parallel=True, hidden_size=16,
+                             variable_seq_lengths=False, rwkv7_value_residual=True)
+    shapes = get_shapes(seq_length=8, micro_batch_size=batch, decoder_seq_length=None,
+                        config=config, tp_group=SimpleNamespace(size=lambda: tp_size),
+                        cp_group=SimpleNamespace(size=lambda: 1))
+    assert shapes == [(2, 8 // tp_size, batch, 16)]
 
 
-def timemix_unpack_sp(packed_hidden_states: torch.Tensor):
-    """Emulate the SP unpack path entering RWKV7TimeMix.forward()."""
-    assert packed_hidden_states.dim() == 4
-    hidden_states = packed_hidden_states[0]
-    v0 = packed_hidden_states[1:].reshape(
-        -1,
-        packed_hidden_states.shape[2],
-        packed_hidden_states.shape[3],
-    )
-    return hidden_states, v0
+@pytest.mark.parametrize("tp_size", [2, 4])
+@pytest.mark.parametrize("batch", [1, 3])
+@pytest.mark.parametrize("local_sequence", [1, 5])
+def test_local_head_payload_preserves_tokens_samples_and_gradients(tp_size, batch, local_sequence):
+    hidden = 16
+    sequence = local_sequence * tp_size
+    # Distinct values on every axis expose any token/sample/head interchange.
+    full = torch.arange(sequence * batch * hidden, dtype=torch.float64).reshape(sequence, batch, hidden)
+    for rank in range(tp_size):
+        local = full[:, :, rank * (hidden // tp_size):(rank + 1) * (hidden // tp_size)].clone().requires_grad_()
+        packed = pack_sharded_value(local, tp_size)
+        assert packed.shape == (local_sequence, batch, hidden)
+        assert packed.numel() == full.numel() // tp_size
+        assert packed.data_ptr() == local.data_ptr()
+        assert torch.equal(packed.flatten(), local.flatten())
+        restored = unpack_sharded_value(packed, tp_size)
+        assert torch.equal(restored, local)
+        # Model the unchanged cache crossing multiple PP/layer boundaries.
+        for _ in range(3):
+            restored = unpack_sharded_value(pack_sharded_value(restored, tp_size), tp_size)
+        weights = (local.detach() + 1).square()
+        (restored * weights).sum().backward()
+        assert torch.equal(local.grad, weights)
 
 
-def later_stage_mix_value_sp(
-    local_value_shard: torch.Tensor,
-    v0_full_sequence_full_hidden: torch.Tensor,
-    tp_rank: int,
-    *,
-    layer_number: int,
-    pp_rank: int,
-):
-    """Emulate the SP later-stage branch in RWKV7TimeMix.forward()."""
-    assert v0_full_sequence_full_hidden.shape[:2] == local_value_shard.shape[:2]
-
-    if pp_rank == 0 and layer_number == 1:
-        raise ValueError("v0 is not None for the first layer")
-
-    shard_size = HIDDEN // TP_SIZE
-    start_idx = tp_rank * shard_size
-    end_idx = start_idx + shard_size
-    v0_shard = v0_full_sequence_full_hidden[:, :, start_idx:end_idx]
-
-    vt = torch.ones_like(local_value_shard)
-    mixed_value = torch.lerp(local_value_shard, v0_shard, vt)
-    return mixed_value, v0_shard
-
-
-def test_sp_non_interleaved_pipeline_shape_uses_one_v0_cache_slot_per_tp_rank():
-    get_tensor_shapes, model_type = _load_get_tensor_shapes()
-    config = SimpleNamespace(sequence_parallel=True, hidden_size=HIDDEN, variable_seq_lengths=False, rwkv7_value_residual=True)
-
-    tensor_shapes = get_tensor_shapes(
-        seq_length=8,
-        micro_batch_size=2,
-        decoder_seq_length=None,
-        config=config,
-        tp_group=SimpleNamespace(size=lambda: TP_SIZE),
-        cp_group=SimpleNamespace(size=lambda: 1),
-    )
-
-    assert tensor_shapes == [(1 + TP_SIZE, 4, 2, HIDDEN)]
+@pytest.mark.parametrize("tp_size", [2, 4])
+def test_multiple_value_branches_reach_the_original_projection(tp_size):
+    gen = torch.Generator().manual_seed(123)
+    x = torch.randn(8, 3, 16, dtype=torch.float64, generator=gen)
+    w = torch.randn(16, 16, dtype=torch.float64, generator=gen, requires_grad=True)
+    value = x @ w
+    full_loss = 0
+    local_loss = 0
+    for rank in range(tp_size):
+        shard = value[:, :, rank * (16 // tp_size):(rank + 1) * (16 // tp_size)]
+        carried = unpack_sharded_value(pack_sharded_value(shard, tp_size), tp_size)
+        # Three downstream layers with distinct blend gates and incoming gradients.
+        for _ in range(3):
+            other = torch.randn(shard.shape, dtype=torch.float64, generator=gen)
+            gate = torch.rand(shard.shape, dtype=torch.float64, generator=gen)
+            incoming = torch.randn(shard.shape, dtype=torch.float64, generator=gen)
+            full_loss = full_loss + (torch.lerp(other, shard, gate) * incoming).sum()
+            local_loss = local_loss + (torch.lerp(other, carried, gate) * incoming).sum()
+    reference, = torch.autograd.grad(full_loss, w, retain_graph=True)
+    actual, = torch.autograd.grad(local_loss, w)
+    torch.testing.assert_close(actual, reference, rtol=1e-14, atol=1e-14)
 
 
-def test_sp_transformer_layer_protocol_keeps_local_sequence_v0_contract():
-    # Each TP rank owns a different local-sequence chunk. The stage-local hidden
-    # state stays sequence-sharded, but v0 is materialized at full sequence length
-    # on each TP rank after Megatron's SP all-gather inside ColumnParallelLinear.
-    rank0_stage0_hidden = torch.tensor([[[11.0, 12.0, 13.0, 14.0]]])
-    rank1_stage0_hidden = torch.tensor([[[21.0, 22.0, 23.0, 24.0]]])
-
-    rank0_full_seq_v0_full_hidden = torch.tensor(
-        [
-            [[1.0, 2.0, 101.0, 102.0]],
-            [[3.0, 4.0, 103.0, 104.0]],
-        ]
-    )
-    rank1_full_seq_v0_full_hidden = rank0_full_seq_v0_full_hidden.clone()
-
-    rank0_v0 = stage0_build_v0_sp(rank0_full_seq_v0_full_hidden)
-    rank1_v0 = stage0_build_v0_sp(rank1_full_seq_v0_full_hidden)
-
-    packed_rank0 = transformer_layer_pack_sp(rank0_stage0_hidden, rank0_v0)
-    packed_rank1 = transformer_layer_pack_sp(rank1_stage0_hidden, rank1_v0)
-
-    assert packed_rank0.shape == (1 + TP_SIZE, 1, 1, HIDDEN)
-    assert packed_rank1.shape == (1 + TP_SIZE, 1, 1, HIDDEN)
-
-    unpacked_hidden0, unpacked_v00 = timemix_unpack_sp(packed_rank0)
-    unpacked_hidden1, unpacked_v01 = timemix_unpack_sp(packed_rank1)
-
-    assert torch.equal(unpacked_hidden0, rank0_stage0_hidden)
-    assert torch.equal(unpacked_hidden1, rank1_stage0_hidden)
-    assert torch.equal(unpacked_v00, rank0_full_seq_v0_full_hidden)
-    assert torch.equal(unpacked_v01, rank1_full_seq_v0_full_hidden)
-
-    # Later PP stages still hold local-sequence hidden states, but their v0 cache
-    # spans the full gathered sequence, so value should align on the full sequence
-    # dimension after ColumnParallelLinear's SP all-gather.
-    rank0_local_value = torch.tensor([[[9.0, 9.0]], [[7.0, 7.0]]])
-    rank1_local_value = torch.tensor([[[8.0, 8.0]], [[6.0, 6.0]]])
-
-    mixed0, shard0 = later_stage_mix_value_sp(
-        rank0_local_value, unpacked_v00, tp_rank=0, layer_number=1, pp_rank=1
-    )
-    mixed1, shard1 = later_stage_mix_value_sp(
-        rank1_local_value, unpacked_v01, tp_rank=1, layer_number=1, pp_rank=1
-    )
-
-    assert torch.equal(shard0, torch.tensor([[[1.0, 2.0]], [[3.0, 4.0]]]))
-    assert torch.equal(shard1, torch.tensor([[[101.0, 102.0]], [[103.0, 104.0]]]))
-    assert torch.equal(mixed0, shard0)
-    assert torch.equal(mixed1, shard1)
-
-    repacked_rank0 = transformer_layer_pack_sp(unpacked_hidden0, unpacked_v00)
-    repacked_rank1 = transformer_layer_pack_sp(unpacked_hidden1, unpacked_v01)
-
-    assert repacked_rank0.shape == (1 + TP_SIZE, 1, 1, HIDDEN)
-    assert repacked_rank1.shape == (1 + TP_SIZE, 1, 1, HIDDEN)
-    assert torch.equal(repacked_rank0[1:], rank0_full_seq_v0_full_hidden.unsqueeze(1))
-    assert torch.equal(repacked_rank1[1:], rank1_full_seq_v0_full_hidden.unsqueeze(1))
-
-
-if __name__ == "__main__":
-    test_sp_non_interleaved_pipeline_shape_uses_one_v0_cache_slot_per_tp_rank()
-    test_sp_transformer_layer_protocol_keeps_local_sequence_v0_contract()
-    print("PASS: SP TP+PP v0 contract stays self-consistent with one cache slot per TP rank.")
+@pytest.mark.parametrize("sp", [False, True])
+def test_standard_gpt_pipeline_shape_is_unchanged(sp):
+    get_shapes, _ = _load_get_tensor_shapes()
+    config = SimpleNamespace(sequence_parallel=sp, hidden_size=16, variable_seq_lengths=False)
+    shape = get_shapes(seq_length=8, micro_batch_size=3, decoder_seq_length=None,
+                       config=config, tp_group=SimpleNamespace(size=lambda: 2),
+                       cp_group=SimpleNamespace(size=lambda: 1))
+    assert shape == [(4 if sp else 8, 3, 16)]

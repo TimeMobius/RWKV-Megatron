@@ -1,0 +1,40 @@
+{
+  "files": [
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/multigpu-20261012/full-3b-minipile-pp2-fp32-naive.pth",
+      "bytes": 11949079172,
+      "validated_by": "validation.json; full-3b-minipile-comparisons.json"
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/multigpu-20261012/full-3b-minipile-tp2-sp-pp2-fp32-naive.pth",
+      "bytes": 11964794379,
+      "validated_by": "validation.json; full-3b-minipile-comparisons.json"
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/multigpu-20261012/full-3b-minipile-tp2-fp32-naive.pth",
+      "bytes": 12008688922,
+      "validated_by": "validation.json; full-3b-minipile-comparisons.json"
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/multigpu-20261012/full-3b-minipile-tp2-sp-pp2-recompute-fp32-naive.pth",
+      "bytes": 11838778689,
+      "validated_by": "validation.json; full-3b-minipile-comparisons.json"
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/multigpu-20261012/full-3b-minipile-dense-fp32-naive.pth",
+      "bytes": 11946458938,
+      "validated_by": "validation.json; full-3b-minipile-comparisons.json"
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/multigpu-20261012/full-3b-minipile-tp2-pp2-fp32-naive.pth",
+      "bytes": 12013941870,
+      "validated_by": "validation.json; full-3b-minipile-comparisons.json"
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/multigpu-20261012/full-3b-minipile-tp2-sp-fp32-naive.pth",
+      "bytes": 11960852191,
+      "validated_by": "validation.json; full-3b-minipile-comparisons.json"
+    }
+  ],
+  "bytes": 83682594161
+}

@@ -182,3 +182,8 @@ model_diff_report.csv
 four_models_diff_report.csv
 four_models_diff_report_v2.csv
 RWKV-7-World-HF-Converter/
+
+# Local audit tensor snapshots and generated training checkpoints
+/training-smoke/audit/**/*.pth
+/training-smoke/audit/**/*.pt
+/training-smoke/checkpoints/

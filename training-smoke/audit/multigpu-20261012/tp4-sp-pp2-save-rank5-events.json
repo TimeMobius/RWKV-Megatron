@@ -1,0 +1,52 @@
+[
+  {
+    "kind": "train",
+    "iteration": 1,
+    "consumed_train_samples": 0,
+    "batch_hashes": [],
+    "losses": {
+      "lm loss": 2.6711044311523438
+    },
+    "skipped": 0,
+    "grad_norm": 93.87620544433594,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 1,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 2,
+    "consumed_train_samples": 4,
+    "batch_hashes": [],
+    "losses": {
+      "lm loss": 2.671614408493042
+    },
+    "skipped": 0,
+    "grad_norm": 571.8904418945312,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 1,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "eval",
+    "iteration": 2,
+    "consumed_valid_before": 0,
+    "batch_hashes": [],
+    "losses": {
+      "lm loss": 2.4720821380615234
+    },
+    "consumed_valid_after": 4,
+    "tp_replicated_parameters_exact": true,
+    "replicated_parameters_checked": 226,
+    "dp_parameter_sample_exact": true,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 1,
+      "dp": 0
+    }
+  }
+]

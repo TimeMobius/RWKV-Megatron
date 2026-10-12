@@ -1,0 +1,48 @@
+[
+  {
+    "kind": "train",
+    "iteration": 1,
+    "consumed_train_samples": 0,
+    "batch_hashes": [],
+    "losses": {},
+    "skipped": 0,
+    "grad_norm": 93.88055419921875,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 0,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 2,
+    "consumed_train_samples": 4,
+    "batch_hashes": [],
+    "losses": {},
+    "skipped": 0,
+    "grad_norm": 526.2083129882812,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 0,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "eval",
+    "iteration": 2,
+    "consumed_valid_before": 0,
+    "batch_hashes": [],
+    "losses": {},
+    "consumed_valid_after": 4,
+    "cuda_peak_mib": 7204.6572265625,
+    "cuda_allocated_mib": 7022.60546875,
+    "tp_replicated_parameters_exact": true,
+    "replicated_parameters_checked": 224,
+    "dp_parameter_sample_exact": true,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 0,
+      "dp": 0
+    }
+  }
+]

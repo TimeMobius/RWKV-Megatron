@@ -1,0 +1,102 @@
+[
+  {
+    "kind": "train",
+    "iteration": 1,
+    "consumed_train_samples": 0,
+    "batch_hashes": [],
+    "losses": {
+      "lm loss": 1.6749179363250732
+    },
+    "skipped": 0,
+    "grad_norm": 180.8404083251953,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 1,
+      "dp": 1
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 2,
+    "consumed_train_samples": 8,
+    "batch_hashes": [],
+    "losses": {
+      "lm loss": 1.9053245782852173
+    },
+    "skipped": 0,
+    "grad_norm": 7493.5712890625,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 1,
+      "dp": 1
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 3,
+    "consumed_train_samples": 16,
+    "batch_hashes": [],
+    "losses": {
+      "lm loss": 2.04138445854187
+    },
+    "skipped": 0,
+    "grad_norm": 826.699462890625,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 1,
+      "dp": 1
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 4,
+    "consumed_train_samples": 24,
+    "batch_hashes": [],
+    "losses": {
+      "lm loss": 1.7791802883148193
+    },
+    "skipped": 0,
+    "grad_norm": 215.1522674560547,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 1,
+      "dp": 1
+    }
+  },
+  {
+    "kind": "eval",
+    "iteration": 4,
+    "consumed_valid_before": 0,
+    "batch_hashes": [],
+    "losses": {
+      "lm loss": 1.9172565937042236
+    },
+    "consumed_valid_after": 8,
+    "tp_replicated_parameters_exact": true,
+    "replicated_parameters_checked": 226,
+    "dp_parameter_sample_exact": true,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 1,
+      "dp": 1
+    }
+  },
+  {
+    "kind": "eval",
+    "iteration": 4,
+    "consumed_valid_before": 8,
+    "batch_hashes": [],
+    "losses": {
+      "lm loss": 1.9172565937042236
+    },
+    "consumed_valid_after": 16,
+    "tp_replicated_parameters_exact": true,
+    "replicated_parameters_checked": 226,
+    "dp_parameter_sample_exact": true,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 1,
+      "dp": 1
+    }
+  }
+]

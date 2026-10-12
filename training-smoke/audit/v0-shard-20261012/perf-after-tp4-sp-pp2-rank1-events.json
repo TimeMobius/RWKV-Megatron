@@ -1,0 +1,122 @@
+[
+  {
+    "kind": "train",
+    "iteration": 1,
+    "consumed_train_samples": 0,
+    "batch_hashes": [],
+    "losses": {},
+    "skipped": 0,
+    "grad_norm": 188.21334838867188,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 0,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 2,
+    "consumed_train_samples": 8,
+    "batch_hashes": [],
+    "losses": {},
+    "skipped": 0,
+    "grad_norm": 7256.51708984375,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 0,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 3,
+    "consumed_train_samples": 16,
+    "batch_hashes": [],
+    "losses": {},
+    "skipped": 0,
+    "grad_norm": 1248.330078125,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 0,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 4,
+    "consumed_train_samples": 24,
+    "batch_hashes": [],
+    "losses": {},
+    "skipped": 0,
+    "grad_norm": 233.94190979003906,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 0,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 5,
+    "consumed_train_samples": 32,
+    "batch_hashes": [],
+    "losses": {},
+    "skipped": 0,
+    "grad_norm": 140.1160125732422,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 0,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "train",
+    "iteration": 6,
+    "consumed_train_samples": 40,
+    "batch_hashes": [],
+    "losses": {},
+    "skipped": 0,
+    "grad_norm": 40.976844787597656,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 0,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "eval",
+    "iteration": 6,
+    "consumed_valid_before": 0,
+    "batch_hashes": [],
+    "losses": {},
+    "consumed_valid_after": 8,
+    "cuda_peak_mib": 7372.74755859375,
+    "cuda_allocated_mib": 7031.98046875,
+    "tp_replicated_parameters_exact": true,
+    "replicated_parameters_checked": 224,
+    "dp_parameter_sample_exact": true,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 0,
+      "dp": 0
+    }
+  },
+  {
+    "kind": "eval",
+    "iteration": 6,
+    "consumed_valid_before": 8,
+    "batch_hashes": [],
+    "losses": {},
+    "consumed_valid_after": 16,
+    "cuda_peak_mib": 7372.74755859375,
+    "cuda_allocated_mib": 7031.98046875,
+    "tp_replicated_parameters_exact": true,
+    "replicated_parameters_checked": 224,
+    "dp_parameter_sample_exact": true,
+    "parallel_ranks": {
+      "tp": 1,
+      "pp": 0,
+      "dp": 0
+    }
+  }
+]

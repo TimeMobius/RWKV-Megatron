@@ -1,0 +1,18 @@
+[
+  {
+    "file": "recompute-replay-eager-tp2-pp2-rank0.json",
+    "mismatches": []
+  },
+  {
+    "file": "recompute-replay-eager-tp2-pp2-rank1.json",
+    "mismatches": []
+  },
+  {
+    "file": "recompute-replay-eager-tp2-pp2-rank2.json",
+    "mismatches": []
+  },
+  {
+    "file": "recompute-replay-eager-tp2-pp2-rank3.json",
+    "mismatches": []
+  }
+]

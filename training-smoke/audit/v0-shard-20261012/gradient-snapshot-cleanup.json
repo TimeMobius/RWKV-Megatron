@@ -1,0 +1,49 @@
+{
+  "files": [
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/v0-shard-20261012/full-before-fusion0-tp2-sp-pp2-recompute/full-3b-minipile-tp2-sp-pp2-recompute.pth",
+      "bytes": 5990738976,
+      "validation": "validation.json, precision.json"
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/v0-shard-20261012/full-before-fusion0-tp4-sp-pp2-recompute/full-3b-minipile-tp4-sp-pp2-recompute.pth",
+      "bytes": 6053148212,
+      "validation": "validation.json, precision.json"
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/v0-shard-20261012/full-before-fusion1-tp2-sp-pp2-recompute/full-3b-minipile-tp2-sp-pp2-recompute.pth",
+      "bytes": 5990738976,
+      "validation": "validation.json, precision.json"
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/v0-shard-20261012/full-after-fusion0-tp2-sp-pp2-recompute/full-3b-minipile-tp2-sp-pp2-recompute.pth",
+      "bytes": 5976321056,
+      "validation": "validation.json, precision.json"
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/v0-shard-20261012/full-after-fusion0-tp4-sp-pp2-recompute/full-3b-minipile-tp4-sp-pp2-recompute.pth",
+      "bytes": 6009894452,
+      "validation": "validation.json, precision.json"
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/v0-shard-20261012/full-after-fusion1-tp2-sp-pp2-recompute/full-3b-minipile-tp2-sp-pp2-recompute.pth",
+      "bytes": 5976321056,
+      "validation": "validation.json, precision.json"
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/v0-shard-20261012/full-before-fp32-tp4-sp-pp2/full-3b-minipile-tp4-sp-pp2-fp32-naive.pth",
+      "bytes": 11996206483,
+      "validation": "validation.json, precision.json"
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/v0-shard-20261012/full-after-fp32-tp4-sp-pp2/full-3b-minipile-tp4-sp-pp2-fp32-naive.pth",
+      "bytes": 11974579411,
+      "validation": "validation.json, precision.json"
+    }
+  ],
+  "bytes": 59967948622,
+  "retained_full_pairs": [
+    "full-after-fusion1-tp4-sp-pp2-recompute",
+    "full-before-fusion1-tp4-sp-pp2-recompute"
+  ]
+}

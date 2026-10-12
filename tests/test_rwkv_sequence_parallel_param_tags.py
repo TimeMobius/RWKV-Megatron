@@ -17,6 +17,8 @@ from unittest.mock import patch
 
 import torch
 
+from rwkv_megatron.precision import validate_rwkv_precision
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RWKV7_PATH = REPO_ROOT / "rwkv_megatron" / "rwkv7_layer_specs.py"
@@ -61,6 +63,7 @@ def _base_namespace():
         "get_tensor_model_parallel_rank": lambda: 0,
         "get_args": lambda: SimpleNamespace(transformer_impl="local"),
         "HAVE_TE": False,
+        "validate_rwkv_precision": validate_rwkv_precision,
         "ColumnParallelLinear": _DummyColumnParallelLinear,
         "RowParallelLinear": _DummyRowParallelLinear,
         "TEColumnParallelLinear": _DummyColumnParallelLinear,

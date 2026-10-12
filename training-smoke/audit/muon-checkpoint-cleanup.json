@@ -1,0 +1,72 @@
+{
+  "reason": "Assistant-generated Muon checkpoints; exact resume verification complete",
+  "user_checkpoints_touched": false,
+  "directories": [
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/single-resume-muon-20261010",
+      "files": [
+        {
+          "path": "progress.txt",
+          "bytes": 614
+        },
+        {
+          "path": "latest_checkpointed_iteration.txt",
+          "bytes": 1
+        },
+        {
+          "path": "iter_0000002/run_config.yaml",
+          "bytes": 11387
+        },
+        {
+          "path": "iter_0000004/run_config.yaml",
+          "bytes": 11513
+        },
+        {
+          "path": "iter_0000002/mp_rank_00/layer_wise_optimizer_0.pt",
+          "bytes": 24933741605
+        },
+        {
+          "path": "iter_0000002/mp_rank_00/model_optim_rng.pt",
+          "bytes": 30830336748
+        },
+        {
+          "path": "iter_0000004/mp_rank_00/layer_wise_optimizer_0.pt",
+          "bytes": 24933741605
+        },
+        {
+          "path": "iter_0000004/mp_rank_00/model_optim_rng.pt",
+          "bytes": 30830337004
+        }
+      ],
+      "bytes": 111528180477
+    },
+    {
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/single-continuous-muon-20261010",
+      "files": [
+        {
+          "path": "progress.txt",
+          "bytes": 255
+        },
+        {
+          "path": "latest_checkpointed_iteration.txt",
+          "bytes": 1
+        },
+        {
+          "path": "iter_0000004/run_config.yaml",
+          "bytes": 11394
+        },
+        {
+          "path": "iter_0000004/mp_rank_00/layer_wise_optimizer_0.pt",
+          "bytes": 24933741605
+        },
+        {
+          "path": "iter_0000004/mp_rank_00/model_optim_rng.pt",
+          "bytes": 30830336748
+        }
+      ],
+      "bytes": 55764090003
+    }
+  ],
+  "deleted": true,
+  "bytes_freed": 167292270480
+}

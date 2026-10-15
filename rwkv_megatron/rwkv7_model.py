@@ -366,6 +366,22 @@ class RWKV7Model(GPTModel):
         tp_rank = get_tensor_model_parallel_rank()
         tp_size = get_tensor_model_parallel_world_size()
 
+        expected_r_k_shape = (
+            self.config.num_attention_heads,
+            divide(self.config.hidden_size, self.config.num_attention_heads),
+        )
+        for local_layer_index in range(len(self.decoder.layers)):
+            key = f"blocks.{layers_start + local_layer_index}.att.r_k"
+            actual_r_k_shape = tuple(state_dict[key].shape)
+            if actual_r_k_shape != expected_r_k_shape:
+                raise ValueError(
+                    f"RWKV-LM head layout mismatch for {key}: got {actual_r_k_shape}, "
+                    f"expected {expected_r_k_shape} "
+                    f"(num_attention_heads={self.config.num_attention_heads}, "
+                    f"hidden_size={self.config.hidden_size}). "
+                    "The initialization weights and training configuration must use the same head layout."
+                )
+
         def tp(full_tensor: Tensor, dim=0):
             global_size = full_tensor.size(dim)
             local_size = divide(global_size, tp_size)

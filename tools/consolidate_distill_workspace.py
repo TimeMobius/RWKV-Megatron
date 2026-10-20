@@ -12,6 +12,12 @@ import wandb
 
 ENTITY = "mobius"
 PROJECT = "rwkv-qwen-distill-2p7b"
+CHART_TITLES = {
+    'throughput': 'throughput (TFLOP/s/GPU)',
+    'iteration-time': 'iteration-time (s/step)',
+    'throughput/tokens_per_sec': 'throughput (tokens/s)',
+    'throughput/samples_per_sec': 'throughput (samples/s)',
+}
 QUERY = '''query Workspace($entity: String!, $project: String!) {
   project(name: $project, entityName: $entity) {
     allViews(viewType: "project-view") {
@@ -28,6 +34,20 @@ MUTATION = '''mutation SaveWorkspace($id: ID, $entity: String, $project: String,
 }'''
 
 
+def update_chart_titles(original):
+    """Only rename existing panels; preserve axes, layout and selected runs."""
+    spec = deepcopy(original)
+    metrics = []
+    for section in spec['section']['panelBankConfig']['sections']:
+        for panel in section.get('panels', []):
+            config = panel.get('config', {})
+            keys = config.get('metrics', [])
+            if len(keys) == 1 and keys[0] in CHART_TITLES:
+                config['chartTitle'] = CHART_TITLES[keys[0]]
+                metrics.append(keys[0])
+    return spec, metrics
+
+
 def build_spec(original, available):
     spec = deepcopy(original)
     section = spec['section']
@@ -40,12 +60,6 @@ def build_spec(original, available):
                  'throughput/tokens_per_sec', 'throughput', 'iteration-time',
                  'throughput/samples_per_sec', 'distill/kl_loss', 'memory/allocated_mib',
                  'memory/max_allocated_mib', 'memory/reserved_mib', 'memory/max_reserved_mib']
-    chart_titles = {
-        'throughput': 'throughput (TFLOP/s/GPU)',
-        'iteration-time': 'iteration-time (s/step)',
-        'throughput/tokens_per_sec': 'throughput (tokens/s)',
-        'throughput/samples_per_sec': 'throughput (samples/s)',
-    }
     allowed = [k for k in available if not k.startswith(('metrics_backfill/', 'teacher/final_'))
                and k != 'throughput/train_interval_tokens_per_sec']
     metrics = [k for k in preferred if k in allowed] + sorted(set(allowed) - set(preferred))
@@ -57,7 +71,7 @@ def build_spec(original, available):
         charts['panels'].append({
             '__id__': panel_id, 'isAuto': False, 'viewType': 'Run History Line Plot',
             'layout': {'x': (index % 3) * 8, 'y': (index // 3) * 6, 'w': 8, 'h': 6},
-            'config': {'chartTitle': chart_titles.get(metric, metric), 'xAxis': axis, 'metrics': [metric]},
+            'config': {'chartTitle': CHART_TITLES.get(metric, metric), 'xAxis': axis, 'metrics': [metric]},
         })
     # Retain the existing system and hidden-section settings. Only the metric
     # prefix sections are replaced; all run data and run-table filters survive.
@@ -72,6 +86,8 @@ def build_spec(original, available):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--apply', action='store_true')
+    parser.add_argument('--titles-only', action='store_true',
+                        help='Rename existing charts without rebuilding the workspace')
     args = parser.parse_args()
     api = wandb.Api(overrides={'base_url': 'http://dian.sea-group.org:9098'})
     variables = {'entity': ENTITY, 'project': PROJECT}
@@ -81,12 +97,15 @@ def main():
     if len(targets) != 1:
         raise ValueError('Expected the existing Mobius project workspace')
     view = targets[0]
-    available = set()
-    for run in api.runs(f'{ENTITY}/{PROJECT}'):
-        available.update(k for k, value in run.summary.items()
-                         if not k.startswith('_') and isinstance(value, (int, float)))
     original = json.loads(view['spec'])
-    spec, metrics = build_spec(original, available)
+    if args.titles_only:
+        spec, metrics = update_chart_titles(original)
+    else:
+        available = set()
+        for run in api.runs(f'{ENTITY}/{PROJECT}'):
+            available.update(k for k, value in run.summary.items()
+                             if not k.startswith('_') and isinstance(value, (int, float)))
+        spec, metrics = build_spec(original, available)
     root = Path(__file__).resolve().parents[1]
     folder = root / 'training-smoke/qwen-rwkv-qwenvocab/workspace'
     folder.mkdir(exist_ok=True)
@@ -94,9 +113,10 @@ def main():
     (folder / f'before-{stamp}.json').write_text(json.dumps(view, indent=2) + '\n')
     (folder / f'proposed-{stamp}.json').write_text(json.dumps(spec, indent=2) + '\n')
     assert original['section']['runSets'] == spec['section']['runSets']
-    assert len(metrics) == len(set(metrics))
-    assert not any(s['name'] in ('train', 'throughput', 'memory', 'benchmark', 'validation', 'precision', 'distill', 'teacher')
-                   for s in spec['section']['panelBankConfig']['sections'])
+    if not args.titles_only:
+        assert len(metrics) == len(set(metrics))
+        assert not any(s['name'] in ('train', 'throughput', 'memory', 'benchmark', 'validation', 'precision', 'distill', 'teacher')
+                       for s in spec['section']['panelBankConfig']['sections'])
     if args.apply:
         # Re-read immediately before updating to avoid overwriting a user edit.
         current = execute(QUERY, variables=variables)['project']['allViews']['edges']

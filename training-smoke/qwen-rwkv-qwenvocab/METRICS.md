@@ -6,6 +6,12 @@
 展示布局由 `tools/consolidate_distill_workspace.py` 管理，保存前后的 JSON 备份位于
 `training-smoke/qwen-rwkv-qwenvocab/workspace/`；新指标需要加入展示时可以重跑该脚本。
 
+只更新图表单位标题时使用 `--titles-only --apply`，保留当前横轴、面板布局、run
+选择和其他设置。2026-10-20 检查确认当前 W&B 前端读取 `config.chartTitle`；此前
+标题写入后，后续服务端配置曾变回旧值，并非已证实前端忽略字段。再次更新后延迟
+20 秒从独立 API 客户端回读，`throughput (TFLOP/s/GPU)`、`iteration-time (s/step)`
+仍保留，原 `_step` 横轴不变。标题是 workspace 显示配置，不需要重启训练。
+
 原先只设置了 `log_throughput: true`，Megatron 因此在 stdout 打印吞吐量。
 W&B 的 `throughput` 和 `iteration-time` 还受 `log_timers_to_tensorboard: true`
 控制，这个开关未开启，造成训练曲线里缺少性能指标。

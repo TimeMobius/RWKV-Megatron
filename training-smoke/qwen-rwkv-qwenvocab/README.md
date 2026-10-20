@@ -130,13 +130,30 @@ batch1、LR=1e-6；最多 500 步或 60 分钟，每 50 步验证 2 个样本，
 本次长跑按用户指令在第 231 步后直接停止，GPU 已释放，没有自动续跑，也没有到达
 500 步/60 分钟的保存点；因此未生成本次训练的 checkpoint。
 
-## Teacher API 鉴权
+## Teacher API 请求约定
 
-`OnlineTeacherClient` 从 `RWKV_TEACHER_API_KEY` 读取 key，通过
-`Authorization: Bearer ...` 请求头发送，也支持构造函数显式传入 `api_key`。
-key 不加入 Megatron 参数或 YAML，因此不会随训练配置上传 W&B。
-本启动脚本自动加载 `~/.config/rwkv-distill/teacher.env`（本机已配置，权限 0600）；
-可通过 `RWKV_TEACHER_ENV_FILE` 指定其他本地凭据文件。
+当前 teacher 服务不依赖鉴权才能响应，但蒸馏请求统一显式携带：
+
+```yaml
+rwkv_teacher_api_key: sk-distill
+rwkv_teacher_seed: 1234
+```
+
+请求头使用 `Authorization: Bearer sk-distill`，请求 JSON 使用 `seed: 1234`。
+seed 用于让连续训练和从 checkpoint 续训时的 teacher 请求尽量保持一致；teacher
+响应本身不写入 checkpoint，严格逐位恢复对比仍应使用冻结 teacher 响应。
+训练配置优先使用 YAML/命令行中的显式值，不依赖本地环境变量中的 key。
+
+W&B 性能指标需要同时开启：
+
+```yaml
+log_throughput: true
+log_timers_to_tensorboard: true
+```
+
+这会把 `throughput` 和 `iteration-time` 写入 W&B；本地两小时 run 的 summary 已包含
+这两个指标。关闭 `log_timers_to_tensorboard` 时，Megatron 原生路径可能只在 stdout
+显示性能数据，因此后续蒸馏配置统一保留这两个开关。
 
 ## 带鉴权的一小时训练
 

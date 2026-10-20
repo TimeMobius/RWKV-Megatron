@@ -88,6 +88,7 @@ def _get_online_teacher(args):
             server_url=args.rwkv_teacher_url,
             model_name=args.rwkv_teacher_model,
             tokenizer_path=tokenizer_path,
+            api_key=getattr(args, "rwkv_teacher_api_key", None),
             top_k=args.rwkv_teacher_top_k,
             timeout=args.rwkv_teacher_timeout,
             request_temperature=1.0,

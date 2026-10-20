@@ -49,6 +49,7 @@ rwkv_distill_filter_roundtrip: true
 rwkv_teacher_url: http://192.168.10.121:8000
 rwkv_teacher_model: Qwen3.8-27B
 rwkv_teacher_tokenizer: /hikscale/models/Qwen/Qwen3.8-27B
+rwkv_teacher_api_key: sk-distill
 rwkv_teacher_top_k: 100
 rwkv_teacher_seed: 1234
 rwkv_teacher_timeout: 600.0

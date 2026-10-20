@@ -67,7 +67,7 @@ import rwkv
 from rwkv_megatron.rwkv7_layer_specs import get_rwkv7_layer_spec, get_rwkv7_with_transformer_engine_spec
 from rwkv_megatron.rwkv7_model import RWKV7Model
 from rwkv_megatron.online_teacher import (
-    OnlineTeacherClient, RoundTripDataset, TeacherTopK, TeacherPrefetchIterator, kl_divergence_topk,
+    build_teacher_client, RoundTripDataset, TeacherTopK, TeacherPrefetchIterator, kl_divergence_topk,
 )
 from rwkv_megatron.jsonl_dataset import JsonlTextDataset
 
@@ -81,29 +81,14 @@ def _get_online_teacher(args):
     """Create one HTTP client per training process."""
     global _online_teacher
     if _online_teacher is None:
-        tokenizer_path = args.rwkv_teacher_tokenizer or args.tokenizer_model
-        if not tokenizer_path:
-            raise ValueError("rwkv_teacher_tokenizer or tokenizer_model is required for distillation")
-        _online_teacher = OnlineTeacherClient(
-            server_url=args.rwkv_teacher_url,
-            model_name=args.rwkv_teacher_model,
-            tokenizer_path=tokenizer_path,
-            api_key=getattr(args, "rwkv_teacher_api_key", None),
-            top_k=args.rwkv_teacher_top_k,
-            timeout=args.rwkv_teacher_timeout,
-            request_temperature=1.0,
-            request_seed=getattr(args, "rwkv_teacher_seed", None),
-            max_retries=args.rwkv_teacher_max_retries,
-            retry_backoff_initial=args.rwkv_teacher_retry_backoff_initial,
-            retry_backoff_max=args.rwkv_teacher_retry_backoff_max,
-            retry_jitter=args.rwkv_teacher_retry_jitter,
-            cache_size=args.rwkv_teacher_cache_size,
-        )
+        _online_teacher = build_teacher_client(args)
         print_rank_0(
             f"online Qwen teacher: {args.rwkv_teacher_model} at {args.rwkv_teacher_url} "
             f"(top_k={args.rwkv_teacher_top_k}, request_temperature=1.0, "
             f"seed={getattr(args, 'rwkv_teacher_seed', None)})"
         )
+        if getattr(args, "rwkv_teacher_pool", False):
+            print_rank_0(f"shared teacher pool: {args.rwkv_teacher_pool_host}:{args.rwkv_teacher_pool_port}")
     return _online_teacher
 
 

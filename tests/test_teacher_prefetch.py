@@ -120,7 +120,9 @@ def test_http_failure_propagates_without_duplicate_request_or_skipped_batch():
         next(iterator)[iterator.future_key].result(timeout=5)
         with pytest.raises(RuntimeError, match="teacher HTTP failure"):
             next(iterator)[iterator.future_key].result(timeout=5)
-        assert next(iterator)["sample_id"] == 2
+        third = next(iterator)
+        assert third["sample_id"] == 2
+        third[iterator.future_key].result(timeout=5)
     finally:
         iterator.close()
     assert calls == Counter({0: 1, 1: 1, 2: 1})

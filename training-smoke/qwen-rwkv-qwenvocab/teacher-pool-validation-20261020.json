@@ -1,0 +1,98 @@
+{
+  "passed": true,
+  "scope": "2.74B BF16/FLA full-parameter Adam updates 501-505 from step500, independent pool process + 4-thread prefetch. Frozen real Qwen responses, upstream HTTP forbidden. Compared against previously recorded direct synchronous baseline; no new checkpoint.",
+  "live_api": {
+    "status": 503,
+    "error": "All upstream providers for model 'Qwen3.8-27B' are cooling down (Tried: [])",
+    "available_models": [
+      "DeepSeek-V4-Flash-0731",
+      "DeepSeek-V4.1-Flash",
+      "xiaoke-5"
+    ]
+  },
+  "steps": [
+    {
+      "step": 501,
+      "kl": 14.083866119384766,
+      "grad_norm": 15.789063453674316,
+      "kl_abs_diff": 0.0,
+      "grad_norm_abs_diff": 0.0,
+      "logits_equal": true,
+      "logits_max_abs": 0.0,
+      "skipped": 0
+    },
+    {
+      "step": 502,
+      "kl": 14.254631996154785,
+      "grad_norm": 35.88837432861328,
+      "kl_abs_diff": 0.0,
+      "grad_norm_abs_diff": 0.0,
+      "logits_equal": true,
+      "logits_max_abs": 0.0,
+      "skipped": 0
+    },
+    {
+      "step": 503,
+      "kl": 16.99371910095215,
+      "grad_norm": 24.905193328857422,
+      "kl_abs_diff": 0.0,
+      "grad_norm_abs_diff": 0.0,
+      "logits_equal": true,
+      "logits_max_abs": 0.0,
+      "skipped": 0
+    },
+    {
+      "step": 504,
+      "kl": 21.204133987426758,
+      "grad_norm": 30.56705093383789,
+      "kl_abs_diff": 0.0,
+      "grad_norm_abs_diff": 0.0,
+      "logits_equal": true,
+      "logits_max_abs": 0.0,
+      "skipped": 0
+    },
+    {
+      "step": 505,
+      "kl": 15.8691987991333,
+      "grad_norm": 20.964134216308594,
+      "kl_abs_diff": 0.0,
+      "grad_norm_abs_diff": 0.0,
+      "logits_equal": true,
+      "logits_max_abs": 0.0,
+      "skipped": 0
+    }
+  ],
+  "local_artifacts": "/tmp/rwkv-teacher-pool-validation-20261020",
+  "pool_stats": {
+    "requests": 0,
+    "backpressure_waits": 0,
+    "pool_submitted": 5,
+    "pool_completed": 5,
+    "pool_failed": 0,
+    "pool_consumed": 5,
+    "pool_cancelled": 0,
+    "pool_expired": 0,
+    "pool_rejected": 0,
+    "pool_peak_active": 2,
+    "pool_concurrency_reductions": 0,
+    "pool_concurrency_increases": 0,
+    "pool_active": 0,
+    "pool_queued": 0,
+    "pool_retained": 0,
+    "pool_ready": 0,
+    "pool_target_workers": 4,
+    "pool_client_requests": 0,
+    "pool_client_retries": 0,
+    "pool_client_rate_limits": 0,
+    "pool_client_failures": 0,
+    "pool_client_cache_hits": 0,
+    "pool_client_cache_entries": 0,
+    "pool_client_ewma_latency_seconds": 0.0
+  },
+  "tests": {
+    "passed": 205,
+    "xfailed": 2,
+    "subtests_passed": 76
+  },
+  "training_exit_code": 0
+}

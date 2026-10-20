@@ -23,6 +23,31 @@ from typing import Optional
 import torch
 
 
+def build_teacher_client(args, *, use_pool=True):
+    """Build the same teacher configuration in training and the pool process."""
+    tokenizer_path = args.rwkv_teacher_tokenizer or getattr(args, "tokenizer_model", None)
+    if not tokenizer_path:
+        raise ValueError("rwkv_teacher_tokenizer or tokenizer_model is required for distillation")
+    client = OnlineTeacherClient(
+        server_url=args.rwkv_teacher_url, model_name=args.rwkv_teacher_model,
+        tokenizer_path=tokenizer_path, api_key=args.rwkv_teacher_api_key,
+        top_k=args.rwkv_teacher_top_k, timeout=args.rwkv_teacher_timeout,
+        request_temperature=1.0, request_seed=args.rwkv_teacher_seed,
+        max_retries=args.rwkv_teacher_max_retries,
+        retry_backoff_initial=args.rwkv_teacher_retry_backoff_initial,
+        retry_backoff_max=args.rwkv_teacher_retry_backoff_max,
+        retry_jitter=args.rwkv_teacher_retry_jitter, cache_size=args.rwkv_teacher_cache_size,
+    )
+    if use_pool and getattr(args, "rwkv_teacher_pool", False):
+        from rwkv_megatron.teacher_pool import RemoteTeacherPoolClient
+
+        return RemoteTeacherPoolClient(
+            client, host=args.rwkv_teacher_pool_host, port=args.rwkv_teacher_pool_port,
+            authkey=args.rwkv_teacher_pool_authkey, timeout=args.rwkv_teacher_pool_timeout,
+        )
+    return client
+
+
 class RoundTripDataset(torch.utils.data.Subset):
     """Keep a deterministic prefix of samples whose text preserves token IDs."""
 
@@ -180,7 +205,8 @@ class TeacherPrefetchIterator:
     def get_stats(self):
         with self._lock:
             result = dict(self._stats, buffered=len(self._pending))
-        client_stats = getattr(self.teacher_client, "get_stats", lambda: {})()
+        client_stats = getattr(self.teacher_client, "get_training_stats",
+                               getattr(self.teacher_client, "get_stats", lambda: {}))()
         result.update({f"client_{key}": value for key, value in client_stats.items()})
         return result
 

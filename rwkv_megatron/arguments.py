@@ -65,6 +65,16 @@ def add_rwkv_arguments(parser):
     parser.add_argument("--rwkv-teacher-prefetch-lookahead", type=positive_int, default=32)
     parser.add_argument("--rwkv-teacher-prefetch-min-workers", type=positive_int, default=1)
     parser.add_argument("--rwkv-teacher-prefetch-latency-target", type=float, default=2.0)
+    parser.add_argument("--rwkv-teacher-pool", action=argparse.BooleanOptionalAction, default=False,
+                        help="Send teacher requests through a separately started shared pool")
+    parser.add_argument("--rwkv-teacher-pool-host", default="127.0.0.1")
+    parser.add_argument("--rwkv-teacher-pool-port", type=positive_int, default=50055)
+    parser.add_argument("--rwkv-teacher-pool-authkey", default="teacher-pool")
+    parser.add_argument("--rwkv-teacher-pool-timeout", type=float, default=2700.0)
+    parser.add_argument("--rwkv-teacher-pool-workers", type=positive_int, default=16)
+    parser.add_argument("--rwkv-teacher-pool-queue-size", type=positive_int, default=256)
+    parser.add_argument("--rwkv-teacher-pool-max-results", type=positive_int, default=512)
+    parser.add_argument("--rwkv-teacher-pool-result-ttl", type=float, default=300.0)
     parser.add_argument("--rwkv-distill-temperature", type=float, default=2.0)
     parser.add_argument("--rwkv-distill-valid-vocab-size", type=positive_int, default=None,
                         help="Effective teacher vocabulary size; defaults to the tokenizer ID range")
@@ -142,6 +152,21 @@ def add_rwkv_arguments(parser):
         raise ValueError('rwkv_teacher_prefetch_min_workers must be <= rwkv_teacher_prefetch_workers')
     if settings.get('rwkv_teacher_prefetch_latency_target', 2.0) <= 0:
         raise ValueError('rwkv_teacher_prefetch_latency_target must be positive')
+    if not isinstance(settings.get('rwkv_teacher_pool', False), bool):
+        raise ValueError('rwkv_teacher_pool must be a YAML boolean (true/false)')
+    for key, default in (('rwkv_teacher_pool_workers', 16), ('rwkv_teacher_pool_queue_size', 256),
+                         ('rwkv_teacher_pool_max_results', 512), ('rwkv_teacher_pool_port', 50055)):
+        value = settings.get(key, default)
+        if type(value) is not int or value < 1 or (key.endswith('port') and value > 65535):
+            raise ValueError(f'{key} must be a positive integer (port <= 65535)')
+    for key, default in (('rwkv_teacher_pool_timeout', 2700.0), ('rwkv_teacher_pool_result_ttl', 300.0)):
+        value = settings.get(key, default)
+        if not isinstance(value, (float, int)) or not math.isfinite(value) or value <= 0:
+            raise ValueError(f'{key} must be finite and positive')
+    for key, default in (('rwkv_teacher_pool_host', '127.0.0.1'),
+                         ('rwkv_teacher_pool_authkey', 'teacher-pool')):
+        if not isinstance(settings.get(key, default), str) or not settings.get(key, default):
+            raise ValueError(f'{key} must be a nonempty string')
     if settings.get('rwkv_jsonl_max_records', 0) < 0:
         raise ValueError('rwkv_jsonl_max_records must be nonnegative')
     if settings.get('rwkv_jsonl_chunk_chars', 512) < 1:

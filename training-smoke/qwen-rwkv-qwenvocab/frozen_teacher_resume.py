@@ -97,14 +97,14 @@ def audited_step(*args, **kwargs):
 
 
 if __name__ == '__main__':
-    pretrain.OnlineTeacherClient = FrozenTeacher
     pretrain.distillation_loss_func = audited_loss
     training.train_step = audited_step
     pretrain.train_valid_test_datasets_provider.is_distributed = True
-    with patch('transformers.dynamic_module_utils.resolve_trust_remote_code', return_value=True):
+    with patch('transformers.dynamic_module_utils.resolve_trust_remote_code', return_value=True), \
+         patch('rwkv_megatron.online_teacher.OnlineTeacherClient', FrozenTeacher):
         args = parse_and_validate_args(extra_args_provider=add_rwkv_arguments)
         assert args.global_batch_size == args.micro_batch_size == 1
-        assert not args.rwkv_teacher_async_prefetch
+        assert not args.rwkv_teacher_async_prefetch or args.rwkv_teacher_pool
         initialize_runtime_services(args)
         pretrain.get_train_iters()
         config = pretrain_cfg_container_from_args(args)

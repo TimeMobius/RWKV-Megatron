@@ -40,6 +40,12 @@ def build_spec(original, available):
                  'throughput/tokens_per_sec', 'throughput', 'iteration-time',
                  'throughput/samples_per_sec', 'distill/kl_loss', 'memory/allocated_mib',
                  'memory/max_allocated_mib', 'memory/reserved_mib', 'memory/max_reserved_mib']
+    chart_titles = {
+        'throughput': 'throughput (TFLOP/s/GPU)',
+        'iteration-time': 'iteration-time (s/step)',
+        'throughput/tokens_per_sec': 'throughput (tokens/s)',
+        'throughput/samples_per_sec': 'throughput (samples/s)',
+    }
     allowed = [k for k in available if not k.startswith(('metrics_backfill/', 'teacher/final_'))
                and k != 'throughput/train_interval_tokens_per_sec']
     metrics = [k for k in preferred if k in allowed] + sorted(set(allowed) - set(preferred))
@@ -51,7 +57,7 @@ def build_spec(original, available):
         charts['panels'].append({
             '__id__': panel_id, 'isAuto': False, 'viewType': 'Run History Line Plot',
             'layout': {'x': (index % 3) * 8, 'y': (index // 3) * 6, 'w': 8, 'h': 6},
-            'config': {'chartTitle': metric, 'xAxis': axis, 'metrics': [metric]},
+            'config': {'chartTitle': chart_titles.get(metric, metric), 'xAxis': axis, 'metrics': [metric]},
         })
     # Retain the existing system and hidden-section settings. Only the metric
     # prefix sections are replaced; all run data and run-table filters survive.

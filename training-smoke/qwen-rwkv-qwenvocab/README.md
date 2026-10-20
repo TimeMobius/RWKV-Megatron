@@ -72,6 +72,11 @@ GPTModel 无 labels 时返回 `[batch, sequence, vocab]`。teacher 第 `t+1` 个
 student 位置不参与这次 prompt KL。请求前检查本地 decode/encode 往返一致性，响应检查
 位置数量，loss 检查 teacher ID 范围；不兼容时明确失败，不静默丢弃越界候选。
 
+Qwen 的有效词表是 `248077`，Megatron 为满足 256 对齐将 student head 补齐到
+`248320`。蒸馏 KL 显式将 `rwkv_distill_valid_vocab_size` 设为 `248077`，只在有效
+词表上计算 student softmax；最后 243 个 padding 行不会吸收概率或产生 KL 梯度。
+未显式配置时也会从 teacher tokenizer 的最大 token ID 自动推导该值。
+
 ## 实测（2026-10-16）
 
 | 步数 | KL | 梯度范数 | 毫秒/步 |

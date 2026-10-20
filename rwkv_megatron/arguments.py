@@ -62,6 +62,8 @@ def add_rwkv_arguments(parser):
     parser.add_argument("--rwkv-teacher-prefetch-min-workers", type=positive_int, default=1)
     parser.add_argument("--rwkv-teacher-prefetch-latency-target", type=float, default=2.0)
     parser.add_argument("--rwkv-distill-temperature", type=float, default=2.0)
+    parser.add_argument("--rwkv-distill-valid-vocab-size", type=positive_int, default=None,
+                        help="Effective teacher vocabulary size; defaults to the tokenizer ID range")
     parser.add_argument("--rwkv-distill-logit-weight", type=float, default=1.0)
     parser.add_argument("--rwkv-distill-ce-weight", type=float, default=0.0)
     parser.add_argument("--rwkv-distill-filter-roundtrip", action=argparse.BooleanOptionalAction,
@@ -137,6 +139,9 @@ def add_rwkv_arguments(parser):
     for key in ('rwkv_distill_temperature', 'rwkv_distill_logit_weight', 'rwkv_distill_ce_weight'):
         if settings.get(key, 0.0) < 0:
             raise ValueError(f"{key} must be nonnegative")
+    valid_vocab_size = settings.get('rwkv_distill_valid_vocab_size')
+    if valid_vocab_size is not None and (type(valid_vocab_size) is not int or valid_vocab_size < 1):
+        raise ValueError('rwkv_distill_valid_vocab_size must be a positive integer or null')
     # Position encoding is selected by position_embedding_type upstream.
     settings["add_position_embedding"] = True
     parser.set_defaults(**settings)

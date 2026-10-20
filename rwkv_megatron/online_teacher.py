@@ -240,6 +240,7 @@ class OnlineTeacherClient:
         self._api_key = api_key if api_key is not None else os.environ.get("RWKV_TEACHER_API_KEY", "")
         self._thread_local = threading.local()
         self._tokenizer = None
+        self._effective_vocab_size = None
         self._tokenizer_lock = threading.Lock()
         self._calls_lock = threading.Lock()
         self._calls = 0
@@ -270,7 +271,26 @@ class OnlineTeacherClient:
                     self.tokenizer_path,
                     trust_remote_code=True,
                 )
+                # ``tokenizer.vocab_size`` is the size of the base vocabulary
+                # for Qwen and excludes added/special tokens.  The teacher
+                # service can return any ID in the full tokenizer vocabulary,
+                # so derive the usable upper bound from the actual IDs.
+                vocabulary = self._tokenizer.get_vocab()
+                if not vocabulary:
+                    raise ValueError(f"Tokenizer at {self.tokenizer_path!r} has an empty vocabulary")
+                self._effective_vocab_size = max(int(token_id) for token_id in vocabulary.values()) + 1
         return self._tokenizer
+
+    def get_effective_vocab_size(self) -> int:
+        """Return the highest valid tokenizer ID plus one.
+
+        Megatron pads the student output vocabulary to a divisible size.  This
+        value lets the distillation loss exclude those extra rows from the
+        student softmax denominator.
+        """
+
+        self._get_tokenizer()
+        return int(self._effective_vocab_size)
 
     def _decode(self, token_ids: list[int]) -> str:
         return self._get_tokenizer().decode(token_ids, skip_special_tokens=False)
@@ -508,6 +528,7 @@ def kl_divergence_topk(
     teacher: TeacherTopK,
     attention_mask: torch.Tensor,
     temperature: float = 2.0,
+    valid_vocab_size: Optional[int] = None,
 ) -> torch.Tensor:
     """Compute top-k KL for already aligned student/teacher positions.
 
@@ -531,9 +552,21 @@ def kl_divergence_topk(
 
     # Reject incompatible vocabularies before CUDA gather. Even equal numeric
     # IDs are meaningful only when both models use the same tokenizer.
-    if (teacher.token_ids >= student_logits.shape[-1]).any() or (teacher.token_ids < -1).any():
+    student_vocab_size = student_logits.shape[-1]
+    if valid_vocab_size is None:
+        valid_vocab_size = student_vocab_size
+    if not isinstance(valid_vocab_size, int) or not 1 <= valid_vocab_size <= student_vocab_size:
+        raise ValueError(
+            f"valid_vocab_size must be an integer in [1, {student_vocab_size}], "
+            f"got {valid_vocab_size!r}"
+        )
+    if (teacher.token_ids >= valid_vocab_size).any() or (teacher.token_ids < -1).any():
         raise ValueError("Teacher token IDs exceed student vocabulary; use the same tokenizer")
-    student = student_logits.float() / float(temperature)
+    # The final rows are Megatron padding (248077..248319 for Qwen).  They
+    # have no teacher targets and must not participate in the student
+    # softmax denominator, otherwise they absorb probability mass and change
+    # both the KL value and gradients for every valid token.
+    student = student_logits[..., :valid_vocab_size].float() / float(temperature)
     token_ids = teacher.token_ids.to(device=student.device, dtype=torch.long)
     teacher_logprobs = teacher.logprobs.to(device=student.device, dtype=torch.float32) / float(temperature)
     valid = attention_mask.to(device=student.device, dtype=torch.bool)

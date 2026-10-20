@@ -435,11 +435,22 @@ def distillation_loss_func(loss_mask: torch.Tensor, labels: torch.Tensor, output
         token_ids=teacher.token_ids[:, 1:, :],
         logprobs=teacher.logprobs[:, 1:, :],
     )
+    valid_vocab_size = getattr(args, "rwkv_distill_valid_vocab_size", None)
+    if valid_vocab_size is None:
+        # Lightweight unit callers may provide only the loss-related args and
+        # already have a synthetic teacher tensor.  The real training parser
+        # always provides tokenizer settings, which enables automatic
+        # effective-vocabulary discovery.
+        if hasattr(args, "rwkv_teacher_tokenizer") or hasattr(args, "tokenizer_model"):
+            valid_vocab_size = _get_online_teacher(args).get_effective_vocab_size()
+        else:
+            valid_vocab_size = student_logits.shape[-1]
     kl = kl_divergence_topk(
         student_logits=aligned_student,
         teacher=teacher,
         attention_mask=aligned_mask,
         temperature=args.rwkv_distill_temperature,
+        valid_vocab_size=valid_vocab_size,
     )
 
     total = float(args.rwkv_distill_logit_weight) * kl

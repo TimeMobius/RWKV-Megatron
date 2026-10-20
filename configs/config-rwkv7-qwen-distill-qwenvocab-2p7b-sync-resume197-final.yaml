@@ -51,6 +51,7 @@ rwkv_teacher_tokenizer: /hikscale/models/Qwen/Qwen3.8-27B
 rwkv_teacher_top_k: 100
 rwkv_teacher_timeout: 600.0
 rwkv_distill_temperature: 2.0
+rwkv_distill_valid_vocab_size: 248077
 rwkv_distill_logit_weight: 1.0
 rwkv_distill_ce_weight: 0.0
 fixed_eval_samples: true

@@ -229,3 +229,28 @@ def test_topk_matches_dense_kl_value_and_gradient():
     grad_expected, = torch.autograd.grad(expected, reference_logits)
     torch.testing.assert_close(actual.double(), expected, atol=2e-6, rtol=1e-6)
     torch.testing.assert_close(grad_actual.double(), grad_expected, atol=1e-7, rtol=1e-5)
+
+
+def test_topk_kl_excludes_padded_student_vocab_rows_from_softmax():
+    # Qwen's 248077 usable IDs are padded to 248320 for Megatron.  Give the
+    # 243 invalid rows very large logits: they must not affect the KL or its
+    # gradient when valid_vocab_size is supplied.
+    valid_vocab_size = 3
+    logits = torch.tensor([[[2.0, 0.0, -1.0, 100.0, 90.0]]], requires_grad=True)
+    teacher = TeacherTopK(
+        token_ids=torch.tensor([[[0, 1]]], dtype=torch.int32),
+        logprobs=torch.log(torch.tensor([[[0.75, 0.25]]])),
+    )
+    mask = torch.ones(1, 1, dtype=torch.bool)
+    actual = kl_divergence_topk(logits, teacher, mask, temperature=1.0,
+                                valid_vocab_size=valid_vocab_size)
+    reference = kl_divergence_topk(logits[..., :valid_vocab_size], teacher, mask, temperature=1.0)
+    torch.testing.assert_close(actual, reference)
+    actual.backward()
+    assert torch.equal(logits.grad[..., valid_vocab_size:], torch.zeros_like(logits.grad[..., valid_vocab_size:]))
+
+
+def test_topk_kl_rejects_teacher_id_outside_effective_vocab():
+    teacher = TeacherTopK(torch.tensor([[[3]]]), torch.zeros(1, 1, 1))
+    with pytest.raises(ValueError, match="student vocabulary"):
+        kl_divergence_topk(torch.zeros(1, 1, 5), teacher, torch.ones(1, 1), valid_vocab_size=3)

@@ -55,6 +55,7 @@ rwkv_teacher_retry_backoff_max: 30.0
 rwkv_teacher_retry_jitter: 0.2
 rwkv_teacher_cache_size: 256
 rwkv_distill_temperature: 2.0
+rwkv_distill_valid_vocab_size: 248077
 rwkv_distill_logit_weight: 1.0
 rwkv_distill_ce_weight: 0.0
 

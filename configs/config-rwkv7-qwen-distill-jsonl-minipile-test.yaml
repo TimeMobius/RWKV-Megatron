@@ -1,0 +1,109 @@
+# Text-first JSONL smoke configuration. The directory contains train,
+# validation, and test shards with {"text": ...} records.
+language_model:
+  num_layers: 24
+  hidden_size: 2304
+  num_attention_heads: 36
+  kv_channels: 64
+  ffn_hidden_size: 9216
+  D_AAA_LORA: 128
+  D_DECAY_LORA: 128
+  D_GATE_LORA: 288
+  D_MV_LORA: 64
+  hidden_dropout: 0.0
+  attention_dropout: 0.0
+  add_bias_linear: false
+  add_qkv_bias: false
+  activation_func: squaredrelu
+  normalization: LayerNorm
+  layernorm_epsilon: 1.0e-05
+  persist_layer_norm: false
+  bias_dropout_fusion: true
+  apply_rope_fusion: false
+  recompute_granularity: full
+model_parallel:
+  tensor_model_parallel_size: 1
+  pipeline_model_parallel_size: 1
+  context_parallel_size: 1
+  sequence_parallel: false
+  bf16: true
+  fp16: false
+  perform_initialization: false
+  gradient_accumulation_fusion: true
+  tp_comm_overlap: false
+  overlap_p2p_comm: false
+  cross_entropy_loss_fusion: false
+transformer_impl: local
+rwkv_fp8_scope: ffn
+rwkv_key_fusion: true
+rwkv_l2wrap_coefficient: 0.0
+rwkv_distill: true
+rwkv_teacher_url: http://192.168.10.121:8000
+rwkv_teacher_model: Qwen3.8-27B
+rwkv_teacher_tokenizer: /hikscale/models/Qwen/Qwen3.8-27B
+rwkv_teacher_top_k: 100
+rwkv_teacher_timeout: 600.0
+rwkv_teacher_max_retries: 3
+rwkv_teacher_retry_backoff_initial: 1.0
+rwkv_teacher_retry_backoff_max: 30.0
+rwkv_teacher_retry_jitter: 0.2
+rwkv_teacher_cache_size: 256
+rwkv_distill_temperature: 2.0
+rwkv_distill_logit_weight: 1.0
+rwkv_distill_ce_weight: 0.0
+rwkv_distill_filter_roundtrip: false
+rwkv_jsonl_text_field: text
+rwkv_jsonl_max_records: 128
+rwkv_jsonl_chunk_chars: 512
+fixed_eval_samples: true
+untie_embeddings_and_output_weights: true
+position_embedding_type: none
+max_position_embeddings: 16384
+load_pretrained_rwkv: /mnt/data/Models/RWKV-7/rwkv7-qwen-vocab-2.7b-from-28b.pt
+load_pretrained_rwkv_source_type: rwkv-lm
+data_path:
+- /mnt/data/Datas/minipile/jsonl
+tokenizer_type: HuggingFaceTokenizer
+tokenizer_model: /hikscale/models/Qwen/Qwen3.8-27B
+trust_remote_code: true
+make_vocab_size_divisible_by: 256
+seq_length: 128
+dataloader_type: single
+num_workers: 2
+num_dataset_builder_threads: 2
+create_attention_mask_in_dataloader: false
+reset_position_ids: false
+reset_attention_mask: false
+eod_mask_loss: false
+seed: 1234
+micro_batch_size: 1
+global_batch_size: 1
+eval_micro_batch_size: 1
+eval_global_batch_size: 1
+train_iters: 3
+auto_train_iters: false
+eval_iters: 1
+eval_interval: 3
+optimizer: adam
+use_distributed_optimizer: false
+adam_beta1: 0.9
+adam_beta2: 0.995
+adam_eps: 1.0e-08
+weight_decay: 0.1
+clip_grad: 1.0
+lr: 1.0e-6
+min_lr: 1.0e-6
+lr_decay_style: constant
+lr_decay_iters: 3
+save: null
+load: null
+no_save_optim: true
+no_save_rng: true
+no_load_optim: true
+no_load_rng: true
+wandb_project: rwkv-qwen-distill-2p7b
+wandb_exp_name: qwen-jsonl-minipile-test
+log_interval: 1
+log_throughput: true
+log_timers_to_tensorboard: true
+log_memory_to_tensorboard: true

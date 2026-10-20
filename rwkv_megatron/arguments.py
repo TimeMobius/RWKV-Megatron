@@ -13,6 +13,20 @@ def nonnegative_float(value):
     return value
 
 
+def positive_int(value):
+    value = int(value)
+    if value < 1:
+        raise argparse.ArgumentTypeError('value must be a positive integer')
+    return value
+
+
+def nonnegative_int(value):
+    value = int(value)
+    if value < 0:
+        raise argparse.ArgumentTypeError('value must be a nonnegative integer')
+    return value
+
+
 def add_rwkv_arguments(parser):
     parser.add_argument("--rwkv-config", help="RWKV YAML configuration")
     parser.add_argument("--load-pretrained-rwkv")
@@ -29,6 +43,32 @@ def add_rwkv_arguments(parser):
                         help="Restart validation at the same first samples on every evaluation")
     parser.add_argument("--rwkv-fp8-scope", choices=("ffn", "all"), default="ffn",
                         help="FP8 FFN only (default), or all six large linears (experimental)")
+    parser.add_argument("--rwkv-distill", action=argparse.BooleanOptionalAction, default=False,
+                        help="Align RWKV logits with an online Qwen teacher")
+    parser.add_argument("--rwkv-teacher-url", default="http://192.168.10.121:8000")
+    parser.add_argument("--rwkv-teacher-model", default="Qwen3.8-27B")
+    parser.add_argument("--rwkv-teacher-tokenizer", default=None)
+    parser.add_argument("--rwkv-teacher-top-k", type=int, default=100)
+    parser.add_argument("--rwkv-teacher-timeout", type=float, default=600.0)
+    parser.add_argument("--rwkv-teacher-max-retries", type=nonnegative_int, default=3)
+    parser.add_argument("--rwkv-teacher-retry-backoff-initial", type=float, default=1.0)
+    parser.add_argument("--rwkv-teacher-retry-backoff-max", type=float, default=30.0)
+    parser.add_argument("--rwkv-teacher-retry-jitter", type=float, default=0.2)
+    parser.add_argument("--rwkv-teacher-cache-size", type=int, default=256)
+    parser.add_argument("--rwkv-teacher-async-prefetch", action=argparse.BooleanOptionalAction,
+                        default=False, help="Overlap concurrent teacher requests with student training")
+    parser.add_argument("--rwkv-teacher-prefetch-workers", type=positive_int, default=16)
+    parser.add_argument("--rwkv-teacher-prefetch-lookahead", type=positive_int, default=32)
+    parser.add_argument("--rwkv-teacher-prefetch-min-workers", type=positive_int, default=1)
+    parser.add_argument("--rwkv-teacher-prefetch-latency-target", type=float, default=2.0)
+    parser.add_argument("--rwkv-distill-temperature", type=float, default=2.0)
+    parser.add_argument("--rwkv-distill-logit-weight", type=float, default=1.0)
+    parser.add_argument("--rwkv-distill-ce-weight", type=float, default=0.0)
+    parser.add_argument("--rwkv-distill-filter-roundtrip", action=argparse.BooleanOptionalAction,
+                        default=False, help="Preselect samples whose decoded text preserves teacher token IDs")
+    parser.add_argument("--rwkv-jsonl-text-field", default="text")
+    parser.add_argument("--rwkv-jsonl-max-records", type=nonnegative_int, default=0)
+    parser.add_argument("--rwkv-jsonl-chunk-chars", type=positive_int, default=512)
     for name in ("D_AAA_LORA", "D_DECAY_LORA", "D_GATE_LORA", "D_MV_LORA"):
         parser.add_argument(f"--{name}", type=int)
 
@@ -70,6 +110,33 @@ def add_rwkv_arguments(parser):
         raise ValueError('fixed_eval_samples must be a YAML boolean (true/false)')
     if settings.get('rwkv_fp8_scope', 'ffn') not in ('ffn', 'all'):
         raise ValueError("rwkv_fp8_scope must be 'ffn' or 'all'")
+    if settings.get('rwkv_teacher_top_k', 100) < 1 or settings.get('rwkv_teacher_top_k', 100) > 1000:
+        raise ValueError("rwkv_teacher_top_k must be in [1, 1000]")
+    for key in ('rwkv_teacher_retry_backoff_initial', 'rwkv_teacher_retry_backoff_max',
+                'rwkv_teacher_retry_jitter'):
+        if settings.get(key, 0.0) < 0:
+            raise ValueError(f'{key} must be nonnegative')
+    if settings.get('rwkv_teacher_retry_backoff_max', 30.0) < settings.get('rwkv_teacher_retry_backoff_initial', 1.0):
+        raise ValueError('rwkv_teacher_retry_backoff_max must be >= initial backoff')
+    if settings.get('rwkv_teacher_cache_size', 256) < 0:
+        raise ValueError('rwkv_teacher_cache_size must be nonnegative')
+    if not isinstance(settings.get('rwkv_teacher_async_prefetch', False), bool):
+        raise ValueError('rwkv_teacher_async_prefetch must be a YAML boolean (true/false)')
+    for key in ('rwkv_teacher_prefetch_workers', 'rwkv_teacher_prefetch_lookahead'):
+        value = settings.get(key, 16 if key.endswith('workers') else 32)
+        if type(value) is not int or value < 1:
+            raise ValueError(f'{key} must be a positive integer')
+    if settings.get('rwkv_teacher_prefetch_min_workers', 1) > settings.get('rwkv_teacher_prefetch_workers', 16):
+        raise ValueError('rwkv_teacher_prefetch_min_workers must be <= rwkv_teacher_prefetch_workers')
+    if settings.get('rwkv_teacher_prefetch_latency_target', 2.0) <= 0:
+        raise ValueError('rwkv_teacher_prefetch_latency_target must be positive')
+    if settings.get('rwkv_jsonl_max_records', 0) < 0:
+        raise ValueError('rwkv_jsonl_max_records must be nonnegative')
+    if settings.get('rwkv_jsonl_chunk_chars', 512) < 1:
+        raise ValueError('rwkv_jsonl_chunk_chars must be positive')
+    for key in ('rwkv_distill_temperature', 'rwkv_distill_logit_weight', 'rwkv_distill_ce_weight'):
+        if settings.get(key, 0.0) < 0:
+            raise ValueError(f"{key} must be nonnegative")
     # Position encoding is selected by position_embedding_type upstream.
     settings["add_position_embedding"] = True
     parser.set_defaults(**settings)

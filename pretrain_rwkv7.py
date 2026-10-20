@@ -30,8 +30,10 @@ Requirements:
 
 import os
 import math
+import time
 import rwkv.model
 import torch
+import torch.nn.functional as F
 from functools import partial
 import numpy
 import torch.distributed
@@ -64,9 +66,42 @@ import rwkv
 
 from rwkv_megatron.rwkv7_layer_specs import get_rwkv7_layer_spec, get_rwkv7_with_transformer_engine_spec
 from rwkv_megatron.rwkv7_model import RWKV7Model
+from rwkv_megatron.online_teacher import (
+    OnlineTeacherClient, RoundTripDataset, TeacherTopK, TeacherPrefetchIterator, kl_divergence_topk,
+)
+from rwkv_megatron.jsonl_dataset import JsonlTextDataset
 
 
 stimer = StragglerDetector()
+_online_teacher = None
+_teacher_prefetchers = []
+
+
+def _get_online_teacher(args):
+    """Create one HTTP client per training process."""
+    global _online_teacher
+    if _online_teacher is None:
+        tokenizer_path = args.rwkv_teacher_tokenizer or args.tokenizer_model
+        if not tokenizer_path:
+            raise ValueError("rwkv_teacher_tokenizer or tokenizer_model is required for distillation")
+        _online_teacher = OnlineTeacherClient(
+            server_url=args.rwkv_teacher_url,
+            model_name=args.rwkv_teacher_model,
+            tokenizer_path=tokenizer_path,
+            top_k=args.rwkv_teacher_top_k,
+            timeout=args.rwkv_teacher_timeout,
+            request_temperature=1.0,
+            max_retries=args.rwkv_teacher_max_retries,
+            retry_backoff_initial=args.rwkv_teacher_retry_backoff_initial,
+            retry_backoff_max=args.rwkv_teacher_retry_backoff_max,
+            retry_jitter=args.rwkv_teacher_retry_jitter,
+            cache_size=args.rwkv_teacher_cache_size,
+        )
+        print_rank_0(
+            f"online Qwen teacher: {args.rwkv_teacher_model} at {args.rwkv_teacher_url} "
+            f"(top_k={args.rwkv_teacher_top_k}, request_temperature=1.0)"
+        )
+    return _online_teacher
 
 
 def model_provider(pre_process=True, post_process=True, config=None, pg_collection=None, vp_stage=None) -> GPTModel:
@@ -274,7 +309,7 @@ def model_provider_ckpt(pre_process=True, post_process=True) -> GPTModel:
 
     return model
 
-def get_batch(data_iterator):
+def get_batch(data_iterator, teacher_prefetch=False):
     """
     生成训练批次数据
 
@@ -282,7 +317,7 @@ def get_batch(data_iterator):
         data_iterator: 数据迭代器
 
     Returns:
-        tuple: (tokens, labels, loss_mask, attention_mask, position_ids)
+        tuple: (tokens, labels, loss_mask, attention_mask, position_ids, teacher_future)
 
     Explanation:
         1. 处理流水线并行的特殊情况
@@ -292,14 +327,50 @@ def get_batch(data_iterator):
 
     # TODO: this is pretty hacky, find a better way
     if (not mpu.is_pipeline_first_stage()) and (not mpu.is_pipeline_last_stage()):
-        return None, None, None, None, None
+        return None, None, None, None, None, None, None
 
     # get batches based on the TP rank you are on
     args = get_args()
+    if teacher_prefetch:
+        from megatron.core.rerun_state_machine import get_rerun_state_machine, RerunMode
+
+        if get_rerun_state_machine().get_mode() != RerunMode.DISABLED:
+            raise ValueError("Async teacher prefetch currently requires rerun_mode=disabled")
+        if args.dataloader_type != "single" or not hasattr(data_iterator, "iterable"):
+            raise ValueError("Async teacher prefetch requires Megatron's single dataloader iterator")
+        if not isinstance(data_iterator.iterable, TeacherPrefetchIterator):
+            from megatron.core.num_microbatches_calculator import get_num_microbatches
+
+            end_iteration = args.train_iters
+            if args.exit_interval:
+                end_iteration = min(end_iteration, (args.iteration // args.exit_interval + 1) * args.exit_interval)
+            # Constant-batch runs have an exact remaining microbatch count.
+            # Avoid requesting unused prompts past a planned short-test exit.
+            max_batches = (None if args.rampup_batch_size else
+                           max(0, end_iteration - args.iteration) * get_num_microbatches())
+            prefetcher = TeacherPrefetchIterator(
+                data_iterator.iterable, _get_online_teacher(args),
+                num_workers=args.rwkv_teacher_prefetch_workers,
+                lookahead=args.rwkv_teacher_prefetch_lookahead,
+                max_batches=max_batches,
+                min_workers=args.rwkv_teacher_prefetch_min_workers,
+                latency_target_seconds=args.rwkv_teacher_prefetch_latency_target,
+            )
+            # Install below RerunDataIterator; never advance the wrapper ahead
+            # of the actual training microbatch. Checkpoint sample accounting
+            # stays with Megatron, independent of the prefetch source cursor.
+            data_iterator.iterable = prefetcher
+            _teacher_prefetchers.append(prefetcher)
+            print_rank_0(f"async Qwen teacher: workers={args.rwkv_teacher_prefetch_workers}, "
+                         f"lookahead={args.rwkv_teacher_prefetch_lookahead}")
     keys = ("tokens", "labels", "loss_mask", "attention_mask", "position_ids")
     batch = {}
+    teacher_future = None
+    raw_prompts = None
     if mpu.get_tensor_model_parallel_rank() == 0:
         data = next(data_iterator)
+        teacher_future = data.get(TeacherPrefetchIterator.future_key)
+        raw_prompts = data.get("raw_prompts")
         batch = {key: data[key].cuda(non_blocking=True) if data.get(key) is not None else None for key in keys}
     batch = get_batch_on_this_tp_rank(
         batch,
@@ -318,7 +389,80 @@ def get_batch(data_iterator):
         is_pipeline_last_stage=mpu.is_pipeline_last_stage(),
     )
     batch = get_batch_on_this_cp_rank(batch, is_hybrid_cp=False, cp_group=mpu.get_context_parallel_group())
-    return [batch[key] for key in keys]
+    return [batch[key] for key in keys] + [teacher_future, raw_prompts]
+
+
+def _finalize_loss(loss: torch.Tensor, token_count: torch.Tensor):
+    """Apply Megatron's context-parallel reduction and reporting contract."""
+    args = get_args()
+    packed = torch.stack([loss * token_count, token_count])
+    if args.context_parallel_size > 1:
+        torch.distributed.all_reduce(packed, group=mpu.get_context_parallel_group())
+    if args.check_for_nan_in_loss_and_grad:
+        global_rank = torch.distributed.get_rank()
+        assert not packed[0].isnan(), (
+            f"Rank {global_rank}: found NaN in local forward loss calculation. "
+            f"Device: {torch.cuda.current_device()}, node: {os.uname()[1]}"
+        )
+    reporting_loss = packed.detach()
+    local_num_tokens = packed[1].detach().to(torch.int)
+    return packed[0] * args.context_parallel_size, local_num_tokens, {"lm loss": reporting_loss}
+
+
+def distillation_loss_func(loss_mask: torch.Tensor, labels: torch.Tensor, output_tensor, telemetry=None):
+    """Compute aligned top-k KL (and optional supervised CE) for one microbatch."""
+    args = get_args()
+    student_logits, teacher = output_tensor
+    if not isinstance(teacher, TeacherTopK):
+        raise TypeError(f"Expected TeacherTopK, got {type(teacher)!r}")
+
+    # GPTModel._postprocess returns [batch, sequence, vocab] with labels=None.
+    # Use that explicit contract even when batch size equals sequence length.
+    if student_logits.ndim != 3 or labels.ndim != 2:
+        raise ValueError(
+            f"Expected student logits [B,S,V] and labels [B,S], got "
+            f"{tuple(student_logits.shape)} and {tuple(labels.shape)}"
+        )
+    if tuple(student_logits.shape[:2]) != tuple(labels.shape):
+        raise ValueError(
+            f"Cannot align student logits {tuple(student_logits.shape)} with labels {tuple(labels.shape)}"
+        )
+    aligned_student = student_logits[:, :-1, :]
+    # Megatron loss_mask is already aligned with next-token labels, so mask[t]
+    # belongs to student_logits[t] (unlike the source's input attention mask).
+    aligned_mask = loss_mask[:, :-1].to(device=student_logits.device, dtype=torch.bool)
+    teacher = TeacherTopK(
+        token_ids=teacher.token_ids[:, 1:, :],
+        logprobs=teacher.logprobs[:, 1:, :],
+    )
+    kl = kl_divergence_topk(
+        student_logits=aligned_student,
+        teacher=teacher,
+        attention_mask=aligned_mask,
+        temperature=args.rwkv_distill_temperature,
+    )
+
+    total = float(args.rwkv_distill_logit_weight) * kl
+    if args.rwkv_distill_ce_weight:
+        labels = labels[:, :-1].to(device=student_logits.device, dtype=torch.long)
+        ce_per_token = F.cross_entropy(
+            aligned_student.float().reshape(-1, aligned_student.shape[-1]),
+            labels.reshape(-1),
+            reduction="none",
+        ).reshape_as(aligned_mask)
+        denom = aligned_mask.to(ce_per_token.dtype).sum().clamp_min(1.0)
+        ce = (ce_per_token * aligned_mask.to(ce_per_token.dtype)).sum() / denom
+        total = total + float(args.rwkv_distill_ce_weight) * ce
+    token_count = aligned_mask.float().sum()
+    loss, count, reporting = _finalize_loss(total, token_count)
+    # Reporting pairs follow Megatron's sum/count contract. KL is explicit
+    # because the legacy "lm loss" name is the weighted training objective.
+    reporting['distill/kl_loss'] = torch.stack((kl.detach() * token_count, token_count))
+    if args.rwkv_distill_ce_weight:
+        reporting['distill/ce_loss'] = torch.stack((ce.detach() * token_count, token_count))
+    for name, value in (telemetry or {}).items():
+        reporting[name] = torch.tensor([value, 1.0], device=total.device, dtype=torch.float32)
+    return loss, count, reporting
 
 
 def loss_func(loss_mask: torch.Tensor, output_tensor: torch.Tensor):
@@ -343,6 +487,9 @@ def loss_func(loss_mask: torch.Tensor, output_tensor: torch.Tensor):
     """
     args = get_args()
 
+    if args.rwkv_distill:
+        raise RuntimeError("rwkv_distill requires distillation_loss_func to receive labels")
+
     losses = output_tensor.float()
     loss_mask = loss_mask.view(-1).float()
     total_tokens = loss_mask.sum()
@@ -365,11 +512,7 @@ def loss_func(loss_mask: torch.Tensor, output_tensor: torch.Tensor):
     reporting_loss = loss.clone().detach()
 
     local_num_tokens = loss[1].clone().detach().to(torch.int)
-    return (
-        loss[0] * args.context_parallel_size,
-        local_num_tokens,
-        {"lm loss": reporting_loss},
-    )
+    return loss[0] * args.context_parallel_size, local_num_tokens, {"lm loss": reporting_loss}
 
 
 def forward_step(data_iterator, model: GPTModel):
@@ -392,15 +535,37 @@ def forward_step(data_iterator, model: GPTModel):
     """
     args = get_args()
     timers = get_timers()
+    if args.rwkv_distill and any(size != 1 for size in (
+        args.tensor_model_parallel_size, args.pipeline_model_parallel_size, args.context_parallel_size
+    )):
+        raise ValueError("Initial online distillation path requires tensor/pipeline/context parallel size 1")
 
     # Get the batch.
     timers("batch-generator", log_level=2).start()
     global stimer
     with stimer(bdata=True):
-        tokens, labels, loss_mask, attention_mask, position_ids = get_batch(
-            data_iterator
+        tokens, labels, loss_mask, attention_mask, position_ids, teacher_future, raw_prompts = get_batch(
+            data_iterator,
+            teacher_prefetch=(args.rwkv_distill and model.training and args.rwkv_teacher_async_prefetch),
         )
     timers("batch-generator").stop()
+    if args.rwkv_distill:
+        with stimer:
+            output_tensor = model(tokens, position_ids, attention_mask, labels=None)
+        # Wait on this exact batch after student forward. Errors propagate;
+        # never issue a duplicate synchronous request or skip a sample.
+        wait_start = time.perf_counter()
+        teacher = (teacher_future.result() if teacher_future is not None
+                   else _get_online_teacher(args).get_logits(tokens, prompts=raw_prompts))
+        telemetry = {'teacher/wait_seconds': time.perf_counter() - wait_start,
+                     'memory/allocated_mib': torch.cuda.memory_allocated() / 2**20,
+                     'memory/max_allocated_mib': torch.cuda.max_memory_allocated() / 2**20,
+                     'memory/reserved_mib': torch.cuda.memory_reserved() / 2**20}
+        if teacher_future is not None:
+            stats = data_iterator.iterable.get_stats()
+            telemetry.update({f'teacher/{name}': value for name, value in stats.items()})
+        return (output_tensor, teacher), partial(distillation_loss_func, loss_mask, labels, telemetry=telemetry)
+
     with stimer:
         output_tensor = model(tokens, position_ids, attention_mask, labels=labels)
 
@@ -459,6 +624,28 @@ def train_valid_test_datasets_provider(train_val_test_num_samples):
     """
     args = get_args()
 
+    jsonl_input = any(
+        str(path).endswith(".jsonl") or os.path.isdir(path) for path in args.data_path
+    )
+    if jsonl_input:
+        tokenizer = (_get_online_teacher(args)._get_tokenizer() if args.rwkv_distill else get_tokenizer())
+        requested = list(train_val_test_num_samples)
+        datasets = []
+        for split_name, count in zip(("train", "validation", "test"), requested):
+            if not count:
+                datasets.append(None)
+                continue
+            paths = JsonlTextDataset.paths_for_split(args.data_path, split_name)
+            dataset = JsonlTextDataset(
+                paths, tokenizer, args.seq_length, target_samples=int(count),
+                max_records=args.rwkv_jsonl_max_records,
+                text_field=args.rwkv_jsonl_text_field,
+                chunk_chars=args.rwkv_jsonl_chunk_chars,
+            )
+            datasets.append(dataset)
+            print_rank_0(f"> JSONL {split_name}: {len(dataset)} samples from {len(paths)} files")
+        return tuple(datasets)
+
     config = core_gpt_dataset_config_from_args(args)
 
     if args.mock_data:
@@ -468,9 +655,31 @@ def train_valid_test_datasets_provider(train_val_test_num_samples):
 
     print_rank_0("> building train, validation, and test datasets for GPT ...")
 
+    filter_roundtrip = args.rwkv_distill and getattr(args, "rwkv_distill_filter_roundtrip", False)
+    requested_samples = list(train_val_test_num_samples)
+    build_samples = [n + max(32, n // 20) if n else n for n in requested_samples] if filter_roundtrip else requested_samples
     train_ds, valid_ds, test_ds = BlendedMegatronDatasetBuilder(
-        dataset_type, train_val_test_num_samples, is_dataset_built_on_rank, config
+        dataset_type, build_samples, is_dataset_built_on_rank, config
     ).build()
+
+    if filter_roundtrip:
+        import json
+        from pathlib import Path
+
+        tokenizer = _get_online_teacher(args)._get_tokenizer()
+        filtered = []
+        for name, dataset, count in zip(("train", "valid", "test"), (train_ds, valid_ds, test_ds), requested_samples):
+            if dataset is not None and count:
+                dataset = RoundTripDataset(dataset, tokenizer, count)
+                report = {"selected_indices": dataset.indices, "rejected_indices": dataset.rejected_indices,
+                          "seed": args.seed, "data_path": args.data_path}
+                if args.data_cache_path:
+                    target = Path(args.data_cache_path) / f"roundtrip-{name}-selection.json"
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_text(json.dumps(report, indent=2) + "\n")
+                print_rank_0(f"teacher roundtrip filter {name}: kept {len(dataset)}, rejected {dataset.rejected_indices}")
+            filtered.append(dataset)
+        train_ds, valid_ds, test_ds = filtered
 
     print_rank_0("> finished creating GPT datasets ...")
 
@@ -678,10 +887,15 @@ if __name__ == "__main__":
         initialize_runtime_services(args)
         get_train_iters()
         full_config = pretrain_cfg_container_from_args(args)
-        pretrain(
-            full_config,
-            train_valid_test_datasets_provider,
-            ModelType.encoder_or_decoder,
-            forward_step,
-            model_provider=model_provider,
-        )
+        try:
+            pretrain(
+                full_config,
+                train_valid_test_datasets_provider,
+                ModelType.encoder_or_decoder,
+                forward_step,
+                model_provider=model_provider,
+            )
+        finally:
+            for prefetcher in _teacher_prefetchers:
+                prefetcher.close()
+                print(f"async Qwen teacher final stats: {prefetcher.get_stats()}", flush=True)

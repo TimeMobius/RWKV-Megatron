@@ -187,3 +187,5 @@ RWKV-7-World-HF-Converter/
 /training-smoke/audit/**/*.pth
 /training-smoke/audit/**/*.pt
 /training-smoke/checkpoints/
+/training-smoke/wandb/
+/training-smoke/qwen-rwkv-qwenvocab/tensorboard/

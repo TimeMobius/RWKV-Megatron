@@ -1,0 +1,98 @@
+{
+  "scope": "2.74B single GPU BF16/FLA, all parameters trained. Record 501-505 from existing step500; save at501; restart at501 and replay502-505 with HTTP forbidden.",
+  "teacher_files": 5,
+  "checkpoints": [
+    "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/frozen-resume-20261020-record/iter_0000505/mp_rank_00/model_optim_rng.pt",
+    "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/checkpoints/frozen-resume-20261020-replay/iter_0000505/mp_rank_00/model_optim_rng.pt"
+  ],
+  "steps": [
+    {
+      "step": 502,
+      "continuous_kl": 14.254631996154785,
+      "resumed_kl": 14.254631996154785,
+      "kl_abs_diff": 0.0,
+      "continuous_grad_norm": 35.88837432861328,
+      "resumed_grad_norm": 35.88837432861328,
+      "grad_norm_abs_diff": 0.0,
+      "logits_equal": true,
+      "logits_max_abs": 0.0,
+      "skipped_continuous": 0,
+      "skipped_resumed": 0
+    },
+    {
+      "step": 503,
+      "continuous_kl": 16.99371910095215,
+      "resumed_kl": 16.99371910095215,
+      "kl_abs_diff": 0.0,
+      "continuous_grad_norm": 24.905193328857422,
+      "resumed_grad_norm": 24.905193328857422,
+      "grad_norm_abs_diff": 0.0,
+      "logits_equal": true,
+      "logits_max_abs": 0.0,
+      "skipped_continuous": 0,
+      "skipped_resumed": 0
+    },
+    {
+      "step": 504,
+      "continuous_kl": 21.204133987426758,
+      "resumed_kl": 21.204133987426758,
+      "kl_abs_diff": 0.0,
+      "continuous_grad_norm": 30.56705093383789,
+      "resumed_grad_norm": 30.56705093383789,
+      "grad_norm_abs_diff": 0.0,
+      "logits_equal": true,
+      "logits_max_abs": 0.0,
+      "skipped_continuous": 0,
+      "skipped_resumed": 0
+    },
+    {
+      "step": 505,
+      "continuous_kl": 15.8691987991333,
+      "resumed_kl": 15.8691987991333,
+      "kl_abs_diff": 0.0,
+      "continuous_grad_norm": 20.964134216308594,
+      "resumed_grad_norm": 20.964134216308594,
+      "grad_norm_abs_diff": 0.0,
+      "logits_equal": true,
+      "logits_max_abs": 0.0,
+      "skipped_continuous": 0,
+      "skipped_resumed": 0
+    }
+  ],
+  "final_states": {
+    "iteration": {
+      "tensors": 0,
+      "elements": 0,
+      "mismatches": [],
+      "equal": true
+    },
+    "model": {
+      "tensors": 728,
+      "elements": 2741382144,
+      "mismatches": [],
+      "equal": true
+    },
+    "optimizer": {
+      "tensors": 2034,
+      "elements": 8224146432,
+      "mismatches": [],
+      "equal": true
+    },
+    "opt_param_scheduler": {
+      "tensors": 0,
+      "elements": 0,
+      "mismatches": [],
+      "equal": true
+    },
+    "rng_state": {
+      "tensors": 5,
+      "elements": 5120,
+      "mismatches": [],
+      "equal": true
+    }
+  },
+  "all_training_states_equal": true,
+  "all_losses_equal": true,
+  "all_logits_equal": true,
+  "all_grad_norms_equal": true
+}

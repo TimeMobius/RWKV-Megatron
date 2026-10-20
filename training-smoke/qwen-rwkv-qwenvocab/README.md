@@ -209,6 +209,25 @@ GPU kernel 及并行归约等前向计算路径。当前实验确认差异已经
 完整 optimizer/scheduler/RNG 的逐位恢复。报告见 `teacher-seed-audit-20261020.json`，
 原始请求和响应保存在本地同名目录中；本次没有修改远端服务或新增环境依赖。
 
+### 冻结 teacher 响应后的断点恢复（2026-10-20）
+
+使用诊断入口 `frozen_teacher_resume.py`，不修改正常训练入口或 Megatron Core：
+从原第 500 步 checkpoint 恢复，记录 501–505 共 5 个 batch 的 teacher ID/logprob，
+在 501 步保存临时 checkpoint，然后继续到 505 步作为连续训练基线。另起进程从
+该 501 步 checkpoint 恢复，重放相同响应执行 502–505；重放时禁止 HTTP，缺失
+响应立即报错。两次均保留原 train_iters=600、scheduler 和数据构建配置，单卡
+2.74B BF16/FLA、全参数 Adam 更新、整层重算、clip_grad=1。
+
+四步完整 logits、KL loss、裁剪前 grad norm 的差均为 0。最终 505 步的全部
+728 个模型张量（2,741,382,144 个元素）、2,034 个 optimizer 张量（含 FP32
+master parameters 和 Adam states，共 8,224,146,432 个元素）、scheduler 与 RNG
+状态逐项一致，两个进程退出码为 0，无跳步。
+
+这证明本次短测在固定 teacher 后能逐位恢复；不代表所有模型、并行配置或长序列
+都已验证。结果见 `frozen-resume-results-20261020.json`，比较入口为
+`compare_frozen_resume.py`。本地 `frozen-resume-20261020/teacher/` 保存 5 份临时
+响应，token 内容参与 key 计算并在重放时校验。
+
 ## 带鉴权的一小时训练
 
 2026-10-16 16:30（北京时间）重新启动，预计 17:30 左右停止训练并保存。

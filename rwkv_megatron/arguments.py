@@ -49,6 +49,8 @@ def add_rwkv_arguments(parser):
     parser.add_argument("--rwkv-teacher-model", default="Qwen3.8-27B")
     parser.add_argument("--rwkv-teacher-tokenizer", default=None)
     parser.add_argument("--rwkv-teacher-top-k", type=int, default=100)
+    parser.add_argument("--rwkv-teacher-seed", type=nonnegative_int, default=None,
+                        help="Fixed seed included in each teacher completion request")
     parser.add_argument("--rwkv-teacher-timeout", type=float, default=600.0)
     parser.add_argument("--rwkv-teacher-max-retries", type=nonnegative_int, default=3)
     parser.add_argument("--rwkv-teacher-retry-backoff-initial", type=float, default=1.0)
@@ -114,6 +116,9 @@ def add_rwkv_arguments(parser):
         raise ValueError("rwkv_fp8_scope must be 'ffn' or 'all'")
     if settings.get('rwkv_teacher_top_k', 100) < 1 or settings.get('rwkv_teacher_top_k', 100) > 1000:
         raise ValueError("rwkv_teacher_top_k must be in [1, 1000]")
+    teacher_seed = settings.get('rwkv_teacher_seed')
+    if teacher_seed is not None and (type(teacher_seed) is not int or teacher_seed < 0):
+        raise ValueError('rwkv_teacher_seed must be a nonnegative integer or null')
     for key in ('rwkv_teacher_retry_backoff_initial', 'rwkv_teacher_retry_backoff_max',
                 'rwkv_teacher_retry_jitter'):
         if settings.get(key, 0.0) < 0:

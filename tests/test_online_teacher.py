@@ -75,6 +75,7 @@ def test_prompt_logprobs_parse_and_request_temperature():
         "/unused",
         top_k=2,
         request_temperature=1.0,
+        request_seed=1234,
     )
     session = _Session()
     client._get_session = lambda: session
@@ -85,6 +86,7 @@ def test_prompt_logprobs_parse_and_request_temperature():
     assert session.payload[1]["prompt_logprobs"] == 2
     assert session.payload[1]["temperature"] == 1.0
     assert session.payload[1]["echo"] is True
+    assert session.payload[1]["seed"] == 1234
 
 
 def test_retry_after_rate_limit_uses_backoff_and_returns_metrics(monkeypatch):

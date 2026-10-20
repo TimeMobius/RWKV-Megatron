@@ -211,6 +211,7 @@ class OnlineTeacherClient:
         top_k: int = 100,
         timeout: float = 600.0,
         request_temperature: float = 1.0,
+        request_seed: Optional[int] = None,
         api_key: Optional[str] = None,
         max_retries: int = 3,
         retry_backoff_initial: float = 1.0,
@@ -228,6 +229,9 @@ class OnlineTeacherClient:
         self.top_k = int(top_k)
         self.timeout = float(timeout)
         self.request_temperature = float(request_temperature)
+        if request_seed is not None and (type(request_seed) is not int or request_seed < 0):
+            raise ValueError("request_seed must be a nonnegative integer or None")
+        self.request_seed = request_seed
         if max_retries < 0 or retry_backoff_initial < 0 or retry_backoff_max < retry_backoff_initial or retry_jitter < 0:
             raise ValueError("invalid teacher retry settings")
         if cache_size < 0:
@@ -407,6 +411,8 @@ class OnlineTeacherClient:
             "prompt_logprobs": self.top_k,
             "echo": True,
         }
+        if self.request_seed is not None:
+            payload["seed"] = self.request_seed
         import requests
 
         retries = 0

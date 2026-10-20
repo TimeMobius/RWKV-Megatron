@@ -91,6 +91,7 @@ def _get_online_teacher(args):
             top_k=args.rwkv_teacher_top_k,
             timeout=args.rwkv_teacher_timeout,
             request_temperature=1.0,
+            request_seed=getattr(args, "rwkv_teacher_seed", None),
             max_retries=args.rwkv_teacher_max_retries,
             retry_backoff_initial=args.rwkv_teacher_retry_backoff_initial,
             retry_backoff_max=args.rwkv_teacher_retry_backoff_max,
@@ -99,7 +100,8 @@ def _get_online_teacher(args):
         )
         print_rank_0(
             f"online Qwen teacher: {args.rwkv_teacher_model} at {args.rwkv_teacher_url} "
-            f"(top_k={args.rwkv_teacher_top_k}, request_temperature=1.0)"
+            f"(top_k={args.rwkv_teacher_top_k}, request_temperature=1.0, "
+            f"seed={getattr(args, 'rwkv_teacher_seed', None)})"
         )
     return _online_teacher
 

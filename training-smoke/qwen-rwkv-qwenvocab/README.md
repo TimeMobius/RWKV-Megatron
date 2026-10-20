@@ -177,6 +177,38 @@ run 均无 NaN、无跳步，恢复进程退出码为 0。
 完整逐步结果见 `seed1234-resume500-comparison-20261020.json`，恢复配置为
 `configs/config-rwkv7-qwen-distill-qwenvocab-2p7b-seed1234-resume500-600-20261020.yaml`。
 
+### 固定 seed 后 teacher 仍有差异的定位
+
+`teacher_seed_audit.py` 重建上述两次训练使用的同一 GPTDataset cache 和第 501 步输入
+（过滤后的索引 500、原始样本索引 501），严格加载第 500 步 checkpoint 的模型权重。
+固定这份 student logits、关闭 teacher 缓存，重复发送逐字节相同的 HTTP 请求，
+请求体 SHA256 一致、seed=1234、temperature=1.0、top-100，结果如下：
+
+| 请求 | 固定 student 下的 KL |
+| --- | --- |
+| 1 | 14.07660007 |
+| 2 | 14.08380604 |
+| 3 | 14.08066082 |
+| 4 | 14.09825039 |
+
+仅改变 teacher 响应就产生 `0.02165031` 的 loss 跨度，与连续/续训第 501 步差值
+`0.01881123` 同一量级。解析保留的每个 ID/logprob 均与原始 JSON 对应值一致，
+teacher 候选列倒序后 KL 差为 0；本地 student 重复前向的完整 logits 差为 0。
+另做三次 temperature=0、seed=1234 请求，固定 student 的 KL 仍相差 `0.01407623`，
+因此不能靠 greedy decoding 消除 prompt logprobs 的波动。
+
+响应均报告 fingerprint `vllm-0.26.0-tp4-bd0f1f71`。vLLM 的
+[可复现性说明](https://docs.vllm.ai/en/v0.26.0/usage/reproducibility/)明确指出默认不保证可复现，
+在线服务需启用 batch invariance。请求 seed 控制采样随机性，不会固定动态 batch、
+GPU kernel 及并行归约等前向计算路径。当前实验确认差异已经存在于原始 HTTP 响应，
+但未访问服务启动配置，不能确定具体来自哪个 kernel、精度设置或后端路由。
+
+严格 checkpoint A/B 应持久化并重放相同 teacher 响应；训练侧固定 seed 仍保留。
+如果需要在线 teacher 本身可复现，应由服务侧评估并配置 batch invariance，之后
+重复同请求验证。此诊断只隔离了 student forward 和 teacher 数值，未独立证明
+完整 optimizer/scheduler/RNG 的逐位恢复。报告见 `teacher-seed-audit-20261020.json`，
+原始请求和响应保存在本地同名目录中；本次没有修改远端服务或新增环境依赖。
+
 ## 带鉴权的一小时训练
 
 2026-10-16 16:30（北京时间）重新启动，预计 17:30 左右停止训练并保存。

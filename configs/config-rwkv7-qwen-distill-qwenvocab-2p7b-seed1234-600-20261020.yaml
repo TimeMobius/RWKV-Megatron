@@ -1,4 +1,4 @@
-# 600 steps; save at step 500 for deterministic resume comparison.
+# 600 steps; save at step 500 for seeded live-teacher resume comparison.
 language_model:
   num_layers: 24
   hidden_size: 2304

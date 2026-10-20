@@ -155,6 +155,28 @@ log_timers_to_tensorboard: true
 这两个指标。关闭 `log_timers_to_tensorboard` 时，Megatron 原生路径可能只在 stdout
 显示性能数据，因此后续蒸馏配置统一保留这两个开关。
 
+## 第 500 步恢复对比（2026-10-20）
+
+连续训练 run `3zpuqom8` 从初始化运行到 600 步，第 500 步保存 checkpoint。
+恢复 run `k8vr551s` 使用 `ckpt_step: 500` 选择该 checkpoint，恢复模型、Adam、
+scheduler 和 RNG；保留 `train_iters: 600`、数据构建及过滤配置，执行 501–600 步。
+恢复测试设置 `save: null`，不覆盖原 checkpoint；teacher 请求均携带 `seed: 1234`
+和 `Authorization: Bearer sk-distill`。
+
+W&B 未采样、完整精度的 100 步记录对比：loss 平均绝对差 `0.00706444`，最大绝对差
+`0.02763367`；平均相对差 `0.043604%`，最大相对差 `0.175316%`。grad norm 平均
+绝对差 `0.0760094`，最大绝对差 `0.5670052`。学习率和消费样本计数逐步一致，两个
+run 均无 NaN、无跳步，恢复进程退出码为 0。
+
+相同 128-token 诊断输入、关闭缓存、相同 seed 连续请求三次，teacher 的 top-100
+候选集合及 logprob 仍不完全一致。按相同 token ID 比较，重复请求的 logprob 平均
+绝对差约 `0.036–0.037`。此诊断输入不同于第 501 步样本，因此只能确认服务仍有
+波动，不能将所有训练差异都归因于 teacher，也不能据此证明 checkpoint 逐位恢复。
+当前结果表明在线续训 loss 接近连续训练；严格恢复误差需要固定 teacher 响应另测。
+
+完整逐步结果见 `seed1234-resume500-comparison-20261020.json`，恢复配置为
+`configs/config-rwkv7-qwen-distill-qwenvocab-2p7b-seed1234-resume500-600-20261020.yaml`。
+
 ## 带鉴权的一小时训练
 
 2026-10-16 16:30（北京时间）重新启动，预计 17:30 左右停止训练并保存。

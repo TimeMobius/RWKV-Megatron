@@ -94,3 +94,22 @@ def test_ppl_uses_aggregated_ce_not_average_microbatch_ppl():
     torch.testing.assert_close(context.loss_dict['distill/student_ppl'], ce.double().exp())
     assert not torch.isclose(context.loss_dict['distill/student_ppl'],
                              (torch.exp(torch.tensor(1.)) + torch.exp(torch.tensor(3.))).double() / 2)
+
+
+def test_validation_ppl_uses_resumed_step_and_full_validation_ce():
+    from unittest.mock import Mock
+    import rwkv_megatron.distill_metrics as metrics
+    callback = metrics.StudentPerplexityCallback()
+    context = SimpleNamespace(loss_dict={'distill/student_ce_loss': torch.tensor(2.)},
+                              total_loss_dict={'distill/student_ce_loss': torch.tensor(3.)})
+    writer, wandb = Mock(), Mock()
+    with patch.object(metrics, 'get_args', return_value=SimpleNamespace(iteration=500)), \
+            patch.object(metrics, 'get_tensorboard_writer', return_value=writer), \
+            patch.object(metrics, 'get_wandb_writer', return_value=wandb):
+        callback.on_train_start(context)
+        callback.on_train_step_end(context)
+        callback.on_train_step_end(context)
+        callback.on_eval_end(context)
+    assert context.total_loss_dict['distill/student_ppl'] == torch.tensor(3.).double().exp()
+    assert writer.add_scalar.call_args.args[-1] == 502
+    assert wandb.log.call_args.args[-1] == 502

@@ -925,11 +925,13 @@ if __name__ == "__main__":
         from megatron.training.global_vars import initialize_runtime_services
         from rwkv_megatron.arguments import add_rwkv_arguments
         from rwkv_megatron.distill_metrics import StudentPerplexityCallback
+        from rwkv_megatron.checkpoint_retention import make_retention_callback
 
         args = parse_and_validate_args(extra_args_provider=add_rwkv_arguments)
         initialize_runtime_services(args)
         get_train_iters()
         full_config = pretrain_cfg_container_from_args(args)
+        retention = make_retention_callback(args)
         try:
             pretrain(
                 full_config,
@@ -937,9 +939,13 @@ if __name__ == "__main__":
                 ModelType.encoder_or_decoder,
                 forward_step,
                 model_provider=model_provider,
-                callbacks=[StudentPerplexityCallback()],
+                callbacks=[StudentPerplexityCallback(), retention],
             )
         finally:
-            for prefetcher in _teacher_prefetchers:
-                prefetcher.close()
-                print(f"async Qwen teacher final stats: {prefetcher.get_stats()}", flush=True)
+            # Covers the final checkpoint saved by pretrain after train_end.
+            try:
+                retention.prune()
+            finally:
+                for prefetcher in _teacher_prefetchers:
+                    prefetcher.close()
+                    print(f"async Qwen teacher final stats: {prefetcher.get_stats()}", flush=True)

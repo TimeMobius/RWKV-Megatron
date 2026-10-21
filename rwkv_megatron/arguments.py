@@ -87,6 +87,8 @@ def add_rwkv_arguments(parser):
     parser.add_argument("--rwkv-jsonl-text-field", default="text")
     parser.add_argument("--rwkv-jsonl-max-records", type=nonnegative_int, default=0)
     parser.add_argument("--rwkv-jsonl-chunk-chars", type=positive_int, default=512)
+    parser.add_argument("--rwkv-checkpoint-keep-last", type=nonnegative_int, default=0,
+                        help="Keep the latest N completed ordinary checkpoints; 0 disables pruning")
     for name in ("D_AAA_LORA", "D_DECAY_LORA", "D_GATE_LORA", "D_MV_LORA"):
         parser.add_argument(f"--{name}", type=int)
 
@@ -175,6 +177,11 @@ def add_rwkv_arguments(parser):
         raise ValueError('rwkv_jsonl_max_records must be nonnegative')
     if settings.get('rwkv_jsonl_chunk_chars', 512) < 1:
         raise ValueError('rwkv_jsonl_chunk_chars must be positive')
+    keep_last = settings.get('rwkv_checkpoint_keep_last', 0)
+    if type(keep_last) is not int or keep_last < 0:
+        raise ValueError('rwkv_checkpoint_keep_last must be a nonnegative integer')
+    if keep_last and settings.get('save_retain_interval') is not None:
+        raise ValueError('rwkv_checkpoint_keep_last cannot be combined with save_retain_interval')
     for key in ('rwkv_distill_temperature', 'rwkv_distill_logit_weight', 'rwkv_distill_ce_weight'):
         if settings.get(key, 0.0) < 0:
             raise ValueError(f"{key} must be nonnegative")

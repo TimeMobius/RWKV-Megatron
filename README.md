@@ -31,7 +31,7 @@ L2Wrap 不改变显示的 CE loss；只在训练后向中，对每个有效 toke
 | 多 GPU 蒸馏（TP/PP/DP） | `[ ]` 后续 | 降低优先级，先完成单卡路径。 |
 | 跨 rank teacher 失败处理 | `[ ]` 后续 | 降低优先级，后续统一各 rank 的失败/跳过行为。 |
 | Teacher pool 与训练一键启动 | `[x]` 已完成 | `tools/launch_distillation.py` 启动 pool，等待就绪后启动训练，并在退出或失败时清理进程组。 |
-| 普通 checkpoint 保留最近 N 个并清理旧文件 | `[ ]` 待做 | 若需修改 Megatron 仓库，必须先创建独立蒸馏分支。 |
+| 普通 checkpoint 保留最近 N 个并清理旧文件 | `[x]` 已完成 | `rwkv_checkpoint_keep_last: N`，0 为关闭；项目侧回调实现，无需修改 Megatron 子仓库。 |
 | Hidden-state 蒸馏 | 不做 | 源项目也没有接入在线训练。 |
 | Attention 蒸馏 | 不做 | 源项目也没有接入在线训练。 |
 | Qwen→RWKV 权重转换 | 不做 | 使用现有 mapped RWKV checkpoint。 |
@@ -54,6 +54,10 @@ python tools/launch_distillation.py --rwkv-config configs/config-rwkv7-qwen-dist
 ```
 
 Launcher 使用同一份 YAML 配置两个进程，并为训练追加 `--rwkv-teacher-pool`；不会启动 vLLM。训练正常/异常退出、pool 启动失败/超时、训练期间 pool 退出或 SIGINT/SIGTERM 都会清理所属进程组；已占用的 pool 地址会报错。需要自定义训练命令时，放在 `--` 后（如 `-- torchrun --standalone --nproc-per-node=1 pretrain_rwkv7.py`），配置和 pool 参数由 launcher 追加。生命周期测试 `tests/test_distill_launcher.py` 共 6 项通过；实际 2.7B student、minipile JSONL、真实 API、pool/异步、每步两个微批次的 4 步训练与验证已正常结束，零 NaN、零跳步。
+
+`rwkv_checkpoint_keep_last: 2` 保留最近两个已完成的普通 checkpoint；默认 `0` 不清理。以 `latest_checkpointed_iteration.txt` 为完成边界，在下一步开始/训练结束时清理，并在 `pretrain()` 返回后检查最终保存。缺失/无效 tracker 或最新 checkpoint 不完整时不删除；较新的在写目录、release、初始化 step 0、符号链接及非 checkpoint 目录保留。该策略不能与 Megatron 的 `save_retain_interval` 同时开启。测试覆盖删除边界、保留数量及 rank 0 行为；实际小模型同步 torch checkpoint 在 step 1–4 保存后只保留 3、4，从 4 恢复到 5 后只保留 4、5。更改训练总步数后续训时，应保持原 scheduler 配置，或显式 `use_checkpoint_opt_param_scheduler: true` 恢复 checkpoint 中的 scheduler。
+
+本轮测试详情见 [蒸馏功能验证记录](docs/distillation-validation-20261021.md)。TP/PP/DP 蒸馏和跨 rank teacher 失败处理仍为后续任务。
 
 <div align="center">
 

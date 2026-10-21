@@ -696,7 +696,8 @@ def train_valid_test_datasets_provider(train_val_test_num_samples):
 
     print_rank_0("> building train, validation, and test datasets for GPT ...")
 
-    filter_roundtrip = args.rwkv_distill and getattr(args, "rwkv_distill_filter_roundtrip", False)
+    filter_roundtrip = (args.rwkv_distill and getattr(args, "rwkv_distill_filter_roundtrip", False)
+                        and getattr(args, "rwkv_teacher_prompt_mode", "text") == "text")
     requested_samples = list(train_val_test_num_samples)
     build_samples = [n + max(32, n // 20) if n else n for n in requested_samples] if filter_roundtrip else requested_samples
     train_ds, valid_ds, test_ds = BlendedMegatronDatasetBuilder(

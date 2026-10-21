@@ -117,6 +117,33 @@ def test_raw_prompt_including_last_label_is_clipped_to_student_inputs():
     assert result.token_ids[0, 1, 0] == 2
 
 
+@pytest.mark.parametrize('dtype', [torch.float32, torch.bfloat16])
+def test_text_and_token_id_requests_preserve_kl_and_gradients(dtype):
+    responses = []
+    class Tokenizer:
+        def decode(self, ids, **kwargs):
+            return 'ab'
+        def __call__(self, text, **kwargs):
+            return type('Encoded', (), {'input_ids': [1, 2]})()
+    for mode in ('text', 'token_ids'):
+        client = OnlineTeacherClient('http://teacher', 'Qwen', '/unused', top_k=2,
+                                    prompt_mode=mode, request_seed=1234)
+        client._get_tokenizer = lambda: Tokenizer()
+        session = _Session()
+        client._get_session = lambda: session
+        responses.append(client.get_logits(torch.tensor([[1, 2]])))
+        assert session.payload[1]['prompt'] == ('ab' if mode == 'text' else [1, 2])
+    logits = torch.randn(1, 1, 10400, dtype=dtype, requires_grad=True)
+    outcomes = []
+    for response in responses:
+        loss = kl_divergence_topk(logits, TeacherTopK(response.token_ids[:, 1:], response.logprobs[:, 1:]),
+                                 torch.ones(1, 1), valid_vocab_size=10360)
+        grad, = torch.autograd.grad(loss, logits)
+        outcomes.append((loss, grad))
+    assert torch.equal(outcomes[0][0], outcomes[1][0])
+    assert torch.equal(outcomes[0][1], outcomes[1][1])
+
+
 def test_retry_after_rate_limit_uses_backoff_and_returns_metrics(monkeypatch):
     client = OnlineTeacherClient("http://teacher", "Qwen3.8-27B", "/unused",
                                 top_k=1, max_retries=2, retry_backoff_initial=7.0,

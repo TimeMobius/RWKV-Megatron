@@ -255,13 +255,13 @@ class OnlineTeacherClient:
         timeout: float = 600.0,
         request_temperature: float = 1.0,
         request_seed: Optional[int] = None,
-        prompt_mode: str = "text",
         api_key: Optional[str] = None,
         max_retries: int = 3,
         retry_backoff_initial: float = 1.0,
         retry_backoff_max: float = 30.0,
         retry_jitter: float = 0.2,
         cache_size: int = 256,
+        prompt_mode: str = "text",
     ) -> None:
         if not 1 <= int(top_k) <= 1000:
             raise ValueError("top_k must be in [1, 1000] for the teacher service")

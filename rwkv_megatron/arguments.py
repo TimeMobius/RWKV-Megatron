@@ -53,7 +53,7 @@ def add_rwkv_arguments(parser):
     parser.add_argument("--rwkv-teacher-prompt-mode", choices=("text", "token_ids"), default="text",
                         help="Send decoded text or tokenizer IDs directly to the teacher API")
     parser.add_argument("--rwkv-teacher-top-k", type=int, default=100)
-    parser.add_argument("--rwkv-teacher-seed", type=nonnegative_int, default=None,
+    parser.add_argument("--rwkv-teacher-seed", type=nonnegative_int, default=1234,
                         help="Fixed seed included in each teacher completion request")
     parser.add_argument("--rwkv-teacher-timeout", type=float, default=600.0)
     parser.add_argument("--rwkv-teacher-max-retries", type=nonnegative_int, default=3)

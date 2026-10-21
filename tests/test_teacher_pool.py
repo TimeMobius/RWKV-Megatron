@@ -86,6 +86,13 @@ def remote(port, **kwargs):
     return RemoteTeacherPoolClient(FrozenTeacher(), port=port, **kwargs)
 
 
+def test_pool_rejects_different_prompt_mode(pool_port):
+    client = FrozenTeacher()
+    client.prompt_mode = 'token_ids'
+    with pytest.raises(ValueError, match='prompt_mode'):
+        RemoteTeacherPoolClient(client, port=pool_port)
+
+
 def submit(pool, key, value=0):
     tokens = torch.tensor([[value, value + 1, value + 2]])
     return pool.submit(key, tokens.numpy().tobytes(), None, tuple(tokens.shape), None)

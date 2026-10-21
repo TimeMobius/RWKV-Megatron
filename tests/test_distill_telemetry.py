@@ -110,6 +110,11 @@ def test_validation_ppl_uses_resumed_step_and_full_validation_ce():
         callback.on_train_step_end(context)
         callback.on_train_step_end(context)
         callback.on_eval_end(context)
+        assert 'distill/validation_student_ce_loss' in wandb.log.call_args.args[0]
+        assert 'distill/validation_student_ppl' in wandb.log.call_args.args[0]
+        callback.on_test_end(context)
+        assert 'distill/test_student_ce_loss' in wandb.log.call_args.args[0]
+        assert 'distill/test_student_ppl' in wandb.log.call_args.args[0]
     assert context.total_loss_dict['distill/student_ppl'] == torch.tensor(3.).double().exp()
     assert writer.add_scalar.call_args.args[-1] == 502
     assert wandb.log.call_args.args[-1] == 502

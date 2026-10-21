@@ -30,7 +30,7 @@ L2Wrap 不改变显示的 CE loss；只在训练后向中，对每个有效 toke
 | 直接发送 token ID | `[x]` 已实现；当前网关不支持 | `rwkv_teacher_prompt_mode: token_ids`；文本模式仍为默认，当前 API 对数组 prompt 返回 422。 |
 | 多 GPU 蒸馏（TP/PP/DP） | `[ ]` 后续 | 降低优先级，先完成单卡路径。 |
 | 跨 rank teacher 失败处理 | `[ ]` 后续 | 降低优先级，后续统一各 rank 的失败/跳过行为。 |
-| Teacher pool 与训练一键启动 | `[ ]` 待做 | 一条命令启动并清理 pool 和训练进程。 |
+| Teacher pool 与训练一键启动 | `[x]` 已完成 | `tools/launch_distillation.py` 启动 pool，等待就绪后启动训练，并在退出或失败时清理进程组。 |
 | 普通 checkpoint 保留最近 N 个并清理旧文件 | `[ ]` 待做 | 若需修改 Megatron 仓库，必须先创建独立蒸馏分支。 |
 | Hidden-state 蒸馏 | 不做 | 源项目也没有接入在线训练。 |
 | Attention 蒸馏 | 不做 | 源项目也没有接入在线训练。 |
@@ -46,6 +46,14 @@ L2Wrap 不改变显示的 CE loss；只在训练后向中，对每个有效 toke
 JSONL 构造阶段只扫描字节建立每行 32 字节的偏移索引，不解析 JSON、不 tokenize；分块索引按访问需要建立，每个窗口保存 32 字节整数偏移。文本/分词结果不常驻内存；长文档的全部可用分块按原顺序保留，超过训练长度的字符块递归二分，不只取文档开头。`target_samples` 已知时 `len()` 不触发 tokenize；未指定样本数时，`len()` 需要建立完整窗口索引。随机访问较后的样本需先建立其前面的窗口索引；多 worker 会分别维护索引，超大数据建议先用较少 worker。递归目录和 `**/*.jsonl` 模式均可用，目录中的 train/validation/test 子目录或文件名用于区分 split；显式 glob 按匹配结果读取。`tests/test_jsonl_dataset.py` 覆盖原始分块算法、重复/随机访问、多 worker 续读和嵌套 split，共 8 项通过。
 
 `rwkv_teacher_prompt_mode` 默认为 `text`，可设为 `token_ids` 直接发送整数 ID 数组；JSONL 的右侧 padding 被移除，binidx 使用完整输入窗口。该设置也参与 pool 握手校验。2026-10-21 实测 `http://192.168.10.121:8000/v1/completions` 的文本请求正常，数组 prompt 返回 HTTP 422 `ExpectedString`；token-ID 模式目前适用于支持该 vLLM 协议的服务，不会在失败时静默退回文本模式。文本窗口包含 S+1 个 token（末 token 为标签）时，teacher 评分后只返回前 S 个位置，保证与 student 的 S 个输入对齐。
+
+在已激活并配置 CUDA 库路径的 `train_mobius_py312` 环境中，一键启动共享 pool 和单卡训练：
+
+```bash
+python tools/launch_distillation.py --rwkv-config configs/config-rwkv7-qwen-distill-qwenvocab-2p7b-pool-smoke.yaml
+```
+
+Launcher 使用同一份 YAML 配置两个进程，并为训练追加 `--rwkv-teacher-pool`；不会启动 vLLM。训练正常/异常退出、pool 启动失败/超时、训练期间 pool 退出或 SIGINT/SIGTERM 都会清理所属进程组；已占用的 pool 地址会报错。需要自定义训练命令时，放在 `--` 后（如 `-- torchrun --standalone --nproc-per-node=1 pretrain_rwkv7.py`），配置和 pool 参数由 launcher 追加。生命周期测试 `tests/test_distill_launcher.py` 共 6 项通过；实际 2.7B student、minipile JSONL、真实 API、pool/异步、每步两个微批次的 4 步训练与验证已正常结束，零 NaN、零跳步。
 
 <div align="center">
 

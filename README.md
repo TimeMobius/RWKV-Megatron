@@ -43,6 +43,8 @@ L2Wrap 不改变显示的 CE loss；只在训练后向中，对每个有效 toke
 
 `distill/student_ce_loss` 使用原始 next-token 标签和有效 token mask，在有效词表上计算自然对数 CE（含最后一个可预测标签），独立于 teacher top-k 和 KL 温度；默认 `rwkv_distill_ce_weight: 0.0`，监控不保留反向图。每个优化步的 `distill/student_ppl` 由跨微批次汇总后的 token CE 取 `exp` 得到；验证 PPL 在整个验证集批次汇总后计算。日志区间中显示的训练 PPL 是这些优化步 PPL 的均值。测试 `tests/test_distill_telemetry.py` 对齐直接 PyTorch CE、有效词表以及 FP32/BF16 纯 KL 梯度，4 项通过。
 
+JSONL 构造阶段只扫描字节建立每行 32 字节的偏移索引，不解析 JSON、不 tokenize；分块索引按访问需要建立，每个窗口保存 32 字节整数偏移。文本/分词结果不常驻内存；长文档的全部可用分块按原顺序保留，超过训练长度的字符块递归二分，不只取文档开头。`target_samples` 已知时 `len()` 不触发 tokenize；未指定样本数时，`len()` 需要建立完整窗口索引。随机访问较后的样本需先建立其前面的窗口索引；多 worker 会分别维护索引，超大数据建议先用较少 worker。递归目录和 `**/*.jsonl` 模式均可用，目录中的 train/validation/test 子目录或文件名用于区分 split；显式 glob 按匹配结果读取。`tests/test_jsonl_dataset.py` 覆盖原始分块算法、重复/随机访问、多 worker 续读和嵌套 split，共 8 项通过。
+
 <div align="center">
 
 <img src="/assets/logo.png" width="300px">

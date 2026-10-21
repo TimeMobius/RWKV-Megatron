@@ -3,6 +3,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import torch
+import pytest
 
 from rwkv_megatron.jsonl_dataset import JsonlTextDataset
 from rwkv_megatron.online_teacher import OnlineTeacherClient
@@ -55,6 +56,76 @@ def test_jsonl_loader_indexes_without_tokenizing_until_getitem(tmp_path):
     assert len(dataset) == 4
     assert dataset[2]["raw_prompts"] == "abcdef"
     assert tokenizer.calls > 0
+
+
+def test_lazy_windows_match_original_eager_algorithm_and_keep_document_tails(tmp_path):
+    texts = ['a', '', 'abcdefghij' * 4, 'uvwxyz', '中文测试字符' * 5]
+    path = tmp_path / 'train.jsonl'
+    path.write_text(''.join(json.dumps({'text': t}) + '\n' for t in texts))
+    tokenizer = TinyTokenizer()
+    # Independent reference to the original text splitting policy.
+    expected = []
+    def split_chunk(text):
+        ids = tokenizer(text).input_ids
+        if len(ids) > 9:
+            mid = max(1, len(text) // 2)
+            split_chunk(text[:mid])
+            split_chunk(text[mid:])
+        elif len(ids) >= 2:
+            expected.append(text)
+    for text in texts:
+        for start in range(0, len(text), 13):
+            split_chunk(text[start:start + 13])
+    dataset = JsonlTextDataset([path], tokenizer, 8, target_samples=len(expected) * 2, chunk_chars=13)
+    # Random access forces index construction; subsequent sequential access is
+    # identical, including repeated epochs and the final chunk of each record.
+    assert dataset[len(expected) - 1]['raw_prompts'] == expected[-1]
+    for i in reversed(range(len(dataset))):
+        sample = dataset[i]
+        prompt = expected[i % len(expected)]
+        assert sample['raw_prompts'] == prompt
+        ids = tokenizer(prompt).input_ids
+        assert sample['tokens'][:min(len(ids), 8)].tolist() == ids[:8]
+        assert sample['labels'][:len(ids)-1].tolist() == ids[1:]
+        assert sample['loss_mask'].sum() == len(ids) - 1
+    full = JsonlTextDataset([path], tokenizer, 8, chunk_chars=13)
+    assert len(full) == len(expected)
+    with pytest.raises(IndexError):
+        full[len(full)]
+
+
+def test_lazy_multiworker_resume_is_identical(tmp_path):
+    from torch.utils.data import DataLoader, Subset
+    path = tmp_path / 'train.jsonl'
+    path.write_text(''.join(json.dumps({'text': 'abcdefghijklmnop' * i}) + '\n' for i in range(1, 6)))
+    ds = JsonlTextDataset([path], TinyTokenizer(), 8, target_samples=30, chunk_chars=13)
+    expected = [ds[i] for i in range(30)]
+    fresh = JsonlTextDataset([path], TinyTokenizer(), 8, target_samples=30, chunk_chars=13)
+    rows = list(DataLoader(Subset(fresh, range(13, 30)), batch_size=None, num_workers=2))
+    for actual, reference in zip(rows, expected[13:]):
+        assert actual['raw_prompts'] == reference['raw_prompts']
+        for key in ('tokens', 'labels', 'loss_mask'):
+            assert torch.equal(actual[key], reference[key])
+
+
+def test_recursive_split_subdirectories_globs_and_dedup(tmp_path):
+    for split in ('train', 'validation', 'test'):
+        folder = tmp_path / split / 'nested'
+        folder.mkdir(parents=True)
+        (folder / 'part-0.jsonl').write_text('{"text":"abc"}\n')
+    selected = JsonlTextDataset.paths_for_split([tmp_path], 'validation')
+    assert len(selected) == 1 and 'validation' in selected[0].parts
+    all_files = JsonlTextDataset.paths_for_split([str(tmp_path / '**/*.jsonl')], 'train')
+    assert len(all_files) == 3
+    assert JsonlTextDataset.paths_for_split([tmp_path, selected[0]], 'validation') == selected
+
+
+def test_invalid_json_is_reported_on_access_with_source_line(tmp_path):
+    path = tmp_path / 'bad.jsonl'
+    path.write_text('not json\n')
+    ds = JsonlTextDataset([path], TinyTokenizer(), 8, target_samples=1)
+    with pytest.raises(ValueError, match=r'bad.jsonl:1'):
+        ds[0]
 
 
 def test_teacher_accepts_raw_prompt_without_decode(monkeypatch):

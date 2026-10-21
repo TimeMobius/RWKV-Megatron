@@ -30,9 +30,31 @@ def test_jsonl_dataset_keeps_raw_text_and_masks_padding(tmp_path):
 
 
 def test_jsonl_paths_select_split_files(tmp_path):
+    nested = tmp_path / "shards" / "nested"
+    nested.mkdir(parents=True)
     for name in ("train-0.jsonl", "validation-0.jsonl", "test-0.jsonl"):
-        (tmp_path / name).write_text('{"text":"ok"}\n')
+        (nested / name).write_text('{"text":"ok"}\n')
     assert JsonlTextDataset.paths_for_split([tmp_path], "validation")[0].name == "validation-0.jsonl"
+
+
+def test_jsonl_loader_indexes_without_tokenizing_until_getitem(tmp_path):
+    path = tmp_path / "train.jsonl"
+    path.write_text('{"text":"abcdef"}\n{"text":"ghijkl"}\n', encoding="utf-8")
+
+    class CountingTokenizer(TinyTokenizer):
+        def __init__(self):
+            self.calls = 0
+
+        def __call__(self, text, add_special_tokens=False):
+            self.calls += 1
+            return super().__call__(text, add_special_tokens=add_special_tokens)
+
+    tokenizer = CountingTokenizer()
+    dataset = JsonlTextDataset([path], tokenizer, sequence_length=8, target_samples=4)
+    assert tokenizer.calls == 0
+    assert len(dataset) == 4
+    assert dataset[2]["raw_prompts"] == "abcdef"
+    assert tokenizer.calls > 0
 
 
 def test_teacher_accepts_raw_prompt_without_decode(monkeypatch):

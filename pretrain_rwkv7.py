@@ -397,6 +397,37 @@ def _finalize_loss(loss: torch.Tensor, token_count: torch.Tensor):
     return packed[0] * args.context_parallel_size, local_num_tokens, {"lm loss": reporting_loss}
 
 
+def _student_cross_entropy(
+    logits: torch.Tensor,
+    labels: torch.Tensor,
+    attention_mask: torch.Tensor,
+    valid_vocab_size: int,
+) -> torch.Tensor:
+    """Return token-normalized student CE over the teacher's effective vocabulary.
+
+    Megatron pads the output head to a TP-friendly vocabulary size.  Those extra
+    rows have no tokenizer IDs and must not participate in the CE denominator,
+    even when CE is only being collected as a monitoring metric.
+    """
+    if valid_vocab_size < 1 or valid_vocab_size > logits.shape[-1]:
+        raise ValueError(
+            f"valid_vocab_size={valid_vocab_size} must be in [1, {logits.shape[-1]}]"
+        )
+    valid_mask = attention_mask.to(device=logits.device, dtype=torch.bool)
+    if valid_mask.any():
+        valid_labels = labels[valid_mask]
+        if ((valid_labels < 0) | (valid_labels >= valid_vocab_size)).any():
+            raise ValueError("student CE labels contain IDs outside the effective vocabulary")
+    effective_logits = logits[..., :valid_vocab_size].float()
+    token_ce = F.cross_entropy(
+        effective_logits.reshape(-1, valid_vocab_size),
+        labels.to(device=logits.device, dtype=torch.long).reshape(-1),
+        reduction="none",
+    ).reshape_as(valid_mask)
+    denom = valid_mask.to(token_ce.dtype).sum().clamp_min(1.0)
+    return (token_ce * valid_mask.to(token_ce.dtype)).sum() / denom
+
+
 def distillation_loss_func(loss_mask: torch.Tensor, labels: torch.Tensor, output_tensor, telemetry=None):
     """Compute aligned top-k KL (and optional supervised CE) for one microbatch."""
     args = get_args()
@@ -442,21 +473,21 @@ def distillation_loss_func(loss_mask: torch.Tensor, labels: torch.Tensor, output
     )
 
     total = float(args.rwkv_distill_logit_weight) * kl
+    student_labels = labels[:, :-1].to(device=student_logits.device, dtype=torch.long)
+    # Always compute CE for an independent student quality signal.  It only
+    # contributes to the training objective when explicitly weighted.
+    ce = _student_cross_entropy(aligned_student, student_labels, aligned_mask, valid_vocab_size)
     if args.rwkv_distill_ce_weight:
-        labels = labels[:, :-1].to(device=student_logits.device, dtype=torch.long)
-        ce_per_token = F.cross_entropy(
-            aligned_student.float().reshape(-1, aligned_student.shape[-1]),
-            labels.reshape(-1),
-            reduction="none",
-        ).reshape_as(aligned_mask)
-        denom = aligned_mask.to(ce_per_token.dtype).sum().clamp_min(1.0)
-        ce = (ce_per_token * aligned_mask.to(ce_per_token.dtype)).sum() / denom
         total = total + float(args.rwkv_distill_ce_weight) * ce
     token_count = aligned_mask.float().sum()
     loss, count, reporting = _finalize_loss(total, token_count)
     # Reporting pairs follow Megatron's sum/count contract. KL is explicit
     # because the legacy "lm loss" name is the weighted training objective.
     reporting['distill/kl_loss'] = torch.stack((kl.detach() * token_count, token_count))
+    reporting['distill/student_ce_loss'] = torch.stack((ce.detach() * token_count, token_count))
+    # This is deliberately a separate scalar metric and never enters `total`.
+    # Megatron averages scalar metrics over microbatches at the logging interval.
+    reporting['distill/student_ppl'] = torch.stack((torch.exp(ce.detach()), torch.ones_like(token_count)))
     if args.rwkv_distill_ce_weight:
         reporting['distill/ce_loss'] = torch.stack((ce.detach() * token_count, token_count))
     for name, value in (telemetry or {}).items():

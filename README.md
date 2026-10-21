@@ -15,6 +15,30 @@ L2Wrap 不改变显示的 CE loss；只在训练后向中，对每个有效 toke
 
 验证默认继续读取下一组样本。YAML 顶层设置 `fixed_eval_samples: true` 后，每次 eval 都从验证集开头读取同一组；断点恢复后同样从开头读取。组的大小由 `eval_iters` 和验证 batch size 决定，比较时应保持数据、seed、序列长度及验证批次配置相同。设为 `false` 或不设置则保留原行为。支持内置 `single`/`cyclic` DataLoader；外部自定义迭代器不支持此开关。测试见 [FIXED-EVAL.md](training-smoke/audit/FIXED-EVAL.md)。
 
+## Qwen→RWKV 蒸馏分支功能范围
+
+以下清单记录分支 `codex/qwen-rwkv28b-distill` 的当前约定。实现完成后将对应项标记为 `[x]`。
+
+| 功能 | 状态 | 决策与说明 |
+|---|---|---|
+| 按组件/参数名冻结 | 不做 | 保持当前全参数训练策略。 |
+| 更换冻结策略后的恢复流程 | 不做 | 冻结策略不在当前范围内。 |
+| 独立 student CE/PPL 监控 | `[x]` 已完成 | 始终统计有效词表上的 student CE，并独立上报 student PPL；CE 只有配置权重非零时才参与训练目标。 |
+| 大规模 JSONL 懒加载 | `[ ]` 待做 | 避免初始化时读取并 tokenize 全部数据。 |
+| 递归 JSONL 文件读取 | `[ ]` 待做 | 支持嵌套目录和递归文件模式。 |
+| 本地 teacher 后端 | 不做 | 继续使用外部 vLLM teacher 服务。 |
+| 直接发送 token ID | `[ ]` 待做 | 增加可选后端，避免 token ID 到文本的 decode。 |
+| 多 GPU 蒸馏（TP/PP/DP） | `[ ]` 后续 | 降低优先级，先完成单卡路径。 |
+| 跨 rank teacher 失败处理 | `[ ]` 后续 | 降低优先级，后续统一各 rank 的失败/跳过行为。 |
+| Teacher pool 与训练一键启动 | `[ ]` 待做 | 一条命令启动并清理 pool 和训练进程。 |
+| 普通 checkpoint 保留最近 N 个并清理旧文件 | `[ ]` 待做 | 若需修改 Megatron 仓库，必须先创建独立蒸馏分支。 |
+| Hidden-state 蒸馏 | 不做 | 源项目也没有接入在线训练。 |
+| Attention 蒸馏 | 不做 | 源项目也没有接入在线训练。 |
+| Qwen→RWKV 权重转换 | 不做 | 使用现有 mapped RWKV checkpoint。 |
+| 持久化 teacher 响应数据库 | 不做 | 两个项目目前都不提供此功能。 |
+
+当前蒸馏分支已经完成：在线 vLLM top-k prompt-logprob teacher、`sk-distill` 请求头、固定 seed、请求温度 1.0、有效词表 KL、padding 行排除、重试退避、限流统计、缓存、异步预取、动态并发、teacher pool、JSONL 文本输入、round-trip 检查、checkpoint 恢复和合并后的 W&B 监控。
+
 <div align="center">
 
 <img src="/assets/logo.png" width="300px">

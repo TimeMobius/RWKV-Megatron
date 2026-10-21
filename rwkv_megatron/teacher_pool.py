@@ -27,6 +27,7 @@ def teacher_metadata(client):
     return dict(protocol=1, server_url=client.server_url, model=client.model_name,
                 top_k=client.top_k, seed=client.request_seed,
                 request_temperature=client.request_temperature,
+                prompt_mode=getattr(client, 'prompt_mode', 'text'),
                 valid_vocab_size=client.get_effective_vocab_size(),
                 vocab_sha256=hashlib.sha256(vocabulary).hexdigest())
 
@@ -199,6 +200,7 @@ class RemoteTeacherPoolClient:
         if not math.isfinite(timeout) or timeout <= 0:
             raise ValueError("pool timeout must be finite and positive")
         self.local_client = local_client
+        self.prompt_mode = getattr(local_client, 'prompt_mode', 'text')
         self.timeout = timeout
         self._thread_local = threading.local()
         self._lock = threading.Lock()

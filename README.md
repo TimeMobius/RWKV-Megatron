@@ -27,7 +27,7 @@ L2Wrap 不改变显示的 CE loss；只在训练后向中，对每个有效 toke
 | 大规模 JSONL 懒加载 | `[x]` 已完成 | 初始化只建立文件/行偏移索引，JSON 解析与 tokenize 延迟到取样时执行。 |
 | 递归 JSONL 文件读取 | `[x]` 已完成 | 目录输入递归发现 `.jsonl`，按 split 文件名优先选择并保持稳定排序。 |
 | 本地 teacher 后端 | 不做 | 继续使用外部 vLLM teacher 服务。 |
-| 直接发送 token ID | `[ ]` 待做 | 增加可选后端，避免 token ID 到文本的 decode。 |
+| 直接发送 token ID | `[x]` 已实现；当前网关不支持 | `rwkv_teacher_prompt_mode: token_ids`；文本模式仍为默认，当前 API 对数组 prompt 返回 422。 |
 | 多 GPU 蒸馏（TP/PP/DP） | `[ ]` 后续 | 降低优先级，先完成单卡路径。 |
 | 跨 rank teacher 失败处理 | `[ ]` 后续 | 降低优先级，后续统一各 rank 的失败/跳过行为。 |
 | Teacher pool 与训练一键启动 | `[ ]` 待做 | 一条命令启动并清理 pool 和训练进程。 |
@@ -44,6 +44,8 @@ L2Wrap 不改变显示的 CE loss；只在训练后向中，对每个有效 toke
 `distill/student_ce_loss` 使用原始 next-token 标签和有效 token mask，在有效词表上计算自然对数 CE（含最后一个可预测标签），独立于 teacher top-k 和 KL 温度；默认 `rwkv_distill_ce_weight: 0.0`，监控不保留反向图。每个优化步的 `distill/student_ppl` 由跨微批次汇总后的 token CE 取 `exp` 得到；验证 PPL 在整个验证集批次汇总后计算。日志区间中显示的训练 PPL 是这些优化步 PPL 的均值。测试 `tests/test_distill_telemetry.py` 对齐直接 PyTorch CE、有效词表以及 FP32/BF16 纯 KL 梯度，4 项通过。
 
 JSONL 构造阶段只扫描字节建立每行 32 字节的偏移索引，不解析 JSON、不 tokenize；分块索引按访问需要建立，每个窗口保存 32 字节整数偏移。文本/分词结果不常驻内存；长文档的全部可用分块按原顺序保留，超过训练长度的字符块递归二分，不只取文档开头。`target_samples` 已知时 `len()` 不触发 tokenize；未指定样本数时，`len()` 需要建立完整窗口索引。随机访问较后的样本需先建立其前面的窗口索引；多 worker 会分别维护索引，超大数据建议先用较少 worker。递归目录和 `**/*.jsonl` 模式均可用，目录中的 train/validation/test 子目录或文件名用于区分 split；显式 glob 按匹配结果读取。`tests/test_jsonl_dataset.py` 覆盖原始分块算法、重复/随机访问、多 worker 续读和嵌套 split，共 8 项通过。
+
+`rwkv_teacher_prompt_mode` 默认为 `text`，可设为 `token_ids` 直接发送整数 ID 数组；JSONL 的右侧 padding 被移除，binidx 使用完整输入窗口。该设置也参与 pool 握手校验。2026-10-21 实测 `http://192.168.10.121:8000/v1/completions` 的文本请求正常，数组 prompt 返回 HTTP 422 `ExpectedString`；token-ID 模式目前适用于支持该 vLLM 协议的服务，不会在失败时静默退回文本模式。文本窗口包含 S+1 个 token（末 token 为标签）时，teacher 评分后只返回前 S 个位置，保证与 student 的 S 个输入对齐。
 
 <div align="center">
 

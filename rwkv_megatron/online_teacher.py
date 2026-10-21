@@ -33,6 +33,7 @@ def build_teacher_client(args, *, use_pool=True):
         tokenizer_path=tokenizer_path, api_key=args.rwkv_teacher_api_key,
         top_k=args.rwkv_teacher_top_k, timeout=args.rwkv_teacher_timeout,
         request_temperature=1.0, request_seed=args.rwkv_teacher_seed,
+        prompt_mode=getattr(args, "rwkv_teacher_prompt_mode", "text"),
         max_retries=args.rwkv_teacher_max_retries,
         retry_backoff_initial=args.rwkv_teacher_retry_backoff_initial,
         retry_backoff_max=args.rwkv_teacher_retry_backoff_max,
@@ -124,15 +125,21 @@ class TeacherPrefetchIterator:
     def __iter__(self):
         return self
 
-    def _fetch(self, tokens, prompts=None):
+    def _fetch(self, tokens, prompts=None, attention_mask=None):
         with self._concurrency:
             while self._stats["active"] >= self._target_workers and not self._closed:
                 self._concurrency.wait(timeout=1.0)
             self._stats["active"] += 1
             self._stats["peak_active"] = max(self._stats["peak_active"], self._stats["active"])
         try:
-            result = (self.teacher_client.get_logits(tokens, prompts=prompts)
-                      if prompts is not None else self.teacher_client.get_logits(tokens))
+            # Token-ID mode must receive the right-padded mask so padded rows
+            # are not sent as part of the vLLM prompt.  The dataset's loss mask
+            # is converted before submission in ``__next__``.
+            if getattr(self.teacher_client, "prompt_mode", "text") == "token_ids":
+                result = self.teacher_client.get_logits(tokens, attention_mask=attention_mask)
+            else:
+                result = (self.teacher_client.get_logits(tokens, prompts=prompts)
+                          if prompts is not None else self.teacher_client.get_logits(tokens))
             metrics = getattr(self.teacher_client, "get_last_request_metrics", lambda: {})()
             self._observe_request(metrics)
         except BaseException:
@@ -189,7 +196,17 @@ class TeacherPrefetchIterator:
                 raise ValueError("Teacher prefetch requires CPU dataloader tokens")
             tokens = batch["tokens"].detach().clone()
             prompts = batch.get("raw_prompts")
-            future = self._executor.submit(self._fetch, tokens, prompts)
+            if getattr(self.teacher_client, "prompt_mode", "text") == "token_ids":
+                attention_mask = None
+                if prompts is not None:
+                    loss_mask = batch.get("loss_mask")
+                    if loss_mask is None:
+                        raise ValueError("JSONL token-ID teacher prefetch requires batch loss_mask")
+                    lengths = (loss_mask.detach().sum(dim=-1).to(torch.long) + 1).clamp_max(tokens.shape[-1])
+                    attention_mask = torch.arange(tokens.shape[-1]).unsqueeze(0) < lengths.unsqueeze(1)
+                future = self._executor.submit(self._fetch, tokens, prompts, attention_mask)
+            else:
+                future = self._executor.submit(self._fetch, tokens, prompts)
             self._pending.append((batch, future))
             if self._remaining is not None:
                 self._remaining -= 1
@@ -238,6 +255,7 @@ class OnlineTeacherClient:
         timeout: float = 600.0,
         request_temperature: float = 1.0,
         request_seed: Optional[int] = None,
+        prompt_mode: str = "text",
         api_key: Optional[str] = None,
         max_retries: int = 3,
         retry_backoff_initial: float = 1.0,
@@ -255,6 +273,9 @@ class OnlineTeacherClient:
         self.top_k = int(top_k)
         self.timeout = float(timeout)
         self.request_temperature = float(request_temperature)
+        if prompt_mode not in ("text", "token_ids"):
+            raise ValueError("prompt_mode must be 'text' or 'token_ids'")
+        self.prompt_mode = prompt_mode
         if request_seed is not None and (type(request_seed) is not int or request_seed < 0):
             raise ValueError("request_seed must be a nonnegative integer or None")
         self.request_seed = request_seed
@@ -375,17 +396,26 @@ class OnlineTeacherClient:
         prompt_rows = []
         for row_index, (row, mask) in enumerate(zip(input_ids, attention_mask)):
             prompt = prompt_texts[row_index] if prompt_texts is not None else None
+            valid_len = int(mask.sum().item())
+            if not mask[:valid_len].all() or mask[valid_len:].any():
+                raise ValueError("Online teacher requires right-padded inputs")
+            row_ids = row[:valid_len].tolist()
+            if self.prompt_mode == "token_ids":
+                # vLLM accepts a list of token IDs as the completion prompt.
+                # This path never decodes or re-tokenizes the input.
+                prompt_rows.append((row_ids, valid_len))
+                continue
             if prompt is None:
-                valid_len = int(mask.sum().item())
-                if not mask[:valid_len].all() or mask[valid_len:].any():
-                    raise ValueError("Online teacher requires right-padded inputs")
-                row_ids = row[:valid_len].tolist()
                 prompt = self._decode(row_ids) if valid_len else ""
             else:
-                row_ids = self._get_tokenizer()(prompt, add_special_tokens=False).input_ids
-                valid_len = len(row_ids)
-                if valid_len > row.shape[0] or row[:valid_len].tolist() != row_ids:
+                row_ids_from_text = self._get_tokenizer()(prompt, add_special_tokens=False).input_ids
+                valid_len = len(row_ids_from_text)
+                # A dataset window may contain S+1 IDs: S inputs plus its last
+                # next-token label. The teacher can score that final label too;
+                # only its first S prompt positions are returned to the loss.
+                if valid_len > row.shape[0] + 1 or row[:valid_len].tolist() != row_ids_from_text[:row.shape[0]]:
                     raise ValueError("Raw JSONL prompt does not match the student token IDs")
+                row_ids = row_ids_from_text
             if valid_len and self._get_tokenizer()(prompt, add_special_tokens=False).input_ids != row_ids:
                 raise ValueError("Teacher prompt does not round-trip to the student token IDs")
             prompt_rows.append((prompt, valid_len))
@@ -398,6 +428,9 @@ class OnlineTeacherClient:
             )
             total_retries += request_metrics["retries"]
             total_rate_limits += request_metrics["rate_limits"]
+            token_ids = token_ids[:input_ids.shape[1]]
+            logprobs = logprobs[:input_ids.shape[1]]
+            valid_len = min(valid_len, input_ids.shape[1])
             padding = input_ids.shape[1] - valid_len
             if padding:
                 token_ids = torch.cat((token_ids, torch.full((padding, self.top_k), -1, dtype=torch.int32)))
@@ -420,7 +453,8 @@ class OnlineTeacherClient:
                     self._stats["cache_entries"] = len(self._cache)
         return result
 
-    def _request_prompt_logprobs(self, prompt: str, sequence_length: int, return_metrics: bool = False):
+    def _request_prompt_logprobs(self, prompt: str | list[int], sequence_length: int,
+                                 return_metrics: bool = False):
         token_ids = torch.full((sequence_length, self.top_k), -1, dtype=torch.int32)
         logprobs = torch.full((sequence_length, self.top_k), float("-inf"), dtype=torch.float32)
         if not prompt:

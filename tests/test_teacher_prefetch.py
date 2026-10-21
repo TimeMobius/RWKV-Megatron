@@ -18,6 +18,23 @@ def batches(count):
     return [{"tokens": torch.tensor([[i, i + 1, i + 2]]), "sample_id": i} for i in range(count)]
 
 
+def test_token_id_prefetch_preserves_last_prompt_token_and_removes_padding():
+    captured = []
+    class Teacher:
+        prompt_mode = 'token_ids'
+        def get_logits(self, tokens, attention_mask=None):
+            captured.append(attention_mask)
+            return TeacherTopK(tokens[..., None].int(), torch.zeros(*tokens.shape, 1))
+    source = [{'tokens': torch.tensor([[1, 2, 3, 0, 0]]),
+               'loss_mask': torch.tensor([[1, 1, 0, 0, 0]]), 'raw_prompts': ['abc']}]
+    iterator = TeacherPrefetchIterator(source, Teacher(), num_workers=1, lookahead=1)
+    try:
+        next(iterator)[iterator.future_key].result(timeout=5)
+        assert captured[0].tolist() == [[True, True, True, False, False]]
+    finally:
+        iterator.close()
+
+
 class FrozenTeacher:
     def get_logits(self, tokens):
         ids = (tokens.unsqueeze(-1) + torch.arange(3)) % 17

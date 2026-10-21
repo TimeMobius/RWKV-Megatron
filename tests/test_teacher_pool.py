@@ -365,6 +365,8 @@ def test_pool_config_and_factory_selection(tmp_path, monkeypatch):
     assert captured[0][0].request_seed == 1234
     assert captured[0][0]._api_key == "sk-distill"
     assert captured[0][1]["port"] == 50057
+    token_client = build_teacher_client(parser.parse_args(['--rwkv-teacher-prompt-mode', 'token_ids']), use_pool=False)
+    assert token_client.prompt_mode == 'token_ids'
     for key, value in [("rwkv_teacher_pool", "yes"), ("rwkv_teacher_pool_queue_size", 0),
                        ("rwkv_teacher_pool_timeout", float("nan")), ("rwkv_teacher_pool_port", 65536)]:
         import yaml

@@ -584,8 +584,20 @@ def forward_step(data_iterator, model: GPTModel):
         # Wait on this exact batch after student forward. Errors propagate;
         # never issue a duplicate synchronous request or skip a sample.
         wait_start = time.perf_counter()
-        teacher = (teacher_future.result() if teacher_future is not None
-                   else _get_online_teacher(args).get_logits(tokens, prompts=raw_prompts))
+        if teacher_future is not None:
+            teacher = teacher_future.result()
+        else:
+            teacher_client = _get_online_teacher(args)
+            if getattr(teacher_client, "prompt_mode", "text") == "token_ids" and raw_prompts is not None:
+                lengths = loss_mask.detach().sum(dim=-1).to(torch.long) + 1
+                lengths = lengths.clamp_max(tokens.shape[-1])
+                token_attention_mask = (
+                    torch.arange(tokens.shape[-1], device=tokens.device).unsqueeze(0)
+                    < lengths.unsqueeze(1)
+                )
+                teacher = teacher_client.get_logits(tokens, attention_mask=token_attention_mask)
+            else:
+                teacher = teacher_client.get_logits(tokens, prompts=raw_prompts)
         telemetry = {'teacher/wait_seconds': time.perf_counter() - wait_start,
                      'memory/allocated_mib': torch.cuda.memory_allocated() / 2**20,
                      'memory/max_allocated_mib': torch.cuda.max_memory_allocated() / 2**20,

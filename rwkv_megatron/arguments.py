@@ -50,6 +50,8 @@ def add_rwkv_arguments(parser):
     parser.add_argument("--rwkv-teacher-tokenizer", default=None)
     parser.add_argument("--rwkv-teacher-api-key", default="sk-distill",
                         help="Explicit bearer token for the teacher service")
+    parser.add_argument("--rwkv-teacher-prompt-mode", choices=("text", "token_ids"), default="text",
+                        help="Send decoded text or tokenizer IDs directly to the teacher API")
     parser.add_argument("--rwkv-teacher-top-k", type=int, default=100)
     parser.add_argument("--rwkv-teacher-seed", type=nonnegative_int, default=None,
                         help="Fixed seed included in each teacher completion request")
@@ -134,6 +136,8 @@ def add_rwkv_arguments(parser):
     teacher_api_key = settings.get('rwkv_teacher_api_key')
     if teacher_api_key is not None and (not isinstance(teacher_api_key, str) or not teacher_api_key):
         raise ValueError('rwkv_teacher_api_key must be a nonempty string or null')
+    if settings.get('rwkv_teacher_prompt_mode', 'text') not in ('text', 'token_ids'):
+        raise ValueError("rwkv_teacher_prompt_mode must be 'text' or 'token_ids'")
     for key in ('rwkv_teacher_retry_backoff_initial', 'rwkv_teacher_retry_backoff_max',
                 'rwkv_teacher_retry_jitter'):
         if settings.get(key, 0.0) < 0:

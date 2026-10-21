@@ -89,6 +89,34 @@ def test_prompt_logprobs_parse_and_request_temperature():
     assert session.payload[1]["seed"] == 1234
 
 
+def test_token_id_prompt_never_decodes_and_masks_right_padding():
+    client = OnlineTeacherClient('http://teacher', 'Qwen', '/unused', top_k=2,
+                                prompt_mode='token_ids', request_seed=1234)
+    client._get_tokenizer = lambda: pytest.fail('token ID requests must bypass tokenizer')
+    session = _Session()
+    client._get_session = lambda: session
+    result = client.get_logits(torch.tensor([[1, 2, 0, 0]]), attention_mask=torch.tensor([[1, 1, 0, 0]]))
+    assert session.payload[1]['prompt'] == [1, 2]
+    assert session.payload[1]['seed'] == 1234
+    assert result.token_ids.shape == (1, 4, 2)
+    assert torch.isneginf(result.logprobs[:, 2:]).all()
+    with pytest.raises(ValueError, match='right-padded'):
+        client.get_logits(torch.tensor([[1, 2, 0]]), torch.tensor([[1, 0, 1]]))
+
+
+def test_raw_prompt_including_last_label_is_clipped_to_student_inputs():
+    client = OnlineTeacherClient('http://teacher', 'Qwen', '/unused', top_k=1)
+    class Tokenizer:
+        def __call__(self, text, **kwargs):
+            return type('Encoded', (), {'input_ids': [1, 2, 3]})()
+    client._get_tokenizer = lambda: Tokenizer()
+    client._get_session = lambda: _SequenceSession([_Response({'choices': [{'prompt_logprobs': [
+        None, {'2': {'logprob': -0.1}}, {'3': {'logprob': -0.2}}]}]})])
+    result = client.get_logits(torch.tensor([[1, 2]]), prompts=['abc'])
+    assert result.token_ids.shape == (1, 2, 1)
+    assert result.token_ids[0, 1, 0] == 2
+
+
 def test_retry_after_rate_limit_uses_backoff_and_returns_metrics(monkeypatch):
     client = OnlineTeacherClient("http://teacher", "Qwen3.8-27B", "/unused",
                                 top_k=1, max_retries=2, retry_backoff_initial=7.0,

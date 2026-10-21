@@ -414,6 +414,7 @@ def _student_cross_entropy(
             f"valid_vocab_size={valid_vocab_size} must be in [1, {logits.shape[-1]}]"
         )
     valid_mask = attention_mask.to(device=logits.device, dtype=torch.bool)
+    labels = labels.to(device=logits.device, dtype=torch.long)
     if valid_mask.any():
         valid_labels = labels[valid_mask]
         if ((valid_labels < 0) | (valid_labels >= valid_vocab_size)).any():
@@ -421,7 +422,7 @@ def _student_cross_entropy(
     effective_logits = logits[..., :valid_vocab_size].float()
     token_ce = F.cross_entropy(
         effective_logits.reshape(-1, valid_vocab_size),
-        labels.to(device=logits.device, dtype=torch.long).reshape(-1),
+        labels.masked_fill(~valid_mask, 0).reshape(-1),
         reduction="none",
     ).reshape_as(valid_mask)
     denom = valid_mask.to(token_ce.dtype).sum().clamp_min(1.0)
@@ -473,10 +474,10 @@ def distillation_loss_func(loss_mask: torch.Tensor, labels: torch.Tensor, output
     )
 
     total = float(args.rwkv_distill_logit_weight) * kl
-    student_labels = labels[:, :-1].to(device=student_logits.device, dtype=torch.long)
     # Always compute CE for an independent student quality signal.  It only
     # contributes to the training objective when explicitly weighted.
-    ce = _student_cross_entropy(aligned_student, student_labels, aligned_mask, valid_vocab_size)
+    with torch.set_grad_enabled(torch.is_grad_enabled() and bool(args.rwkv_distill_ce_weight)):
+        ce = _student_cross_entropy(student_logits, labels, loss_mask, valid_vocab_size)
     if args.rwkv_distill_ce_weight:
         total = total + float(args.rwkv_distill_ce_weight) * ce
     token_count = aligned_mask.float().sum()
@@ -484,10 +485,8 @@ def distillation_loss_func(loss_mask: torch.Tensor, labels: torch.Tensor, output
     # Reporting pairs follow Megatron's sum/count contract. KL is explicit
     # because the legacy "lm loss" name is the weighted training objective.
     reporting['distill/kl_loss'] = torch.stack((kl.detach() * token_count, token_count))
-    reporting['distill/student_ce_loss'] = torch.stack((ce.detach() * token_count, token_count))
-    # This is deliberately a separate scalar metric and never enters `total`.
-    # Megatron averages scalar metrics over microbatches at the logging interval.
-    reporting['distill/student_ppl'] = torch.stack((torch.exp(ce.detach()), torch.ones_like(token_count)))
+    ce_count = loss_mask.float().sum()
+    reporting['distill/student_ce_loss'] = torch.stack((ce.detach() * ce_count, ce_count))
     if args.rwkv_distill_ce_weight:
         reporting['distill/ce_loss'] = torch.stack((ce.detach() * token_count, token_count))
     for name, value in (telemetry or {}).items():
@@ -912,6 +911,7 @@ if __name__ == "__main__":
         from megatron.training.argument_utils import pretrain_cfg_container_from_args
         from megatron.training.global_vars import initialize_runtime_services
         from rwkv_megatron.arguments import add_rwkv_arguments
+        from rwkv_megatron.distill_metrics import StudentPerplexityCallback
 
         args = parse_and_validate_args(extra_args_provider=add_rwkv_arguments)
         initialize_runtime_services(args)
@@ -924,6 +924,7 @@ if __name__ == "__main__":
                 ModelType.encoder_or_decoder,
                 forward_step,
                 model_provider=model_provider,
+                callbacks=[StudentPerplexityCallback()],
             )
         finally:
             for prefetcher in _teacher_prefetchers:

@@ -39,6 +39,10 @@ L2Wrap 不改变显示的 CE loss；只在训练后向中，对每个有效 toke
 
 当前蒸馏分支已经完成：在线 vLLM top-k prompt-logprob teacher、`sk-distill` 请求头、固定 seed、请求温度 1.0、有效词表 KL、padding 行排除、重试退避、限流统计、缓存、异步预取、动态并发、teacher pool、JSONL 文本输入、round-trip 检查、checkpoint 恢复和合并后的 W&B 监控。
 
+运行环境固定为 Conda `train_mobius_py312`。Teacher 请求使用 `Authorization: Bearer sk-distill`、`rwkv_teacher_seed: 1234`、请求温度 `1.0` 和 top-100；蒸馏温度由本地 KL 独立处理。开启 `log_timers_to_tensorboard: true` 并配置 TensorBoard/W&B，以便同时记录吞吐和迭代耗时。`throughput` 的单位是 TFLOP/s/GPU，`iteration-time` 的单位是 s/step。
+
+`distill/student_ce_loss` 使用原始 next-token 标签和有效 token mask，在有效词表上计算自然对数 CE（含最后一个可预测标签），独立于 teacher top-k 和 KL 温度；默认 `rwkv_distill_ce_weight: 0.0`，监控不保留反向图。每个优化步的 `distill/student_ppl` 由跨微批次汇总后的 token CE 取 `exp` 得到；验证 PPL 在整个验证集批次汇总后计算。日志区间中显示的训练 PPL 是这些优化步 PPL 的均值。测试 `tests/test_distill_telemetry.py` 对齐直接 PyTorch CE、有效词表以及 FP32/BF16 纯 KL 梯度，4 项通过。
+
 <div align="center">
 
 <img src="/assets/logo.png" width="300px">

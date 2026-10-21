@@ -88,6 +88,11 @@ def model_provider(pre_process=True, post_process=True, config=None, pg_collecti
         3. 包含调试功能，可以打印模型参数信息
     """
     args = get_args()
+    if args.context_parallel_size > 1 and args.sequence_parallel:
+        raise ValueError(
+            "RWKV7 stage-1 context parallelism requires sequence_parallel=false; "
+            "combined TP/CP sequence layout is not implemented yet."
+        )
     """
     assert (
         args.transformer_impl != "transformer_engine"
@@ -317,7 +322,12 @@ def get_batch(data_iterator):
         is_pipeline_first_stage=mpu.is_pipeline_first_stage(),
         is_pipeline_last_stage=mpu.is_pipeline_last_stage(),
     )
-    batch = get_batch_on_this_cp_rank(batch, is_hybrid_cp=False, cp_group=mpu.get_context_parallel_group())
+    batch = get_batch_on_this_cp_rank(
+        batch,
+        is_hybrid_cp=False,
+        cp_group=mpu.get_context_parallel_group(),
+        use_contiguous_cp=args.context_parallel_size > 1,
+    )
     return [batch[key] for key in keys]
 
 
@@ -350,8 +360,17 @@ def loss_func(loss_mask: torch.Tensor, output_tensor: torch.Tensor):
         [torch.sum(losses.view(-1) * loss_mask).view(1), total_tokens.view(1)]
     )
 
+    # CP aggregates statistics without placing a c10d collective on the
+    # autograd graph. Each rank differentiates its local numerator; DDP
+    # averages CP gradients, so the CP multiplier below restores their sum.
+    reporting_loss = loss.detach().clone()
     if args.context_parallel_size > 1:
-        torch.distributed.all_reduce(loss, group=mpu.get_context_parallel_group())
+        torch.distributed.all_reduce(
+            reporting_loss, group=mpu.get_context_parallel_group()
+        )
+        # Keep the returned forward value as the global sum, with an explicit
+        # identity derivative to the local loss (no cross-rank autograd).
+        loss = loss + (reporting_loss - loss.detach())
 
     # Check individual rank losses are not NaN prior to DP all-reduce.
     if args.check_for_nan_in_loss_and_grad:
@@ -362,7 +381,7 @@ def loss_func(loss_mask: torch.Tensor, output_tensor: torch.Tensor):
         )
 
     # Reduce loss for logging.
-    reporting_loss = loss.clone().detach()
+    # reporting_loss already contains the detached global CP statistics.
 
     local_num_tokens = loss[1].clone().detach().to(torch.int)
     return (

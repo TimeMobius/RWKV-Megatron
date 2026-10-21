@@ -10,6 +10,7 @@ from megatron.core.parallel_state import (
     get_tensor_model_parallel_group,
     get_tensor_model_parallel_rank,
     get_tensor_model_parallel_world_size,
+    get_context_parallel_group,
     get_context_parallel_world_size,
     get_pipeline_model_parallel_group,
     get_pipeline_model_parallel_rank,
@@ -38,6 +39,8 @@ from megatron.core.transformer.transformer_layer import (
 )
 from megatron.core.transformer.utils import make_sharded_tensors_for_checkpoint, sharded_state_dict_default
 from megatron.core.utils import divide
+
+from fla.ops.cp import build_cp_context
 
 from einops import einsum, rearrange
 
@@ -327,9 +330,6 @@ class RWKV7TokenShiftSequenceParallel(torch.autograd.Function):
     ):
         ctx.dim = dim
 
-        assert (
-            get_context_parallel_world_size() == 1
-        ), "Context parallel for RWKV not yet implemented"
         world_group = get_tensor_model_parallel_group()
         world_size = get_tensor_model_parallel_world_size()
         world_rank = get_tensor_model_parallel_rank()
@@ -338,7 +338,7 @@ class RWKV7TokenShiftSequenceParallel(torch.autograd.Function):
 
         with dist._coalescing_manager(world_group, input.device, async_ops=True) as cm:
             if world_rank < world_size - 1:
-                world_group.send([input.select(dim, -1)], world_rank + 1, 0)
+                world_group.send([input.select(dim, -1).contiguous()], world_rank + 1, 0)
             if world_rank > 0:
                 world_group.recv([recv_buffer], world_rank - 1, 0)
 
@@ -375,7 +375,7 @@ class RWKV7TokenShiftSequenceParallel(torch.autograd.Function):
             if world_rank < world_size - 1:
                 world_group.recv([recv_buffer], world_rank + 1, 0)
             if world_rank > 0:
-                world_group.send([grad_output.select(dim, 0)], world_rank - 1, 0)
+                world_group.send([grad_output.select(dim, 0).contiguous()], world_rank - 1, 0)
 
         if world_rank == world_size - 1:
             recv_buffer.zero_()
@@ -394,9 +394,74 @@ class RWKV7TokenShiftSequenceParallel(torch.autograd.Function):
         )
 
 
+class RWKV7TokenShiftContextParallel(torch.autograd.Function):
+    """Token shift across a contiguous CP shard boundary."""
+
+    @staticmethod
+    @custom_fwd
+    def forward(ctx, input: Tensor, dim: int):
+        ctx.dim = dim
+        world_group = get_context_parallel_group()
+        world_size = get_context_parallel_world_size()
+        world_rank = torch.distributed.get_rank(world_group)
+        recv_buffer = torch.empty_like(input.select(dim, 0))
+
+        with dist._coalescing_manager(world_group, input.device, async_ops=True) as cm:
+            if world_rank < world_size - 1:
+                world_group.send([input.select(dim, -1).contiguous()], world_rank + 1, 0)
+            if world_rank > 0:
+                world_group.recv([recv_buffer], world_rank - 1, 0)
+
+        if world_rank == 0:
+            recv_buffer.zero_()
+        cm.wait()
+
+        return torch.cat(
+            [recv_buffer.unsqueeze(dim), input.narrow(dim, 0, input.size(dim) - 1)],
+            dim,
+        )
+
+    @staticmethod
+    @custom_bwd
+    def backward(ctx, grad_output: Tensor):
+        dim = ctx.dim
+        world_group = get_context_parallel_group()
+        world_size = get_context_parallel_world_size()
+        world_rank = torch.distributed.get_rank(world_group)
+        recv_buffer = torch.empty_like(grad_output.select(dim, 0))
+
+        with dist._coalescing_manager(world_group, grad_output.device, async_ops=True) as cm:
+            if world_rank < world_size - 1:
+                world_group.recv([recv_buffer], world_rank + 1, 0)
+            if world_rank > 0:
+                world_group.send([grad_output.select(dim, 0).contiguous()], world_rank - 1, 0)
+
+        if world_rank == world_size - 1:
+            recv_buffer.zero_()
+        cm.wait()
+
+        return (
+            torch.cat(
+                [
+                    grad_output.narrow(dim, 1, grad_output.size(dim) - 1),
+                    recv_buffer.unsqueeze(dim),
+                ],
+                dim,
+            ),
+            None,
+        )
+
+
 def _token_shift(input: Tensor, dim: int, sequence_parallel: bool):
     if sequence_parallel:
+        if get_context_parallel_world_size() > 1:
+            raise ValueError(
+                "RWKV7 stage-1 CP requires sequence_parallel=False; "
+                "CP+SP needs the combined TP/CP layout."
+            )
         return RWKV7TokenShiftSequenceParallel.apply(input, 0)
+    elif get_context_parallel_world_size() > 1:
+        return RWKV7TokenShiftContextParallel.apply(input, dim)
     else:
         return torch.cat(
             [
@@ -429,7 +494,41 @@ class WKV7(MegatronModule):
         a = rearrange(a, "t b (h n) -> b t h n", h=self.num_heads_local).contiguous()
         b = rearrange(b, "t b (h n) -> b t h n", h=self.num_heads_local).contiguous()
 
-        o = chunk_rwkv7(r, w, k, v, a, b, scale=1., safe_gate=True, chunk_size=64)[0]
+        cp_size = get_context_parallel_world_size()
+        if cp_size > 1:
+            # Stage-1 CP uses contiguous sequence shards and CP-only sequence
+            # partitioning (SP is rejected by the model provider). FLA's CP
+            # API takes a global cu_seqlens and a batch dimension of one. Run
+            # each micro-batch sample independently so samples never share a
+            # recurrent state.
+            cp_group = get_context_parallel_group()
+            global_seq_len = r.shape[1] * cp_size
+            cu_seqlens = torch.tensor(
+                [0, global_seq_len], dtype=torch.long, device=r.device
+            )
+            cp_context = build_cp_context(
+                cu_seqlens,
+                group=cp_group,
+                layout="contiguous",
+            )
+            outputs = []
+            for batch_idx in range(r.shape[0]):
+                output, _ = chunk_rwkv7(
+                    r[batch_idx : batch_idx + 1],
+                    w[batch_idx : batch_idx + 1],
+                    k[batch_idx : batch_idx + 1],
+                    v[batch_idx : batch_idx + 1],
+                    a[batch_idx : batch_idx + 1],
+                    b[batch_idx : batch_idx + 1],
+                    scale=1.,
+                    safe_gate=True,
+                    chunk_size=64,
+                    cp_context=cp_context,
+                )
+                outputs.append(output)
+            o = torch.cat(outputs, dim=0)
+        else:
+            o = chunk_rwkv7(r, w, k, v, a, b, scale=1., safe_gate=True, chunk_size=64)[0]
         return rearrange(o, "b t h n -> t b (h n)")
 
     def sharded_state_dict(
@@ -454,6 +553,7 @@ class RWKV7TimeMix(MegatronModule):
         is_mtp_layer=False,
         name=None,
         pp_layer_offset=None,
+        cp_comm_type=None,
     ):
         super().__init__(config=config)
 

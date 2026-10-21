@@ -1,0 +1,36 @@
+{
+  "before_gradient_relative_l2": 0.004712715897262483,
+  "after_gradient_relative_l2": 0.0002325790555893611,
+  "reduction_in_difference_norm": 0.9506486152232386,
+  "all_captured_forward_bitwise_equal": true,
+  "gradient_groups": {
+    "other": {
+      "difference_sq": 3.493205924607433e-05,
+      "reference_sq": 37.10761212527127,
+      "count": 538,
+      "share_of_squared_error": 0.11683742926296765,
+      "relative_l2": 0.00097024316020334
+    },
+    "bottleneck": {
+      "difference_sq": 3.019894957856213e-05,
+      "reference_sq": 13.994020191117398,
+      "count": 528,
+      "share_of_squared_error": 0.10100657422873512,
+      "relative_l2": 0.0014690097233886579
+    },
+    "linear": {
+      "difference_sq": 4.4230043798406635e-08,
+      "reference_sq": 5457.075474745899,
+      "count": 288,
+      "share_of_squared_error": 0.00014793644363164896,
+      "relative_l2": 2.846942557526956e-06
+    },
+    "embedding": {
+      "difference_sq": 0.0002338048008879368,
+      "reference_sq": 18.969570855006907,
+      "count": 2,
+      "share_of_squared_error": 0.7820080600646656,
+      "relative_l2": 0.003510734275153362
+    }
+  }
+}

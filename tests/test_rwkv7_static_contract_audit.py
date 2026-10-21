@@ -180,13 +180,13 @@ def test_task7_tp_pp_sp_protocol_stays_consistent_across_three_codepaths():
     assert "torch.stack((output, packed_v0), dim=0)" in timemix_source
 
 
-def test_context_parallel_is_still_explicitly_rejected_for_rwkv_token_shift():
+def test_context_parallel_token_shift_has_a_dedicated_boundary_path():
     module = _parse(LAYER_SPECS_PATH)
-    cls = _get_class(module, "RWKV7TokenShiftSequenceParallel")
-    forward = _get_function(cls, "forward")
-    source = ast.unparse(forward)
-    assert "get_context_parallel_world_size() == 1" in source
-    assert "Context parallel for RWKV not yet implemented" in source
+    source = LAYER_SPECS_PATH.read_text(encoding="utf-8")
+    assert "class RWKV7TokenShiftContextParallel" in source
+    assert "build_cp_context" in source
+    assert "cp_context=cp_context" in source
+    assert "Context parallel for RWKV not yet implemented" not in source
 
 
 if __name__ == "__main__":
@@ -196,5 +196,5 @@ if __name__ == "__main__":
     test_task4_hf_lora_loader_mapping_uses_correct_weight_orientation()
     test_task6_rwkv_lm_check_against_pretrained_fails_fast()
     test_task7_tp_pp_sp_protocol_stays_consistent_across_three_codepaths()
-    test_context_parallel_is_still_explicitly_rejected_for_rwkv_token_shift()
-    print("PASS: RWKV7 static contract audit matches task 1-7 fixes and TP/PP/SP protocol.")
+    test_context_parallel_token_shift_has_a_dedicated_boundary_path()
+    print("PASS: RWKV7 static contract audit matches task 1-7 fixes, TP/PP/SP protocol, and CP stage 1.")

@@ -1,0 +1,50 @@
+{
+  "g.varlenFalse": {
+    "bitwise_equal": true,
+    "shape": [
+      4,
+      64,
+      96
+    ]
+  },
+  "g.varlenTrue": {
+    "bitwise_equal": true,
+    "shape": [
+      4,
+      64,
+      96
+    ]
+  },
+  "gk.varlenFalse": {
+    "bitwise_equal": true,
+    "shape": [
+      4,
+      64,
+      96
+    ]
+  },
+  "gk.varlenTrue": {
+    "bitwise_equal": true,
+    "shape": [
+      4,
+      64,
+      96
+    ]
+  },
+  "none.varlenFalse": {
+    "bitwise_equal": true,
+    "shape": [
+      4,
+      64,
+      96
+    ]
+  },
+  "none.varlenTrue": {
+    "bitwise_equal": true,
+    "shape": [
+      4,
+      64,
+      96
+    ]
+  }
+}

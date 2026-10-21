@@ -1,0 +1,55 @@
+{
+  "full": {
+    "passed": true,
+    "gradient_aggregate": {
+      "relative_l2": 0.004712715897262483,
+      "reference_norm_with_tp_replicas": 74.34478245255202,
+      "actual_norm_with_tp_replicas": 74.39388454625224,
+      "norm_ratio": 1.000660464555553,
+      "scale_fit": 1.0010609569632765,
+      "tensor_count": 1356,
+      "all_finite": true
+    },
+    "max_parameter_gradient_relative_l2": 0.03632936310998863,
+    "max_mean_loss_abs_error": 0.000186920166015625,
+    "max_token_loss_abs_error": 0.035803794860839844,
+    "max_sampled_logits_relative_l2": 0.004881594943022278,
+    "boundary_token_loss_max_abs": 0.007308006286621094,
+    "local_valid_tokens": [
+      2048,
+      2048
+    ],
+    "loss_allreduce_autograd_warnings": 0
+  },
+  "uneven": {
+    "passed": true,
+    "gradient_aggregate": {
+      "relative_l2": 0.006075337504824202,
+      "reference_norm_with_tp_replicas": 82.69223175364709,
+      "actual_norm_with_tp_replicas": 82.7539978390889,
+      "norm_ratio": 1.0007469393936035,
+      "scale_fit": 1.001120089737926,
+      "tensor_count": 1356,
+      "all_finite": true
+    },
+    "max_parameter_gradient_relative_l2": 0.03598511526552325,
+    "max_mean_loss_abs_error": 0.00024890899658203125,
+    "max_token_loss_abs_error": 0.035803794860839844,
+    "max_sampled_logits_relative_l2": 0.004881594943022278,
+    "boundary_token_loss_max_abs": 0.007308006286621094,
+    "local_valid_tokens": [
+      618,
+      1850
+    ],
+    "loss_allreduce_autograd_warnings": 0,
+    "pre_post_loss_fix_gradient_metrics_equal": true
+  },
+  "source_sha256": {
+    "pretrain_rwkv7.py": "0dca6c438f960740b368632bba56fc5fa24902668b82523948012cf638ec8367",
+    "rwkv_megatron/rwkv7_layer_specs.py": "f703129365680e81e0dd09e937f9774ea1c58d4864967e71cdfb79264f0783a3",
+    "training-smoke/audit/cp-equivalence-20261021/capture.py": "8c863758c7ba71842e13db94a9082185a16cbdbe7ae3cdac758965dce8423120",
+    "training-smoke/audit/cp-equivalence-20261021/compare.py": "d7b9d18f1e2b3a0028e840469cb4b2bbb7c84acb0288bea7e7e4a01740808f7c",
+    "training-smoke/audit/cp-equivalence-20261021/config-cp1.yaml": "0d099e4775be056472361821142b4e7203354b89be219e0d6e2245aec3f10664",
+    "training-smoke/audit/cp-equivalence-20261021/config-cp2.yaml": "5b3953077c30567cfa53f0515e24e348416327cfa8c9d2bf4f58064f2dfefd06"
+  }
+}

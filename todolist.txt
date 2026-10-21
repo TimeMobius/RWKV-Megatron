@@ -1,5 +1,31 @@
 RWKV7 review todolist
 
+CP 并行实施计划（2026-10-21）
+
+当前阶段：第一阶段 CP-only 实现（进行中）
+- [x] 使用 Megatron 连续 CP 切分，暂时要求 `sequence_parallel: false`。
+- [x] RWKV7 token shift 增加 CP rank 边界通信及反向梯度通信。
+- [x] `WKV7` 接入 FLA `FLACPContext`，跨 CP rank 传递 recurrent state。
+- [x] 支持 CP 模式下按 micro-batch sample 独立调用 WKV，避免样本共享 recurrent state。
+- [x] 新增 28B Qwen CP2 配置和 8 卡启动脚本。
+- [x] 在 2 张 GPU 上完成 CP2 小模型一步端到端训练，并确认 loss/grad norm 正常。
+- [x] 在 4 张 GPU 上完成 CP2 + PP2 + TP1 小模型一步训练，pipeline payload 通过。
+- [x] 真实 2.7B 权重 + 0056 数据，8 卡 TP2×PP2×CP2 / seq4096：3 步 Adam + 固定验证通过，0 NaN/0 跳步。
+- [x] 2.7B CP1/CP2 数值对拍：TP2×PP2 / seq4096、完整/不均匀 mask；逐 token CE、采样 logits、1356 个 TP/PP 参数梯度张量通过 BF16 容差，整体梯度相对 L2 误差 0.47%/0.61%。报告 training-smoke/audit/cp-equivalence-20261021/REPORT.md。
+- [x] CP loss 仅归约 detached 统计、保留本地梯度，消除 all-reduce autograd 警告；4 项 mask/梯度归一化单测通过。
+- [x] CP1/CP2 误差溯源：定位 FLA DPLR CP state 汇总核提前将 v2 舍入 BF16；诊断版保留 FP32 后，真实 2.7B 两个 microbatch 的捕获前向完全一致，整体梯度误差 0.471%→0.0233%。报告 training-smoke/audit/cp-error-source-20261021/REPORT.md。
+- [x] 正式修复 FLA DPLR CP state 精度：保留 FP32 v2，12 项 prefix-state 回归、CP2/CP4 DPLR/RWKV7 前向与反向通过；真实 2.7B 完整/不均匀 mask 捕获前向逐位一致，整体梯度误差降至 0.0233%/0.0229%，3 步 Adam + 验证通过。共享 prefix 的 6 组旧/新 kernel 对拍逐位一致；单汇总核延迟约 50.0→53.7 μs。报告 training-smoke/audit/cp-state-fix-20261021/RESULTS.md。
+- [ ] 在兼容的 Triton/TileLang 环境补充 GDN 等共享算子的完整 backward 回归：当前 Triton 3.5.1/H800 被其非 CP backward 显式拒绝执行，本次已记录独立重现及覆盖缺口。
+- [ ] 28B 实跑：forward/backward 通过，首次 Adam exp_avg_sq 分配时 OOM；需先解决模型/优化器状态显存，不能将当前 28B 配置标为训练通过。
+- [ ] 在 8 张 GPU 上完成目标 28B CP2 小步端到端训练，并与 CP1 对比 loss/梯度。
+- [ ] 验证 CP2 + PP2 + TP2 的 28B pipeline payload、断点保存和恢复。
+
+后续阶段：
+- [ ] 支持 CP 与 SP 同时开启，统一 TP×CP 的 token 顺序和边界通信。
+- [ ] 支持更高 CP（CP4）及更长序列。
+- [ ] 增加 CP2/CP4 的 full-model forward/backward 回归测试。
+- [ ] 评估 interleaved PP、FP8 和 Muon 与 CP 的组合。
+
 处理顺序建议
 1. 先修 P1 级别的功能正确性问题，避免训练和加载结果直接错误。
 2. 再补齐 scratch initialization，保证从零训练时参数不是未定义值。

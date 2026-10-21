@@ -1,0 +1,140 @@
+# RWKV7 28B + Qwen tokenizer，CP2 第一阶段验证模板；2026-10-21。
+# 启动：bash training-smoke/launch-rwkv7-28b-qwen-day1-cp2.sh
+# train_iters 是步数上限；exit_duration_in_mins 在约 24 小时后保存并退出。
+# 计时包含模型加载、首次编译、eval 和中间保存；退出保存可能额外耗时。
+# seq4096 / global_batch2 / BF16 / Adam，固定 lr=1e-6；CP2 实跑在首次 Adam 状态分配时 OOM，尚未通过训练。
+# 当前仅做 CE 训练；尚未接入教师 API 蒸馏。
+# 从映射后的 RWKV 权重开始；不读取旧训练检查点。
+# 使用 /mnt/data/Datasets/0056_qwen3.8/0056_qwen3.8_text_document。
+# 检查点约每 12 小时保存一次；24 小时退出时还会保存最终状态。
+# 检查点写到新的 /hikscale/models/RWKV-28B 子目录，不写入原模型文件。
+# 日志与 W&B 项目独立于旧 30B 任务；凭证由已有 wandb 登录提供。
+language_model:
+  num_layers: 88
+  hidden_size: 5120
+  num_attention_heads: 80
+  kv_channels: 64
+  ffn_hidden_size: 17408
+  D_AAA_LORA: 192
+  D_DECAY_LORA: 192
+  D_GATE_LORA: 352
+  D_MV_LORA: 128
+  hidden_dropout: 0.0
+  attention_dropout: 0.0
+  add_bias_linear: false
+  add_qkv_bias: false
+  activation_func: squaredrelu
+  normalization: LayerNorm
+  layernorm_epsilon: 1.0e-05
+  persist_layer_norm: false
+  bias_dropout_fusion: true
+  apply_rope_fusion: false
+  calculate_per_token_loss: false
+  recompute_granularity: full
+  recompute_method: uniform
+  recompute_num_layers: 1
+  fp8: false
+  fp8_recipe: tensorwise
+  fp8_wgrad: true
+  first_last_layers_bf16: false
+model_parallel:
+  tensor_model_parallel_size: 2
+  pipeline_model_parallel_size: 2
+  context_parallel_size: 2
+  sequence_parallel: false
+  bf16: true
+  fp16: false
+  perform_initialization: false
+  gradient_accumulation_fusion: true
+  tp_comm_overlap: false
+  overlap_p2p_comm: false
+  cross_entropy_loss_fusion: false
+  cross_entropy_fusion_impl: native
+transformer_impl: local
+rwkv_fp8_scope: ffn
+rwkv_key_fusion: true
+rwkv_l2wrap_coefficient: 0.0
+fixed_eval_samples: true
+untie_embeddings_and_output_weights: true
+position_embedding_type: none
+max_position_embeddings: 16384
+load_pretrained_rwkv: /hikscale/models/XiaoKe/rwkv7_28b_88_mapped.pt
+load_pretrained_rwkv_source_type: rwkv-lm
+check_against_pretrained: false
+data_path:
+- /mnt/data/Datasets/0056_qwen3.8/0056_qwen3.8_text_document
+split: 95,5,0
+data_cache_path: /mnt/data/Logs/rwkv7-megatron/rwkv7-28b-qwen3.8-0056-tp2pp2-cp2-seq4096-cache
+tokenizer_type: HuggingFaceTokenizer
+tokenizer_model: /hikscale/models/Qwen/Qwen3.8-27B
+trust_remote_code: true
+make_vocab_size_divisible_by: 128
+seq_length: 4096
+dataloader_type: single
+num_workers: 2
+num_dataset_builder_threads: 2
+mmap_bin_files: true
+create_attention_mask_in_dataloader: false
+reset_position_ids: false
+reset_attention_mask: false
+eod_mask_loss: false
+seed: 1234
+micro_batch_size: 1
+global_batch_size: 2
+eval_micro_batch_size: 1
+eval_global_batch_size: 2
+train_iters: 100000
+auto_train_iters: false
+eval_iters: 10
+eval_interval: 1000
+optimizer: adam
+use_distributed_optimizer: true
+adam_beta1: 0.9
+adam_beta2: 0.995
+adam_eps: 1.0e-08
+weight_decay: 0.1
+clip_grad: 1.0
+accumulate_allreduce_grads_in_fp32: true
+check_for_nan_in_loss_and_grad: true
+rerun_mode: disabled
+overlap_grad_reduce: false
+overlap_param_gather: false
+lr: 1.0e-06
+min_lr: 1.0e-06
+lr_decay_style: constant
+lr_decay_iters: 100000
+lr_warmup_iters: 0
+save: /hikscale/models/RWKV-28B/rwkv7-28b-qwen3.8-0056-day1-cp2-20261021
+save_interval: 20000
+load: null
+ckpt_format: torch
+no_save_optim: false
+no_save_rng: false
+no_load_optim: false
+no_load_rng: false
+use_checkpoint_args: false
+async_save: false
+distributed_backend: nccl
+distributed_timeout_minutes: 100
+manual_gc_eval: true
+logging_level: 20
+log_interval: 1
+log_throughput: true
+log_progress: true
+timing_log_level: 0
+timing_log_option: minmax
+tensorboard_dir: /mnt/data/Logs/tensorboard/rwkv7-28b-qwen3.8-0056-day1-cp2-20261021
+wandb_project: Mobius-r7-28b-qwen-pretrain-cp2
+wandb_exp_name: rwkv7-28b-qwen3.8-0056-day1-cp2-20261021
+wandb_save_dir: /mnt/data/Logs/wandb/rwkv7-28b-qwen3.8-0056-day1-cp2-20261021
+enable_one_logger: false
+exit_duration_in_mins: 1440
+tensorboard_log_interval: 1
+log_timers_to_tensorboard: true
+log_validation_ppl_to_tensorboard: true
+log_memory_to_tensorboard: true
+log_world_size_to_tensorboard: true
+log_loss_scale_to_tensorboard: true
+
+# SIGTERM：当前步结束后保存并退出（从本次重启开始生效）。
+exit_signal_handler: true

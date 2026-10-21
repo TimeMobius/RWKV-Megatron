@@ -1,0 +1,38 @@
+{
+  "gpu": "NVIDIA H800",
+  "torch": "2.9.1+cu128",
+  "triton": "3.5.1",
+  "baseline_fla_commit": "ff481ea6862c99a818858081571373694de7b4e7",
+  "shape": [
+    1,
+    2048,
+    18,
+    64,
+    64
+  ],
+  "dtype": "bfloat16",
+  "BT": 64,
+  "layout": "varlen [0,2048]",
+  "TRITON_F32_DEFAULT": "(unset)",
+  "prefix_relative_l2": {
+    "before": 0.001310145016759634,
+    "after": 0.0
+  },
+  "milliseconds": {
+    "before": [
+      0.05035894848472484,
+      0.049962778951515234,
+      0.04985735807683118
+    ],
+    "after": [
+      0.053931737686783304,
+      0.05369498818782987,
+      0.05358267983279688
+    ]
+  },
+  "median_milliseconds": {
+    "before": 0.049962778951515234,
+    "after": 0.05369498818782987
+  },
+  "latency_ratio_after_before": 1.0746997928184987
+}

@@ -1,0 +1,3 @@
+# Large local tensors remain available for re-analysis, but are not source.
+cp*/grad-*.pt
+cp*/trace-*.pt

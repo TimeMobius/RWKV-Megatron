@@ -1,0 +1,92 @@
+{
+  "baseline": {
+    "sampled_peak_memory_mib_by_rank": {
+      "0": 75559,
+      "1": 75569,
+      "2": 75475,
+      "3": 75559,
+      "4": 75829,
+      "5": 75829,
+      "6": 75829,
+      "7": 75829
+    },
+    "window_start": "2026-10-22 09:00:30.589585",
+    "window_end_unix": 1792630934.6263473,
+    "sample_interval_seconds": 1
+  },
+  "reproduce": {
+    "sampled_peak_memory_mib_by_rank": {
+      "0": 81063,
+      "1": 81063,
+      "2": 81047,
+      "3": 81047,
+      "4": 80941,
+      "5": 80941,
+      "6": 80953,
+      "7": 80953
+    },
+    "window_start": "2026-10-22 09:02:44.458968",
+    "window_end_unix": 1792631058.1360834,
+    "sample_interval_seconds": 1
+  },
+  "cp2-offload": {
+    "sampled_peak_memory_mib_by_rank": {
+      "0": 77285,
+      "1": 77477,
+      "2": 78193,
+      "3": 78001,
+      "4": 78711,
+      "5": 78903,
+      "6": 79595,
+      "7": 79403
+    },
+    "window_start": "2026-10-22 09:08:30.832430",
+    "window_end_unix": 1792631546.9330375,
+    "sample_interval_seconds": 1
+  },
+  "cp1-control": {
+    "sampled_peak_memory_mib_by_rank": {
+      "0": 79703,
+      "1": 79955,
+      "2": 80341,
+      "3": 80565,
+      "4": 80615,
+      "5": 80615,
+      "6": 78033,
+      "7": 76385
+    },
+    "window_start": "2026-10-22 09:13:16.393302",
+    "window_end_unix": 1792631728.7566483,
+    "sample_interval_seconds": 1
+  },
+  "cp2-checkpoint": {
+    "sampled_peak_memory_mib_by_rank": {
+      "0": 77285,
+      "1": 77477,
+      "2": 78193,
+      "3": 78001,
+      "4": 78711,
+      "5": 78903,
+      "6": 79595,
+      "7": 79403
+    },
+    "window_start": "2026-10-22 09:15:54.770755",
+    "window_end_unix": 1792632080.3758957,
+    "sample_interval_seconds": 1
+  },
+  "cp2-resume": {
+    "sampled_peak_memory_mib_by_rank": {
+      "0": 76980,
+      "1": 76980,
+      "2": 79654,
+      "3": 79654,
+      "4": 79041,
+      "5": 79213,
+      "6": 78371,
+      "7": 78179
+    },
+    "window_start": "2026-10-22 09:40:01.001801",
+    "window_end_unix": 1792633393.6910317,
+    "sample_interval_seconds": 1
+  }
+}

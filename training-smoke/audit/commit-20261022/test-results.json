@@ -1,0 +1,18 @@
+{
+  "author": "shiroko98 <512815652@qq.com>",
+  "signature_exception": "User explicitly authorized Megatron -s without -S in this conversation.",
+  "production_commits": {
+    "main": "f8bc564",
+    "megatron": "f30bff508",
+    "fla": "e932aadd",
+    "distillation-launchers": "f979779"
+  },
+  "tests": {
+    "main": "43 passed",
+    "token-shift": "5 passed",
+    "fla": "6 passed",
+    "megatron": "5 passed per rank, two ranks"
+  },
+  "pushed": false,
+  "precision_optimization_applied": false
+}

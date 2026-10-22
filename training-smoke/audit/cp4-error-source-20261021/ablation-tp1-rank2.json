@@ -1,0 +1,1162 @@
+{
+  "0": {
+    "default": {
+      "output": {
+        "relative_l2": 0.0015744587872177362,
+        "max_abs": 0.015625,
+        "exact": false,
+        "finite": true
+      },
+      "gradients": {
+        "r": {
+          "relative_l2": 0.0020325719378888607,
+          "max_abs": 0.015625,
+          "exact": false,
+          "finite": true
+        },
+        "w": {
+          "relative_l2": 0.0014853805769234896,
+          "max_abs": 0.03125,
+          "exact": false,
+          "finite": true
+        },
+        "k": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "v": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "a": {
+          "relative_l2": 0.002319500781595707,
+          "max_abs": 0.0078125,
+          "exact": false,
+          "finite": true
+        },
+        "b": {
+          "relative_l2": 0.0014818328199908137,
+          "max_abs": 0.0625,
+          "exact": false,
+          "finite": true
+        }
+      },
+      "boundaries": {
+        "forward_cp_vs_reference": {
+          "relative_l2": 0.0009115001885220408,
+          "max_abs": 0.0022025108337402344,
+          "exact": false,
+          "finite": true
+        },
+        "forward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_cp_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      }
+    },
+    "native_forward": {
+      "output": {
+        "relative_l2": 0.0,
+        "max_abs": 0.0,
+        "exact": true,
+        "finite": true
+      },
+      "gradients": {
+        "r": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "w": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "k": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "v": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "a": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "b": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      },
+      "boundaries": {
+        "forward_cp_vs_reference": {
+          "relative_l2": 0.0009115001885220408,
+          "max_abs": 0.0022025108337402344,
+          "exact": false,
+          "finite": true
+        },
+        "forward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_cp_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      }
+    },
+    "native_backward": {
+      "output": {
+        "relative_l2": 0.0015744587872177362,
+        "max_abs": 0.015625,
+        "exact": false,
+        "finite": true
+      },
+      "gradients": {
+        "r": {
+          "relative_l2": 0.0020325719378888607,
+          "max_abs": 0.015625,
+          "exact": false,
+          "finite": true
+        },
+        "w": {
+          "relative_l2": 0.0014853805769234896,
+          "max_abs": 0.03125,
+          "exact": false,
+          "finite": true
+        },
+        "k": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "v": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "a": {
+          "relative_l2": 0.002319500781595707,
+          "max_abs": 0.0078125,
+          "exact": false,
+          "finite": true
+        },
+        "b": {
+          "relative_l2": 0.0014818328199908137,
+          "max_abs": 0.0625,
+          "exact": false,
+          "finite": true
+        }
+      },
+      "boundaries": {
+        "forward_cp_vs_reference": {
+          "relative_l2": 0.0009115001885220408,
+          "max_abs": 0.0022025108337402344,
+          "exact": false,
+          "finite": true
+        },
+        "forward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_cp_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      }
+    },
+    "native_both": {
+      "output": {
+        "relative_l2": 0.0,
+        "max_abs": 0.0,
+        "exact": true,
+        "finite": true
+      },
+      "gradients": {
+        "r": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "w": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "k": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "v": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "a": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "b": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      },
+      "boundaries": {
+        "forward_cp_vs_reference": {
+          "relative_l2": 0.0009115001885220408,
+          "max_abs": 0.0022025108337402344,
+          "exact": false,
+          "finite": true
+        },
+        "forward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_cp_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      }
+    }
+  },
+  "4": {
+    "default": {
+      "output": {
+        "relative_l2": 0.0033849214669317007,
+        "max_abs": 0.00048828125,
+        "exact": false,
+        "finite": true
+      },
+      "gradients": {
+        "r": {
+          "relative_l2": 0.002955204341560602,
+          "max_abs": 0.005859375,
+          "exact": false,
+          "finite": true
+        },
+        "w": {
+          "relative_l2": 0.004065394401550293,
+          "max_abs": 0.015625,
+          "exact": false,
+          "finite": true
+        },
+        "k": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "v": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "a": {
+          "relative_l2": 0.00342745753005147,
+          "max_abs": 0.0009765625,
+          "exact": false,
+          "finite": true
+        },
+        "b": {
+          "relative_l2": 0.0020638536661863327,
+          "max_abs": 0.015625,
+          "exact": false,
+          "finite": true
+        }
+      },
+      "boundaries": {
+        "forward_cp_vs_reference": {
+          "relative_l2": 0.00173650321085006,
+          "max_abs": 0.0018440037965774536,
+          "exact": false,
+          "finite": true
+        },
+        "forward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_cp_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      }
+    },
+    "native_forward": {
+      "output": {
+        "relative_l2": 0.0,
+        "max_abs": 0.0,
+        "exact": true,
+        "finite": true
+      },
+      "gradients": {
+        "r": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "w": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "k": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "v": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "a": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "b": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      },
+      "boundaries": {
+        "forward_cp_vs_reference": {
+          "relative_l2": 0.00173650321085006,
+          "max_abs": 0.0018440037965774536,
+          "exact": false,
+          "finite": true
+        },
+        "forward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_cp_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      }
+    },
+    "native_backward": {
+      "output": {
+        "relative_l2": 0.0033849214669317007,
+        "max_abs": 0.00048828125,
+        "exact": false,
+        "finite": true
+      },
+      "gradients": {
+        "r": {
+          "relative_l2": 0.002955204341560602,
+          "max_abs": 0.005859375,
+          "exact": false,
+          "finite": true
+        },
+        "w": {
+          "relative_l2": 0.004065394401550293,
+          "max_abs": 0.015625,
+          "exact": false,
+          "finite": true
+        },
+        "k": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "v": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "a": {
+          "relative_l2": 0.00342745753005147,
+          "max_abs": 0.0009765625,
+          "exact": false,
+          "finite": true
+        },
+        "b": {
+          "relative_l2": 0.0020638536661863327,
+          "max_abs": 0.015625,
+          "exact": false,
+          "finite": true
+        }
+      },
+      "boundaries": {
+        "forward_cp_vs_reference": {
+          "relative_l2": 0.00173650321085006,
+          "max_abs": 0.0018440037965774536,
+          "exact": false,
+          "finite": true
+        },
+        "forward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_cp_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      }
+    },
+    "native_both": {
+      "output": {
+        "relative_l2": 0.0,
+        "max_abs": 0.0,
+        "exact": true,
+        "finite": true
+      },
+      "gradients": {
+        "r": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "w": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "k": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "v": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "a": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "b": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      },
+      "boundaries": {
+        "forward_cp_vs_reference": {
+          "relative_l2": 0.00173650321085006,
+          "max_abs": 0.0018440037965774536,
+          "exact": false,
+          "finite": true
+        },
+        "forward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_cp_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      }
+    }
+  },
+  "13": {
+    "default": {
+      "output": {
+        "relative_l2": 0.00328657659702003,
+        "max_abs": 0.00048828125,
+        "exact": false,
+        "finite": true
+      },
+      "gradients": {
+        "r": {
+          "relative_l2": 0.0034484053030610085,
+          "max_abs": 0.005859375,
+          "exact": false,
+          "finite": true
+        },
+        "w": {
+          "relative_l2": 0.005591613706201315,
+          "max_abs": 0.00390625,
+          "exact": false,
+          "finite": true
+        },
+        "k": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "v": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "a": {
+          "relative_l2": 0.004803933203220367,
+          "max_abs": 0.000732421875,
+          "exact": false,
+          "finite": true
+        },
+        "b": {
+          "relative_l2": 0.0017892817268148065,
+          "max_abs": 0.015625,
+          "exact": false,
+          "finite": true
+        }
+      },
+      "boundaries": {
+        "forward_cp_vs_reference": {
+          "relative_l2": 0.0018613910069689155,
+          "max_abs": 0.0012538433074951172,
+          "exact": false,
+          "finite": true
+        },
+        "forward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_cp_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      }
+    },
+    "native_forward": {
+      "output": {
+        "relative_l2": 0.0,
+        "max_abs": 0.0,
+        "exact": true,
+        "finite": true
+      },
+      "gradients": {
+        "r": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "w": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "k": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "v": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "a": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "b": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      },
+      "boundaries": {
+        "forward_cp_vs_reference": {
+          "relative_l2": 0.0018613910069689155,
+          "max_abs": 0.0012538433074951172,
+          "exact": false,
+          "finite": true
+        },
+        "forward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_cp_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      }
+    },
+    "native_backward": {
+      "output": {
+        "relative_l2": 0.00328657659702003,
+        "max_abs": 0.00048828125,
+        "exact": false,
+        "finite": true
+      },
+      "gradients": {
+        "r": {
+          "relative_l2": 0.0034484053030610085,
+          "max_abs": 0.005859375,
+          "exact": false,
+          "finite": true
+        },
+        "w": {
+          "relative_l2": 0.005591613706201315,
+          "max_abs": 0.00390625,
+          "exact": false,
+          "finite": true
+        },
+        "k": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "v": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "a": {
+          "relative_l2": 0.004803933203220367,
+          "max_abs": 0.000732421875,
+          "exact": false,
+          "finite": true
+        },
+        "b": {
+          "relative_l2": 0.0017892817268148065,
+          "max_abs": 0.015625,
+          "exact": false,
+          "finite": true
+        }
+      },
+      "boundaries": {
+        "forward_cp_vs_reference": {
+          "relative_l2": 0.0018613910069689155,
+          "max_abs": 0.0012538433074951172,
+          "exact": false,
+          "finite": true
+        },
+        "forward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_cp_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      }
+    },
+    "native_both": {
+      "output": {
+        "relative_l2": 0.0,
+        "max_abs": 0.0,
+        "exact": true,
+        "finite": true
+      },
+      "gradients": {
+        "r": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "w": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "k": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "v": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "a": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "b": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      },
+      "boundaries": {
+        "forward_cp_vs_reference": {
+          "relative_l2": 0.0018613910069689155,
+          "max_abs": 0.0012538433074951172,
+          "exact": false,
+          "finite": true
+        },
+        "forward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_cp_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      }
+    }
+  },
+  "23": {
+    "default": {
+      "output": {
+        "relative_l2": 0.0021143676713109016,
+        "max_abs": 2.0,
+        "exact": false,
+        "finite": true
+      },
+      "gradients": {
+        "r": {
+          "relative_l2": 0.0025875200517475605,
+          "max_abs": 0.375,
+          "exact": false,
+          "finite": true
+        },
+        "w": {
+          "relative_l2": 0.002989038825035095,
+          "max_abs": 4.0,
+          "exact": false,
+          "finite": true
+        },
+        "k": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "v": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "a": {
+          "relative_l2": 0.0030686077661812305,
+          "max_abs": 2.0,
+          "exact": false,
+          "finite": true
+        },
+        "b": {
+          "relative_l2": 0.002131188753992319,
+          "max_abs": 8.0,
+          "exact": false,
+          "finite": true
+        }
+      },
+      "boundaries": {
+        "forward_cp_vs_reference": {
+          "relative_l2": 0.0005761321517638862,
+          "max_abs": 0.018218994140625,
+          "exact": false,
+          "finite": true
+        },
+        "forward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_cp_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      }
+    },
+    "native_forward": {
+      "output": {
+        "relative_l2": 0.0,
+        "max_abs": 0.0,
+        "exact": true,
+        "finite": true
+      },
+      "gradients": {
+        "r": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "w": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "k": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "v": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "a": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "b": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      },
+      "boundaries": {
+        "forward_cp_vs_reference": {
+          "relative_l2": 0.0005761321517638862,
+          "max_abs": 0.018218994140625,
+          "exact": false,
+          "finite": true
+        },
+        "forward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_cp_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      }
+    },
+    "native_backward": {
+      "output": {
+        "relative_l2": 0.0021143676713109016,
+        "max_abs": 2.0,
+        "exact": false,
+        "finite": true
+      },
+      "gradients": {
+        "r": {
+          "relative_l2": 0.0025875200517475605,
+          "max_abs": 0.375,
+          "exact": false,
+          "finite": true
+        },
+        "w": {
+          "relative_l2": 0.002989038825035095,
+          "max_abs": 4.0,
+          "exact": false,
+          "finite": true
+        },
+        "k": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "v": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "a": {
+          "relative_l2": 0.0030686077661812305,
+          "max_abs": 2.0,
+          "exact": false,
+          "finite": true
+        },
+        "b": {
+          "relative_l2": 0.002131188753992319,
+          "max_abs": 8.0,
+          "exact": false,
+          "finite": true
+        }
+      },
+      "boundaries": {
+        "forward_cp_vs_reference": {
+          "relative_l2": 0.0005761321517638862,
+          "max_abs": 0.018218994140625,
+          "exact": false,
+          "finite": true
+        },
+        "forward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_cp_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      }
+    },
+    "native_both": {
+      "output": {
+        "relative_l2": 0.0,
+        "max_abs": 0.0,
+        "exact": true,
+        "finite": true
+      },
+      "gradients": {
+        "r": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "w": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "k": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "v": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "a": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "b": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      },
+      "boundaries": {
+        "forward_cp_vs_reference": {
+          "relative_l2": 0.0005761321517638862,
+          "max_abs": 0.018218994140625,
+          "exact": false,
+          "finite": true
+        },
+        "forward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_cp_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "backward_native_vs_reference": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "rank": 0,
+    "tp": 2,
+    "bf16_collective_matches_training_capture": true,
+    "fp32_collective_matches_single_final_rounding": true,
+    "fp32_collective_vs_single_round_unequal_elements": 0,
+    "bf16_vs_exact_sum_relative_l2": 0.0017834054428213955,
+    "fp32_vs_exact_sum_relative_l2": 9.049079461227279e-11,
+    "fp32_then_bf16_vs_ideal_bf16_unequal_elements": 0,
+    "bf16_vs_fp32_collective_relative_l2": 0.0017834054306149483,
+    "bf16_vs_fp32_then_bf16_unequal_elements": 0
+  },
+  {
+    "rank": 1,
+    "tp": 2,
+    "bf16_collective_matches_training_capture": true,
+    "fp32_collective_matches_single_final_rounding": true,
+    "fp32_collective_vs_single_round_unequal_elements": 0,
+    "bf16_vs_exact_sum_relative_l2": 0.0017709701088443296,
+    "fp32_vs_exact_sum_relative_l2": 9.361596104719673e-11,
+    "fp32_then_bf16_vs_ideal_bf16_unequal_elements": 0,
+    "bf16_vs_fp32_collective_relative_l2": 0.001770970062352717,
+    "bf16_vs_fp32_then_bf16_unequal_elements": 0
+  }
+]

@@ -1,0 +1,28 @@
+{
+  "repos": {
+    ".": {
+      "branch": "2026-10-10",
+      "head": "0ca9d3aeea1cfbc64589f1dca3a08dbf7e6846fa"
+    },
+    "3rdparty/Megatron-LM-0.11.0": {
+      "branch": "2026-10-10",
+      "head": "d65baf60f3d715f313f644eeb68a4047f4cc42aa"
+    },
+    "3rdparty/flash-linear-attention-260115": {
+      "branch": "2026-10-10",
+      "head": "261dbcf5091dce3486c5bdee561328184b6920e0"
+    }
+  },
+  "source_sha256": {
+    "pretrain_rwkv7.py": "1e6d78cc9812110ff8cb6d7fb8503b537c7e5850e99b4fba6a652d82ee21e171",
+    "rwkv_megatron/rwkv7_layer_specs.py": "928b4ad76ab92f0c6f8a5d2d471233ef43aea49d91d587b5164d6f9e6c7b5be6",
+    "rwkv_megatron/token_shift.py": "1d3783b8833ecbe7e419742a79d1d51cc311dff7ed26fda377dd9f536bd97b11",
+    "rwkv_megatron/rwkv7_model.py": "1220b719bddc3b10c1197318a84873a4969ed4ae1589ddcde4b1f69cd5b0e5eb",
+    "megatron/core/optimizer/optimizer_config.py": "d8635e214b890c5eaea6648b51f1c2ca5694030c22f0354fccf7175e29e958a6",
+    "megatron/core/optimizer/__init__.py": "e647e09e13e54a656a766f614fc95126ff50a2b924e2a5468d5a52ebbae8ef06",
+    "megatron/core/optimizer/distrib_optimizer.py": "fb5fb9210692c3953d54a63cde66a0c77e540378cadc69a37d0ec71da237030d",
+    "megatron/core/optimizer/cpu_offloading/hybrid_optimizer.py": "588aed83433381a9bcdca99bae4fd719a8e8369d1891e947bb8b1fc06373cad1",
+    "3rdparty/flash-linear-attention-260115/fla/ops/generalized_delta_rule/dplr/context_parallel.py": "f7bf22923665d22c1fcf8880cdc1ce8d8be04f0720bd9a0c6a5b67f4d3ade9a7"
+  },
+  "python": "Python 3.10.13"
+}

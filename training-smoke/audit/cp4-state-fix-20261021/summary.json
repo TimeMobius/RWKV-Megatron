@@ -1,0 +1,130 @@
+{
+  "strict": {
+    "strict-cp2-4k": {
+      "ranks": 4,
+      "layers": 24,
+      "total_heads": 36,
+      "layer_rank_records": 96,
+      "outputs_and_all_six_input_gradients_exact": true,
+      "optimizer_steps": 3,
+      "skipped_steps": 0
+    },
+    "strict-cp4-8k": {
+      "ranks": 8,
+      "layers": 24,
+      "total_heads": 36,
+      "layer_rank_records": 192,
+      "outputs_and_all_six_input_gradients_exact": true,
+      "optimizer_steps": 3,
+      "skipped_steps": 0
+    },
+    "strict-cp4-sp-16k": {
+      "ranks": 8,
+      "layers": 24,
+      "total_heads": 36,
+      "layer_rank_records": 192,
+      "outputs_and_all_six_input_gradients_exact": true,
+      "optimizer_steps": 3,
+      "skipped_steps": 0
+    },
+    "tp2-pp2-cp2-sp-mb2": {
+      "ranks": 8,
+      "layers": 24,
+      "total_heads": 36,
+      "layer_rank_records": 96,
+      "outputs_and_all_six_input_gradients_exact": true,
+      "optimizer_steps": 3,
+      "skipped_steps": 0
+    }
+  },
+  "timing": {
+    "affine": {
+      "iterations": [
+        [
+          1,
+          7877.3
+        ],
+        [
+          2,
+          784.9
+        ],
+        [
+          3,
+          775.3
+        ],
+        [
+          4,
+          783.8
+        ],
+        [
+          5,
+          777.2
+        ],
+        [
+          6,
+          775.0
+        ],
+        [
+          7,
+          801.4
+        ],
+        [
+          8,
+          780.7
+        ]
+      ],
+      "median_steps_3_to_8_ms": 778.95
+    },
+    "recurrent": {
+      "iterations": [
+        [
+          1,
+          9099.2
+        ],
+        [
+          2,
+          779.1
+        ],
+        [
+          3,
+          772.7
+        ],
+        [
+          4,
+          772.6
+        ],
+        [
+          5,
+          780.7
+        ],
+        [
+          6,
+          777.9
+        ],
+        [
+          7,
+          771.4
+        ],
+        [
+          8,
+          772.8
+        ]
+      ],
+      "median_steps_3_to_8_ms": 772.75
+    },
+    "configs_and_all_rank_batches_equal": true,
+    "recurrent_over_affine": 0.9920405674305154
+  },
+  "model": {
+    "forward_capture_exact": true,
+    "gradient_aggregate": {
+      "relative_l2": 0.0001692530123908552,
+      "reference_norm_with_tp_replicas": 81.68017038436184,
+      "actual_norm_with_tp_replicas": 81.68081483466443,
+      "norm_ratio": 1.0000078899235831,
+      "scale_fit": 1.0003899009466488,
+      "tensor_count": 1356,
+      "all_finite": true
+    }
+  }
+}

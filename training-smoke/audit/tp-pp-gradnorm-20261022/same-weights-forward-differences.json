@@ -1,0 +1,158 @@
+{
+  "layer0-key": {
+    "relative_l2": 0.0,
+    "actual_norm": 1323.488037109375,
+    "reference_norm": 1323.488037109375,
+    "max_abs": 0.0,
+    "bitwise_equal": true,
+    "first_token": {
+      "relative_l2": 0.0,
+      "actual_norm": 0.009209414012730122,
+      "reference_norm": 0.009209414012730122,
+      "max_abs": 0.0
+    }
+  },
+  "layer0-receptance": {
+    "relative_l2": 0.0,
+    "actual_norm": 644.365234375,
+    "reference_norm": 644.365234375,
+    "max_abs": 0.0,
+    "bitwise_equal": true,
+    "first_token": {
+      "relative_l2": 0.0,
+      "actual_norm": 11.931774139404297,
+      "reference_norm": 11.931774139404297,
+      "max_abs": 0.0
+    }
+  },
+  "layer0-value": {
+    "relative_l2": 0.0,
+    "actual_norm": 2977.22412109375,
+    "reference_norm": 2977.22412109375,
+    "max_abs": 0.0,
+    "bitwise_equal": true,
+    "first_token": {
+      "relative_l2": 0.0,
+      "actual_norm": 27.10040855407715,
+      "reference_norm": 27.10040855407715,
+      "max_abs": 0.0
+    }
+  },
+  "layer0-wkv": {
+    "relative_l2": 0.0,
+    "actual_norm": 1290.0487060546875,
+    "reference_norm": 1290.0487060546875,
+    "max_abs": 0.0,
+    "bitwise_equal": true,
+    "first_token": {
+      "relative_l2": 0.0,
+      "actual_norm": 0.0010978239588439465,
+      "reference_norm": 0.0010978239588439465,
+      "max_abs": 0.0
+    }
+  },
+  "layer3-key": {
+    "relative_l2": 0.0028050716500729322,
+    "actual_norm": 1043.4012451171875,
+    "reference_norm": 1043.424072265625,
+    "max_abs": 0.125,
+    "bitwise_equal": false,
+    "first_token": {
+      "relative_l2": 0.00043585285311564803,
+      "actual_norm": 0.008644497953355312,
+      "reference_norm": 0.008644561283290386,
+      "max_abs": 1.9073486328125e-06
+    }
+  },
+  "layer3-receptance": {
+    "relative_l2": 0.002625376218929887,
+    "actual_norm": 550.25830078125,
+    "reference_norm": 550.2672729492188,
+    "max_abs": 0.046875,
+    "bitwise_equal": false,
+    "first_token": {
+      "relative_l2": 0.0014527348103001714,
+      "actual_norm": 9.733086585998535,
+      "reference_norm": 9.73504638671875,
+      "max_abs": 0.00390625
+    }
+  },
+  "layer3-value": {
+    "relative_l2": 0.0019598768558353186,
+    "actual_norm": 2680.390625,
+    "reference_norm": 2680.412353515625,
+    "max_abs": 0.0625,
+    "bitwise_equal": false,
+    "first_token": {
+      "relative_l2": 0.0007063979865051806,
+      "actual_norm": 23.201051712036133,
+      "reference_norm": 23.203311920166016,
+      "max_abs": 0.015625
+    }
+  },
+  "layer3-wkv": {
+    "relative_l2": 0.008659177459776402,
+    "actual_norm": 1193.2410888671875,
+    "reference_norm": 1193.4580078125,
+    "max_abs": 0.75,
+    "bitwise_equal": false,
+    "first_token": {
+      "relative_l2": 0.0034059693571180105,
+      "actual_norm": 0.0012579272734001279,
+      "reference_norm": 0.001260007149539888,
+      "max_abs": 3.814697265625e-06
+    }
+  },
+  "layer15-key": {
+    "relative_l2": 0.006209575105458498,
+    "actual_norm": 5467.58837890625,
+    "reference_norm": 5467.08642578125,
+    "max_abs": 0.1875,
+    "bitwise_equal": false,
+    "first_token": {
+      "relative_l2": 0.004911238793283701,
+      "actual_norm": 106.9566650390625,
+      "reference_norm": 106.96076965332031,
+      "max_abs": 0.03125
+    }
+  },
+  "layer15-receptance": {
+    "relative_l2": 0.006046903319656849,
+    "actual_norm": 5174.54296875,
+    "reference_norm": 5174.10498046875,
+    "max_abs": 0.25,
+    "bitwise_equal": false,
+    "first_token": {
+      "relative_l2": 0.004112307447940111,
+      "actual_norm": 112.22148895263672,
+      "reference_norm": 112.21968841552734,
+      "max_abs": 0.03125
+    }
+  },
+  "layer15-value": {
+    "relative_l2": 0.006687832530587912,
+    "actual_norm": 3754.79833984375,
+    "reference_norm": 3754.454833984375,
+    "max_abs": 0.1875,
+    "bitwise_equal": false,
+    "first_token": {
+      "relative_l2": 0.004303329158574343,
+      "actual_norm": 82.5511474609375,
+      "reference_norm": 82.55697631835938,
+      "max_abs": 0.03125
+    }
+  },
+  "layer15-wkv": {
+    "relative_l2": 0.00874300580471754,
+    "actual_norm": 99645.7109375,
+    "reference_norm": 99622.0390625,
+    "max_abs": 16.0,
+    "bitwise_equal": false,
+    "first_token": {
+      "relative_l2": 0.005971393547952175,
+      "actual_norm": 656.5527954101562,
+      "reference_norm": 657.4003295898438,
+      "max_abs": 1.0
+    }
+  }
+}

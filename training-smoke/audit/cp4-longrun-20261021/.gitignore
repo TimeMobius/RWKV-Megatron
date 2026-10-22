@@ -1,0 +1,6 @@
+checkpoints/
+tensorboard/
+data-cache/
+__pycache__/
+*.pt
+wandb/

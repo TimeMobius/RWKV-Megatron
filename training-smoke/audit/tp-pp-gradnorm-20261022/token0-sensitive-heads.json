@@ -1,0 +1,74 @@
+[
+  {
+    "folder": "ablate-tp4pp2-common-tp2",
+    "layer": 15,
+    "head": 62,
+    "exact_dot": -0.02264225482940674,
+    "sum_abs_products": 29.81548798084259,
+    "cancellation_ratio": 1316.807367706134,
+    "wkv_output_norm": 0.057389537934469645,
+    "effective_dot_from_wkv": -0.024651087262717683,
+    "groupnorm_incoming_gradient_norm": 0.00012483789650556576,
+    "receptance_gradient_at_token0_norm": 0.0018048917720940964
+  },
+  {
+    "folder": "ablate-tp4pp2-common-tp2",
+    "layer": 19,
+    "head": 12,
+    "exact_dot": -0.09178435802459717,
+    "sum_abs_products": 34.9013956785202,
+    "cancellation_ratio": 380.2542876550602,
+    "wkv_output_norm": 0.3472430468076709,
+    "effective_dot_from_wkv": -0.09085428980733205,
+    "groupnorm_incoming_gradient_norm": 9.7554341997396e-05,
+    "receptance_gradient_at_token0_norm": 0.0036420785895359773
+  },
+  {
+    "folder": "ablate-tp4pp2-common-tp2",
+    "layer": 23,
+    "head": 48,
+    "exact_dot": 0.08101630210876465,
+    "sum_abs_products": 26.9097683429718,
+    "cancellation_ratio": 332.1525130441692,
+    "wkv_output_norm": 0.18711207215450978,
+    "effective_dot_from_wkv": 0.07811208624673348,
+    "groupnorm_incoming_gradient_norm": 4.463257666651115e-05,
+    "receptance_gradient_at_token0_norm": 0.0023239546546365967
+  },
+  {
+    "folder": "ablate-tp2pp2-common-tp2",
+    "layer": 15,
+    "head": 62,
+    "exact_dot": -0.009687423706054688,
+    "sum_abs_products": 29.794602394104004,
+    "cancellation_ratio": 3075.596081905887,
+    "wkv_output_norm": 0.01986974090120205,
+    "effective_dot_from_wkv": -0.008547207069156728,
+    "groupnorm_incoming_gradient_norm": 0.0016804178150604076,
+    "receptance_gradient_at_token0_norm": 0.10450278170595648
+  },
+  {
+    "folder": "ablate-tp2pp2-common-tp2",
+    "layer": 19,
+    "head": 12,
+    "exact_dot": -0.09852421283721924,
+    "sum_abs_products": 34.904255986213684,
+    "cancellation_ratio": 354.2708434918649,
+    "wkv_output_norm": 0.3755938920291085,
+    "effective_dot_from_wkv": -0.09824584904859812,
+    "groupnorm_incoming_gradient_norm": 0.0016474537617740311,
+    "receptance_gradient_at_token0_norm": 0.04547681045696555
+  },
+  {
+    "folder": "ablate-tp2pp2-common-tp2",
+    "layer": 23,
+    "head": 48,
+    "exact_dot": -0.023590087890625,
+    "sum_abs_products": 26.902259826660156,
+    "cancellation_ratio": 1140.4052393272962,
+    "wkv_output_norm": 0.06701301859243773,
+    "effective_dot_from_wkv": -0.02795843625040624,
+    "groupnorm_incoming_gradient_norm": 0.00024888881341596556,
+    "receptance_gradient_at_token0_norm": 0.04646262562808605
+  }
+]

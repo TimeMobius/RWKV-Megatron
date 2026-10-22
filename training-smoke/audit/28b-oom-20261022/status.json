@@ -1,0 +1,44 @@
+{
+  "status": "completed",
+  "baseline_exit_code": 0,
+  "reproduce_exit_code": 1,
+  "cp2_30step_exit_code": 0,
+  "cp1_control_exit_code": 0,
+  "checkpoint_save_exit_code": 0,
+  "checkpoint_resume_exit_code": 0,
+  "validation": {
+    "comparisons": [
+      {
+        "step": 1,
+        "loss_abs_diff": 0.0,
+        "grad_norm_abs_diff": 0.0
+      },
+      {
+        "step": 2,
+        "loss_abs_diff": 0.0,
+        "grad_norm_abs_diff": 0.0
+      },
+      {
+        "step": 3,
+        "loss_abs_diff": 0.0,
+        "grad_norm_abs_diff": 0.0
+      },
+      {
+        "step": 4,
+        "loss_abs_diff": 0.0,
+        "grad_norm_abs_diff": 0.0
+      },
+      {
+        "step": 5,
+        "loss_abs_diff": 0.0,
+        "grad_norm_abs_diff": 0.0
+      }
+    ],
+    "losses_equal_at_log_precision": true,
+    "grad_norms_equal_at_log_precision": true,
+    "full_model_optimizer_rng_tensor_comparison_performed": false
+  },
+  "wandb_smoke_enabled": false,
+  "production_launcher_wandb_default": "online",
+  "interleaved_pipeline_modified": false
+}

@@ -1,0 +1,634 @@
+{
+  "layer0.bf16": {
+    "varlen_output": {
+      "max_abs": 0.0,
+      "rel_l2": 0.0,
+      "nonzero": 0,
+      "elements": 524288
+    },
+    "native_split_output": {
+      "max_abs": 0.0,
+      "rel_l2": 0.0,
+      "nonzero": 0,
+      "elements": 524288
+    },
+    "native_split_grads": {
+      "r": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "w": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "k": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "v": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "a": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "b": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      }
+    },
+    "fp64_reference": {
+      "cp1_output": {
+        "max_abs": 0.005608972641461596,
+        "rel_l2": 0.008078705112130363,
+        "nonzero": 524288,
+        "elements": 524288
+      },
+      "cp1_prefix_state": {
+        "max_abs": 0.011098612871661029,
+        "rel_l2": 0.0029658855599428583,
+        "nonzero": 8192,
+        "elements": 8192
+      }
+    },
+    "default": {
+      "output": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 262144
+      },
+      "state": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 8192
+      },
+      "first64": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 8192
+      },
+      "after256": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 229376
+      },
+      "grads": {
+        "r": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "w": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "k": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "v": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "a": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "b": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        }
+      }
+    },
+    "tf32x3": {
+      "output": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 262144
+      },
+      "state": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 8192
+      },
+      "first64": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 8192
+      },
+      "after256": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 229376
+      },
+      "grads": {
+        "r": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "w": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "k": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "v": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "a": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "b": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        }
+      }
+    },
+    "native_state": {
+      "output": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 262144
+      },
+      "state": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 8192
+      },
+      "first64": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 8192
+      },
+      "after256": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 229376
+      }
+    }
+  },
+  "layer6.bf16": {
+    "varlen_output": {
+      "max_abs": 0.0,
+      "rel_l2": 0.0,
+      "nonzero": 0,
+      "elements": 524288
+    },
+    "native_split_output": {
+      "max_abs": 0.0,
+      "rel_l2": 0.0,
+      "nonzero": 0,
+      "elements": 524288
+    },
+    "native_split_grads": {
+      "r": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "w": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "k": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "v": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "a": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "b": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      }
+    },
+    "default": {
+      "output": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 262144
+      },
+      "state": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 8192
+      },
+      "first64": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 8192
+      },
+      "after256": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 229376
+      },
+      "grads": {
+        "r": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "w": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "k": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "v": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "a": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "b": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        }
+      }
+    },
+    "tf32x3": {
+      "output": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 262144
+      },
+      "state": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 8192
+      },
+      "first64": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 8192
+      },
+      "after256": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 229376
+      },
+      "grads": {
+        "r": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "w": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "k": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "v": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "a": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "b": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        }
+      }
+    },
+    "native_state": {
+      "output": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 262144
+      },
+      "state": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 8192
+      },
+      "first64": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 8192
+      },
+      "after256": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 229376
+      }
+    }
+  },
+  "layer23.bf16": {
+    "varlen_output": {
+      "max_abs": 0.0,
+      "rel_l2": 0.0,
+      "nonzero": 0,
+      "elements": 524288
+    },
+    "native_split_output": {
+      "max_abs": 0.0,
+      "rel_l2": 0.0,
+      "nonzero": 0,
+      "elements": 524288
+    },
+    "native_split_grads": {
+      "r": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "w": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "k": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "v": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "a": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "b": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      }
+    },
+    "default": {
+      "output": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 262144
+      },
+      "state": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 8192
+      },
+      "first64": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 8192
+      },
+      "after256": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 229376
+      },
+      "grads": {
+        "r": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "w": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "k": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "v": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "a": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "b": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        }
+      }
+    },
+    "tf32x3": {
+      "output": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 262144
+      },
+      "state": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 8192
+      },
+      "first64": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 8192
+      },
+      "after256": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 229376
+      },
+      "grads": {
+        "r": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "w": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "k": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "v": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "a": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "b": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        }
+      }
+    },
+    "native_state": {
+      "output": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 262144
+      },
+      "state": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 8192
+      },
+      "first64": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 8192
+      },
+      "after256": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 229376
+      }
+    }
+  }
+}

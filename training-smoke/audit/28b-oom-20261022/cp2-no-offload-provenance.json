@@ -1,0 +1,29 @@
+{
+  "note": "CP2 all-GPU experiments; configuration and NCCL environment changes only; no production code modifications in this turn.",
+  "source_sha256": {
+    "pretrain_rwkv7.py": "1e6d78cc9812110ff8cb6d7fb8503b537c7e5850e99b4fba6a652d82ee21e171",
+    "rwkv_megatron/rwkv7_layer_specs.py": "928b4ad76ab92f0c6f8a5d2d471233ef43aea49d91d587b5164d6f9e6c7b5be6",
+    "rwkv_megatron/token_shift.py": "1d3783b8833ecbe7e419742a79d1d51cc311dff7ed26fda377dd9f536bd97b11",
+    "megatron/core/optimizer/__init__.py": "0ea6c33ebc8656d927435e4502a047c6cc2dfb36053c54003c2e1ce433052c17",
+    "megatron/core/optimizer/optimizer_config.py": "d8635e214b890c5eaea6648b51f1c2ca5694030c22f0354fccf7175e29e958a6",
+    "megatron/core/optimizer/distrib_optimizer.py": "b505bc35e92b56d731dd4bd5fc3758c8afdbfd90c44ad676235f5f329e489c49",
+    "megatron/core/optimizer/cpu_offloading/hybrid_optimizer.py": "7706d2df983a62dbb0f8ac276ccd118a383ede5f67e8119fc1125ac7bf36c0fa"
+  },
+  "nccl_for_2k_and_4k_recompute2": {
+    "NCCL_MAX_NCHANNELS": "1",
+    "NCCL_MIN_NCHANNELS": "1",
+    "NCCL_BUFFSIZE": "262144",
+    "NCCL_NVLS_ENABLE": "0"
+  },
+  "nccl_for_4k_low_nccl_failed": {
+    "NCCL_MAX_NCHANNELS": "4",
+    "NCCL_MIN_NCHANNELS": "1",
+    "NCCL_BUFFSIZE": "1048576",
+    "NCCL_NVLS_ENABLE": "0"
+  },
+  "branches": {
+    ".": "2026-10-10",
+    "3rdparty/Megatron-LM-0.11.0": "2026-10-10",
+    "3rdparty/flash-linear-attention-260115": "2026-10-10"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "status": "completed",
+  "phase": "finished",
+  "started_at_utc": "2026-10-21T09:55:22.824738+00:00",
+  "supervisor_pid": 1098780,
+  "sources_sha256_start": {
+    "pretrain_rwkv7.py": "1e6d78cc9812110ff8cb6d7fb8503b537c7e5850e99b4fba6a652d82ee21e171",
+    "rwkv_megatron/rwkv7_layer_specs.py": "928b4ad76ab92f0c6f8a5d2d471233ef43aea49d91d587b5164d6f9e6c7b5be6",
+    "rwkv_megatron/token_shift.py": "1d3783b8833ecbe7e419742a79d1d51cc311dff7ed26fda377dd9f536bd97b11",
+    "3rdparty/flash-linear-attention-260115/fla/ops/cp/context.py": "ba982cce2f786161eb7b86d787484aab033bab94b1841260cd493e62386915b7",
+    "3rdparty/flash-linear-attention-260115/fla/ops/generalized_delta_rule/dplr/chunk.py": "e9662b55b523edfb4c5615299327078c50689c9b917dcc0ef0b09cf87211582a",
+    "3rdparty/flash-linear-attention-260115/fla/ops/generalized_delta_rule/dplr/context_parallel.py": "f7bf22923665d22c1fcf8880cdc1ce8d8be04f0720bd9a0c6a5b67f4d3ade9a7",
+    "3rdparty/flash-linear-attention-260115/fla/ops/generalized_delta_rule/dplr/backends/tilelang/__init__.py": "0699af5a9c4e85d0e9ffd86d238dfa3abf7863748b9b1c56b7a9ecf24f3a3959"
+  },
+  "child_pid": 1355329,
+  "exit_codes": {
+    "baseline": 0,
+    "train": 0,
+    "final-eval": 0
+  },
+  "train_started_at_utc": "2026-10-21T09:56:03.932214+00:00",
+  "final_checkpoint_iteration": 49189,
+  "finished_at_utc": "2026-10-21T21:57:20.546380+00:00",
+  "sources_sha256_end": {
+    "pretrain_rwkv7.py": "1e6d78cc9812110ff8cb6d7fb8503b537c7e5850e99b4fba6a652d82ee21e171",
+    "rwkv_megatron/rwkv7_layer_specs.py": "928b4ad76ab92f0c6f8a5d2d471233ef43aea49d91d587b5164d6f9e6c7b5be6",
+    "rwkv_megatron/token_shift.py": "1d3783b8833ecbe7e419742a79d1d51cc311dff7ed26fda377dd9f536bd97b11",
+    "3rdparty/flash-linear-attention-260115/fla/ops/cp/context.py": "ba982cce2f786161eb7b86d787484aab033bab94b1841260cd493e62386915b7",
+    "3rdparty/flash-linear-attention-260115/fla/ops/generalized_delta_rule/dplr/chunk.py": "e9662b55b523edfb4c5615299327078c50689c9b917dcc0ef0b09cf87211582a",
+    "3rdparty/flash-linear-attention-260115/fla/ops/generalized_delta_rule/dplr/context_parallel.py": "f7bf22923665d22c1fcf8880cdc1ce8d8be04f0720bd9a0c6a5b67f4d3ade9a7",
+    "3rdparty/flash-linear-attention-260115/fla/ops/generalized_delta_rule/dplr/backends/tilelang/__init__.py": "0699af5a9c4e85d0e9ffd86d238dfa3abf7863748b9b1c56b7a9ecf24f3a3959"
+  },
+  "recorded_production_sources_unchanged": true
+}

@@ -1,0 +1,29 @@
+{
+  "mb1-full": {
+    "inputs_equal": true,
+    "all_captured_forward_bitwise_equal": true,
+    "gradient_relative_l2": 5.8622679536186045e-05,
+    "gradient_norm_ratio": 1.0000001553349684,
+    "all_gradients_finite": true,
+    "tensor_count": 1356,
+    "worst_single_parameter_relative_l2": 0.0020950536453725158
+  },
+  "mb1-uneven": {
+    "inputs_equal": true,
+    "all_captured_forward_bitwise_equal": true,
+    "gradient_relative_l2": 5.967686434880085e-05,
+    "gradient_norm_ratio": 1.0000001064521518,
+    "all_gradients_finite": true,
+    "tensor_count": 1356,
+    "worst_single_parameter_relative_l2": 0.002697357122376821
+  },
+  "mb2-full": {
+    "inputs_equal": true,
+    "all_captured_forward_bitwise_equal": true,
+    "gradient_relative_l2": 5.854136344685336e-05,
+    "gradient_norm_ratio": 1.000000137010575,
+    "all_gradients_finite": true,
+    "tensor_count": 1356,
+    "worst_single_parameter_relative_l2": 0.0019022682428436047
+  }
+}

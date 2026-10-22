@@ -1,0 +1,241 @@
+{
+  "layer0-self_attention.linear_proj": {
+    "2": {
+      "input_matches_other_tp": true,
+      "production_partial_replay": [
+        {
+          "bitwise_equal": true,
+          "unequal_elements": 0,
+          "numel": 20971520,
+          "relative_l2": 0.0,
+          "max_abs": 0.0
+        },
+        {
+          "bitwise_equal": true,
+          "unequal_elements": 0,
+          "numel": 20971520,
+          "relative_l2": 0.0,
+          "max_abs": 0.0
+        }
+      ],
+      "fp32_split_sum_vs_full_fp32": {
+        "bitwise_equal": false,
+        "unequal_elements": 20232906,
+        "numel": 20971520,
+        "relative_l2": 1.273156385650509e-06,
+        "max_abs": 0.000171661376953125
+      },
+      "partial_output_encoding_vs_full_fp32": {
+        "bitwise_equal": false,
+        "unequal_elements": 20971189,
+        "numel": 20971520,
+        "relative_l2": 0.001488015870563686,
+        "max_abs": 0.13880157470703125
+      },
+      "communication_output_vs_fp32_sum_of_captured_partials": {
+        "bitwise_equal": false,
+        "unequal_elements": 12994305,
+        "numel": 20971520,
+        "relative_l2": 0.0017773160943761468,
+        "max_abs": 0.125
+      },
+      "collective_vs_single_final_bf16_rounding": {
+        "bitwise_equal": true,
+        "unequal_elements": 0,
+        "numel": 20971520,
+        "relative_l2": 0.0,
+        "max_abs": 0.0
+      },
+      "final_output_vs_full_fp32": {
+        "bitwise_equal": false,
+        "unequal_elements": 20971282,
+        "numel": 20971520,
+        "relative_l2": 0.002311853226274252,
+        "max_abs": 0.25341033935546875
+      },
+      "captured_partial_vs_fp32_then_bf16": [
+        {
+          "bitwise_equal": false,
+          "unequal_elements": 34732,
+          "numel": 20971520,
+          "relative_l2": 8.80721490830183e-05,
+          "max_abs": 0.0078125
+        },
+        {
+          "bitwise_equal": false,
+          "unequal_elements": 30877,
+          "numel": 20971520,
+          "relative_l2": 0.0001324020850006491,
+          "max_abs": 0.015625
+        }
+      ],
+      "local_partial_bf16_vs_fp32": [
+        {
+          "bitwise_equal": false,
+          "unequal_elements": 20971161,
+          "numel": 20971520,
+          "relative_l2": 0.001666565891355276,
+          "max_abs": 0.12494277954101562
+        },
+        {
+          "bitwise_equal": false,
+          "unequal_elements": 20971162,
+          "numel": 20971520,
+          "relative_l2": 0.0016255151713266969,
+          "max_abs": 0.031177520751953125
+        }
+      ]
+    },
+    "4": {
+      "input_matches_other_tp": true,
+      "production_partial_replay": [
+        {
+          "bitwise_equal": true,
+          "unequal_elements": 0,
+          "numel": 20971520,
+          "relative_l2": 0.0,
+          "max_abs": 0.0
+        },
+        {
+          "bitwise_equal": true,
+          "unequal_elements": 0,
+          "numel": 20971520,
+          "relative_l2": 0.0,
+          "max_abs": 0.0
+        },
+        {
+          "bitwise_equal": true,
+          "unequal_elements": 0,
+          "numel": 20971520,
+          "relative_l2": 0.0,
+          "max_abs": 0.0
+        },
+        {
+          "bitwise_equal": true,
+          "unequal_elements": 0,
+          "numel": 20971520,
+          "relative_l2": 0.0,
+          "max_abs": 0.0
+        }
+      ],
+      "fp32_split_sum_vs_full_fp32": {
+        "bitwise_equal": false,
+        "unequal_elements": 20507013,
+        "numel": 20971520,
+        "relative_l2": 1.3705689525522757e-06,
+        "max_abs": 0.000179290771484375
+      },
+      "partial_output_encoding_vs_full_fp32": {
+        "bitwise_equal": false,
+        "unequal_elements": 20971160,
+        "numel": 20971520,
+        "relative_l2": 0.0013501383364200592,
+        "max_abs": 0.11101150512695312
+      },
+      "communication_output_vs_fp32_sum_of_captured_partials": {
+        "bitwise_equal": false,
+        "unequal_elements": 19275707,
+        "numel": 20971520,
+        "relative_l2": 0.0025404072366654873,
+        "max_abs": 0.3203125
+      },
+      "collective_vs_single_final_bf16_rounding": {
+        "bitwise_equal": false,
+        "unequal_elements": 6926038,
+        "numel": 20971520,
+        "relative_l2": 0.0028996411710977554,
+        "max_abs": 0.25
+      },
+      "final_output_vs_full_fp32": {
+        "bitwise_equal": false,
+        "unequal_elements": 20971341,
+        "numel": 20971520,
+        "relative_l2": 0.00287266680970788,
+        "max_abs": 0.32630157470703125
+      },
+      "captured_partial_vs_fp32_then_bf16": [
+        {
+          "bitwise_equal": false,
+          "unequal_elements": 21237,
+          "numel": 20971520,
+          "relative_l2": 6.77390125929378e-05,
+          "max_abs": 0.00390625
+        },
+        {
+          "bitwise_equal": false,
+          "unequal_elements": 22099,
+          "numel": 20971520,
+          "relative_l2": 6.504246266558766e-05,
+          "max_abs": 0.00390625
+        },
+        {
+          "bitwise_equal": false,
+          "unequal_elements": 15345,
+          "numel": 20971520,
+          "relative_l2": 0.00016303890151903033,
+          "max_abs": 0.03125
+        },
+        {
+          "bitwise_equal": false,
+          "unequal_elements": 18303,
+          "numel": 20971520,
+          "relative_l2": 0.00012684607645496726,
+          "max_abs": 0.0078125
+        }
+      ],
+      "local_partial_bf16_vs_fp32": [
+        {
+          "bitwise_equal": false,
+          "unequal_elements": 20971138,
+          "numel": 20971520,
+          "relative_l2": 0.0016588544240221381,
+          "max_abs": 0.061916351318359375
+        },
+        {
+          "bitwise_equal": false,
+          "unequal_elements": 20971132,
+          "numel": 20971520,
+          "relative_l2": 0.0016702603315934539,
+          "max_abs": 0.06233978271484375
+        },
+        {
+          "bitwise_equal": false,
+          "unequal_elements": 20971086,
+          "numel": 20971520,
+          "relative_l2": 0.0016329922946169972,
+          "max_abs": 0.030837059020996094
+        },
+        {
+          "bitwise_equal": false,
+          "unequal_elements": 20971163,
+          "numel": 20971520,
+          "relative_l2": 0.0016694838413968682,
+          "max_abs": 0.007523059844970703
+        }
+      ]
+    },
+    "between_tp": {
+      "high": {
+        "bitwise_equal": false,
+        "unequal_elements": 11157,
+        "numel": 20971520,
+        "relative_l2": 3.5343720810487866e-05,
+        "max_abs": 0.00390625
+      },
+      "encoded": {
+        "bitwise_equal": false,
+        "unequal_elements": 9103196,
+        "numel": 20971520,
+        "relative_l2": 0.003048763144761324,
+        "max_abs": 0.25
+      },
+      "actual": {
+        "bitwise_equal": false,
+        "unequal_elements": 9740699,
+        "numel": 20971520,
+        "relative_l2": 0.0035717550199478865,
+        "max_abs": 0.5
+      }
+    }
+  }
+}

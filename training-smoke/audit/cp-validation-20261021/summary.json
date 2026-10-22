@@ -1,0 +1,743 @@
+{
+  "training": {
+    "tp2-pp1-cp2": {
+      "ranks": 4,
+      "topology": {
+        "tensor_model_parallel_size": 2,
+        "pipeline_model_parallel_size": 1,
+        "context_parallel_size": 2,
+        "sequence_parallel": false
+      },
+      "sequence_length": 4096,
+      "optimizer": "adam",
+      "steps": [
+        1,
+        2,
+        3
+      ],
+      "train_losses": [
+        13.499025344848633,
+        13.370662689208984,
+        13.253924369812012
+      ],
+      "validation_losses": [
+        13.158319473266602,
+        13.158319473266602
+      ],
+      "max_allocated_gib": 18.2674822807312,
+      "all_finite": true,
+      "skipped_steps": 0,
+      "functional_passed": true
+    },
+    "tp2-pp1-cp4-8k-measured": {
+      "ranks": 8,
+      "topology": {
+        "tensor_model_parallel_size": 2,
+        "pipeline_model_parallel_size": 1,
+        "context_parallel_size": 4,
+        "sequence_parallel": false
+      },
+      "sequence_length": 8192,
+      "optimizer": "adam",
+      "steps": [
+        1,
+        2,
+        3
+      ],
+      "train_losses": [
+        13.483489990234375,
+        13.419572830200195,
+        13.25243854522705
+      ],
+      "validation_losses": [
+        13.146093368530273,
+        13.146093368530273
+      ],
+      "max_allocated_gib": 14.337477207183838,
+      "all_finite": true,
+      "skipped_steps": 0,
+      "functional_passed": true
+    },
+    "tp2-pp1-cp4-sp-16k": {
+      "ranks": 8,
+      "topology": {
+        "tensor_model_parallel_size": 2,
+        "pipeline_model_parallel_size": 1,
+        "context_parallel_size": 4,
+        "sequence_parallel": true
+      },
+      "sequence_length": 16384,
+      "optimizer": "adam",
+      "steps": [
+        1,
+        2,
+        3
+      ],
+      "train_losses": [
+        13.529491424560547,
+        13.378204345703125,
+        13.206945419311523
+      ],
+      "validation_losses": [
+        13.107233047485352,
+        13.107233047485352
+      ],
+      "max_allocated_gib": 15.773767948150635,
+      "all_finite": true,
+      "skipped_steps": 0,
+      "functional_passed": true
+    },
+    "fp8": {
+      "ranks": 8,
+      "topology": {
+        "tensor_model_parallel_size": 2,
+        "pipeline_model_parallel_size": 2,
+        "context_parallel_size": 2,
+        "sequence_parallel": true
+      },
+      "sequence_length": 4096,
+      "optimizer": "adam",
+      "steps": [
+        1,
+        2,
+        3
+      ],
+      "train_losses": [
+        13.483817100524902,
+        13.416479110717773,
+        13.274154663085938
+      ],
+      "validation_losses": [
+        13.122652053833008,
+        13.122652053833008
+      ],
+      "max_allocated_gib": 10.631744384765625,
+      "all_finite": true,
+      "skipped_steps": 0,
+      "functional_passed": true,
+      "fp8_verified_on_every_rank": true,
+      "fp8_scope": "FFN only; real Float8 GEMM forward/backward, WKV BF16"
+    },
+    "fp8-delayed": {
+      "ranks": 8,
+      "topology": {
+        "tensor_model_parallel_size": 2,
+        "pipeline_model_parallel_size": 2,
+        "context_parallel_size": 2,
+        "sequence_parallel": true
+      },
+      "sequence_length": 4096,
+      "optimizer": "adam",
+      "steps": [
+        1,
+        2,
+        3
+      ],
+      "train_losses": [
+        13.492831230163574,
+        13.419010162353516,
+        13.277981758117676
+      ],
+      "validation_losses": [
+        13.127340316772461,
+        13.127340316772461
+      ],
+      "max_allocated_gib": 10.631195068359375,
+      "all_finite": true,
+      "skipped_steps": 0,
+      "functional_passed": true,
+      "fp8_verified_on_every_rank": true,
+      "fp8_scope": "FFN only; real Float8 GEMM forward/backward, WKV BF16"
+    },
+    "muon": {
+      "ranks": 8,
+      "topology": {
+        "tensor_model_parallel_size": 2,
+        "pipeline_model_parallel_size": 2,
+        "context_parallel_size": 2,
+        "sequence_parallel": true
+      },
+      "sequence_length": 4096,
+      "optimizer": "muon",
+      "steps": [
+        1,
+        2,
+        3
+      ],
+      "train_losses": [
+        13.488697052001953,
+        13.509171485900879,
+        13.469354629516602
+      ],
+      "validation_losses": [
+        13.396429061889648,
+        13.396429061889648
+      ],
+      "max_allocated_gib": 10.919064998626709,
+      "all_finite": true,
+      "skipped_steps": 0,
+      "functional_passed": true,
+      "routing_counts_including_cp_tp_replicas": {
+        "muon": 1344,
+        "adam": 1368
+      },
+      "muon_layout": "use_layer_wise_param_layout=false; muon_tp_mode=duplicated"
+    },
+    "fp8-muon": {
+      "ranks": 8,
+      "topology": {
+        "tensor_model_parallel_size": 2,
+        "pipeline_model_parallel_size": 2,
+        "context_parallel_size": 2,
+        "sequence_parallel": true
+      },
+      "sequence_length": 4096,
+      "optimizer": "muon",
+      "steps": [
+        1,
+        2,
+        3
+      ],
+      "train_losses": [
+        13.483817100524902,
+        13.504007339477539,
+        13.46436882019043
+      ],
+      "validation_losses": [
+        13.391548156738281,
+        13.391548156738281
+      ],
+      "max_allocated_gib": 11.429330348968506,
+      "all_finite": true,
+      "skipped_steps": 0,
+      "functional_passed": true,
+      "fp8_verified_on_every_rank": true,
+      "fp8_scope": "FFN only; real Float8 GEMM forward/backward, WKV BF16",
+      "routing_counts_including_cp_tp_replicas": {
+        "muon": 1344,
+        "adam": 1368
+      },
+      "muon_layout": "use_layer_wise_param_layout=false; muon_tp_mode=duplicated"
+    },
+    "ordinary-regression-sp1": {
+      "ranks": 8,
+      "topology": {
+        "tensor_model_parallel_size": 2,
+        "pipeline_model_parallel_size": 2,
+        "context_parallel_size": 2,
+        "sequence_parallel": true
+      },
+      "sequence_length": 4096,
+      "optimizer": "adam",
+      "steps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "train_losses": [
+        13.499025344848633,
+        13.37065601348877,
+        13.2538480758667,
+        13.182544708251953
+      ],
+      "validation_losses": [
+        13.28126335144043,
+        12.974950790405273,
+        12.974950790405273
+      ],
+      "max_allocated_gib": 10.102221965789795,
+      "all_finite": true,
+      "skipped_steps": 0,
+      "functional_passed": true
+    }
+  },
+  "cp2_wkv": {
+    "layers": 24,
+    "total_heads": 36,
+    "microbatches_replayed": 1,
+    "batch_size": 1,
+    "shard_records": 96,
+    "all_finite": true,
+    "output_limit": 0.001,
+    "input_gradient_limit": 0.01,
+    "strict_passed": true,
+    "failed_shard_records": 0,
+    "all_outputs_exact": true,
+    "all_input_gradients_exact": true,
+    "worst_output": {
+      "rank": 0,
+      "layer": 0,
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "exact": true,
+      "finite": true,
+      "elements": 2359296
+    },
+    "worst_input_gradient": {
+      "rank": 0,
+      "layer": 0,
+      "input": "r",
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "exact": true,
+      "finite": true,
+      "elements": 2359296
+    }
+  },
+  "cp4_wkv": {
+    "layers": 24,
+    "total_heads": 36,
+    "microbatches_replayed": 1,
+    "batch_size": 1,
+    "shard_records": 192,
+    "all_finite": true,
+    "output_limit": 0.001,
+    "input_gradient_limit": 0.01,
+    "strict_passed": false,
+    "failed_shard_records": 99,
+    "all_outputs_exact": false,
+    "all_input_gradients_exact": false,
+    "worst_output": {
+      "rank": 6,
+      "layer": 4,
+      "max_abs": 0.0029296875,
+      "relative_l2": 0.00674422224983573,
+      "exact": false,
+      "finite": true,
+      "elements": 2359296
+    },
+    "worst_input_gradient": {
+      "rank": 0,
+      "layer": 13,
+      "input": "k",
+      "max_abs": 0.375,
+      "relative_l2": 0.012060284614562988,
+      "exact": false,
+      "finite": true,
+      "elements": 2359296
+    }
+  },
+  "resume": {
+    "0": {
+      "sp": false,
+      "checkpoint_step": 2,
+      "resumed_steps": [
+        3,
+        4
+      ],
+      "passed": true,
+      "ranks": [
+        {
+          "rank": 0,
+          "states": {
+            "before3": {
+              "records": 1190,
+              "mismatches": []
+            },
+            "after4": {
+              "records": 1190,
+              "mismatches": []
+            }
+          },
+          "continuation_events_exact": true,
+          "events_compared": 4
+        },
+        {
+          "rank": 1,
+          "states": {
+            "before3": {
+              "records": 1190,
+              "mismatches": []
+            },
+            "after4": {
+              "records": 1190,
+              "mismatches": []
+            }
+          },
+          "continuation_events_exact": true,
+          "events_compared": 4
+        },
+        {
+          "rank": 2,
+          "states": {
+            "before3": {
+              "records": 512,
+              "mismatches": []
+            },
+            "after4": {
+              "records": 512,
+              "mismatches": []
+            }
+          },
+          "continuation_events_exact": true,
+          "events_compared": 4
+        },
+        {
+          "rank": 3,
+          "states": {
+            "before3": {
+              "records": 512,
+              "mismatches": []
+            },
+            "after4": {
+              "records": 512,
+              "mismatches": []
+            }
+          },
+          "continuation_events_exact": true,
+          "events_compared": 4
+        },
+        {
+          "rank": 4,
+          "states": {
+            "before3": {
+              "records": 467,
+              "mismatches": []
+            },
+            "after4": {
+              "records": 467,
+              "mismatches": []
+            }
+          },
+          "continuation_events_exact": true,
+          "events_compared": 4
+        },
+        {
+          "rank": 5,
+          "states": {
+            "before3": {
+              "records": 467,
+              "mismatches": []
+            },
+            "after4": {
+              "records": 467,
+              "mismatches": []
+            }
+          },
+          "continuation_events_exact": true,
+          "events_compared": 4
+        },
+        {
+          "rank": 6,
+          "states": {
+            "before3": {
+              "records": 1235,
+              "mismatches": []
+            },
+            "after4": {
+              "records": 1235,
+              "mismatches": []
+            }
+          },
+          "continuation_events_exact": true,
+          "events_compared": 4
+        },
+        {
+          "rank": 7,
+          "states": {
+            "before3": {
+              "records": 1235,
+              "mismatches": []
+            },
+            "after4": {
+              "records": 1235,
+              "mismatches": []
+            }
+          },
+          "continuation_events_exact": true,
+          "events_compared": 4
+        }
+      ]
+    },
+    "1": {
+      "sp": true,
+      "checkpoint_step": 2,
+      "resumed_steps": [
+        3,
+        4
+      ],
+      "passed": true,
+      "ranks": [
+        {
+          "rank": 0,
+          "states": {
+            "before3": {
+              "records": 1190,
+              "mismatches": []
+            },
+            "after4": {
+              "records": 1190,
+              "mismatches": []
+            }
+          },
+          "continuation_events_exact": true,
+          "events_compared": 4
+        },
+        {
+          "rank": 1,
+          "states": {
+            "before3": {
+              "records": 1190,
+              "mismatches": []
+            },
+            "after4": {
+              "records": 1190,
+              "mismatches": []
+            }
+          },
+          "continuation_events_exact": true,
+          "events_compared": 4
+        },
+        {
+          "rank": 2,
+          "states": {
+            "before3": {
+              "records": 512,
+              "mismatches": []
+            },
+            "after4": {
+              "records": 512,
+              "mismatches": []
+            }
+          },
+          "continuation_events_exact": true,
+          "events_compared": 4
+        },
+        {
+          "rank": 3,
+          "states": {
+            "before3": {
+              "records": 512,
+              "mismatches": []
+            },
+            "after4": {
+              "records": 512,
+              "mismatches": []
+            }
+          },
+          "continuation_events_exact": true,
+          "events_compared": 4
+        },
+        {
+          "rank": 4,
+          "states": {
+            "before3": {
+              "records": 467,
+              "mismatches": []
+            },
+            "after4": {
+              "records": 467,
+              "mismatches": []
+            }
+          },
+          "continuation_events_exact": true,
+          "events_compared": 4
+        },
+        {
+          "rank": 5,
+          "states": {
+            "before3": {
+              "records": 467,
+              "mismatches": []
+            },
+            "after4": {
+              "records": 467,
+              "mismatches": []
+            }
+          },
+          "continuation_events_exact": true,
+          "events_compared": 4
+        },
+        {
+          "rank": 6,
+          "states": {
+            "before3": {
+              "records": 1235,
+              "mismatches": []
+            },
+            "after4": {
+              "records": 1235,
+              "mismatches": []
+            }
+          },
+          "continuation_events_exact": true,
+          "events_compared": 4
+        },
+        {
+          "rank": 7,
+          "states": {
+            "before3": {
+              "records": 1235,
+              "mismatches": []
+            },
+            "after4": {
+              "records": 1235,
+              "mismatches": []
+            }
+          },
+          "continuation_events_exact": true,
+          "events_compared": 4
+        }
+      ]
+    }
+  },
+  "vpp": "Deferred by user; experimental production changes withdrawn, no VPP claim",
+  "limitations": [
+    "3/4-step functional checks, no long-run convergence certification",
+    "CP4 strict per-layer WKV numerical comparison FAILED",
+    "FP8 short-run execution verified, precision/convergence not certified",
+    "Checkpoint comparison uses Adam, torch format, unchanged topology"
+  ],
+  "cp4_model": {
+    "passed_existing_bf16_limits": true,
+    "gradient_aggregate": {
+      "relative_l2": 0.004666759268866132,
+      "reference_norm_with_tp_replicas": 81.68017038436184,
+      "actual_norm_with_tp_replicas": 81.56444463669699,
+      "norm_ratio": 0.9985831843014005,
+      "scale_fit": 0.9989552428456335,
+      "tensor_count": 1356,
+      "all_finite": true
+    },
+    "limits": {
+      "gradient_global_relative_l2": 0.03,
+      "gradient_scale_fit_abs_error": 0.02,
+      "logits_relative_l2": 0.02,
+      "token_loss_max_abs": 0.05
+    },
+    "max_token_ce_absolute": 0.047344207763671875,
+    "max_sampled_logits_relative_l2": 0.004935699636888207
+  },
+  "ordinary_pp_regression": {
+    "sp": true,
+    "checkpoint_step": 2,
+    "resumed_steps": [
+      3,
+      4
+    ],
+    "passed": true,
+    "ranks": [
+      {
+        "rank": 0,
+        "states": {
+          "before3": {
+            "records": 1190,
+            "mismatches": []
+          },
+          "after4": {
+            "records": 1190,
+            "mismatches": []
+          }
+        },
+        "continuation_events_exact": true,
+        "events_compared": 4
+      },
+      {
+        "rank": 1,
+        "states": {
+          "before3": {
+            "records": 1190,
+            "mismatches": []
+          },
+          "after4": {
+            "records": 1190,
+            "mismatches": []
+          }
+        },
+        "continuation_events_exact": true,
+        "events_compared": 4
+      },
+      {
+        "rank": 2,
+        "states": {
+          "before3": {
+            "records": 512,
+            "mismatches": []
+          },
+          "after4": {
+            "records": 512,
+            "mismatches": []
+          }
+        },
+        "continuation_events_exact": true,
+        "events_compared": 4
+      },
+      {
+        "rank": 3,
+        "states": {
+          "before3": {
+            "records": 512,
+            "mismatches": []
+          },
+          "after4": {
+            "records": 512,
+            "mismatches": []
+          }
+        },
+        "continuation_events_exact": true,
+        "events_compared": 4
+      },
+      {
+        "rank": 4,
+        "states": {
+          "before3": {
+            "records": 467,
+            "mismatches": []
+          },
+          "after4": {
+            "records": 467,
+            "mismatches": []
+          }
+        },
+        "continuation_events_exact": true,
+        "events_compared": 4
+      },
+      {
+        "rank": 5,
+        "states": {
+          "before3": {
+            "records": 467,
+            "mismatches": []
+          },
+          "after4": {
+            "records": 467,
+            "mismatches": []
+          }
+        },
+        "continuation_events_exact": true,
+        "events_compared": 4
+      },
+      {
+        "rank": 6,
+        "states": {
+          "before3": {
+            "records": 1235,
+            "mismatches": []
+          },
+          "after4": {
+            "records": 1235,
+            "mismatches": []
+          }
+        },
+        "continuation_events_exact": true,
+        "events_compared": 4
+      },
+      {
+        "rank": 7,
+        "states": {
+          "before3": {
+            "records": 1235,
+            "mismatches": []
+          },
+          "after4": {
+            "records": 1235,
+            "mismatches": []
+          }
+        },
+        "continuation_events_exact": true,
+        "events_compared": 4
+      }
+    ]
+  }
+}

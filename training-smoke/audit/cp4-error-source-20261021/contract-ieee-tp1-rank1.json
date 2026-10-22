@@ -1,0 +1,318 @@
+{
+  "4": {
+    "forward": {
+      "matrix_summary_vs_fp64": {
+        "relative_l2": 3.6521731973301337e-06,
+        "max_abs": 4.829691771512934e-06,
+        "exact": false,
+        "finite": true
+      },
+      "summary_dtype": "torch.float32",
+      "initial_dtype": "torch.float32",
+      "production": {
+        "affine_residual": {
+          "relative_l2": 0.0010852254448484033,
+          "max_abs": 0.0009723156711488601,
+          "exact": false,
+          "finite": true
+        },
+        "cp_affine_residual": {
+          "relative_l2": 0.001085230293750451,
+          "max_abs": 0.0009723156711488601,
+          "exact": false,
+          "finite": true
+        },
+        "matrix_precision_error_relative_to_state": 1.3260523106197532e-07,
+        "midpoint_residual": {
+          "relative_l2": 0.002292815059622599,
+          "max_abs": 0.0027657747268676758,
+          "exact": false,
+          "finite": true
+        },
+        "zero_state_vs_summary": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      },
+      "float32_control": {
+        "affine_residual": {
+          "relative_l2": 8.897418254670987e-07,
+          "max_abs": 7.793701050085033e-07,
+          "exact": false,
+          "finite": true
+        },
+        "cp_affine_residual": {
+          "relative_l2": 0.0015804825301295334,
+          "max_abs": 0.0010421172020464442,
+          "exact": false,
+          "finite": true
+        },
+        "matrix_precision_error_relative_to_state": 0.001581806874937934,
+        "midpoint_residual": {
+          "relative_l2": 1.4920988281886557e-06,
+          "max_abs": 1.5795230865478516e-06,
+          "exact": false,
+          "finite": true
+        },
+        "zero_state_vs_summary": {
+          "relative_l2": 0.001600976654669353,
+          "max_abs": 0.0010423064231872559,
+          "exact": false,
+          "finite": true
+        }
+      },
+      "ieee_bf16_state": {
+        "affine_residual": {
+          "relative_l2": 0.0011023367035626489,
+          "max_abs": 0.0008846489186157547,
+          "exact": false,
+          "finite": true
+        },
+        "cp_affine_residual": {
+          "relative_l2": 0.0018438200892119383,
+          "max_abs": 0.0015466289565980451,
+          "exact": false,
+          "finite": true
+        },
+        "matrix_precision_error_relative_to_state": 0.0018900833711286515,
+        "midpoint_residual": {
+          "relative_l2": 0.0019692007693527186,
+          "max_abs": 0.0020176172256469727,
+          "exact": false,
+          "finite": true
+        },
+        "zero_state_vs_summary": {
+          "relative_l2": 0.0019129244060973676,
+          "max_abs": 0.0015995055437088013,
+          "exact": false,
+          "finite": true
+        }
+      }
+    },
+    "backward": {
+      "matrix_summary_vs_fp64": {
+        "relative_l2": 3.7438447053678443e-06,
+        "max_abs": 4.435673951697083e-06,
+        "exact": false,
+        "finite": true
+      },
+      "summary_dtype": "torch.float32",
+      "initial_dtype": "torch.float32",
+      "production": {
+        "affine_residual": {
+          "relative_l2": 0.0003530498624344737,
+          "max_abs": 0.0011235747858918677,
+          "exact": false,
+          "finite": true
+        },
+        "cp_affine_residual": {
+          "relative_l2": 0.00035305624036161096,
+          "max_abs": 0.0011235697671160838,
+          "exact": false,
+          "finite": true
+        },
+        "matrix_precision_error_relative_to_state": 1.976904830961221e-06,
+        "midpoint_residual": {
+          "relative_l2": 0.0005937529567484237,
+          "max_abs": 0.0020732581615448,
+          "exact": false,
+          "finite": true
+        },
+        "zero_state_vs_summary": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      },
+      "float32_control": {
+        "affine_residual": {
+          "relative_l2": 4.882247275146066e-07,
+          "max_abs": 3.314379218632979e-06,
+          "exact": false,
+          "finite": true
+        },
+        "cp_affine_residual": {
+          "relative_l2": 0.00024104294220268758,
+          "max_abs": 0.0007625245778524192,
+          "exact": false,
+          "finite": true
+        },
+        "matrix_precision_error_relative_to_state": 0.0002410410068279089,
+        "midpoint_residual": {
+          "relative_l2": 5.02161272145481e-07,
+          "max_abs": 4.5299530029296875e-06,
+          "exact": false,
+          "finite": true
+        },
+        "zero_state_vs_summary": {
+          "relative_l2": 0.00027301430583350286,
+          "max_abs": 0.00076255202293396,
+          "exact": false,
+          "finite": true
+        }
+      }
+    },
+    "all_gather_hashes_exact": true
+  },
+  "13": {
+    "forward": {
+      "matrix_summary_vs_fp64": {
+        "relative_l2": 3.317553419783213e-06,
+        "max_abs": 5.02891323406196e-06,
+        "exact": false,
+        "finite": true
+      },
+      "summary_dtype": "torch.float32",
+      "initial_dtype": "torch.float32",
+      "production": {
+        "affine_residual": {
+          "relative_l2": 0.0013405053279785355,
+          "max_abs": 0.001124987274780137,
+          "exact": false,
+          "finite": true
+        },
+        "cp_affine_residual": {
+          "relative_l2": 0.0013404982013894523,
+          "max_abs": 0.0011249872500192493,
+          "exact": false,
+          "finite": true
+        },
+        "matrix_precision_error_relative_to_state": 2.110453902841132e-07,
+        "midpoint_residual": {
+          "relative_l2": 0.002456372921061685,
+          "max_abs": 0.003239065408706665,
+          "exact": false,
+          "finite": true
+        },
+        "zero_state_vs_summary": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      },
+      "float32_control": {
+        "affine_residual": {
+          "relative_l2": 1.8860586932584073e-06,
+          "max_abs": 9.838808950335398e-07,
+          "exact": false,
+          "finite": true
+        },
+        "cp_affine_residual": {
+          "relative_l2": 0.00353056405515643,
+          "max_abs": 0.0024194133854647457,
+          "exact": false,
+          "finite": true
+        },
+        "matrix_precision_error_relative_to_state": 0.0035376117028425055,
+        "midpoint_residual": {
+          "relative_l2": 3.5714390524061722e-06,
+          "max_abs": 3.0621886253356934e-06,
+          "exact": false,
+          "finite": true
+        },
+        "zero_state_vs_summary": {
+          "relative_l2": 0.003561590411043209,
+          "max_abs": 0.002419929951429367,
+          "exact": false,
+          "finite": true
+        }
+      },
+      "ieee_bf16_state": {
+        "affine_residual": {
+          "relative_l2": 0.0012768088311490675,
+          "max_abs": 0.0013482877163837337,
+          "exact": false,
+          "finite": true
+        },
+        "cp_affine_residual": {
+          "relative_l2": 0.0036905641266069904,
+          "max_abs": 0.0030410041487952053,
+          "exact": false,
+          "finite": true
+        },
+        "matrix_precision_error_relative_to_state": 0.0035965730608088315,
+        "midpoint_residual": {
+          "relative_l2": 0.0018391362981644342,
+          "max_abs": 0.001882508397102356,
+          "exact": false,
+          "finite": true
+        },
+        "zero_state_vs_summary": {
+          "relative_l2": 0.003620668195726176,
+          "max_abs": 0.0019984543323516846,
+          "exact": false,
+          "finite": true
+        }
+      }
+    },
+    "backward": {
+      "matrix_summary_vs_fp64": {
+        "relative_l2": 3.322622033779037e-06,
+        "max_abs": 4.069716511456711e-06,
+        "exact": false,
+        "finite": true
+      },
+      "summary_dtype": "torch.float32",
+      "initial_dtype": "torch.float32",
+      "production": {
+        "affine_residual": {
+          "relative_l2": 0.00034849109624228897,
+          "max_abs": 0.0009518840885275465,
+          "exact": false,
+          "finite": true
+        },
+        "cp_affine_residual": {
+          "relative_l2": 0.0003484976833440727,
+          "max_abs": 0.0009519113859295242,
+          "exact": false,
+          "finite": true
+        },
+        "matrix_precision_error_relative_to_state": 1.5012897302636275e-06,
+        "midpoint_residual": {
+          "relative_l2": 0.0005987356648386087,
+          "max_abs": 0.0014750286936759949,
+          "exact": false,
+          "finite": true
+        },
+        "zero_state_vs_summary": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      },
+      "float32_control": {
+        "affine_residual": {
+          "relative_l2": 4.947601309406026e-07,
+          "max_abs": 3.642406169124257e-06,
+          "exact": false,
+          "finite": true
+        },
+        "cp_affine_residual": {
+          "relative_l2": 0.00024506923766508655,
+          "max_abs": 0.0006714718930221977,
+          "exact": false,
+          "finite": true
+        },
+        "matrix_precision_error_relative_to_state": 0.0002450696577493805,
+        "midpoint_residual": {
+          "relative_l2": 5.33598777582102e-07,
+          "max_abs": 3.2186508178710938e-06,
+          "exact": false,
+          "finite": true
+        },
+        "zero_state_vs_summary": {
+          "relative_l2": 0.000283303425202604,
+          "max_abs": 0.0006714481860399246,
+          "exact": false,
+          "finite": true
+        }
+      }
+    },
+    "all_gather_hashes_exact": true
+  }
+}

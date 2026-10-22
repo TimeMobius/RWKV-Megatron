@@ -1,0 +1,110 @@
+{
+  "original_trajectory_norms": {
+    "tp4pp2": 21.372572778621585,
+    "tp2pp4": 27.44829721124429
+  },
+  "fixed_weights_norm_matrix": {
+    "tp4": {
+      "tp4pp2": 21.372572778621585,
+      "tp2pp4": 21.445073360468815
+    },
+    "tp2": {
+      "tp4pp2": 21.427622352437325,
+      "tp2pp4": 27.44829721124429
+    }
+  },
+  "pp_control": {
+    "tp2pp4": 27.44829721124429,
+    "tp2pp2": 27.448297211244277,
+    "parameter_squared_norm_max_abs_difference": 0.0,
+    "parameter_count": 2470
+  },
+  "mask_first_microbatch_first_token_direct_loss": {
+    "full": [
+      21.427622352437325,
+      27.448297211244277
+    ],
+    "masked": [
+      21.421493248233066,
+      23.27634450968212
+    ],
+    "full_relative_norm_difference": 0.2809772712893701,
+    "masked_relative_norm_difference": 0.08658832696465035,
+    "extra_squared_norm_gap_reduction": 0.7182554726637075
+  },
+  "wkv_fixed_input_head_split": {
+    "passed": true,
+    "scope": "Identical captured inputs and incoming gradients, seq4096; only WKV head partition changes",
+    "rows": [
+      {
+        "layer": 15,
+        "output_bitwise_equal": true,
+        "input_gradients_bitwise_equal": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "output_max_abs": 0.0,
+        "gradient_max_abs": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "layer": 19,
+        "output_bitwise_equal": true,
+        "input_gradients_bitwise_equal": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "output_max_abs": 0.0,
+        "gradient_max_abs": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "layer": 23,
+        "output_bitwise_equal": true,
+        "input_gradients_bitwise_equal": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "output_max_abs": 0.0,
+        "gradient_max_abs": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    ]
+  },
+  "local_fp64_formula_check": {
+    "groupnorm_max_relative_l2": 0.003853356979114906,
+    "receptance_max_relative_l2": 0.004272773717030425
+  },
+  "production_sources_unchanged": true,
+  "note": "Norm differences are not full gradient-vector relative errors. No complete FP64 28B reference or convergence equivalence claim."
+}

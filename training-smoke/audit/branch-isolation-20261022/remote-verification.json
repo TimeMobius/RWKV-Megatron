@@ -1,0 +1,61 @@
+{
+  "checked_at": "2026-10-22T15:59:43.452025+08:00",
+  "remote_read_method": "git ls-remote against TimeMobius URLs; returned SHA trees inspected locally",
+  "remote_refs_updated": false,
+  "new_commits_created": false,
+  "repositories": {
+    "main": {
+      "url": "https://github.com/TimeMobius/RWKV-Megatron.git",
+      "remote_2026_10_10": "69aa22a55f2858f302bf60b42213c8b23da4c642",
+      "cp_head": "0ca9d3aeea1cfbc64589f1dca3a08dbf7e6846fa",
+      "cp_commits_on_remote_release": [
+        {
+          "sha": "0ca9d3aeea1cfbc64589f1dca3a08dbf7e6846fa",
+          "subject": "Add RWKV7 context parallel training and numerical validation"
+        }
+      ],
+      "distill_head": "87116dcb9b81e72c253e7116a4f4463ed14a454b",
+      "distill_subrepo_matches_remote_release": null,
+      "local_2026_10_10_unchanged_at": "0ca9d3aeea1cfbc64589f1dca3a08dbf7e6846fa",
+      "cp_dirty_status": "M 3rdparty/Megatron-LM-0.11.0\n M 3rdparty/flash-linear-attention-260115\n M pretrain_rwkv7.py\n M rwkv_megatron/rwkv7_layer_specs.py\n M tests/test_rwkv7_v0_tp_pp_sp.py\n M todolist.txt\n M training-smoke/audit/ISSUES.md\n M training-smoke/audit/cp-equivalence-20261021/capture.py\n M training-smoke/audit/cp-equivalence-20261021/compare.py\n?? BRANCH_WORKSPACES.md\n?? TESTING_STATUS.md\n?? configs/config-rwkv7-28b-qwen3.8-0056-cp2-no-offload-smoke.yaml\n?? configs/config-rwkv7-28b-qwen3.8-0056-cp2-offload.yaml\n?? configs/config-rwkv7-28b-qwen3.8-0056-tp2-pp4-no-offload-smoke.yaml\n?? configs/config-rwkv7-2p7b-qwen-cp2-sp-smoke.yaml\n?? configs/config-rwkv7-qwen-distill-qwenvocab-2p7b-resume-smoke-20261020.yaml\n?? rwkv_megatron/token_shift.py\n?? tests/test_rwkv7_tp_cp_token_shift.py\n?? training-smoke/audit/28b-oom-20261022/\n?? training-smoke/audit/CORE-RECOMPUTE-20261012.md\n?? training-smoke/audit/FP8-MUON-MULTI-GPU-20261012.md\n?? training-smoke/audit/FP8-QUANTIZATION-20261012.md\n?? training-smoke/audit/KEY-RECOMPUTE-20261012.md\n?? training-smoke/audit/TEST-ARTIFACT-CLEANUP-20261012.json\n?? training-smoke/audit/TP-PRECISION-20261012.md\n?? training-smoke/audit/branch-isolation-20261022/\n?? training-smoke/audit/core-recompute-20261012/\n?? training-smoke/audit/cp-equivalence-20261021/before-loss-fix-comparison.json\n?? training-smoke/audit/cp-equivalence-20261021/comparison-full.json\n?? training-smoke/audit/cp-equivalence-20261021/comparison-uneven.json\n?? training-smoke/audit/cp-equivalence-20261021/cp1-full/\n?? training-smoke/audit/cp-equivalence-20261021/cp1-uneven/\n?? training-smoke/audit/cp-equivalence-20261021/cp2-full/\n?? training-smoke/audit/cp-equivalence-20261021/cp2-uneven/\n?? training-smoke/audit/cp-error-source-20261021/ablation-rank0.json\n?? training-smoke/audit/cp-error-source-20261021/ablation-rank1.json\n?? training-smoke/audit/cp-error-source-20261021/comparison-fp32-v2.json\n?? training-smoke/audit/cp-error-source-20261021/cp2-fp32-v2/\n?? training-smoke/audit/cp-error-source-20261021/embedding-grad.json\n?? training-smoke/audit/cp-error-source-20261021/layers.json\n?? training-smoke/audit/cp-error-source-20261021/replay-rank0.json\n?? training-smoke/audit/cp-error-source-20261021/replay-rank1.json\n?? training-smoke/audit/cp-error-source-20261021/weight-grad.json\n?? training-smoke/audit/cp-sp-stage2-20261021/\n?? training-smoke/audit/cp-stage1-20261021/28b-smoke-memory.csv\n?? training-smoke/audit/cp-stage1-20261021/tiny-tp1-pp1-cp2.yaml\n?? training-smoke/audit/cp-stage1-20261021/tiny-tp1-pp2-cp2.yaml\n?? training-smoke/audit/cp-state-fix-20261021/cp2-full/\n?? training-smoke/audit/cp-state-fix-20261021/cp2-uneven/\n?? training-smoke/audit/cp-state-fix-20261021/dependent-cp-tests.txt\n?? training-smoke/audit/cp-state-fix-20261021/duplicate-search.json\n?? training-smoke/audit/cp-state-fix-20261021/fla-cp-state-fp32.patch\n?? training-smoke/audit/cp-state-fix-20261021/format.diff\n?? training-smoke/audit/cp-validation-20261021/\n?? training-smoke/audit/cp4-error-source-20261021/\n?? training-smoke/audit/cp4-longrun-20261021/\n?? training-smoke/audit/cp4-quality-20261022/\n?? training-smoke/audit/cp4-state-fix-20261021/\n?? training-smoke/audit/fp8-muon-multigpu-20261012/\n?? training-smoke/audit/fp8-quantization-20261012/\n?? training-smoke/audit/grad-growth-20261013/\n?? training-smoke/audit/gradnorm-compare-20261014/\n?? training-smoke/audit/gradnorm-components-20261014/\n?? training-smoke/audit/key-recompute-20261012/\n?? training-smoke/audit/records-20261022/\n?? training-smoke/audit/tp-pp-gradnorm-20261022/\n?? training-smoke/audit/tp-precision-20261012/\n?? training-smoke/launch-rwkv7-28b-qwen-cp2-no-offload-smoke.sh\n?? training-smoke/launch-rwkv7-28b-qwen-cp2-offload.sh\n?? training-smoke/launch-rwkv7-28b-qwen-tp2-pp4-no-offload-smoke.sh\n?? training-smoke/launch-rwkv7-2p7b-qwen-cp2-sp-smoke.sh\n?? training-smoke/qwen-rwkv-qwenvocab/\n?? training-smoke/qwen-rwkv28b-distill/\n?? training-smoke/qwen-rwkv28b/\n?? training-smoke/wandb/",
+      "distill_dirty_status": "M training-smoke/qwen-rwkv-qwenvocab/launch.sh\n M training-smoke/qwen-rwkv-qwenvocab/run-long.sh\n?? BRANCH_WORKSPACES.md\n?? with-local-env.sh"
+    },
+    "megatron": {
+      "url": "https://github.com/TimeMobius/Megatron-LM-RWKV7.git",
+      "remote_2026_10_10": "d65baf60f3d715f313f644eeb68a4047f4cc42aa",
+      "cp_head": "d65baf60f3d715f313f644eeb68a4047f4cc42aa",
+      "cp_commits_on_remote_release": [],
+      "distill_head": "d65baf60f3d715f313f644eeb68a4047f4cc42aa",
+      "distill_subrepo_matches_remote_release": true,
+      "local_2026_10_10_unchanged_at": "d65baf60f3d715f313f644eeb68a4047f4cc42aa",
+      "cp_dirty_status": "M megatron/core/optimizer/__init__.py\n M megatron/core/optimizer/cpu_offloading/hybrid_optimizer.py\n M megatron/core/optimizer/distrib_optimizer.py\n M megatron/core/safe_globals.py\n?? tests/unit_tests/optimizer/test_cpu_offload_initialization.py",
+      "distill_dirty_status": ""
+    },
+    "fla": {
+      "url": "https://github.com/TimeMobius/flash-linear-attention.git",
+      "remote_2026_10_10": "ff481ea6862c99a818858081571373694de7b4e7",
+      "cp_head": "261dbcf5091dce3486c5bdee561328184b6920e0",
+      "cp_commits_on_remote_release": [
+        {
+          "sha": "261dbcf5091dce3486c5bdee561328184b6920e0",
+          "subject": "Fix DPLR context-parallel prefix state precision"
+        }
+      ],
+      "distill_head": "ff481ea6862c99a818858081571373694de7b4e7",
+      "distill_subrepo_matches_remote_release": true,
+      "local_2026_10_10_unchanged_at": "261dbcf5091dce3486c5bdee561328184b6920e0",
+      "cp_dirty_status": "M fla/ops/cp/context.py\n M fla/ops/generalized_delta_rule/dplr/backends/tilelang/__init__.py\n M fla/ops/generalized_delta_rule/dplr/chunk.py\n?? fla/ops/generalized_delta_rule/dplr/context_parallel.py\n?? tests/context_parallel/test_cp_dplr_recurrent.py",
+      "distill_dirty_status": ""
+    }
+  },
+  "remote_distillation_ref": {
+    "url": "https://github.com/TimeMobius/RWKV-Megatron.git",
+    "ref": "refs/heads/codex/qwen-rwkv28b-distill",
+    "sha": "87116dcb9b81e72c253e7116a4f4463ed14a454b",
+    "equals_local_new_distill_head": true
+  },
+  "remote_release_gitlinks": "160000 commit d65baf60f3d715f313f644eeb68a4047f4cc42aa\t3rdparty/Megatron-LM-0.11.0\n160000 commit ff481ea6862c99a818858081571373694de7b4e7\t3rdparty/flash-linear-attention-260115",
+  "remote_distillation_gitlinks": "160000 commit d65baf60f3d715f313f644eeb68a4047f4cc42aa\t3rdparty/Megatron-LM-0.11.0\n160000 commit ff481ea6862c99a818858081571373694de7b4e7\t3rdparty/flash-linear-attention-260115",
+  "preserved_original_dirty_files_sha256_checked": 2544,
+  "passed": true
+}

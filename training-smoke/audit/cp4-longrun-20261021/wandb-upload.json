@@ -1,0 +1,34 @@
+{
+  "entity": "mobius",
+  "project": "Mobius-r7-28b-qwen-pretrain",
+  "run_id": "cp4-halfday-20261021",
+  "url": "http://dian.sea-group.org:9098/mobius/Mobius-r7-28b-qwen-pretrain/runs/cp4-halfday-20261021",
+  "history_rows": 4921,
+  "summary": {
+    "completed_train_iterations": 49189,
+    "consumed_tokens_total": 1611825152,
+    "baseline_validation_loss": 13.49113,
+    "final_checkpoint_validation_loss": 4.067253,
+    "total_skipped_iterations_in_logs": 0.0,
+    "total_nan_iterations_in_logs": 0.0,
+    "logged_loss_and_grad_norm_finite": true,
+    "steady_median_step_ms_from_iteration_100": 865.9,
+    "sampled_peak_gpu_memory_mib": 22315.0,
+    "checkpoint_iterations": [
+      5000,
+      10000,
+      15000,
+      20000,
+      25000,
+      30000,
+      35000,
+      40000,
+      45000,
+      49189
+    ],
+    "historical_import": true,
+    "production_sources_unchanged": true
+  },
+  "remote_verified": true,
+  "remote_validation_rows": 100
+}

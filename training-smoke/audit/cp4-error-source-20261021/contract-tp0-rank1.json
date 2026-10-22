@@ -1,0 +1,206 @@
+{
+  "4": {
+    "forward": {
+      "matrix_summary_vs_fp64": {
+        "relative_l2": 0.016144393011927605,
+        "max_abs": 0.016458332538604736,
+        "exact": false,
+        "finite": true
+      },
+      "summary_dtype": "torch.float32",
+      "initial_dtype": "torch.float32",
+      "production": {
+        "affine_residual": {
+          "relative_l2": 0.000903622480109334,
+          "max_abs": 0.0007265284657478333,
+          "exact": false,
+          "finite": true
+        },
+        "midpoint_residual": {
+          "relative_l2": 0.0014084633439779282,
+          "max_abs": 0.0008109211921691895,
+          "exact": false,
+          "finite": true
+        },
+        "zero_state_vs_summary": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      },
+      "float32_control": {
+        "affine_residual": {
+          "relative_l2": 6.13865040577366e-07,
+          "max_abs": 5.066394805908203e-07,
+          "exact": false,
+          "finite": true
+        },
+        "midpoint_residual": {
+          "relative_l2": 1.0262382375003654e-06,
+          "max_abs": 1.1324882507324219e-06,
+          "exact": false,
+          "finite": true
+        },
+        "zero_state_vs_summary": {
+          "relative_l2": 0.0011446530697867274,
+          "max_abs": 0.0007844865322113037,
+          "exact": false,
+          "finite": true
+        }
+      }
+    },
+    "backward": {
+      "matrix_summary_vs_fp64": {
+        "relative_l2": 0.016654495149850845,
+        "max_abs": 0.015711843967437744,
+        "exact": false,
+        "finite": true
+      },
+      "summary_dtype": "torch.float32",
+      "initial_dtype": "torch.float32",
+      "production": {
+        "affine_residual": {
+          "relative_l2": 0.0002299701445735991,
+          "max_abs": 0.0017032623291015625,
+          "exact": false,
+          "finite": true
+        },
+        "midpoint_residual": {
+          "relative_l2": 0.0003729355812538415,
+          "max_abs": 0.0021586716175079346,
+          "exact": false,
+          "finite": true
+        },
+        "zero_state_vs_summary": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      },
+      "float32_control": {
+        "affine_residual": {
+          "relative_l2": 3.433680717535026e-07,
+          "max_abs": 4.76837158203125e-06,
+          "exact": false,
+          "finite": true
+        },
+        "midpoint_residual": {
+          "relative_l2": 3.255130991419719e-07,
+          "max_abs": 5.9604644775390625e-06,
+          "exact": false,
+          "finite": true
+        },
+        "zero_state_vs_summary": {
+          "relative_l2": 0.00023596748360432684,
+          "max_abs": 0.0008829459547996521,
+          "exact": false,
+          "finite": true
+        }
+      }
+    }
+  },
+  "13": {
+    "forward": {
+      "matrix_summary_vs_fp64": {
+        "relative_l2": 0.01612057164311409,
+        "max_abs": 0.014830350875854492,
+        "exact": false,
+        "finite": true
+      },
+      "summary_dtype": "torch.float32",
+      "initial_dtype": "torch.float32",
+      "production": {
+        "affine_residual": {
+          "relative_l2": 0.0010098465718328953,
+          "max_abs": 0.0004757605493068695,
+          "exact": false,
+          "finite": true
+        },
+        "midpoint_residual": {
+          "relative_l2": 0.0017143742879852653,
+          "max_abs": 0.0011081993579864502,
+          "exact": false,
+          "finite": true
+        },
+        "zero_state_vs_summary": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      },
+      "float32_control": {
+        "affine_residual": {
+          "relative_l2": 1.4558914926965372e-06,
+          "max_abs": 9.238719940185547e-07,
+          "exact": false,
+          "finite": true
+        },
+        "midpoint_residual": {
+          "relative_l2": 2.24031509787892e-06,
+          "max_abs": 1.430511474609375e-06,
+          "exact": false,
+          "finite": true
+        },
+        "zero_state_vs_summary": {
+          "relative_l2": 0.0020841348450630903,
+          "max_abs": 0.0009229034185409546,
+          "exact": false,
+          "finite": true
+        }
+      }
+    },
+    "backward": {
+      "matrix_summary_vs_fp64": {
+        "relative_l2": 0.016136860474944115,
+        "max_abs": 0.01628643274307251,
+        "exact": false,
+        "finite": true
+      },
+      "summary_dtype": "torch.float32",
+      "initial_dtype": "torch.float32",
+      "production": {
+        "affine_residual": {
+          "relative_l2": 0.00022781557345297188,
+          "max_abs": 0.001408904790878296,
+          "exact": false,
+          "finite": true
+        },
+        "midpoint_residual": {
+          "relative_l2": 0.000357323995558545,
+          "max_abs": 0.0021341443061828613,
+          "exact": false,
+          "finite": true
+        },
+        "zero_state_vs_summary": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      },
+      "float32_control": {
+        "affine_residual": {
+          "relative_l2": 2.677396366834728e-07,
+          "max_abs": 4.76837158203125e-06,
+          "exact": false,
+          "finite": true
+        },
+        "midpoint_residual": {
+          "relative_l2": 3.0130516393001017e-07,
+          "max_abs": 5.7220458984375e-06,
+          "exact": false,
+          "finite": true
+        },
+        "zero_state_vs_summary": {
+          "relative_l2": 0.0002634109405335039,
+          "max_abs": 0.0007871389389038086,
+          "exact": false,
+          "finite": true
+        }
+      }
+    }
+  }
+}

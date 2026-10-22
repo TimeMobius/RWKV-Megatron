@@ -1,0 +1,32 @@
+{
+  "bf16": {
+    "repeat": {
+      "max_abs": 0.0,
+      "rel_l2": 0.0,
+      "nonzero": 0,
+      "elements": 3423744
+    },
+    "split": {
+      "max_abs": 0.71875,
+      "rel_l2": 0.0042867568592623575,
+      "nonzero": 395020,
+      "elements": 3423744
+    },
+    "used_ids": 1486
+  },
+  "fp32": {
+    "repeat": {
+      "max_abs": 0.0,
+      "rel_l2": 0.0,
+      "nonzero": 0,
+      "elements": 3423744
+    },
+    "split": {
+      "max_abs": 1.9073486328125e-06,
+      "rel_l2": 1.634473469568027e-09,
+      "nonzero": 41,
+      "elements": 3423744
+    },
+    "used_ids": 1486
+  }
+}

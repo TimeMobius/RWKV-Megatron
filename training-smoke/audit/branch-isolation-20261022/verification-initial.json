@@ -1,0 +1,46 @@
+{
+  "preserved_dirty_file_count": 2546,
+  "release_refs_unchanged": {
+    "main": "0ca9d3aeea1cfbc64589f1dca3a08dbf7e6846fa",
+    "megatron": "d65baf60f3d715f313f644eeb68a4047f4cc42aa",
+    "fla": "261dbcf5091dce3486c5bdee561328184b6920e0"
+  },
+  "cp": {
+    "main": {
+      "head": "0ca9d3aeea1cfbc64589f1dca3a08dbf7e6846fa",
+      "branch": "codex/rwkv7-cp",
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test"
+    },
+    "megatron": {
+      "head": "d65baf60f3d715f313f644eeb68a4047f4cc42aa",
+      "branch": "codex/rwkv7-cp",
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/3rdparty/Megatron-LM-0.11.0"
+    },
+    "fla": {
+      "head": "261dbcf5091dce3486c5bdee561328184b6920e0",
+      "branch": "codex/rwkv7-cp",
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/3rdparty/flash-linear-attention-260115"
+    }
+  },
+  "distill": {
+    "main": {
+      "head": "87116dcb9b81e72c253e7116a4f4463ed14a454b",
+      "branch": "codex/rwkv7-distill",
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-distill",
+      "clean_at_verification": true
+    },
+    "megatron": {
+      "head": "d65baf60f3d715f313f644eeb68a4047f4cc42aa",
+      "branch": "codex/rwkv7-distill",
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-distill/3rdparty/Megatron-LM-0.11.0",
+      "clean_at_verification": true
+    },
+    "fla": {
+      "head": "ff481ea6862c99a818858081571373694de7b4e7",
+      "branch": "codex/rwkv7-distill",
+      "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-distill/3rdparty/flash-linear-attention-260115",
+      "clean_at_verification": true
+    }
+  },
+  "passed": true
+}

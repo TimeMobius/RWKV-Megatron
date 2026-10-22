@@ -1,0 +1,13 @@
+{
+  "relative_l2": 0.0045836977660655975,
+  "top1_agreement": 0.96875,
+  "max_abs": 0.1875,
+  "compared_shape": [
+    1,
+    64,
+    248320
+  ],
+  "tp2_original_vs_tp1_export": true,
+  "tp2_original_vs_reloaded_export_logits_bitwise_equal": true,
+  "tolerance_relative_l2": 0.01
+}

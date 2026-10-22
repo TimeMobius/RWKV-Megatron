@@ -1,0 +1,50 @@
+[
+  {
+    "input": "r",
+    "bitwise_equal": true,
+    "unequal_elements": 0,
+    "numel": 20971520,
+    "relative_l2": 0.0,
+    "max_abs": 0.0
+  },
+  {
+    "input": "k",
+    "bitwise_equal": true,
+    "unequal_elements": 0,
+    "numel": 20971520,
+    "relative_l2": 0.0,
+    "max_abs": 0.0
+  },
+  {
+    "input": "v",
+    "bitwise_equal": true,
+    "unequal_elements": 0,
+    "numel": 20971520,
+    "relative_l2": 0.0,
+    "max_abs": 0.0
+  },
+  {
+    "input": "w",
+    "bitwise_equal": true,
+    "unequal_elements": 0,
+    "numel": 20971520,
+    "relative_l2": 0.0,
+    "max_abs": 0.0
+  },
+  {
+    "input": "a",
+    "bitwise_equal": true,
+    "unequal_elements": 0,
+    "numel": 20971520,
+    "relative_l2": 0.0,
+    "max_abs": 0.0
+  },
+  {
+    "input": "b",
+    "bitwise_equal": true,
+    "unequal_elements": 0,
+    "numel": 20971520,
+    "relative_l2": 0.0,
+    "max_abs": 0.0
+  }
+]

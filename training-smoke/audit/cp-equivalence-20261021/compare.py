@@ -21,9 +21,31 @@ def metric(actual, expected):
             'scale_fit': alpha, 'dot': dot, 'finite': bool(a.isfinite().all() and r.isfinite().all())}
 
 
+def reference_trace(folder, key, cp_size):
+    shards = [torch.load(folder/f'trace-{key}-cp{i}.pt', weights_only=True) for i in range(cp_size)]
+    if cp_size == 1:
+        return shards[0]
+    joined = dict(shards[0])
+    joined['batches'] = [
+        {name: None if value is None else torch.cat([s['batches'][mb][name] for s in shards], dim=1)
+         for name, value in batch.items()}
+        for mb, batch in enumerate(shards[0]['batches'])
+    ]
+    for name in ('logits', 'head_inputs'):
+        joined[name] = [torch.cat([s[name][mb] for s in shards], dim=0)
+                        for mb in range(len(shards[0][name]))]
+    joined['losses'] = [dict(row, tokens=torch.cat([s['losses'][mb]['tokens'] for s in shards], dim=1))
+                        for mb, row in enumerate(shards[0]['losses'])]
+    return joined
+
+
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--reference',type=Path,default=HERE/'cp1-uneven')
+    parser.add_argument('--reference-cp-size', type=int, default=1)
+    parser.add_argument('--actual-cp-size', type=int, default=2)
+    parser.add_argument('--tp-size', type=int, default=2)
+    parser.add_argument('--pp-size', type=int, default=2)
     parser.add_argument('--actual',type=Path,default=HERE/'cp2-uneven')
     parser.add_argument('--output',type=Path,default=HERE/'comparison-uneven.json')
     args=parser.parse_args()
@@ -31,12 +53,12 @@ def main():
             'forward':{},'gradients':{},'limits':{'gradient_global_relative_l2':0.03,
                 'gradient_scale_fit_abs_error':0.02,'logits_relative_l2':0.02,
                 'token_loss_max_abs':0.05}}
-    for pp in range(2):
-        for tp in range(2):
+    for pp in range(args.pp_size):
+        for tp in range(args.tp_size):
             key=f'tp{tp}-pp{pp}'
-            ref=torch.load(args.reference/f'trace-{key}-cp0.pt',weights_only=True)
-            shards=[torch.load(args.actual/f'trace-{key}-cp{i}.pt',weights_only=True) for i in range(2)]
-            assert len(ref['batches'])==len(shards[0]['batches'])==len(shards[1]['batches'])
+            ref=reference_trace(args.reference, key, args.reference_cp_size)
+            shards=[torch.load(args.actual/f'trace-{key}-cp{i}.pt',weights_only=True) for i in range(args.actual_cp_size)]
+            assert all(len(ref['batches'])==len(s['batches']) for s in shards)
             for mb,batch in enumerate(ref['batches']):
                 for name,value in batch.items():
                     if value is None:
@@ -44,9 +66,9 @@ def main():
                     else:
                         joined=torch.cat([s['batches'][mb][name] for s in shards],dim=1)
                         assert torch.equal(joined,value), (key,mb,name)
-            if pp==1:
+            if pp==args.pp_size-1:
                 for name in ('logits','head_inputs'):
-                    assert len(ref[name])==len(shards[0][name])==len(shards[1][name])
+                    assert all(len(ref[name])==len(s[name]) for s in shards)
                     for mb,expected in enumerate(ref[name]):
                         actual=torch.cat([s[name][mb] for s in shards],dim=0)
                         result['forward'][f'{key}-{name}-mb{mb}']=metric(actual,expected)
@@ -56,7 +78,7 @@ def main():
                     midpoint=actual.shape[1]//2
                     row['boundary_8_tokens']=metric(actual[:,midpoint-4:midpoint+4], expected['tokens'][:,midpoint-4:midpoint+4])
                     reports=[s['losses'][mb]['report'] for s in shards]
-                    assert torch.equal(reports[0],reports[1])
+                    assert all(torch.equal(reports[0],r) for r in reports)
                     row['reference_mean']=float(expected['report'][0]/expected['report'][1])
                     row['actual_mean']=float(reports[0][0]/reports[0][1])
                     row['mean_abs_diff']=abs(row['actual_mean']-row['reference_mean'])

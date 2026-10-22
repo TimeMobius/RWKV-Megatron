@@ -1,0 +1,25 @@
+{
+  "steps": 100,
+  "parameters_compared": 196608,
+  "compute_weights_bitwise_equal": false,
+  "first_compute_difference": {
+    "step": 2,
+    "param": 0,
+    "unequal_elements": 3,
+    "max_abs_delta": 3.814697265625e-06,
+    "relative_l2": 2.229620258731302e-05
+  },
+  "max_compute_relative_l2": 6.128270615590736e-05,
+  "max_unequal_elements_per_parameter": 3,
+  "adam_moments_bitwise_equal": true,
+  "full_master_dtypes": [
+    "torch.float32",
+    "torch.float32",
+    "torch.float32"
+  ],
+  "remainder_dtypes": [
+    "torch.int16",
+    "torch.int16",
+    "torch.int16"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "repositories": {
+    ".": {
+      "branch": "2026-10-10",
+      "head": "0ca9d3aeea1cfbc64589f1dca3a08dbf7e6846fa"
+    },
+    "3rdparty/Megatron-LM-0.11.0": {
+      "branch": "2026-10-10",
+      "head": "d65baf60f3d715f313f644eeb68a4047f4cc42aa"
+    },
+    "3rdparty/flash-linear-attention-260115": {
+      "branch": "2026-10-10",
+      "head": "261dbcf5091dce3486c5bdee561328184b6920e0"
+    }
+  },
+  "sha256": {
+    "configs/config-rwkv7-28b-qwen3.8-0056-tp2-pp4-no-offload-smoke.yaml": "7a61e10fb042f15173d065db3437d953fcc3854c95613989aae17613f10f1ba0",
+    "pretrain_rwkv7.py": "1e6d78cc9812110ff8cb6d7fb8503b537c7e5850e99b4fba6a652d82ee21e171",
+    "rwkv_megatron/rwkv7_layer_specs.py": "928b4ad76ab92f0c6f8a5d2d471233ef43aea49d91d587b5164d6f9e6c7b5be6",
+    "rwkv_megatron/rwkv7_model.py": "1220b719bddc3b10c1197318a84873a4969ed4ae1589ddcde4b1f69cd5b0e5eb",
+    "training-smoke/audit/28b-oom-20261022/entry.py": "9c50fff6f9941f432ca78b4644c6c7f4e34a33e1c85d5d901f30634bf3e0e384",
+    "training-smoke/audit/28b-oom-20261022/launch.sh": "cc118e3d7e6333da11e1f2b233973dea06f150fb0b6b4a20b91a5c1317196436",
+    "3rdparty/Megatron-LM-0.11.0/megatron/core/optimizer/__init__.py": "0ea6c33ebc8656d927435e4502a047c6cc2dfb36053c54003c2e1ce433052c17",
+    "3rdparty/Megatron-LM-0.11.0/megatron/core/optimizer/clip_grads.py": "7fef8baada762fc66a33f84f671a75d122d021f196c8b9a724fde094d9e3045b",
+    "3rdparty/Megatron-LM-0.11.0/megatron/core/optimizer/distrib_optimizer.py": "b505bc35e92b56d731dd4bd5fc3758c8afdbfd90c44ad676235f5f329e489c49",
+    "3rdparty/Megatron-LM-0.11.0/megatron/core/optimizer/emerging_optimizers.py": "c014604f6ba3bb4f202b36bce8b842f11f3df41f5be09a0c90c1e64303538e05",
+    "3rdparty/Megatron-LM-0.11.0/megatron/core/optimizer/fully_sharded_optimizer.py": "98ea8c9f385e065ad7d3ec59006ec53e7bab2033215d4db9a87c3c11e0696972",
+    "3rdparty/Megatron-LM-0.11.0/megatron/core/optimizer/grad_scaler.py": "81402e800476fce96b70d91ff2b799d889ac6ed9407fe74be7cd73d32449c2a7",
+    "3rdparty/Megatron-LM-0.11.0/megatron/core/optimizer/layer_sharded_a2a.py": "2289adad7aeaf34238189a913b58a9dd2790077926b61c44cb92abd0206155b9",
+    "3rdparty/Megatron-LM-0.11.0/megatron/core/optimizer/layer_sharded_muon.py": "c0a7b9f83d402e2d8575dd115e042fd21b91edcb35a929d7c2e6f6d64dca086a",
+    "3rdparty/Megatron-LM-0.11.0/megatron/core/optimizer/layer_wise_optimizer.py": "45d33c8d5055a5b46f7dc26a35553f93f6ea34b7cad4bf85f96cb08de13b0ab7",
+    "3rdparty/Megatron-LM-0.11.0/megatron/core/optimizer/muon.py": "9e3ee058358cfb3e27349e1cbd37ed46018e05eae94914ffd4f979c2664c8103",
+    "3rdparty/Megatron-LM-0.11.0/megatron/core/optimizer/optimizer.py": "368aa3e755a920c31c962573e78e05804703a03bcd5a276de869c6fea54cb9b3",
+    "3rdparty/Megatron-LM-0.11.0/megatron/core/optimizer/optimizer_config.py": "d8635e214b890c5eaea6648b51f1c2ca5694030c22f0354fccf7175e29e958a6",
+    "3rdparty/Megatron-LM-0.11.0/megatron/core/optimizer/optimizer_cuda_graph.py": "449a13966146fae83e8378b1b68d13ba615589da3b3444ed66b8ce0ad9865b05",
+    "3rdparty/Megatron-LM-0.11.0/megatron/core/optimizer/param_layout.py": "3eb542cdf95c21017a2210d004a04afeed13e4cb47bf37d5e9f6c2fab0a4eba5",
+    "3rdparty/Megatron-LM-0.11.0/megatron/core/optimizer/qk_clip.py": "df5e7935bb6a0f63a75348f171f398d15ce98da395dd11baad71e7f9009f7c0c",
+    "3rdparty/Megatron-LM-0.11.0/megatron/core/optimizer/cpu_offloading/__init__.py": "b4b9274add85569ef7648f7ba8af416bcda15d16231254b93bc7cc65dac45fa5",
+    "3rdparty/Megatron-LM-0.11.0/megatron/core/optimizer/cpu_offloading/hybrid_optimizer.py": "7706d2df983a62dbb0f8ac276ccd118a383ede5f67e8119fc1125ac7bf36c0fa"
+  },
+  "python": "/mnt/data/anaconda3/envs/train_mobius_py312/bin/python"
+}

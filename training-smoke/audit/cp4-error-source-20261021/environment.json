@@ -1,0 +1,24 @@
+{
+  "python": "3.12.14 (main, Sep  2 2026, 23:27:36) [GCC 15.3.0]",
+  "python_executable": "/mnt/data/anaconda3/envs/train_mobius_py312/bin/python",
+  "torch": "2.9.1+cu128",
+  "triton": "3.5.1",
+  "gpu": "NVIDIA H800",
+  "torch_allow_tf32_in_diagnostics": false,
+  "triton_default_dot_input_precision": "tf32",
+  "TRITON_F32_DEFAULT": null,
+  "repositories": {
+    ".": {
+      "commit": "0ca9d3aeea1cfbc64589f1dca3a08dbf7e6846fa",
+      "branch": "2026-10-10"
+    },
+    "3rdparty/flash-linear-attention-260115": {
+      "commit": "261dbcf5091dce3486c5bdee561328184b6920e0",
+      "branch": "2026-10-10"
+    },
+    "3rdparty/Megatron-LM-0.11.0": {
+      "commit": "d65baf60f3d715f313f644eeb68a4047f4cc42aa",
+      "branch": "2026-10-10"
+    }
+  }
+}

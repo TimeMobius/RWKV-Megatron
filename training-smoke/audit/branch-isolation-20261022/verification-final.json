@@ -1,0 +1,58 @@
+{
+  "passed": true,
+  "original_cp_files_verified": 2544,
+  "intentional_cp_document_updates": [
+    "TESTING_STATUS.md",
+    "todolist.txt"
+  ],
+  "old_release_and_distill_refs_unchanged": true,
+  "new_commits_created": false,
+  "pushed": false,
+  "distill_dependency_tracked_files_verified": {
+    "3rdparty/Megatron-LM-0.11.0": 3406,
+    "3rdparty/flash-linear-attention-260115": 825
+  },
+  "states": {
+    "cp": {
+      "main": {
+        "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test",
+        "branch": "codex/rwkv7-cp",
+        "head": "0ca9d3aeea1cfbc64589f1dca3a08dbf7e6846fa",
+        "status": "M 3rdparty/Megatron-LM-0.11.0\n M 3rdparty/flash-linear-attention-260115\n M pretrain_rwkv7.py\n M rwkv_megatron/rwkv7_layer_specs.py\n M tests/test_rwkv7_v0_tp_pp_sp.py\n M todolist.txt\n M training-smoke/audit/ISSUES.md\n M training-smoke/audit/cp-equivalence-20261021/capture.py\n M training-smoke/audit/cp-equivalence-20261021/compare.py\n?? BRANCH_WORKSPACES.md\n?? TESTING_STATUS.md\n?? configs/config-rwkv7-28b-qwen3.8-0056-cp2-no-offload-smoke.yaml\n?? configs/config-rwkv7-28b-qwen3.8-0056-cp2-offload.yaml\n?? configs/config-rwkv7-28b-qwen3.8-0056-tp2-pp4-no-offload-smoke.yaml\n?? configs/config-rwkv7-2p7b-qwen-cp2-sp-smoke.yaml\n?? configs/config-rwkv7-qwen-distill-qwenvocab-2p7b-resume-smoke-20261020.yaml\n?? rwkv_megatron/token_shift.py\n?? tests/test_rwkv7_tp_cp_token_shift.py\n?? training-smoke/audit/28b-oom-20261022/\n?? training-smoke/audit/CORE-RECOMPUTE-20261012.md\n?? training-smoke/audit/FP8-MUON-MULTI-GPU-20261012.md\n?? training-smoke/audit/FP8-QUANTIZATION-20261012.md\n?? training-smoke/audit/KEY-RECOMPUTE-20261012.md\n?? training-smoke/audit/TEST-ARTIFACT-CLEANUP-20261012.json\n?? training-smoke/audit/TP-PRECISION-20261012.md\n?? training-smoke/audit/branch-isolation-20261022/\n?? training-smoke/audit/core-recompute-20261012/\n?? training-smoke/audit/cp-equivalence-20261021/before-loss-fix-comparison.json\n?? training-smoke/audit/cp-equivalence-20261021/comparison-full.json\n?? training-smoke/audit/cp-equivalence-20261021/comparison-uneven.json\n?? training-smoke/audit/cp-equivalence-20261021/cp1-full/\n?? training-smoke/audit/cp-equivalence-20261021/cp1-uneven/\n?? training-smoke/audit/cp-equivalence-20261021/cp2-full/\n?? training-smoke/audit/cp-equivalence-20261021/cp2-uneven/\n?? training-smoke/audit/cp-error-source-20261021/ablation-rank0.json\n?? training-smoke/audit/cp-error-source-20261021/ablation-rank1.json\n?? training-smoke/audit/cp-error-source-20261021/comparison-fp32-v2.json\n?? training-smoke/audit/cp-error-source-20261021/cp2-fp32-v2/\n?? training-smoke/audit/cp-error-source-20261021/embedding-grad.json\n?? training-smoke/audit/cp-error-source-20261021/layers.json\n?? training-smoke/audit/cp-error-source-20261021/replay-rank0.json\n?? training-smoke/audit/cp-error-source-20261021/replay-rank1.json\n?? training-smoke/audit/cp-error-source-20261021/weight-grad.json\n?? training-smoke/audit/cp-sp-stage2-20261021/\n?? training-smoke/audit/cp-stage1-20261021/28b-smoke-memory.csv\n?? training-smoke/audit/cp-stage1-20261021/tiny-tp1-pp1-cp2.yaml\n?? training-smoke/audit/cp-stage1-20261021/tiny-tp1-pp2-cp2.yaml\n?? training-smoke/audit/cp-state-fix-20261021/cp2-full/\n?? training-smoke/audit/cp-state-fix-20261021/cp2-uneven/\n?? training-smoke/audit/cp-state-fix-20261021/dependent-cp-tests.txt\n?? training-smoke/audit/cp-state-fix-20261021/duplicate-search.json\n?? training-smoke/audit/cp-state-fix-20261021/fla-cp-state-fp32.patch\n?? training-smoke/audit/cp-state-fix-20261021/format.diff\n?? training-smoke/audit/cp-validation-20261021/\n?? training-smoke/audit/cp4-error-source-20261021/\n?? training-smoke/audit/cp4-longrun-20261021/\n?? training-smoke/audit/cp4-quality-20261022/\n?? training-smoke/audit/cp4-state-fix-20261021/\n?? training-smoke/audit/fp8-muon-multigpu-20261012/\n?? training-smoke/audit/fp8-quantization-20261012/\n?? training-smoke/audit/grad-growth-20261013/\n?? training-smoke/audit/gradnorm-compare-20261014/\n?? training-smoke/audit/gradnorm-components-20261014/\n?? training-smoke/audit/key-recompute-20261012/\n?? training-smoke/audit/records-20261022/\n?? training-smoke/audit/tp-pp-gradnorm-20261022/\n?? training-smoke/audit/tp-precision-20261012/\n?? training-smoke/launch-rwkv7-28b-qwen-cp2-no-offload-smoke.sh\n?? training-smoke/launch-rwkv7-28b-qwen-cp2-offload.sh\n?? training-smoke/launch-rwkv7-28b-qwen-tp2-pp4-no-offload-smoke.sh\n?? training-smoke/launch-rwkv7-2p7b-qwen-cp2-sp-smoke.sh\n?? training-smoke/qwen-rwkv-qwenvocab/\n?? training-smoke/qwen-rwkv28b-distill/\n?? training-smoke/qwen-rwkv28b/\n?? training-smoke/wandb/"
+      },
+      "megatron": {
+        "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/3rdparty/Megatron-LM-0.11.0",
+        "branch": "codex/rwkv7-cp",
+        "head": "d65baf60f3d715f313f644eeb68a4047f4cc42aa",
+        "status": "M megatron/core/optimizer/__init__.py\n M megatron/core/optimizer/cpu_offloading/hybrid_optimizer.py\n M megatron/core/optimizer/distrib_optimizer.py\n M megatron/core/safe_globals.py\n?? tests/unit_tests/optimizer/test_cpu_offload_initialization.py"
+      },
+      "fla": {
+        "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/3rdparty/flash-linear-attention-260115",
+        "branch": "codex/rwkv7-cp",
+        "head": "261dbcf5091dce3486c5bdee561328184b6920e0",
+        "status": "M fla/ops/cp/context.py\n M fla/ops/generalized_delta_rule/dplr/backends/tilelang/__init__.py\n M fla/ops/generalized_delta_rule/dplr/chunk.py\n?? fla/ops/generalized_delta_rule/dplr/context_parallel.py\n?? tests/context_parallel/test_cp_dplr_recurrent.py"
+      }
+    },
+    "distill": {
+      "main": {
+        "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-distill",
+        "branch": "codex/rwkv7-distill",
+        "head": "87116dcb9b81e72c253e7116a4f4463ed14a454b",
+        "status": "M training-smoke/qwen-rwkv-qwenvocab/launch.sh\n M training-smoke/qwen-rwkv-qwenvocab/run-long.sh\n?? BRANCH_WORKSPACES.md\n?? with-local-env.sh"
+      },
+      "megatron": {
+        "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-distill/3rdparty/Megatron-LM-0.11.0",
+        "branch": "codex/rwkv7-distill",
+        "head": "d65baf60f3d715f313f644eeb68a4047f4cc42aa",
+        "status": ""
+      },
+      "fla": {
+        "path": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-distill/3rdparty/flash-linear-attention-260115",
+        "branch": "codex/rwkv7-distill",
+        "head": "ff481ea6862c99a818858081571373694de7b4e7",
+        "status": ""
+      }
+    }
+  },
+  "note": "Distill only has two launcher path edits and new local environment/documentation files; submodule trees exactly match requested commits."
+}

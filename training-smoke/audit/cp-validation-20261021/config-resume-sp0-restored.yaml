@@ -1,0 +1,128 @@
+language_model:
+  num_layers: 24
+  hidden_size: 2304
+  num_attention_heads: 36
+  kv_channels: 64
+  ffn_hidden_size: 9216
+  D_AAA_LORA: 128
+  D_DECAY_LORA: 128
+  D_GATE_LORA: 288
+  D_MV_LORA: 64
+  hidden_dropout: 0.0
+  attention_dropout: 0.0
+  add_bias_linear: false
+  add_qkv_bias: false
+  activation_func: squaredrelu
+  normalization: LayerNorm
+  layernorm_epsilon: 1.0e-05
+  persist_layer_norm: false
+  bias_dropout_fusion: true
+  apply_rope_fusion: false
+  calculate_per_token_loss: false
+  recompute_granularity: full
+  recompute_method: uniform
+  recompute_num_layers: 1
+  fp8: false
+  fp8_recipe: tensorwise
+  fp8_wgrad: true
+  first_last_layers_bf16: false
+model_parallel:
+  tensor_model_parallel_size: 2
+  pipeline_model_parallel_size: 2
+  context_parallel_size: 2
+  sequence_parallel: false
+  bf16: true
+  fp16: false
+  perform_initialization: false
+  gradient_accumulation_fusion: true
+  tp_comm_overlap: false
+  overlap_p2p_comm: false
+  cross_entropy_loss_fusion: false
+  cross_entropy_fusion_impl: native
+transformer_impl: local
+rwkv_fp8_scope: ffn
+rwkv_key_fusion: true
+rwkv_l2wrap_coefficient: 0.0
+fixed_eval_samples: true
+untie_embeddings_and_output_weights: true
+position_embedding_type: none
+max_position_embeddings: 16384
+load_pretrained_rwkv: /mnt/data/Models/RWKV-7/rwkv7-qwen-vocab-2.7b-from-28b.pt
+load_pretrained_rwkv_source_type: rwkv-lm
+check_against_pretrained: false
+data_path:
+- /mnt/data/Datasets/0056_qwen3.8/0056_qwen3.8_text_document
+split: 95,5,0
+data_cache_path: /mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/cp-validation-20261021/data-cache-seq4096
+tokenizer_type: HuggingFaceTokenizer
+tokenizer_model: /hikscale/models/Qwen/Qwen3.8-27B
+trust_remote_code: true
+make_vocab_size_divisible_by: 128
+seq_length: 4096
+dataloader_type: single
+num_workers: 0
+num_dataset_builder_threads: 2
+mmap_bin_files: true
+create_attention_mask_in_dataloader: false
+reset_position_ids: false
+reset_attention_mask: false
+eod_mask_loss: false
+seed: 1234
+micro_batch_size: 1
+global_batch_size: 2
+eval_micro_batch_size: 1
+eval_global_batch_size: 2
+train_iters: 4
+auto_train_iters: false
+eval_iters: 1
+eval_interval: 2
+optimizer: adam
+use_distributed_optimizer: true
+adam_beta1: 0.9
+adam_beta2: 0.995
+adam_eps: 1.0e-08
+weight_decay: 0.1
+clip_grad: 1.0
+accumulate_allreduce_grads_in_fp32: true
+check_for_nan_in_loss_and_grad: true
+rerun_mode: disabled
+overlap_grad_reduce: false
+overlap_param_gather: false
+lr: 1.0e-06
+min_lr: 1.0e-06
+lr_decay_style: constant
+lr_decay_iters: 100000
+lr_warmup_iters: 0
+save: null
+save_interval: 2
+load: /mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/cp-validation-20261021/checkpoints/resume-sp0
+ckpt_format: torch
+no_save_optim: false
+no_save_rng: false
+no_load_optim: false
+no_load_rng: false
+use_checkpoint_args: false
+async_save: false
+distributed_backend: nccl
+distributed_timeout_minutes: 5
+manual_gc_eval: true
+logging_level: 20
+log_interval: 1
+log_throughput: true
+log_progress: false
+timing_log_level: 0
+timing_log_option: minmax
+tensorboard_dir: null
+wandb_project: null
+wandb_exp_name: null
+wandb_save_dir: null
+enable_one_logger: false
+exit_duration_in_mins: null
+tensorboard_log_interval: 1
+log_timers_to_tensorboard: true
+log_validation_ppl_to_tensorboard: true
+log_memory_to_tensorboard: true
+log_world_size_to_tensorboard: true
+log_loss_scale_to_tensorboard: true
+exit_signal_handler: true
+ckpt_step: 2

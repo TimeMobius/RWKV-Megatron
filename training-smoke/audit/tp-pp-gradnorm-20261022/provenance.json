@@ -1,0 +1,17 @@
+{
+  "branch": "2026-10-10",
+  "production_reference": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/28b-oom-20261022/tp2pp4cp1-no-offload-provenance.json",
+  "production_reference_sha256": "f4af0710d4526ff3154bed322553064c8cdf0fdd0322b03a37cb2f304cde49e0",
+  "diagnostics_sha256": {
+    "training-smoke/audit/tp-pp-gradnorm-20261022/capture.py": "6900801902acc0810a56744b4af2524a4219b136016b85c33b22561a20741d7c",
+    "training-smoke/audit/tp-pp-gradnorm-20261022/compare_stats.py": "852abaff73405fc2ca0054c081f5fec6d5d8d998611076d4c923903f84f8136c",
+    "training-smoke/audit/tp-pp-gradnorm-20261022/inspect_layers.py": "81f57556e72769416725937443e54e2ba819ce8a42ac3ed7790d822d50f23490",
+    "training-smoke/audit/tp-pp-gradnorm-20261022/replay_wkv_split.py": "012ec61db6876036d6fb618dcc0789d9704671197188862954d061a85a2eb9e3",
+    "training-smoke/audit/tp-pp-gradnorm-20261022/check_token0_formula.py": "fb69a7ba8bfb5030aa3b74db1953c15151ea0d07d23eff77e3522885ce1cef75",
+    "training-smoke/audit/tp-pp-gradnorm-20261022/launch.sh": "d9e4f063ea88ce98261ca73fefeabcbc2eb62856120e93f2a8925e3bc13647d1",
+    "training-smoke/audit/tp-pp-gradnorm-20261022/config-replay-tp4pp2.yaml": "ca31d3bf79efc3bbcdfe3d7e6a5de994f6af39b1e4a6c2fa61b136f0b041f57e",
+    "training-smoke/audit/tp-pp-gradnorm-20261022/config-replay-tp2pp4.yaml": "67066ba1a257fa4e21a9803a1577e22c0cb3b4df61fca3c89472ec5d996b352a",
+    "training-smoke/audit/tp-pp-gradnorm-20261022/config-ablate-tp4pp2.yaml": "ec8d399ab504a42bbd532a2cca1e6c31cc8e507c2fd79cee201550f2d8cf6d2f",
+    "training-smoke/audit/tp-pp-gradnorm-20261022/config-ablate-tp2pp2.yaml": "f411a18418477cc2983e6104e7a60688ac6f2dc741f8d2817fac91de1bb0916a"
+  }
+}

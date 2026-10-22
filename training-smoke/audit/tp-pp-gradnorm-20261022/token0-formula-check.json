@@ -1,0 +1,68 @@
+[
+  {
+    "folder": "ablate-tp4pp2-common-tp2",
+    "layer": 15,
+    "head": 62,
+    "groupnorm_backward_vs_fp64_relative_l2": 0.0029034138346429065,
+    "receptance_backward_vs_fp64_relative_l2": 0.0013893841196182997,
+    "actual_receptance_gradient_norm": 0.0018048917720940964,
+    "fp64_formula_gradient_norm": 0.0018044362719453633,
+    "groupnorm_rstd": 38.08595129933553,
+    "groupnorm_incoming_gradient_norm": 0.00012483789650556576
+  },
+  {
+    "folder": "ablate-tp4pp2-common-tp2",
+    "layer": 19,
+    "head": 12,
+    "groupnorm_backward_vs_fp64_relative_l2": 0.003853356979114906,
+    "receptance_backward_vs_fp64_relative_l2": 0.002121711390371925,
+    "actual_receptance_gradient_norm": 0.0036420785895359773,
+    "fp64_formula_gradient_norm": 0.003642590625808693,
+    "groupnorm_rstd": 19.951671804667864,
+    "groupnorm_incoming_gradient_norm": 9.7554341997396e-05
+  },
+  {
+    "folder": "ablate-tp4pp2-common-tp2",
+    "layer": 23,
+    "head": 48,
+    "groupnorm_backward_vs_fp64_relative_l2": 0.0015846266235367396,
+    "receptance_backward_vs_fp64_relative_l2": 0.004272773717030425,
+    "actual_receptance_gradient_norm": 0.0023239546546365967,
+    "fp64_formula_gradient_norm": 0.0023213253037359417,
+    "groupnorm_rstd": 29.126373207835815,
+    "groupnorm_incoming_gradient_norm": 4.463257666651115e-05
+  },
+  {
+    "folder": "ablate-tp2pp2-common-tp2",
+    "layer": 15,
+    "head": 62,
+    "groupnorm_backward_vs_fp64_relative_l2": 0.0028236590347483713,
+    "receptance_backward_vs_fp64_relative_l2": 0.001931102188380804,
+    "actual_receptance_gradient_norm": 0.10450278170595648,
+    "fp64_formula_gradient_norm": 0.10438858728279753,
+    "groupnorm_rstd": 39.346884901757804,
+    "groupnorm_incoming_gradient_norm": 0.0016804178150604076
+  },
+  {
+    "folder": "ablate-tp2pp2-common-tp2",
+    "layer": 19,
+    "head": 12,
+    "groupnorm_backward_vs_fp64_relative_l2": 0.003198651579130182,
+    "receptance_backward_vs_fp64_relative_l2": 0.002089555817647602,
+    "actual_receptance_gradient_norm": 0.04547681045696555,
+    "fp64_formula_gradient_norm": 0.04549530766558173,
+    "groupnorm_rstd": 18.796416854106553,
+    "groupnorm_incoming_gradient_norm": 0.0016474537617740311
+  },
+  {
+    "folder": "ablate-tp2pp2-common-tp2",
+    "layer": 23,
+    "head": 48,
+    "groupnorm_backward_vs_fp64_relative_l2": 0.002290888323365581,
+    "receptance_backward_vs_fp64_relative_l2": 0.002409506495624094,
+    "actual_receptance_gradient_norm": 0.04646262562808605,
+    "fp64_formula_gradient_norm": 0.046386795476631514,
+    "groupnorm_rstd": 37.55303960979304,
+    "groupnorm_incoming_gradient_norm": 0.00024888881341596556
+  }
+]

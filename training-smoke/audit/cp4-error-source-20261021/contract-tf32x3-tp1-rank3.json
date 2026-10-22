@@ -1,0 +1,136 @@
+{
+  "4": {
+    "backward": {
+      "matrix_summary_vs_fp64": {
+        "relative_l2": 0.00013563751104744278,
+        "max_abs": 4.748607224815127e-05,
+        "exact": false,
+        "finite": true
+      },
+      "summary_dtype": "torch.float32",
+      "initial_dtype": "torch.float32",
+      "production": {
+        "affine_residual": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "cp_affine_residual": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "matrix_precision_error_relative_to_state": 0.0,
+        "midpoint_residual": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "zero_state_vs_summary": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      },
+      "float32_control": {
+        "affine_residual": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "cp_affine_residual": {
+          "relative_l2": 0.00026946503037378436,
+          "max_abs": 0.0006351619958877563,
+          "exact": false,
+          "finite": true
+        },
+        "matrix_precision_error_relative_to_state": 0.00026946519975822595,
+        "midpoint_residual": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "zero_state_vs_summary": {
+          "relative_l2": 0.00026946503037378436,
+          "max_abs": 0.0006351619958877563,
+          "exact": false,
+          "finite": true
+        }
+      }
+    },
+    "all_gather_hashes_exact": true
+  },
+  "13": {
+    "backward": {
+      "matrix_summary_vs_fp64": {
+        "relative_l2": 0.00014161428116694008,
+        "max_abs": 5.737460325569432e-05,
+        "exact": false,
+        "finite": true
+      },
+      "summary_dtype": "torch.float32",
+      "initial_dtype": "torch.float32",
+      "production": {
+        "affine_residual": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "cp_affine_residual": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "matrix_precision_error_relative_to_state": 0.0,
+        "midpoint_residual": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "zero_state_vs_summary": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        }
+      },
+      "float32_control": {
+        "affine_residual": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "cp_affine_residual": {
+          "relative_l2": 0.0002611021628763296,
+          "max_abs": 0.0005263388156890869,
+          "exact": false,
+          "finite": true
+        },
+        "matrix_precision_error_relative_to_state": 0.000261102033565056,
+        "midpoint_residual": {
+          "relative_l2": 0.0,
+          "max_abs": 0.0,
+          "exact": true,
+          "finite": true
+        },
+        "zero_state_vs_summary": {
+          "relative_l2": 0.0002611021628763296,
+          "max_abs": 0.0005263388156890869,
+          "exact": false,
+          "finite": true
+        }
+      }
+    },
+    "all_gather_hashes_exact": true
+  }
+}

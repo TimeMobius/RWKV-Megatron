@@ -1,0 +1,42 @@
+{
+  "bf16": {
+    "forward": {
+      "max_abs": 0.0,
+      "rel_l2": 0.0,
+      "nonzero": 0,
+      "elements": 524288
+    },
+    "dgrad": {
+      "max_abs": 0.0,
+      "rel_l2": 0.0,
+      "nonzero": 0,
+      "elements": 9437184
+    },
+    "wgrad": {
+      "max_abs": 11.0,
+      "rel_l2": 0.002349541943901001,
+      "nonzero": 216245,
+      "elements": 294912
+    }
+  },
+  "fp32": {
+    "forward": {
+      "max_abs": 3.814697265625e-06,
+      "rel_l2": 2.1712452242157586e-07,
+      "nonzero": 332510,
+      "elements": 524288
+    },
+    "dgrad": {
+      "max_abs": 0.0,
+      "rel_l2": 0.0,
+      "nonzero": 0,
+      "elements": 9437184
+    },
+    "wgrad": {
+      "max_abs": 0.000579833984375,
+      "rel_l2": 1.8260247266092096e-07,
+      "nonzero": 245545,
+      "elements": 294912
+    }
+  }
+}

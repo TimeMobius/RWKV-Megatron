@@ -1,0 +1,184 @@
+{
+  "layers": [
+    0,
+    4,
+    13,
+    23
+  ],
+  "total_heads": 36,
+  "sequence_length": 8192,
+  "rank_layer_records": 32,
+  "ablations": {
+    "default": {
+      "max_output_relative_l2": 0.00674422224983573,
+      "max_input_gradient_relative_l2": 0.012060284614562988,
+      "all_outputs_exact": false,
+      "all_gradients_exact": false
+    },
+    "native_forward": {
+      "max_output_relative_l2": 0.0,
+      "max_input_gradient_relative_l2": 0.012060284614562988,
+      "all_outputs_exact": true,
+      "all_gradients_exact": false
+    },
+    "native_backward": {
+      "max_output_relative_l2": 0.00674422224983573,
+      "max_input_gradient_relative_l2": 0.008646445348858833,
+      "all_outputs_exact": false,
+      "all_gradients_exact": false
+    },
+    "native_both": {
+      "max_output_relative_l2": 0.0,
+      "max_input_gradient_relative_l2": 0.0,
+      "all_outputs_exact": true,
+      "all_gradients_exact": true
+    }
+  },
+  "boundary_pattern": {
+    "0": {
+      "max_output_relative_l2": 0.0,
+      "max_forward_boundary_relative_l2": 0.0,
+      "max_backward_boundary_relative_l2": 0.01143067516386509
+    },
+    "1": {
+      "max_output_relative_l2": 0.0,
+      "max_forward_boundary_relative_l2": 0.0,
+      "max_backward_boundary_relative_l2": 0.008067536167800426
+    },
+    "2": {
+      "max_output_relative_l2": 0.0034348524641245604,
+      "max_forward_boundary_relative_l2": 0.0020949451718479395,
+      "max_backward_boundary_relative_l2": 0.0
+    },
+    "3": {
+      "max_output_relative_l2": 0.00674422224983573,
+      "max_forward_boundary_relative_l2": 0.004314509220421314,
+      "max_backward_boundary_relative_l2": 0.0
+    }
+  },
+  "contracts": {
+    "default": {
+      "all_gather_hashes_exact": true,
+      "records": 16,
+      "forward": {
+        "matrix_summary_max_relative_l2": 0.018189690422425627,
+        "zero_state_summaries_exact": true,
+        "variants": {
+          "production": {
+            "affine_residual_max_relative_l2": 0.0013405053279785355,
+            "midpoint_residual_max_relative_l2": 0.002456372921061685
+          },
+          "ieee_bf16_state": {
+            "affine_residual_max_relative_l2": 0.0012768088311490675,
+            "midpoint_residual_max_relative_l2": 0.0019692007693527186
+          },
+          "float32_control": {
+            "affine_residual_max_relative_l2": 2.852220657587306e-06,
+            "midpoint_residual_max_relative_l2": 4.749495269843922e-06
+          }
+        }
+      },
+      "backward": {
+        "matrix_summary_max_relative_l2": 0.018515159850809038,
+        "zero_state_summaries_exact": true,
+        "variants": {
+          "production": {
+            "affine_residual_max_relative_l2": 0.00039472949172538217,
+            "midpoint_residual_max_relative_l2": 0.0006867120717059045
+          },
+          "float32_control": {
+            "affine_residual_max_relative_l2": 5.220789863449887e-07,
+            "midpoint_residual_max_relative_l2": 5.827746071244117e-07
+          }
+        }
+      }
+    },
+    "tf32x3": {
+      "all_gather_hashes_exact": true,
+      "records": 16,
+      "forward": {
+        "matrix_summary_max_relative_l2": 0.0001582716596085945,
+        "zero_state_summaries_exact": true,
+        "variants": {
+          "production": {
+            "affine_residual_max_relative_l2": 0.0013405053279785355,
+            "midpoint_residual_max_relative_l2": 0.002456372921061685
+          },
+          "ieee_bf16_state": {
+            "affine_residual_max_relative_l2": 0.0012768088311490675,
+            "midpoint_residual_max_relative_l2": 0.0019692007693527186
+          },
+          "float32_control": {
+            "affine_residual_max_relative_l2": 2.852220657587306e-06,
+            "midpoint_residual_max_relative_l2": 4.749495269843922e-06
+          }
+        }
+      },
+      "backward": {
+        "matrix_summary_max_relative_l2": 0.00015704891640045613,
+        "zero_state_summaries_exact": true,
+        "variants": {
+          "production": {
+            "affine_residual_max_relative_l2": 0.00039472949172538217,
+            "midpoint_residual_max_relative_l2": 0.0006867120717059045
+          },
+          "float32_control": {
+            "affine_residual_max_relative_l2": 5.220789863449887e-07,
+            "midpoint_residual_max_relative_l2": 5.827746071244117e-07
+          }
+        }
+      }
+    },
+    "ieee": {
+      "all_gather_hashes_exact": true,
+      "records": 16,
+      "forward": {
+        "matrix_summary_max_relative_l2": 4.912698055076005e-06,
+        "zero_state_summaries_exact": true,
+        "variants": {
+          "production": {
+            "affine_residual_max_relative_l2": 0.0013405053279785355,
+            "midpoint_residual_max_relative_l2": 0.002456372921061685
+          },
+          "ieee_bf16_state": {
+            "affine_residual_max_relative_l2": 0.0012768088311490675,
+            "midpoint_residual_max_relative_l2": 0.0019692007693527186
+          },
+          "float32_control": {
+            "affine_residual_max_relative_l2": 2.852220657587306e-06,
+            "midpoint_residual_max_relative_l2": 4.749495269843922e-06
+          }
+        }
+      },
+      "backward": {
+        "matrix_summary_max_relative_l2": 4.964478757206584e-06,
+        "zero_state_summaries_exact": true,
+        "variants": {
+          "production": {
+            "affine_residual_max_relative_l2": 0.00039472949172538217,
+            "midpoint_residual_max_relative_l2": 0.0006867120717059045
+          },
+          "float32_control": {
+            "affine_residual_max_relative_l2": 5.220789863449887e-07,
+            "midpoint_residual_max_relative_l2": 5.827746071244117e-07
+          }
+        }
+      }
+    }
+  },
+  "full_model": {
+    "gradient_tensors": 1356,
+    "baseline_gradient_relative_l2": 0.004666759268866132,
+    "native_boundary_gradient_relative_l2": 0.0001692530123908552,
+    "captured_forward_exact": true,
+    "all_gradients_finite": true,
+    "capture": "all token CE, full head input, 64 sampled vocabulary logits per TP rank; two microbatches"
+  },
+  "production_changes": false,
+  "limits": [
+    "Controlled WKV replay covers 4 real layers/all 36 heads, including both original worst-error layers.",
+    "Affine controls cover layers 4 and 13; IEEE/FP32 variants are diagnostics, not production changes.",
+    "Serial native state propagation identifies the source; no parallel training performance claim.",
+    "Residual full-model 0.0169% gradient difference has not been traced element by element here."
+  ]
+}

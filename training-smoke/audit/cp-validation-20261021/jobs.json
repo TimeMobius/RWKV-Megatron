@@ -1,0 +1,78 @@
+[
+  {
+    "name": "tp2-pp1-cp4-8k",
+    "exit_code": 1,
+    "seconds": 64.81704425811768,
+    "env": {
+      "CP_VALIDATION_WKV": "1"
+    }
+  },
+  {
+    "name": "tp2-pp1-cp4-sp-16k",
+    "exit_code": 0,
+    "seconds": 48.29698634147644,
+    "env": {}
+  },
+  {
+    "name": "resume-sp0-continuous",
+    "exit_code": 0,
+    "seconds": 70.4833471775055,
+    "env": {
+      "CP_VALIDATION_STATE": "1"
+    }
+  },
+  {
+    "name": "resume-sp0-restored",
+    "exit_code": 0,
+    "seconds": 54.254560232162476,
+    "env": {
+      "CP_VALIDATION_STATE": "1"
+    }
+  },
+  {
+    "name": "resume-sp1-continuous",
+    "exit_code": 0,
+    "seconds": 71.83100366592407,
+    "env": {
+      "CP_VALIDATION_STATE": "1"
+    }
+  },
+  {
+    "name": "resume-sp1-restored",
+    "exit_code": 0,
+    "seconds": 56.864704608917236,
+    "env": {
+      "CP_VALIDATION_STATE": "1"
+    }
+  },
+  {
+    "name": "interleaved",
+    "exit_code": 1,
+    "seconds": 15.738895893096924,
+    "env": {}
+  },
+  {
+    "name": "fp8",
+    "exit_code": 0,
+    "seconds": 46.89357042312622,
+    "env": {}
+  },
+  {
+    "name": "muon",
+    "exit_code": 0,
+    "seconds": 46.44282603263855,
+    "env": {}
+  },
+  {
+    "name": "fp8-muon",
+    "exit_code": 0,
+    "seconds": 47.40016531944275,
+    "env": {}
+  },
+  {
+    "name": "fp8-delayed",
+    "exit_code": 0,
+    "seconds": 48.34244966506958,
+    "env": {}
+  }
+]

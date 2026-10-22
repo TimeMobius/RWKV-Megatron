@@ -1,30 +1,66 @@
 RWKV7 review todolist
 
+- [x] 本地提交与分支名整理（2026-10-22）：CP生产主仓库f8bc564、Megatron f30bff508、FLA e932aadd，shiroko98署名；测试证据另行提交。蒸馏三个仓库统一原名codex/qwen-rwkv28b-distill，路径隔离主仓库提交f979779，两个蒸馏子仓库无新增代码提交。2026-10-10指针不动，未push，命令见COMMIT_AND_PUSH.md。下方未提交描述保留为当时工作记录，当前状态以本条为准。
+
+- [x] 分离CP与蒸馏分支/工作区（2026-10-22）：当前目录及两个子仓库均为codex/rwkv7-cp，原脏改动原地保留；新RWKV-Megatron-distill目录及两个子仓库为codex/rwkv7-distill，子仓库严格固定Megatron d65baf60、FLA ff481ea6。三处2026-10-10及原蒸馏分支ref不变；未新增commit/push。新蒸馏启动入口改为自身路径，子仓库源码保持干净；说明见BRANCH_WORKSPACES.md，核对记录training-smoke/audit/branch-isolation-20261022/。
+
+统一测试/提交状态入口（2026-10-22）：TESTING_STATUS.md；本地源码补丁、版本现场、证据文件清单及轻量压缩备份见training-smoke/audit/records-20261022/README.md。用户决定TP精度优化暂不实施，只保留定位证据；本轮没有新commit/push，两个子仓库均有未提交修改，详见索引。
+
 CP 并行实施计划（2026-10-21）
 
-当前阶段：第一阶段 CP-only 实现（进行中）
+阶段定义更正：原计划的第二阶段是“给 token shift 增加 CP 通信”，不是 CP+SP。该阶段已包含在主仓库提交 0ca9d3a 中；CP+SP 是之后额外提前推进的扩展，当前未提交。28B八卡CP2已于2026-10-22通过50% Adam CPU offload和Megatron初始化修复完成30步训练；checkpoint验证见最新条目。
+
+原五步实现均已完成：CP+TP（SP关闭）→token shift CP通信→WKV FLACPContext→micro batch>1→CP+SP。验证覆盖表见 training-smoke/audit/cp-sp-stage2-20261021/VALIDATION-MATRIX.md；完成实现不表示每种拓扑、全部层/head 的输入梯度都已验证。
+- [x] 独立 TP2/PP1/CP2 四卡端到端：真实 2.7B/seq4096，3 步 Adam + 验证，无 NaN/跳步；第一 microbatch 全部24层/36head 的 WKV7 输出和六路输入梯度 CP2/CP1 逐位相同。
+- [x] CP4 整模型短步训练：TP2/PP1/CP4，SP关闭/8192及SP开启/16384，均3步Adam+验证通过；8192下CP4/CP1全部1356个TP参数梯度张量有限，最新修复后整体相对L2为0.0169253%，捕获前向逐位一致；详见 training-smoke/audit/cp4-state-fix-20261021/RESULTS.md。
+- [x] CP4 严格 WKV 数值问题的正式修复：RWKV采用原生FP32前后向状态通信，保留CP1的BF16递推运算顺序；真实2.7B的CP4/8192、CP4+SP/16384全部24层/36head控制回放输出和六路输入梯度逐位一致。CP2四卡及普通PP2+SP+MB2也通过3步Adam+验证；整模型参数梯度相对L2为0.0169253%。新增6项算子测试、54项FLA回归、45项主仓库回归通过。详见 training-smoke/audit/cp4-state-fix-20261021/RESULTS.md；主仓库及FLA修改尚未提交。
+- [x] CP4误差定位：真实层0/4/13/23、全部36head复现原最大误差；诊断改传真实前后向状态后WKV输出和六路输入梯度逐位一致。相同真实2.7B/8192的整模型捕获前向逐位一致，参数梯度误差0.466676%→0.0169253%。默认/tf32x3/IEEE矩阵控制、BF16/FP32状态控制及全部通信hash校验完成。详见 training-smoke/audit/cp4-error-source-20261021/REPORT.md；此项保留定位阶段证据，后续生产修复见上一条。
+- [x] CP / CP+SP Adam checkpoint连续训练对照：TP2/普通PP2/CP2，seq4096，保存step2后新进程恢复step3/4，8rank完整参数、FP32主权重、Adam tensor states、scheduler及续训事件hash全部一致。
+- [x] FP8 tensorwise/delayed、Muon兼容布局、FP8+Muon与CP2+SP：各3步真实2.7B训练+验证通过，全部rank核实实际FP8前后向、WKV BF16和Muon/Adam路由；未认证FP8长期训练精度。
+- [x] CP4半天长跑（2026-10-22 05:57完成）：真实2.7B/0056、8×H800、TP2/PP1/CP4、SP开启、seq16384、MB1/GB2；720分钟完成49189步（16.118亿token），无日志NaN/跳步。固定32条验证loss 13.49113→4.067253，10个checkpoint保存成功，最终新进程重载验证通过。耗时中位数865.9ms/步，采样显存峰值22315MiB/卡。2026-10-22补传W&B历史指标；报告和链接见 training-smoke/audit/cp4-longrun-20261021/RESULTS.md。支持该配置长时稳定及学习趋势；不替代CP1收敛等价/受控性能对照或Adam连续恢复对拍。
+- [x] CP4长跑模型效果评测（2026-10-22）：step49189与初始模型同题对比；独立256文档/512token的PPL 713967→71.195、next-token准确率接近0→28.93%；256条16K扩展验证PPL 722936→56.043。六项基准各100题，PIQA 52→59%、HellaSwag 23→26%、WinoGrande 50→43%、ARC-Easy 25→30%、ARC-Challenge 33→15%、LAMBADA 0→3%；无一致通用能力提升。10组贪心生成仍重复/答非所问，问答、算术、代码等样例未完成。TP2权重导出后重载TP2的logits逐位一致，统一TP1质量评测。完整结果见 training-smoke/audit/cp4-quality-20261022/RESULTS.md。
+- [ ] 交错PP/VPP：按用户要求暂缓；本轮试验性生产代码已撤回，Megatron子模块干净，不作为当前支持声明。
+
+原计划第二阶段：给 token shift 增加 CP 通信（已完成）
+- [x] 移除 CP1 限制；CP1 且 SP 关闭时保留本地 shift，SP 开启时保留原 TP shift 路径。
+- [x] 连续 CP、SP 关闭、CP>1 时使用 CP group；CP rank 0 的首 token 使用零向量。
+- [x] 其他 CP rank 的首 token 接收前一个 CP rank 的尾 token。
+- [x] backward 将首 token 的梯度发回前一个 CP rank，并接收下一个 rank 的首 token 梯度作为本 rank 尾 token 梯度；最后一个 rank 的尾 token 梯度置零。
+- [x] 实现位置：rwkv_megatron/rwkv7_layer_specs.py 的 RWKV7TokenShiftContextParallel 及 _token_shift 分派；已提交并通过 CP-only 真实训练和前向/反向验证。
+
+已完成的 CP 基础实现及验证（包含上述第二阶段）：
 - [x] 使用 Megatron 连续 CP 切分，暂时要求 `sequence_parallel: false`。
 - [x] RWKV7 token shift 增加 CP rank 边界通信及反向梯度通信。
 - [x] `WKV7` 接入 FLA `FLACPContext`，跨 CP rank 传递 recurrent state。
 - [x] 支持 CP 模式下按 micro-batch sample 独立调用 WKV，避免样本共享 recurrent state。
 - [x] 新增 28B Qwen CP2 配置和 8 卡启动脚本。
-- [x] 在 2 张 GPU 上完成 CP2 小模型一步端到端训练，并确认 loss/grad norm 正常。
-- [x] 在 4 张 GPU 上完成 CP2 + PP2 + TP1 小模型一步训练，pipeline payload 通过。
+- [x] 在 2 张 GPU 上完成 TP1/PP1/CP2 小模型一步 Adam，loss12.44970、grad norm1.000、0 NaN/0 skipped；配置和日志已从 /tmp 归档至 training-smoke/audit/cp-stage1-20261021/tiny-tp1-pp1-cp2.*。
+- [x] 在 4 张 GPU 上完成 TP1/PP2/CP2 小模型一步 Adam，loss12.46001、grad norm1.003、0 NaN/0 skipped；配置和日志归档 tiny-tp1-pp2-cp2.*，pipeline 训练链路通过。
 - [x] 真实 2.7B 权重 + 0056 数据，8 卡 TP2×PP2×CP2 / seq4096：3 步 Adam + 固定验证通过，0 NaN/0 跳步。
 - [x] 2.7B CP1/CP2 数值对拍：TP2×PP2 / seq4096、完整/不均匀 mask；逐 token CE、采样 logits、1356 个 TP/PP 参数梯度张量通过 BF16 容差，整体梯度相对 L2 误差 0.47%/0.61%。报告 training-smoke/audit/cp-equivalence-20261021/REPORT.md。
 - [x] CP loss 仅归约 detached 统计、保留本地梯度，消除 all-reduce autograd 警告；4 项 mask/梯度归一化单测通过。
 - [x] CP1/CP2 误差溯源：定位 FLA DPLR CP state 汇总核提前将 v2 舍入 BF16；诊断版保留 FP32 后，真实 2.7B 两个 microbatch 的捕获前向完全一致，整体梯度误差 0.471%→0.0233%。报告 training-smoke/audit/cp-error-source-20261021/REPORT.md。
 - [x] 正式修复 FLA DPLR CP state 精度：保留 FP32 v2，12 项 prefix-state 回归、CP2/CP4 DPLR/RWKV7 前向与反向通过；真实 2.7B 完整/不均匀 mask 捕获前向逐位一致，整体梯度误差降至 0.0233%/0.0229%，3 步 Adam + 验证通过。共享 prefix 的 6 组旧/新 kernel 对拍逐位一致；单汇总核延迟约 50.0→53.7 μs。报告 training-smoke/audit/cp-state-fix-20261021/RESULTS.md。
 - [ ] 在兼容的 Triton/TileLang 环境补充 GDN 等共享算子的完整 backward 回归：当前 Triton 3.5.1/H800 被其非 CP backward 显式拒绝执行，本次已记录独立重现及覆盖缺口。
-- [ ] 28B 实跑：forward/backward 通过，首次 Adam exp_avg_sq 分配时 OOM；需先解决模型/优化器状态显存，不能将当前 28B 配置标为训练通过。
-- [ ] 在 8 张 GPU 上完成目标 28B CP2 小步端到端训练，并与 CP1 对比 loss/梯度。
-- [ ] 验证 CP2 + PP2 + TP2 的 28B pipeline payload、断点保存和恢复。
+- [x] 28B OOM定位/恢复训练（2026-10-22）：原TP4/PP2/CP1当前代码重跑10步成功；旧CP2将TP4减为TP2，使常驻tensor从64.11增至81.10GiB/卡，超过79.17GiB。启用50% Adam CPU offload，并修复Megatron分片前重复初始化/引用环保留完整主权重的问题；TP2/PP2/CP2+SP、seq4096、MB1/GB2完成30步+固定验证，无NaN/跳步/OOM。末步CE7.762780，固定验证CE7.502898，稳态中位4.530s/步；CPU/GPU optimizer均实质更新。新配置/启动脚本及报告见training-smoke/audit/28b-oom-20261022/RESULTS.md；本轮未commit/push。
+- [x] 在8卡完成28B CP2小步训练，并与同TP2/PP2/SP/offload的CP1(DP2)对照前10步；日志loss最大绝对差0.001407，grad norm最大相对差0.28354%，固定验证CE差0.000712。此项为loss/梯度范数对照，不是全参数梯度张量对拍。
+- [ ] 28B CP1/CP2全部参数梯度张量对拍与更长序列/长期稳定性；当前CP2为seq4096短跑。
+- [x] 28B TP2/PP2/CP2+SP的pipeline payload、完整Adam/RNG checkpoint保存和新进程续训功能验证（2026-10-22）：step3保存，恢复step4/5的loss和grad norm与连续训练日志一致；修复offload初始化回写、DP-zero状态设备同步、GPU Adam step计数和weights_only已知类兼容。两rank小模型连续两步的BF16权重/FP32 masters/Adam两组矩逐元素相同；28B仅日志精度对照，未捕获全部状态张量。单rank22项通过，多rank5项/rank通过；报告training-smoke/audit/28b-oom-20261022/RESULTS.md。
 
 后续阶段：
-- [ ] 支持 CP 与 SP 同时开启，统一 TP×CP 的 token 顺序和边界通信。
-- [ ] 支持更高 CP（CP4）及更长序列。
-- [ ] 增加 CP2/CP4 的 full-model forward/backward 回归测试。
-- [ ] 评估 interleaved PP、FP8 和 Muon 与 CP 的组合。
+- [x] 支持 CP 与 SP 同时开启，统一 TP×CP 的 token 顺序和边界通信，2.7B TP2×PP2×CP2 验证通过。
+- [x] CP4/8192及CP4+SP/16384整模型训练及全部层/head严格WKV控制回放通过，见上方正式修复条目。
+- [x] CP2/CP4整模型forward/backward审计工具和证据已补齐；修复后CP2/CP4全层WKV控制回放逐位一致；保留修复前CP4严格门限失败的原始证据。
+- [x] FP8/Muon与CP2+SP的功能短跑已评估，详见cp-validation报告。
+- [ ] interleaved PP/VPP暂缓（用户指示）；Muon/FP8与CP保存恢复、新Muon布局、长期收敛未认证。
+
+额外提前推进的后续扩展：CP + SP（2026-10-21，不属于原计划第二阶段）
+- [x] CP 基础实现提交：主仓库 0ca9d3a，FLA 子模块 261dbcf5；均为 2026-10-10 分支，未 push。
+- [x] 按 (CP, TP) 逻辑 token 顺序建立跨 TP×CP 的 token shift 邻居及反向边界；缓存映射，支持不同物理 rank 顺序。
+- [x] 5 组实际多卡边界回归：TP2/CP1、TP1/CP2、TP2/CP2、CP-major/TP-major 互换、TP4/CP2；CP-only/SP 两条路径均验证前向和反向。
+- [x] 真实 2.7B TP2×PP2×CP2，SP 开关数值对拍：MB1 完整/不均匀 mask、MB2 完整 mask；捕获前向逐位相同，整体梯度误差分别 0.00586%/0.00597%/0.00585%。
+- [x] 真实 2.7B CP+SP 完成 3 步 Adam + 固定验证，零 NaN/零跳步；验证 loss 13.15863。
+- [x] 新增 CP+SP 配置、启动脚本和结果报告 training-smoke/audit/cp-sp-stage2-20261021/RESULTS.md；5 组实际多卡 token-shift 和 46 项合同测试通过。该扩展改动未提交；目录中的 stage2 是此前误编号，保留路径以便追溯。
 
 处理顺序建议
 1. 先修 P1 级别的功能正确性问题，避免训练和加载结果直接错误。
@@ -113,3 +149,13 @@ HF / FLA 这边的 `lora.0.weight` 与 `lora.2.weight` 看起来像是和 `pth` 
 需要统一 `v0` 在 SP 下的唯一表示方式，建议二选一：
 1. 推荐方案：始终只携带“local sequence + full hidden”的 `v0`。这样单 stage 内和跨 PP stage 都维持 `(2, local_seq, batch, hidden)` 或等价结构，`RWKV7TimeMix` 不再把 `v0` 展平成 full sequence，`schedules.py` 也不应使用 `(1 + TP, ...)`。
 2. 备选方案：如果坚持跨 stage 传 full sequence，那么后续 stage 的 TimeMix 也必须把本层 `value`、`vt` 和所有依赖 token 维的逻辑同步扩成 full sequence 语义，这会显著增加复杂度，而且与当前 SP 设计不一致。
+
+- [x] 用户指定28B TP4/PP2/CP1不使用Adam CPU offload复验（2026-10-22）：SP开启/seq4096/MB1/GB2/BF16/full recompute，显式offload=false及fraction=0；30步+固定验证通过，全部8rank主权重/Adam矩在GPU，无NaN/跳步/OOM，退出码0。中位2071.20ms/步，显卡采样峰值75829MiB/卡，末步训练CE7.755666、验证CE7.497223。报告training-smoke/audit/28b-oom-20261022/TP4-PP2-CP1-NO-OFFLOAD.md。
+
+- [x] 28B CP2完全不使用Adam CPU offload试验（2026-10-22）：TP2/PP2/CP2+SP、seq2048、MB1/GB2，TE BF16参数+int16主权重余数、FP32梯度/Adam矩，限制NCCL为1通道/256KiB并逐步empty_cache；30步+固定验证通过，无NaN/跳步/OOM，全部8rank状态在GPU。中位5.6694s/步，显卡采样峰值80797MiB/卡。seq4096默认NCCL仍在首次更新OOM，限制NCCL后及两层重计算均在第2步前向/CE处OOM。新配置/启动脚本和报告training-smoke/audit/28b-oom-20261022/CP2-NO-OFFLOAD.md；此余数模式checkpoint/长期收敛尚未验证，固定梯度100步内核对照计算权重最大相对L2差0.00613%，不能声称与普通Adam逐位相同。本轮未修改生产计算代码/未commit。
+
+- [x] 28B TP2/普通PP4/CP1全GPU验证（2026-10-22）：与TP4/PP2基准仅改变TP、PP，SP/seq4096/MB1/GB2/BF16/full recompute，完整FP32主权重/梯度/Adam矩，无offload/余数；30步+固定验证通过，8rank均完成，无OOM/NaN/跳步，退出码0。耗时中位2.40035s/步，较TP4/PP2慢15.89%；采样峰值79969MiB（78.09GiB），首尾stage常驻66.16GiB、中间55.50GiB。最终验证CE7.499003；未做严格梯度等价对拍，step26日志grad norm相对TP4/PP2差28.42%，后续定位见下一条。配置/启动脚本已保存，报告training-smoke/audit/28b-oom-20261022/TP2-PP4-CP1-NO-OFFLOAD.md；未修改生产计算代码、未commit。
+
+- [x] TP4/PP2与TP2/PP4第26步28.42%梯度范数差异定位（2026-10-22）：两条30步轨迹精确复现，独立FP64范数准确、输入哈希一致；固定TP2仅改PP后2470个参数平方范数一致，三层真实4K WKV固定输入/入边梯度按40或2×20 heads重放，输出及六组梯度逐位一致。定位为TP的BF16数值路径差异在MB0/token0的layer15/head62、layer19/head12、layer23/head48近抵消位置放大；同权重控制仍可21.4276 vs27.4483，仅屏蔽该token直接loss降至21.4215 vs23.2763。局部GroupNorm/receptance梯度与独立FP64公式最大差0.385%/0.427%；不是完整28B高精度参考。未修改生产代码；报告training-smoke/audit/tp-pp-gradnorm-20261022/REPORT.md。
+- [x] TP最早数值差异进一步定位（2026-10-22）：相同权重/batch的真实28B前3层逐模块捕获，layer0 LayerNorm/rkv/WKV六路输入输出/GroupNorm/gate及linear_proj输入逐位一致；第一个不一致是layer0 Attention行并行linear_proj，输出相对L2差0.35718%。相同输入/权重的局部BF16 GEMM和独立NCCL通信均逐位复现训练；BF16部分结果改FP32求和后TP差0.30488%，部分结果/求和均FP32后最终转BF16为0.0035344%。确认局部BF16投影输出路径与BF16归约舍入为首个差异来源，后续敏感head放大；未修改生产计算代码。报告training-smoke/audit/tp-pp-gradnorm-20261022/FIRST-DIVERGENCE.md。
+- [ ] TP数值敏感性后续（用户2026-10-22决定暂不修复）：行并行投影局部输出及通信精度优化暂停；首token loss消融剩余差异、完整28B梯度向量/高精度参考及长期收敛未验证。不能将28.4%全量归因于第0层单次投影、忽略反向数值影响或宣称误差无害；该差异会改变全局梯度裁剪系数。现有生产精度设置不变，原始日志/权重/算子捕获保留。

@@ -1,0 +1,63 @@
+{
+  "first_differing_module": "decoder.layers.0.self_attention.linear_proj",
+  "source_file": "rwkv_megatron/rwkv7_layer_specs.py",
+  "source_line": 802,
+  "same_inputs_and_weights": true,
+  "prior_checked_modules_bitwise_equal": [
+    "input_layernorm",
+    "self_attention.linear_receptance",
+    "self_attention.linear_key",
+    "self_attention.linear_value",
+    "self_attention.core_attention",
+    "self_attention.group_norm",
+    "self_attention.bottleneck_gate"
+  ],
+  "projected_output_tp2_vs_tp4": {
+    "bitwise_equal": false,
+    "unequal_elements": 9740699,
+    "numel": 20971520,
+    "relative_l2": 0.0035717550199478865,
+    "max_abs": 0.5,
+    "token0": {
+      "bitwise_equal": false,
+      "unequal_elements": 2395,
+      "numel": 5120,
+      "relative_l2": 0.0038881669752299786,
+      "max_abs": 6.103515625e-05
+    }
+  },
+  "between_tp_precision_controls": {
+    "high": {
+      "bitwise_equal": false,
+      "unequal_elements": 11157,
+      "numel": 20971520,
+      "relative_l2": 3.5343720810487866e-05,
+      "max_abs": 0.00390625
+    },
+    "encoded": {
+      "bitwise_equal": false,
+      "unequal_elements": 9103196,
+      "numel": 20971520,
+      "relative_l2": 0.003048763144761324,
+      "max_abs": 0.25
+    },
+    "actual": {
+      "bitwise_equal": false,
+      "unequal_elements": 9740699,
+      "numel": 20971520,
+      "relative_l2": 0.0035717550199478865,
+      "max_abs": 0.5
+    }
+  },
+  "all_local_bf16_matmuls_bitwise_reproduced": true,
+  "all_bf16_collectives_bitwise_reproduced": true,
+  "diagnostic_fp32_collective_relative_error_to_exact_fp64": {
+    "2": 9.361596104719673e-11,
+    "4": 3.61223854062393e-10
+  },
+  "production_code_changed": false,
+  "limitations": [
+    "First forward discrepancy localized, not a complete decomposition of the 28.4% gradient-norm gap.",
+    "No production precision fix or complete 28B high-precision/convergence validation in this task."
+  ]
+}

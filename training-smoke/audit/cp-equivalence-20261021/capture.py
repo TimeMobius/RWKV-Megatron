@@ -6,6 +6,7 @@ reduce-scatter are unmodified. Reconstruct only the reduced optimizer shards.
 """
 import json
 import os
+import re
 import runpy
 import sys
 from pathlib import Path
@@ -34,8 +35,8 @@ def audit_train_step(*args, **kwargs):
     get_batch = globals_['get_batch']
     original_step = optimizer.step
 
-    def capture_batch(iterator):
-        batch = list(get_batch(iterator))
+    def capture_batch(*a, **kw):
+        batch = list(get_batch(*a, **kw))
         tokens, labels, mask, attention, positions = batch
         if mask is not None and os.environ.get('CP_AUDIT_MASK') == 'uneven':
             start = cp * mask.shape[1]
@@ -52,14 +53,19 @@ def audit_train_step(*args, **kwargs):
 
     globals_['get_batch'] = capture_batch
     hooks = []
-    if ps.is_pipeline_last_stage():
+    if unwrap_model(models[-1]).post_process:
         def head_hook(module, inputs, output):
             logits = output[0] if isinstance(output, tuple) else output
             # Full token coverage and deterministic vocabulary samples. Full CE
             # below covers the complete vocabulary; sampled logits bound disk use.
             cols = torch.linspace(0, logits.shape[-1]-1, 64, device=logits.device).long()
             trace['logits'].append(logits.detach().index_select(-1, cols).cpu())
-            trace['head_inputs'].append(inputs[0].detach().cpu().clone())
+            head_input = inputs[0].detach()
+            if getattr(module, 'sequence_parallel', False):
+                shards = [torch.empty_like(head_input) for _ in range(ps.get_tensor_model_parallel_world_size())]
+                dist.all_gather(shards, head_input.contiguous(), group=ps.get_tensor_model_parallel_group())
+                head_input = torch.cat(shards, dim=0)
+            trace['head_inputs'].append(head_input.cpu().clone())
         hooks.append(unwrap_model(models[-1]).output_layer.register_forward_hook(head_hook))
 
     def capture_forward(*a, **kw):
@@ -78,6 +84,15 @@ def audit_train_step(*args, **kwargs):
         shapes = {}
         for model in models:
             names = {param: name for name, param in unwrap_model(model).named_parameters()}
+            if os.environ.get('CP_AUDIT_GLOBAL_LAYER_NAMES') == '1':
+                chunk = unwrap_model(model)
+                def global_layer_name(name):
+                    match = re.search(r'decoder\.layers\.(\d+)\.', name)
+                    if match is None:
+                        return name
+                    number = chunk.decoder.layers[int(match[1])].layer_number - 1
+                    return name[:match.start(1)] + str(number) + name[match.end(1):]
+                names = {p: global_layer_name(n) for p,n in names.items()}
             for buffer in model.buffers:
                 group = buffer.data_parallel_group
                 size, rank = dist.get_world_size(group), dist.get_rank(group)

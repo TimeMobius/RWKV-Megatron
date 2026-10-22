@@ -1,0 +1,746 @@
+{
+  "layer15-key-mb0": {
+    "output_norm": 5465.80859375,
+    "gradient_norm": 0.007235153112560511,
+    "top_heads": [
+      {
+        "head": 62,
+        "gradient_norm": 0.007158965803682804,
+        "max_token": 0
+      },
+      {
+        "head": 69,
+        "gradient_norm": 0.00025640454259701073,
+        "max_token": 0
+      },
+      {
+        "head": 49,
+        "gradient_norm": 0.00021061734878458083,
+        "max_token": 4
+      },
+      {
+        "head": 41,
+        "gradient_norm": 0.00020784660591743886,
+        "max_token": 0
+      },
+      {
+        "head": 28,
+        "gradient_norm": 0.00020146844326518476,
+        "max_token": 0
+      }
+    ]
+  },
+  "layer15-key-mb1": {
+    "output_norm": 5471.4453125,
+    "gradient_norm": 0.0015118577284738421,
+    "top_heads": [
+      {
+        "head": 22,
+        "gradient_norm": 0.00026284667546860874,
+        "max_token": 267
+      },
+      {
+        "head": 69,
+        "gradient_norm": 0.0002624663175083697,
+        "max_token": 0
+      },
+      {
+        "head": 30,
+        "gradient_norm": 0.0002532755897846073,
+        "max_token": 220
+      },
+      {
+        "head": 20,
+        "gradient_norm": 0.0002488864120095968,
+        "max_token": 179
+      },
+      {
+        "head": 49,
+        "gradient_norm": 0.00024616855080239475,
+        "max_token": 246
+      }
+    ]
+  },
+  "layer15-receptance-mb0": {
+    "output_norm": 5173.27734375,
+    "gradient_norm": 0.00808275118470192,
+    "top_heads": [
+      {
+        "head": 62,
+        "gradient_norm": 0.007928784936666489,
+        "max_token": 0
+      },
+      {
+        "head": 41,
+        "gradient_norm": 0.0003352225758135319,
+        "max_token": 1
+      },
+      {
+        "head": 69,
+        "gradient_norm": 0.00031129835406318307,
+        "max_token": 3986
+      },
+      {
+        "head": 28,
+        "gradient_norm": 0.00030972258537076414,
+        "max_token": 1
+      },
+      {
+        "head": 39,
+        "gradient_norm": 0.0003097056760452688,
+        "max_token": 26
+      }
+    ]
+  },
+  "layer15-receptance-mb1": {
+    "output_norm": 5208.4033203125,
+    "gradient_norm": 0.0018647409742698073,
+    "top_heads": [
+      {
+        "head": 24,
+        "gradient_norm": 0.00033501951838843524,
+        "max_token": 272
+      },
+      {
+        "head": 49,
+        "gradient_norm": 0.00033047556644305587,
+        "max_token": 290
+      },
+      {
+        "head": 63,
+        "gradient_norm": 0.0003297820221632719,
+        "max_token": 3964
+      },
+      {
+        "head": 25,
+        "gradient_norm": 0.0003273042675573379,
+        "max_token": 306
+      },
+      {
+        "head": 69,
+        "gradient_norm": 0.0003218789934180677,
+        "max_token": 295
+      }
+    ]
+  },
+  "layer15-value-mb0": {
+    "output_norm": 3754.388916015625,
+    "gradient_norm": 0.0016454033320769668,
+    "top_heads": [
+      {
+        "head": 59,
+        "gradient_norm": 0.00030929563217796385,
+        "max_token": 0
+      },
+      {
+        "head": 50,
+        "gradient_norm": 0.0002934414951596409,
+        "max_token": 0
+      },
+      {
+        "head": 57,
+        "gradient_norm": 0.0002855198981706053,
+        "max_token": 0
+      },
+      {
+        "head": 58,
+        "gradient_norm": 0.0002813712053466588,
+        "max_token": 0
+      },
+      {
+        "head": 56,
+        "gradient_norm": 0.0002805230033118278,
+        "max_token": 0
+      }
+    ]
+  },
+  "layer15-value-mb1": {
+    "output_norm": 3764.4482421875,
+    "gradient_norm": 0.0015152629930526018,
+    "top_heads": [
+      {
+        "head": 49,
+        "gradient_norm": 0.00026289085508324206,
+        "max_token": 256
+      },
+      {
+        "head": 59,
+        "gradient_norm": 0.0002583450695965439,
+        "max_token": 0
+      },
+      {
+        "head": 56,
+        "gradient_norm": 0.00025579737848602235,
+        "max_token": 0
+      },
+      {
+        "head": 51,
+        "gradient_norm": 0.00025002361508086324,
+        "max_token": 1
+      },
+      {
+        "head": 57,
+        "gradient_norm": 0.0002457391528878361,
+        "max_token": 2
+      }
+    ]
+  },
+  "layer15-wkv-mb0": {
+    "output_norm": 99489.53125,
+    "gradient_norm": 0.006812252104282379,
+    "top_heads": [
+      {
+        "head": 62,
+        "gradient_norm": 0.006576268468052149,
+        "max_token": 0
+      },
+      {
+        "head": 38,
+        "gradient_norm": 0.0008737442549318075,
+        "max_token": 0
+      },
+      {
+        "head": 36,
+        "gradient_norm": 0.0006538301822729409,
+        "max_token": 0
+      },
+      {
+        "head": 25,
+        "gradient_norm": 0.0005777997430413961,
+        "max_token": 0
+      },
+      {
+        "head": 35,
+        "gradient_norm": 0.0005101226852275431,
+        "max_token": 0
+      }
+    ]
+  },
+  "layer15-wkv-mb1": {
+    "output_norm": 90596.53125,
+    "gradient_norm": 0.0006597625906579196,
+    "top_heads": [
+      {
+        "head": 38,
+        "gradient_norm": 0.0003680928493849933,
+        "max_token": 0
+      },
+      {
+        "head": 14,
+        "gradient_norm": 0.0002701505145523697,
+        "max_token": 0
+      },
+      {
+        "head": 59,
+        "gradient_norm": 0.00013103017408866435,
+        "max_token": 266
+      },
+      {
+        "head": 63,
+        "gradient_norm": 0.00012841603893321007,
+        "max_token": 2
+      },
+      {
+        "head": 69,
+        "gradient_norm": 0.00012004655582131818,
+        "max_token": 306
+      }
+    ]
+  },
+  "layer19-key-mb0": {
+    "output_norm": 4647.70654296875,
+    "gradient_norm": 0.005731536075472832,
+    "top_heads": [
+      {
+        "head": 12,
+        "gradient_norm": 0.005557142663747072,
+        "max_token": 0
+      },
+      {
+        "head": 67,
+        "gradient_norm": 0.0002932411734946072,
+        "max_token": 0
+      },
+      {
+        "head": 71,
+        "gradient_norm": 0.0002813783648889512,
+        "max_token": 1734
+      },
+      {
+        "head": 29,
+        "gradient_norm": 0.00027530555962584913,
+        "max_token": 232
+      },
+      {
+        "head": 6,
+        "gradient_norm": 0.0002699937322176993,
+        "max_token": 1
+      }
+    ]
+  },
+  "layer19-key-mb1": {
+    "output_norm": 4675.08935546875,
+    "gradient_norm": 0.0017619619611650705,
+    "top_heads": [
+      {
+        "head": 38,
+        "gradient_norm": 0.00038286569179035723,
+        "max_token": 0
+      },
+      {
+        "head": 6,
+        "gradient_norm": 0.0003534950956236571,
+        "max_token": 271
+      },
+      {
+        "head": 67,
+        "gradient_norm": 0.0003193184093106538,
+        "max_token": 0
+      },
+      {
+        "head": 40,
+        "gradient_norm": 0.00029122817795723677,
+        "max_token": 0
+      },
+      {
+        "head": 29,
+        "gradient_norm": 0.000290904805297032,
+        "max_token": 80
+      }
+    ]
+  },
+  "layer19-receptance-mb0": {
+    "output_norm": 4415.9140625,
+    "gradient_norm": 0.006257739849388599,
+    "top_heads": [
+      {
+        "head": 12,
+        "gradient_norm": 0.005785108078271151,
+        "max_token": 0
+      },
+      {
+        "head": 44,
+        "gradient_norm": 0.000455062254332006,
+        "max_token": 2776
+      },
+      {
+        "head": 6,
+        "gradient_norm": 0.0004414218128658831,
+        "max_token": 628
+      },
+      {
+        "head": 29,
+        "gradient_norm": 0.00042379272053949535,
+        "max_token": 1613
+      },
+      {
+        "head": 39,
+        "gradient_norm": 0.0004189855535514653,
+        "max_token": 946
+      }
+    ]
+  },
+  "layer19-receptance-mb1": {
+    "output_norm": 4460.51611328125,
+    "gradient_norm": 0.0025996342301368713,
+    "top_heads": [
+      {
+        "head": 38,
+        "gradient_norm": 0.0005910234176553786,
+        "max_token": 2
+      },
+      {
+        "head": 6,
+        "gradient_norm": 0.000541751564014703,
+        "max_token": 296
+      },
+      {
+        "head": 47,
+        "gradient_norm": 0.0004503779055085033,
+        "max_token": 2
+      },
+      {
+        "head": 44,
+        "gradient_norm": 0.0004451099957805127,
+        "max_token": 297
+      },
+      {
+        "head": 24,
+        "gradient_norm": 0.00043528099195100367,
+        "max_token": 856
+      }
+    ]
+  },
+  "layer19-value-mb0": {
+    "output_norm": 2877.333740234375,
+    "gradient_norm": 0.001720893895253539,
+    "top_heads": [
+      {
+        "head": 67,
+        "gradient_norm": 0.0003723981499206275,
+        "max_token": 0
+      },
+      {
+        "head": 71,
+        "gradient_norm": 0.00034767205943353474,
+        "max_token": 0
+      },
+      {
+        "head": 69,
+        "gradient_norm": 0.0003244214167352766,
+        "max_token": 0
+      },
+      {
+        "head": 66,
+        "gradient_norm": 0.00031169477733783424,
+        "max_token": 0
+      },
+      {
+        "head": 70,
+        "gradient_norm": 0.00030695254099555314,
+        "max_token": 0
+      }
+    ]
+  },
+  "layer19-value-mb1": {
+    "output_norm": 2911.672607421875,
+    "gradient_norm": 0.00190257141366601,
+    "top_heads": [
+      {
+        "head": 67,
+        "gradient_norm": 0.00039458743412978947,
+        "max_token": 262
+      },
+      {
+        "head": 71,
+        "gradient_norm": 0.00035462580854073167,
+        "max_token": 261
+      },
+      {
+        "head": 66,
+        "gradient_norm": 0.00034070407855324447,
+        "max_token": 260
+      },
+      {
+        "head": 69,
+        "gradient_norm": 0.000339572288794443,
+        "max_token": 306
+      },
+      {
+        "head": 70,
+        "gradient_norm": 0.00031435780692845583,
+        "max_token": 297
+      }
+    ]
+  },
+  "layer19-wkv-mb0": {
+    "output_norm": 62633.3046875,
+    "gradient_norm": 0.002211368875578046,
+    "top_heads": [
+      {
+        "head": 12,
+        "gradient_norm": 0.0017640424193814397,
+        "max_token": 0
+      },
+      {
+        "head": 69,
+        "gradient_norm": 0.0007301753503270447,
+        "max_token": 0
+      },
+      {
+        "head": 34,
+        "gradient_norm": 0.0004857665626332164,
+        "max_token": 0
+      },
+      {
+        "head": 67,
+        "gradient_norm": 0.000388924905564636,
+        "max_token": 0
+      },
+      {
+        "head": 71,
+        "gradient_norm": 0.00038310448871925473,
+        "max_token": 0
+      }
+    ]
+  },
+  "layer19-wkv-mb1": {
+    "output_norm": 62249.00390625,
+    "gradient_norm": 0.0009894379181787372,
+    "top_heads": [
+      {
+        "head": 71,
+        "gradient_norm": 0.0003651342121884227,
+        "max_token": 263
+      },
+      {
+        "head": 67,
+        "gradient_norm": 0.0003502457693684846,
+        "max_token": 298
+      },
+      {
+        "head": 69,
+        "gradient_norm": 0.00033002032432705164,
+        "max_token": 0
+      },
+      {
+        "head": 66,
+        "gradient_norm": 0.00031263052369467914,
+        "max_token": 1
+      },
+      {
+        "head": 68,
+        "gradient_norm": 0.0003047577920369804,
+        "max_token": 300
+      }
+    ]
+  },
+  "layer23-key-mb0": {
+    "output_norm": 4101.01171875,
+    "gradient_norm": 0.002263062633574009,
+    "top_heads": [
+      {
+        "head": 48,
+        "gradient_norm": 0.0014529441250488162,
+        "max_token": 0
+      },
+      {
+        "head": 78,
+        "gradient_norm": 0.0003672837920021266,
+        "max_token": 176
+      },
+      {
+        "head": 9,
+        "gradient_norm": 0.00036161343450658023,
+        "max_token": 2928
+      },
+      {
+        "head": 10,
+        "gradient_norm": 0.00031976934405975044,
+        "max_token": 44
+      },
+      {
+        "head": 30,
+        "gradient_norm": 0.0003197083424311131,
+        "max_token": 1
+      }
+    ]
+  },
+  "layer23-key-mb1": {
+    "output_norm": 4063.01171875,
+    "gradient_norm": 0.002103210659697652,
+    "top_heads": [
+      {
+        "head": 9,
+        "gradient_norm": 0.0005202643806114793,
+        "max_token": 66
+      },
+      {
+        "head": 7,
+        "gradient_norm": 0.0005083965952508152,
+        "max_token": 2426
+      },
+      {
+        "head": 15,
+        "gradient_norm": 0.00047034616000019014,
+        "max_token": 3329
+      },
+      {
+        "head": 78,
+        "gradient_norm": 0.0004468393453862518,
+        "max_token": 203
+      },
+      {
+        "head": 30,
+        "gradient_norm": 0.00040529019315727055,
+        "max_token": 265
+      }
+    ]
+  },
+  "layer23-receptance-mb0": {
+    "output_norm": 3913.283203125,
+    "gradient_norm": 0.003427427727729082,
+    "top_heads": [
+      {
+        "head": 48,
+        "gradient_norm": 0.0019541257061064243,
+        "max_token": 0
+      },
+      {
+        "head": 9,
+        "gradient_norm": 0.0005429290467873216,
+        "max_token": 957
+      },
+      {
+        "head": 13,
+        "gradient_norm": 0.0005138791166245937,
+        "max_token": 502
+      },
+      {
+        "head": 10,
+        "gradient_norm": 0.0004952194285579026,
+        "max_token": 1931
+      },
+      {
+        "head": 12,
+        "gradient_norm": 0.0004934496828354895,
+        "max_token": 1763
+      }
+    ]
+  },
+  "layer23-receptance-mb1": {
+    "output_norm": 3931.5556640625,
+    "gradient_norm": 0.0029790208209306,
+    "top_heads": [
+      {
+        "head": 9,
+        "gradient_norm": 0.000608625472523272,
+        "max_token": 856
+      },
+      {
+        "head": 13,
+        "gradient_norm": 0.0005823216633871198,
+        "max_token": 919
+      },
+      {
+        "head": 16,
+        "gradient_norm": 0.0005163754103705287,
+        "max_token": 3135
+      },
+      {
+        "head": 15,
+        "gradient_norm": 0.0004972461611032486,
+        "max_token": 850
+      },
+      {
+        "head": 10,
+        "gradient_norm": 0.0004830518737435341,
+        "max_token": 3
+      }
+    ]
+  },
+  "layer23-value-mb0": {
+    "output_norm": 2465.962158203125,
+    "gradient_norm": 0.001999881584197283,
+    "top_heads": [
+      {
+        "head": 58,
+        "gradient_norm": 0.0004728481580968946,
+        "max_token": 0
+      },
+      {
+        "head": 78,
+        "gradient_norm": 0.00037108923424966633,
+        "max_token": 0
+      },
+      {
+        "head": 51,
+        "gradient_norm": 0.0003638598136603832,
+        "max_token": 0
+      },
+      {
+        "head": 54,
+        "gradient_norm": 0.00036334351170808077,
+        "max_token": 0
+      },
+      {
+        "head": 57,
+        "gradient_norm": 0.00035295207635499537,
+        "max_token": 0
+      }
+    ]
+  },
+  "layer23-value-mb1": {
+    "output_norm": 2479.1689453125,
+    "gradient_norm": 0.0023092462215572596,
+    "top_heads": [
+      {
+        "head": 58,
+        "gradient_norm": 0.000531383790075779,
+        "max_token": 0
+      },
+      {
+        "head": 30,
+        "gradient_norm": 0.0004489525454118848,
+        "max_token": 203
+      },
+      {
+        "head": 78,
+        "gradient_norm": 0.00044497393537312746,
+        "max_token": 262
+      },
+      {
+        "head": 54,
+        "gradient_norm": 0.0004443686339072883,
+        "max_token": 203
+      },
+      {
+        "head": 57,
+        "gradient_norm": 0.0004099389479961246,
+        "max_token": 271
+      }
+    ]
+  },
+  "layer23-wkv-mb0": {
+    "output_norm": 52676.8359375,
+    "gradient_norm": 0.0012008344056084752,
+    "top_heads": [
+      {
+        "head": 48,
+        "gradient_norm": 0.0006220912327989936,
+        "max_token": 0
+      },
+      {
+        "head": 75,
+        "gradient_norm": 0.00028950077830813825,
+        "max_token": 2956
+      },
+      {
+        "head": 52,
+        "gradient_norm": 0.0002884482964873314,
+        "max_token": 1
+      },
+      {
+        "head": 78,
+        "gradient_norm": 0.0002791158913169056,
+        "max_token": 1
+      },
+      {
+        "head": 58,
+        "gradient_norm": 0.00024530175141990185,
+        "max_token": 0
+      }
+    ]
+  },
+  "layer23-wkv-mb1": {
+    "output_norm": 49539.56640625,
+    "gradient_norm": 0.0010240164119750261,
+    "top_heads": [
+      {
+        "head": 75,
+        "gradient_norm": 0.00034482174669392407,
+        "max_token": 1
+      },
+      {
+        "head": 78,
+        "gradient_norm": 0.00033587313373573124,
+        "max_token": 261
+      },
+      {
+        "head": 58,
+        "gradient_norm": 0.00025197945069521666,
+        "max_token": 306
+      },
+      {
+        "head": 59,
+        "gradient_norm": 0.00023494369816035032,
+        "max_token": 1
+      },
+      {
+        "head": 71,
+        "gradient_norm": 0.00020992998906876892,
+        "max_token": 263
+      }
+    ]
+  }
+}

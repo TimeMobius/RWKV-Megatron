@@ -1,0 +1,634 @@
+{
+  "layer0.bf16": {
+    "varlen_output": {
+      "max_abs": 0.0,
+      "rel_l2": 0.0,
+      "nonzero": 0,
+      "elements": 524288
+    },
+    "native_split_output": {
+      "max_abs": 0.0,
+      "rel_l2": 0.0,
+      "nonzero": 0,
+      "elements": 524288
+    },
+    "native_split_grads": {
+      "r": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "w": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "k": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "v": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "a": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "b": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      }
+    },
+    "fp64_reference": {
+      "cp1_output": {
+        "max_abs": 0.005608972641461596,
+        "rel_l2": 0.008078705112130363,
+        "nonzero": 524288,
+        "elements": 524288
+      },
+      "cp1_prefix_state": {
+        "max_abs": 0.011098612871661029,
+        "rel_l2": 0.0029658855599428583,
+        "nonzero": 8192,
+        "elements": 8192
+      }
+    },
+    "default": {
+      "output": {
+        "max_abs": 0.00390625,
+        "rel_l2": 0.0025128383078369485,
+        "nonzero": 45128,
+        "elements": 262144
+      },
+      "state": {
+        "max_abs": 0.003847479820251465,
+        "rel_l2": 0.0013101450344271866,
+        "nonzero": 6160,
+        "elements": 8192
+      },
+      "first64": {
+        "max_abs": 0.001953125,
+        "rel_l2": 0.0025802873449493374,
+        "nonzero": 1970,
+        "elements": 8192
+      },
+      "after256": {
+        "max_abs": 0.00390625,
+        "rel_l2": 0.002557918890048637,
+        "nonzero": 38019,
+        "elements": 229376
+      },
+      "grads": {
+        "r": {
+          "max_abs": 0.0625,
+          "rel_l2": 0.001887788059126269,
+          "nonzero": 46477,
+          "elements": 262144
+        },
+        "w": {
+          "max_abs": 0.0625,
+          "rel_l2": 0.0009463818632896936,
+          "nonzero": 52323,
+          "elements": 262144
+        },
+        "k": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "v": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "a": {
+          "max_abs": 0.001953125,
+          "rel_l2": 0.0019431477505836537,
+          "nonzero": 53239,
+          "elements": 262144
+        },
+        "b": {
+          "max_abs": 0.375,
+          "rel_l2": 0.0013822063856955842,
+          "nonzero": 18874,
+          "elements": 262144
+        }
+      }
+    },
+    "tf32x3": {
+      "output": {
+        "max_abs": 0.00390625,
+        "rel_l2": 0.0025128383078369485,
+        "nonzero": 45128,
+        "elements": 262144
+      },
+      "state": {
+        "max_abs": 0.003847479820251465,
+        "rel_l2": 0.0013101450344271866,
+        "nonzero": 6160,
+        "elements": 8192
+      },
+      "first64": {
+        "max_abs": 0.001953125,
+        "rel_l2": 0.0025802873449493374,
+        "nonzero": 1970,
+        "elements": 8192
+      },
+      "after256": {
+        "max_abs": 0.00390625,
+        "rel_l2": 0.002557918890048637,
+        "nonzero": 38019,
+        "elements": 229376
+      },
+      "grads": {
+        "r": {
+          "max_abs": 0.0625,
+          "rel_l2": 0.001887788059126269,
+          "nonzero": 46477,
+          "elements": 262144
+        },
+        "w": {
+          "max_abs": 0.0625,
+          "rel_l2": 0.0009463818632896936,
+          "nonzero": 52323,
+          "elements": 262144
+        },
+        "k": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "v": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "a": {
+          "max_abs": 0.001953125,
+          "rel_l2": 0.0019431477505836537,
+          "nonzero": 53239,
+          "elements": 262144
+        },
+        "b": {
+          "max_abs": 0.375,
+          "rel_l2": 0.0013822063856955842,
+          "nonzero": 18874,
+          "elements": 262144
+        }
+      }
+    },
+    "native_state": {
+      "output": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 262144
+      },
+      "state": {
+        "max_abs": 0.003847479820251465,
+        "rel_l2": 0.0013101450344271866,
+        "nonzero": 6160,
+        "elements": 8192
+      },
+      "first64": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 8192
+      },
+      "after256": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 229376
+      }
+    }
+  },
+  "layer6.bf16": {
+    "varlen_output": {
+      "max_abs": 0.0,
+      "rel_l2": 0.0,
+      "nonzero": 0,
+      "elements": 524288
+    },
+    "native_split_output": {
+      "max_abs": 0.0,
+      "rel_l2": 0.0,
+      "nonzero": 0,
+      "elements": 524288
+    },
+    "native_split_grads": {
+      "r": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "w": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "k": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "v": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "a": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "b": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      }
+    },
+    "default": {
+      "output": {
+        "max_abs": 0.0029296875,
+        "rel_l2": 0.0027122756858640167,
+        "nonzero": 42118,
+        "elements": 262144
+      },
+      "state": {
+        "max_abs": 0.0070171356201171875,
+        "rel_l2": 0.002270331377519403,
+        "nonzero": 6177,
+        "elements": 8192
+      },
+      "first64": {
+        "max_abs": 0.0029296875,
+        "rel_l2": 0.00998169464377281,
+        "nonzero": 1738,
+        "elements": 8192
+      },
+      "after256": {
+        "max_abs": 0.001953125,
+        "rel_l2": 0.0019316896833416158,
+        "nonzero": 35555,
+        "elements": 229376
+      },
+      "grads": {
+        "r": {
+          "max_abs": 0.0625,
+          "rel_l2": 0.002242556277871466,
+          "nonzero": 42884,
+          "elements": 262144
+        },
+        "w": {
+          "max_abs": 0.125,
+          "rel_l2": 0.0012712753749416644,
+          "nonzero": 47609,
+          "elements": 262144
+        },
+        "k": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "v": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "a": {
+          "max_abs": 0.00390625,
+          "rel_l2": 0.0025233411194956687,
+          "nonzero": 45922,
+          "elements": 262144
+        },
+        "b": {
+          "max_abs": 0.25,
+          "rel_l2": 0.0015206048564227925,
+          "nonzero": 17366,
+          "elements": 262144
+        }
+      }
+    },
+    "tf32x3": {
+      "output": {
+        "max_abs": 0.0029296875,
+        "rel_l2": 0.0027122756858640167,
+        "nonzero": 42118,
+        "elements": 262144
+      },
+      "state": {
+        "max_abs": 0.0070171356201171875,
+        "rel_l2": 0.002270331377519403,
+        "nonzero": 6177,
+        "elements": 8192
+      },
+      "first64": {
+        "max_abs": 0.0029296875,
+        "rel_l2": 0.00998169464377281,
+        "nonzero": 1738,
+        "elements": 8192
+      },
+      "after256": {
+        "max_abs": 0.001953125,
+        "rel_l2": 0.0019316896833416158,
+        "nonzero": 35555,
+        "elements": 229376
+      },
+      "grads": {
+        "r": {
+          "max_abs": 0.0625,
+          "rel_l2": 0.002242556277871466,
+          "nonzero": 42884,
+          "elements": 262144
+        },
+        "w": {
+          "max_abs": 0.125,
+          "rel_l2": 0.0012712753749416644,
+          "nonzero": 47609,
+          "elements": 262144
+        },
+        "k": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "v": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "a": {
+          "max_abs": 0.00390625,
+          "rel_l2": 0.0025233411194956687,
+          "nonzero": 45922,
+          "elements": 262144
+        },
+        "b": {
+          "max_abs": 0.25,
+          "rel_l2": 0.0015206048564227925,
+          "nonzero": 17366,
+          "elements": 262144
+        }
+      }
+    },
+    "native_state": {
+      "output": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 262144
+      },
+      "state": {
+        "max_abs": 0.0070171356201171875,
+        "rel_l2": 0.002270331377519403,
+        "nonzero": 6177,
+        "elements": 8192
+      },
+      "first64": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 8192
+      },
+      "after256": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 229376
+      }
+    }
+  },
+  "layer23.bf16": {
+    "varlen_output": {
+      "max_abs": 0.0,
+      "rel_l2": 0.0,
+      "nonzero": 0,
+      "elements": 524288
+    },
+    "native_split_output": {
+      "max_abs": 0.0,
+      "rel_l2": 0.0,
+      "nonzero": 0,
+      "elements": 524288
+    },
+    "native_split_grads": {
+      "r": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "w": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "k": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "v": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "a": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      },
+      "b": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 524288
+      }
+    },
+    "default": {
+      "output": {
+        "max_abs": 1.0,
+        "rel_l2": 0.002563393354612994,
+        "nonzero": 96166,
+        "elements": 262144
+      },
+      "state": {
+        "max_abs": 0.06566143035888672,
+        "rel_l2": 0.0024992785011157966,
+        "nonzero": 8191,
+        "elements": 8192
+      },
+      "first64": {
+        "max_abs": 0.75,
+        "rel_l2": 0.003100268054222533,
+        "nonzero": 3688,
+        "elements": 8192
+      },
+      "after256": {
+        "max_abs": 1.0,
+        "rel_l2": 0.002528912143737226,
+        "nonzero": 82621,
+        "elements": 229376
+      },
+      "grads": {
+        "r": {
+          "max_abs": 0.5,
+          "rel_l2": 0.0029858273000563916,
+          "nonzero": 113205,
+          "elements": 262144
+        },
+        "w": {
+          "max_abs": 4.0,
+          "rel_l2": 0.0030766427412246256,
+          "nonzero": 128086,
+          "elements": 262144
+        },
+        "k": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "v": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "a": {
+          "max_abs": 2.0,
+          "rel_l2": 0.00355623604324871,
+          "nonzero": 129984,
+          "elements": 262144
+        },
+        "b": {
+          "max_abs": 12.0,
+          "rel_l2": 0.002472276294379135,
+          "nonzero": 87201,
+          "elements": 262144
+        }
+      }
+    },
+    "tf32x3": {
+      "output": {
+        "max_abs": 1.0,
+        "rel_l2": 0.002563393354612994,
+        "nonzero": 96166,
+        "elements": 262144
+      },
+      "state": {
+        "max_abs": 0.06566143035888672,
+        "rel_l2": 0.0024992785011157966,
+        "nonzero": 8191,
+        "elements": 8192
+      },
+      "first64": {
+        "max_abs": 0.75,
+        "rel_l2": 0.003100268054222533,
+        "nonzero": 3688,
+        "elements": 8192
+      },
+      "after256": {
+        "max_abs": 1.0,
+        "rel_l2": 0.002528912143737226,
+        "nonzero": 82621,
+        "elements": 229376
+      },
+      "grads": {
+        "r": {
+          "max_abs": 0.5,
+          "rel_l2": 0.0029858273000563916,
+          "nonzero": 113205,
+          "elements": 262144
+        },
+        "w": {
+          "max_abs": 4.0,
+          "rel_l2": 0.0030766427412246256,
+          "nonzero": 128086,
+          "elements": 262144
+        },
+        "k": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "v": {
+          "max_abs": 0.0,
+          "rel_l2": 0.0,
+          "nonzero": 0,
+          "elements": 262144
+        },
+        "a": {
+          "max_abs": 2.0,
+          "rel_l2": 0.00355623604324871,
+          "nonzero": 129984,
+          "elements": 262144
+        },
+        "b": {
+          "max_abs": 12.0,
+          "rel_l2": 0.002472276294379135,
+          "nonzero": 87201,
+          "elements": 262144
+        }
+      }
+    },
+    "native_state": {
+      "output": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 262144
+      },
+      "state": {
+        "max_abs": 0.06566143035888672,
+        "rel_l2": 0.0024992785011157966,
+        "nonzero": 8191,
+        "elements": 8192
+      },
+      "first64": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 8192
+      },
+      "after256": {
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "nonzero": 0,
+        "elements": 229376
+      }
+    }
+  }
+}

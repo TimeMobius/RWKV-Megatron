@@ -1,0 +1,46 @@
+[
+  {
+    "name": "strict-cp4-sp-16k",
+    "exit_code": 0,
+    "seconds": 52.475043535232544,
+    "env": {
+      "CP_VALIDATION_WKV": "1"
+    }
+  },
+  {
+    "name": "tp2-pp2-cp2-sp-mb2",
+    "exit_code": 0,
+    "seconds": 43.405970096588135,
+    "env": {
+      "CP_VALIDATION_WKV": "1"
+    }
+  },
+  {
+    "name": "capture-cp4-8k",
+    "exit_code": 0,
+    "seconds": 43.172120094299316,
+    "env": {
+      "CP_FIX_ENTRY": "training-smoke/audit/cp-equivalence-20261021/capture.py",
+      "CP_AUDIT_OUTPUT": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/audit/cp4-state-fix-20261021/captures/cp4-8k",
+      "CP_VALIDATION_WKV": "0"
+    }
+  },
+  {
+    "name": "timing-affine",
+    "exit_code": 0,
+    "seconds": 44.86047577857971,
+    "env": {
+      "CP_FIX_AFFINE_BASELINE": "1",
+      "CP_VALIDATION_WKV": "0"
+    }
+  },
+  {
+    "name": "timing-recurrent",
+    "exit_code": 0,
+    "seconds": 46.401421308517456,
+    "env": {
+      "CP_FIX_AFFINE_BASELINE": "0",
+      "CP_VALIDATION_WKV": "0"
+    }
+  }
+]

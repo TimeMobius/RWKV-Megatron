@@ -1,0 +1,31 @@
+{
+  "status": "passed",
+  "exit_code": 0,
+  "train_steps": 30,
+  "seq_length": 4096,
+  "micro_batch_size": 1,
+  "global_batch_size": 2,
+  "tp": 4,
+  "pp": 2,
+  "cp": 1,
+  "sequence_parallel": true,
+  "optimizer_cpu_offload": false,
+  "optimizer_offload_fraction": 0.0,
+  "master_parameters_and_moments_all_cuda": true,
+  "median_step_ms_after_step2": 2071.2,
+  "max_cuda_allocated_gib": 67.98236608505249,
+  "sampled_gpu_peak_mib": 75829,
+  "sampled_gpu_peak_mib_by_rank": {
+    "0": 75559,
+    "1": 75559,
+    "2": 75559,
+    "3": 75559,
+    "4": 75829,
+    "5": 75829,
+    "6": 75829,
+    "7": 75829
+  },
+  "final_train_loss": 7.755666,
+  "final_validation_loss": 7.497223,
+  "finite_and_zero_nan_skips": true
+}

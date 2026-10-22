@@ -1,0 +1,50 @@
+[
+  {
+    "rank": 0,
+    "tp": 4,
+    "bf16_collective_matches_training_capture": true,
+    "fp32_collective_matches_single_final_rounding": true,
+    "fp32_collective_vs_single_round_unequal_elements": 0,
+    "bf16_vs_exact_sum_relative_l2": 0.0024304765909468284,
+    "fp32_vs_exact_sum_relative_l2": 3.61223854062393e-10,
+    "fp32_then_bf16_vs_ideal_bf16_unequal_elements": 0,
+    "bf16_vs_fp32_collective_relative_l2": 0.0024304767139256,
+    "bf16_vs_fp32_then_bf16_unequal_elements": 1614735
+  },
+  {
+    "rank": 1,
+    "tp": 4,
+    "bf16_collective_matches_training_capture": true,
+    "fp32_collective_matches_single_final_rounding": false,
+    "fp32_collective_vs_single_round_unequal_elements": 1,
+    "bf16_vs_exact_sum_relative_l2": 0.002191480472165888,
+    "fp32_vs_exact_sum_relative_l2": 2.8627056264990985e-10,
+    "fp32_then_bf16_vs_ideal_bf16_unequal_elements": 1,
+    "bf16_vs_fp32_collective_relative_l2": 0.0021914804819971323,
+    "bf16_vs_fp32_then_bf16_unequal_elements": 1650636
+  },
+  {
+    "rank": 2,
+    "tp": 4,
+    "bf16_collective_matches_training_capture": true,
+    "fp32_collective_matches_single_final_rounding": true,
+    "fp32_collective_vs_single_round_unequal_elements": 0,
+    "bf16_vs_exact_sum_relative_l2": 0.0025895500002133718,
+    "fp32_vs_exact_sum_relative_l2": 3.18222231109211e-10,
+    "fp32_then_bf16_vs_ideal_bf16_unequal_elements": 0,
+    "bf16_vs_fp32_collective_relative_l2": 0.0025895501021295786,
+    "bf16_vs_fp32_then_bf16_unequal_elements": 1892694
+  },
+  {
+    "rank": 3,
+    "tp": 4,
+    "bf16_collective_matches_training_capture": true,
+    "fp32_collective_matches_single_final_rounding": true,
+    "fp32_collective_vs_single_round_unequal_elements": 0,
+    "bf16_vs_exact_sum_relative_l2": 0.00293224473840334,
+    "fp32_vs_exact_sum_relative_l2": 3.055076831270079e-10,
+    "fp32_then_bf16_vs_ideal_bf16_unequal_elements": 0,
+    "bf16_vs_fp32_collective_relative_l2": 0.0029322446789592505,
+    "bf16_vs_fp32_then_bf16_unequal_elements": 1767973
+  }
+]

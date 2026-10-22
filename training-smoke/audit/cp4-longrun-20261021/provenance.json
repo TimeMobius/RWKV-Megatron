@@ -1,0 +1,23 @@
+{
+  "conda": "train_mobius_py312",
+  "model": "/mnt/data/Models/RWKV-7/rwkv7-qwen-vocab-2.7b-from-28b.pt",
+  "model_size_bytes": 5485612495,
+  "model_mtime_ns": 1792134083197848195,
+  "launch_cwd": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test",
+  "duration_minutes": 720,
+  "main": {
+    "head": "0ca9d3aeea1cfbc64589f1dca3a08dbf7e6846fa",
+    "branch": "2026-10-10",
+    "status": "m 3rdparty/flash-linear-attention-260115\n M pretrain_rwkv7.py\n M rwkv_megatron/rwkv7_layer_specs.py\n M tests/test_rwkv7_v0_tp_pp_sp.py\n M todolist.txt\n M training-smoke/audit/ISSUES.md\n M training-smoke/audit/cp-equivalence-20261021/capture.py\n M training-smoke/audit/cp-equivalence-20261021/compare.py"
+  },
+  "fla": {
+    "head": "261dbcf5091dce3486c5bdee561328184b6920e0",
+    "branch": "2026-10-10",
+    "status": "M fla/ops/cp/context.py\n M fla/ops/generalized_delta_rule/dplr/backends/tilelang/__init__.py\n M fla/ops/generalized_delta_rule/dplr/chunk.py"
+  },
+  "megatron": {
+    "head": "d65baf60f3d715f313f644eeb68a4047f4cc42aa",
+    "branch": "2026-10-10",
+    "status": ""
+  }
+}

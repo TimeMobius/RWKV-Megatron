@@ -1,0 +1,241 @@
+{
+  "total_count": 3,
+  "incomplete_results": false,
+  "items": [
+    {
+      "url": "https://api.github.com/repos/fla-org/flash-linear-attention/issues/1546",
+      "repository_url": "https://api.github.com/repos/fla-org/flash-linear-attention",
+      "labels_url": "https://api.github.com/repos/fla-org/flash-linear-attention/issues/1546/labels{/name}",
+      "comments_url": "https://api.github.com/repos/fla-org/flash-linear-attention/issues/1546/comments",
+      "events_url": "https://api.github.com/repos/fla-org/flash-linear-attention/issues/1546/events",
+      "html_url": "https://github.com/fla-org/flash-linear-attention/pull/1546",
+      "id": 5940201298,
+      "node_id": "PR_kwDOK7zues8AAAABJh7qnQ",
+      "number": 1546,
+      "title": "[CP] Require TF32x3 for affine state chains",
+      "user": {
+        "login": "yzhangcs",
+        "id": 18402347,
+        "node_id": "MDQ6VXNlcjE4NDAyMzQ3",
+        "avatar_url": "https://avatars.githubusercontent.com/u/18402347?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/yzhangcs",
+        "html_url": "https://github.com/yzhangcs",
+        "followers_url": "https://api.github.com/users/yzhangcs/followers",
+        "following_url": "https://api.github.com/users/yzhangcs/following{/other_user}",
+        "gists_url": "https://api.github.com/users/yzhangcs/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/yzhangcs/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/yzhangcs/subscriptions",
+        "organizations_url": "https://api.github.com/users/yzhangcs/orgs",
+        "repos_url": "https://api.github.com/users/yzhangcs/repos",
+        "events_url": "https://api.github.com/users/yzhangcs/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/yzhangcs/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "labels": [
+
+      ],
+      "state": "open",
+      "locked": false,
+      "assignees": [
+
+      ],
+      "milestone": null,
+      "comments": 0,
+      "created_at": "2026-10-20T10:37:44Z",
+      "updated_at": "2026-10-21T06:32:51Z",
+      "closed_at": null,
+      "assignee": null,
+      "author_association": "MEMBER",
+      "issue_field_values": [
+
+      ],
+      "type": null,
+      "active_lock_reason": null,
+      "draft": true,
+      "pull_request": {
+        "url": "https://api.github.com/repos/fla-org/flash-linear-attention/pulls/1546",
+        "html_url": "https://github.com/fla-org/flash-linear-attention/pull/1546",
+        "diff_url": "https://github.com/fla-org/flash-linear-attention/pull/1546.diff",
+        "patch_url": "https://github.com/fla-org/flash-linear-attention/pull/1546.patch",
+        "merged_at": null
+      },
+      "body": "## Summary\n\nRequire TF32x3 for FP32 affine-chain products in distributed and intra-card delta-rule context parallelism. This makes the higher-precision path from #1180 unconditional for KDA, GDN, GDP, GDN2, and DPLR CP consumers, as proposed in #1545. This is the precision prerequisite for #1425.\n\nLegacy `use_tf32x3_affine_chain` is accepted through `**kwargs`: `False` raises `ValueError`; `True` and omission use TF32x3. Affine execution checks the input GPU and raises `RuntimeError` on non-NVIDIA hardware or compute capability below 8.0. The explicit option, context field, and IEEE fallback are removed.\n\nK192/K256 merges use 128-wide reduction tiles, with single-stage candidates for wide pre-scan/backward/merge kernels. These are needed to make mandatory TF32x3 fit shared memory independently of #1425. Gate and launch modes have separate autotune keys; narrow-state pipeline candidates are preserved.\n\nForward, backward, and merge launches use dedicated kernel modules and shared argument preparation. Distributed layouts and intra-card pre-scan now use the same launch path; context snapshots preserve sequence-boundary copies while retaining persistent graph counters. Kernel equations, autotune candidates, public operator signatures, and numerical tolerances are unchanged by this organization. The shared common-backward implementation remains in #1425.\n\n## Test plan\n\nCurrent head: `df6c16106cdd7901dbf31837427f37db4f27c393`. Main baseline: `9d478facb282410dc150051d5f57205cd3812f31`. GPU-tested implementation: `620138caa17faf711d473496c4dca9a3c5683ab5`. Refactor baseline: `0df65f3b90c36348fc141e1b502c3c5e4dc7dfe0`.\n\n- Test naming: all **137 cases** are retained under an explicit old/new name mapping. **52 scenario launches** preserve every worker argument and multiprocessing setting; **46 worker/helper/test definitions** have identical ASTs after symbol renaming. Nine worker/callback functions import and unpickle in a spawned child. Operator scenarios use `test_chunk[<case-id>]`; shared state and graph coverage use component names. References, inputs, thresholds, warning flags, and runtime library code are unchanged.\n- Host checks for this update: `FLA_CI_ENV=0 python -m pytest tests/cp/test_context.py tests/cp/test_conv.py -k 'not test_causal_conv1d or test_causal_conv1d_cuda_invalid' -q`: **34 passed**. `pytest tests/test_dependency_finder.py -k cuda-cp -q`: **1 passed**, selecting `tests/cp/test_conv.py`. CP tests also collect alongside ordinary KDA operator tests without module-name collisions. No GPU numerical tests were rerun for test naming.\n- Host at `620138ca` (current test paths shown): `FLA_CI_ENV=0 python -m pytest tests/cp/test_context.py tests/ops/test_intracard_cache.py -q`: **36 passed, 10 GPU skips**. `pytest tests/ops/test_backends.py -k intracard -q`: **3 passed**. This covers legacy-keyword/device rejection, sequence-boundary copies, persistent graph counters, and backend argument forwarding.\n- A before/after host audit covered **72 CP routing scenarios** across ranks, contiguous/zigzag layouts, state orientations, gate modes, and supported graph layouts. Every recorded launch argument, grid, and output shape matched. This audit does not execute kernels.\n- AST comparison confirms that the three extracted kernel bodies/decorators, merge helper, and autotune pruning are identical after internal symbol renaming. Changed-file pre-commit, syntax, and copyright-header checks pass locally; CI also passed lint and header checks on the GPU-tested implementation.\n\nGPU validation at `620138ca` (commands shown with the current test paths): GB200, Python 3.12, PyTorch 2.11.0.post1, Triton 3.7.1, Transformers 5.6.2. Flags: `FLA_CI_ENV=0 FLA_FLASH_KDA=0 FLA_FLASH_QLA=0 FLA_TILELANG=0 FLA_INTRACARD_CP=0`; intra-card tests enable the backend explicitly.\n\n| Coverage | Command / selection | Result |\n| --- | --- | --- |\n| Strict KDA output and all input gradients | `test_chunk_gradients` from #1425, run against this package | 4 passed |\n| Wide pre-scan/merge and per-head backward gates | `pytest tests/ops/test_intracard_cache.py tests/cp/test_state.py`, partitioned with `-k 192` and `-k 'K256 or 256-80'` | 5 + 5 passed |\n| Intra-card cache, GVA and policy | `pytest tests/ops/test_intracard_cache.py -k 'not pre_scan_merge'` | 11 passed: 2 GPU numerical cases and 9 host-policy cases |\n| Graph replay and DPLR boundaries | `pytest tests/cp/test_graph.py tests/cp/test_dplr.py -k 'test_chunk_kda or cp2-sequence-cut or cp2-boundary-aligned'` | 3 passed |\n\nThis is **19 distinct GPU numerical checks**. The strict KDA cases use BF16, T=256, H=2, K=64, V=80, contiguous/zigzag × both state orientations, with the existing 0.006 tolerance. Wide cases cover K192/K256, scalar/vector gates, both state orientations, GVA, an initial state, and a partial final chunk. Initial distributed attempts encountered `FileNotFoundError` while Triton wrote shared-filesystem cache entries, before numerical comparisons; the obsolete batch was stopped and all four strict cases passed using worker-local cache. No tolerance was relaxed.\n\nRemaining coverage and known limits:\n\n- An earlier candidate run at `5e574e91` had one Graph `dA` error ratio of 0.010804 against the 0.008 limit. Isolated candidate and main reruns passed; the matching main batch also passed. The current Graph test passes, but intermittent stability has not been established.\n- At `2bc849eb`, GDP n2/n3 and GDN2 sequence-cut failed identically on the candidate and main `9d478fac` (GDP output RMS ratios 7.025171/6.985883; GDN2 0.015102). These cases have not been rerun at `620138ca`.\n- Dependent tests were identified with `scripts/find_dependent_tests.py`. Eight-device CP, actual A100/H100 runtime, and the full dependent operator/layer/model suite remain unrun locally. The PR remains draft.\n\nEarlier offline SM80/SM90 compilation of K256 pre-scan, backward, and merge single-stage candidates reported 131,072 bytes of shared memory each. This is a resource estimate, not execution on either architecture.\n\n## Benchmark / NCU\n\nLaunch-refactor comparison: `0df65f3b` → `620138ca`, on the same GB200 with the software and backend settings above. Both sides use mandatory TF32x3 and independently autotune identical keys/candidates. BF16 inputs, FP32 summaries; B=1, T=1024, H=2, HV=4, V=80, BT=64. Five alternating before/after repeats of `triton.testing.do_bench_cudagraph(..., rep=100)`, reporting medians, on a separate GPU from numerical tests. Compilation uses worker-local storage.\n\n| Pre-scan workload | Before (µs) | After (µs) | Ratio |\n| --- | ---: | ---: | ---: |\n| K64, scalar gate, dense | 26.945 | 26.965 | 1.0007× |\n| K64, vector gate, dense | 23.316 | 23.324 | 1.0003× |\n| K64, scalar gate, varlen | 27.097 | 27.102 | 1.0002× |\n| K64, vector gate, varlen | 23.367 | 23.371 | 1.0002× |\n| K128, scalar gate, dense | 137.328 | 137.328 | 1.0000× |\n| K128, vector gate, dense | 117.481 | 117.688 | 1.0018× |\n| K128, scalar gate, varlen | 137.764 | 137.747 | 0.9999× |\n| K128, vector gate, varlen | 117.776 | 117.781 | 1.0000× |\n\nAll eight summaries are bitwise equal. Ratios are 0.9999–1.0018 (within 0.2% in this sweep). This measures GPU pre-scan replay, excluding Python launch overhead; it is not an end-to-end claim or a TF32-versus-TF32x3 comparison.\n\n**The original TF32-versus-TF32x3 timing sweep is provisional and does not isolate the precision cost.** The harness first ran the baseline with explicit TF32x3 for the correctness reference, then timed its default TF32 path. The baseline autotune key omits precision and gate mode, so later calls reused the earlier selected configuration; the candidate tunes gate modes separately. Independent tuning and a fixed-configuration comparison remain to be run.\n\n<details>\n<summary>Original pre-scan timing observations; affected by autotune cache reuse</summary>\n\nSame-GB200 baseline `9d478fac` (default TF32) → candidate `5e574e91` (TF32x3), using the software and backend flags above. BF16 inputs, FP32 summaries; B=1, T=1024, H=2, HV=4, V=80, BT=64. Autotuning with the cache reuse described above; five alternating before/after repeats of `triton.testing.do_bench(..., warmup=25, rep=100)`, reporting medians. Timing used a separate GPU from correctness tests.\n\n| Pre-scan workload         | TF32 (µs) | TF32x3 (µs) | Latency ratio |\n| ------------------------- | --------: | ----------: | ------------: |\n| K64, scalar gate, dense   | 20.740    | 30.966      | 1.493×        |\n| K64, vector gate, dense   | 18.419    | 27.640      | 1.501×        |\n| K64, scalar gate, varlen  | 20.824    | 31.337      | 1.505×        |\n| K64, vector gate, varlen  | 19.565    | 28.650      | 1.464×        |\n| K128, scalar gate, dense  | 39.215    | 139.795     | 3.565×        |\n| K128, vector gate, dense  | 37.282    | 124.011     | 3.326×        |\n| K128, scalar gate, varlen | 39.222    | 140.418     | 3.580×        |\n| K128, vector gate, varlen | 37.721    | 125.169     | 3.318×        |\n\nThe recorded ratios are **1.46–3.58×** for this harness. They are not an independently tuned before/after comparison or an established TF32x3 overhead. All eight candidate summaries were bitwise equal to the baseline with TF32x3 explicitly enabled; the autotune issue does not invalidate that numerical comparison.\n\n</details>\n\nNo end-to-end CP throughput, peak-memory, or NCU measurements are available. The benchmark checklist remains unchecked pending an independently tuned TF32-versus-TF32x3 comparison.\n\n## Breaking changes\n\nThe affine-chain default changes from TF32 to TF32x3 on NVIDIA Ampere and newer. Older NVIDIA GPUs and non-NVIDIA accelerators now error when executing CP affine chains. Non-CP operators, convolution CP, metadata-only contexts, input tensor dtypes, and checkpoint/state layouts are unchanged.\n\nRemove accesses to `FLACPContext.use_tf32x3_affine_chain` and omit the legacy keyword, or temporarily pass `True`; `False` is rejected. `FLA_INTRACARD_TF32X3` no longer controls precision. Former positional precision arguments are not accepted; pass layout and following context metadata by keyword.\n\nCP test commands now use `tests/cp/test_<operator>.py`. Shared context/state/graph coverage uses `test_context.py`, `test_state.py`, and `test_graph.py`. Scenario names move from separate functions into pytest parameter IDs; for example, `test_cp2_sequence_cut` becomes `test_chunk[cp2-sequence-cut]`. Update explicit pytest node IDs accordingly.\n\n## Checklist\n\n- [x] I have read [CONTRIBUTING.md](../CONTRIBUTING.md) and follow its conventions (code style, docstrings, commit prefixes).\n- [x] I have read [AGENTS.md](../AGENTS.md) and, where my change matches its scope, the relevant skill under [.agents/skills](../.agents/skills).\n- [ ] Dependent tests pass locally or in CI, and new behavior is covered by tests where applicable (tick as N/A for changes with no testable code, e.g. docs-only).\n- [ ] Kernel changes include same-hardware before/after benchmark numbers, dense + varlen where applicable (tick as N/A when no kernel code changed).\n- [ ] This PR is minor/cosmetic-only (typo, formatting, style-only tweaks) — tick only if it is, and justify below.\n- [x] I understand this PR exceeds 500 changed lines and have explained its single purpose and why it should stay together below.\n\n### Large PR justification\n\nThis diff establishes one precision and hardware contract across distributed and intra-card CP, including the wide-state resource fixes needed to execute it. The already-modified affine kernels are organized by direction with shared launch preparation so layouts cannot drift in precision or argument handling; most additional lines move existing kernel bodies unchanged. Review the keyword/device contract, the launch wrappers and their callers, then wide-state handling and tests. The CP directory and file naming, scenario parameter IDs, imports, and path references are included here; numerical workers and assertions are preserved. #1425 retains common-backward reuse, communication changes, and further test organization. The test-organization overlap with #1518 remains to be reconciled.\n",
+      "reactions": {
+        "url": "https://api.github.com/repos/fla-org/flash-linear-attention/issues/1546/reactions",
+        "total_count": 0,
+        "+1": 0,
+        "-1": 0,
+        "laugh": 0,
+        "hooray": 0,
+        "confused": 0,
+        "heart": 0,
+        "rocket": 0,
+        "eyes": 0
+      },
+      "timeline_url": "https://api.github.com/repos/fla-org/flash-linear-attention/issues/1546/timeline",
+      "performed_via_github_app": null,
+      "state_reason": null,
+      "score": 1.0
+    },
+    {
+      "url": "https://api.github.com/repos/fla-org/flash-linear-attention/issues/1425",
+      "repository_url": "https://api.github.com/repos/fla-org/flash-linear-attention",
+      "labels_url": "https://api.github.com/repos/fla-org/flash-linear-attention/issues/1425/labels{/name}",
+      "comments_url": "https://api.github.com/repos/fla-org/flash-linear-attention/issues/1425/comments",
+      "events_url": "https://api.github.com/repos/fla-org/flash-linear-attention/issues/1425/events",
+      "html_url": "https://github.com/fla-org/flash-linear-attention/pull/1425",
+      "id": 5876815761,
+      "node_id": "PR_kwDOK7zues8AAAABIwD7yA",
+      "number": 1425,
+      "title": "[Refactor] Unify CP state propagation",
+      "user": {
+        "login": "yzhangcs",
+        "id": 18402347,
+        "node_id": "MDQ6VXNlcjE4NDAyMzQ3",
+        "avatar_url": "https://avatars.githubusercontent.com/u/18402347?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/yzhangcs",
+        "html_url": "https://github.com/yzhangcs",
+        "followers_url": "https://api.github.com/users/yzhangcs/followers",
+        "following_url": "https://api.github.com/users/yzhangcs/following{/other_user}",
+        "gists_url": "https://api.github.com/users/yzhangcs/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/yzhangcs/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/yzhangcs/subscriptions",
+        "organizations_url": "https://api.github.com/users/yzhangcs/orgs",
+        "repos_url": "https://api.github.com/users/yzhangcs/repos",
+        "events_url": "https://api.github.com/users/yzhangcs/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/yzhangcs/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "labels": [
+
+      ],
+      "state": "open",
+      "locked": false,
+      "assignees": [
+
+      ],
+      "milestone": null,
+      "comments": 0,
+      "created_at": "2026-10-16T01:47:20Z",
+      "updated_at": "2026-10-21T06:32:55Z",
+      "closed_at": null,
+      "assignee": null,
+      "author_association": "MEMBER",
+      "issue_field_values": [
+
+      ],
+      "type": null,
+      "active_lock_reason": null,
+      "draft": false,
+      "pull_request": {
+        "url": "https://api.github.com/repos/fla-org/flash-linear-attention/pulls/1425",
+        "html_url": "https://github.com/fla-org/flash-linear-attention/pull/1425",
+        "diff_url": "https://github.com/fla-org/flash-linear-attention/pull/1425.diff",
+        "patch_url": "https://github.com/fla-org/flash-linear-attention/pull/1425.patch",
+        "merged_at": null
+      },
+      "body": "## Summary\n\nUnify affine state propagation across cross-rank and intra-card context parallelism, and reuse the same state update in common backward kernels. This PR builds on #1546, which owns mandatory TF32x3, the legacy-keyword contract, the Ampere hardware requirement, the wide-state shared-memory fixes, and the forward/backward/merge kernel organization with shared launch wrappers. Earlier design: #674; previous review: #1390.\n\nAffected callers are CP KDA, GDN, GDN2, GDP, DPLR/RWKV7, intra-card merging, and common backward users including Delta Rule, Comba, and preconditioned variants. The CP suite adds strict output/all-input-gradient comparisons and FP64 affine-merge references. The directory and file naming are part of #1546; this PR retains further test organization and reference coverage, which overlap with #1518 and need reconciliation before both PRs merge.\n\n## Test plan\n\nHead: `cda9e1ad8d022b6a44c07d9a3fc67c599585b7d0`. Base: `df6c16106cdd7901dbf31837427f37db4f27c393` (#1546), on main `9d478fac`. The naming synchronization preserves this branch's implementation, parameterized cases, and shared distributed fixtures.\n\n- Naming synchronization: all **219 CP cases** remain collected under the corresponding name mapping. Only context/convolution test names and the graph input helper changed relative to `53ed99f5`; the three affected module ASTs are identical after symbol renaming. `FLA_CI_ENV=0 python -m pytest tests/cp/test_context.py tests/cp/test_conv.py -k 'not test_causal_conv1d or test_causal_conv1d_cuda_invalid' -q`: **37 passed**. Changed-file pre-commit passes. No additional GPU numerical tests were run for naming.\n- Host at `6a45dc43`: `FLA_CI_ENV=0 python -m pytest tests/cp/test_context.py tests/cp/test_state.py tests/ops/test_intracard_cache.py tests/ops/test_backends.py -q`: **106 passed, 54 GPU skips**. Python 3.12, PyTorch 2.9.1, Triton 3.7.1, Transformers 5.6.2. Skips are not numerical passes.\n- GPU selection at `6a45dc43`: `pytest tests/cp/test_kda.py tests/cp/test_state.py -k 'test_chunk_gradients or test_intracard_pre_scan_merge and gva and 192 or test_chunk_bwd_gate_head and T256 and K192' -v`. **9 distinct checks passed** across the original run and a rerun: four strict KDA gradient cases, four K192 pre-scan/merge cases, and one K192 backward-gate case. The original batch had 8 passes and a `FileNotFoundError` writing a Triton cache entry on shared storage; that case passed with worker-local cache.\n- GPU environment: GB200, Python 3.12, PyTorch 2.11.0.post1, Triton 3.7.1, Transformers 5.6.2; `FLA_CI_ENV=0 FLA_FLASH_KDA=0 FLA_FLASH_QLA=0 FLA_TILELANG=0 FLA_INTRACARD_CP=0`. Strict KDA covers BF16, T=256, H=2, K=64, V=80, both partition layouts and state orientations. Wide cases include GVA, scalar/vector gates, both state orientations, an initial state and a partial chunk. No tolerances were relaxed.\n- Changed-file pre-commit and copyright-header checks passed locally and in CI at `6a45dc43`. The prerequisite's keyword/device rejection tests remain under the reorganized paths. Its validation at `620138ca` adds K256, Graph/DPLR and end-to-end intra-card checks.\n\nEarlier evidence at `cc802f06` includes 16 distinct GPU checks: four strict KDA cases, eight K192/K256 pre-scan/merge cases, two wide backward-gate checks, and two K-first backward affine merges against FP64. The initial 24-case run and a merge follow-up timed out; six other FP64 merge cases and two narrower backward cases remain unverified at the current head. Earlier common-backward/layer/model checks do not establish a current full-suite pass.\n\nDependent tests were identified with `scripts/find_dependent_tests.py`. The complete common-backward operator/layer/model gate, eight-device CP, optional CUDA convolution and A100/H100 runtime validation remain incomplete. [NPU CI failed before running tests](https://github.com/fla-org/flash-linear-attention/actions/runs/39542469074/job/119033130453): the runner container could not start because of an invalid cgroup cpuset configuration. The dependent-tests checklist remains unchecked.\n\nThe prerequisite records earlier GDP/GDN2 failures reproduced on main and an intermittent Graph gradient failure that was not reproduced on main. Its current Graph check passes, but the prior stability concern remains open.\n\n## Benchmark / NCU\n\nEarlier pre-scan comparison: prerequisite `5e574e91` → candidate `cc802f06`, on the same GB200/software/backend configuration above. BF16 inputs, FP32/TF32x3 summaries; B=1, T=1024, H=2, HV=4, V=80, BT=64. Default autotuning; five alternating before/after repeats of `triton.testing.do_bench(..., warmup=25, rep=100)`, reporting medians, on a separate GPU from correctness tests.\n\n| Pre-scan workload         | Base (µs) | Candidate (µs) | Latency ratio |\n| ------------------------- | --------: | -------------: | ------------: |\n| K64, scalar gate, dense   | 31.309    | 31.307         | 1.000×        |\n| K64, vector gate, dense   | 28.248    | 28.353         | 1.004×        |\n| K64, scalar gate, varlen  | 31.371    | 31.430         | 1.002×        |\n| K64, vector gate, varlen  | 28.625    | 28.701         | 1.003×        |\n| K128, scalar gate, dense  | 142.983   | 142.975        | 1.000×        |\n| K128, vector gate, dense  | 125.131   | 124.252        | 0.993×        |\n| K128, scalar gate, varlen | 143.600   | 143.584        | 1.000×        |\n| K128, vector gate, varlen | 125.084   | 127.179        | 1.017×        |\n\nAll eight summaries were bitwise equal. Latency ratios range from 0.993× to 1.017×; there is no speedup claim. The TF32-to-TF32x3 policy change belongs to #1546. Its original timing sweep has an autotune cache confound and does not establish the precision-change cost; the comparison here uses TF32x3 on both sides.\n\n<details>\n<summary>Earlier measurements of retained backward and merge kernels</summary>\n\nGB200, PyTorch 2.11, Triton 3.6.0. These measurements predate the current base and are not current-head performance claims.\n\n| Workload                                  | Baseline (µs) | Candidate (µs) |\n| ----------------------------------------- | ------------: | -------------: |\n| Common backward, K128 scalar gate, dense  | 403.500       | 403.556        |\n| Common backward, K128 scalar gate, varlen | 275.504       | 274.355        |\n| CP backward, K128 vector gate, dense      | 881.962       | 881.546        |\n| CP backward, K128 vector gate, varlen     | 314.329       | 313.898        |\n| Merge, K64 K-first, intra-card, chain 2   | 5.159         | 5.285          |\n| Merge, K64 V-first, intra-card, chain 8   | 19.983        | 12.518         |\n\nBackward: `4056b9de` → `72a96ec4`, BF16, T=8192, H=2, HV=4, V=80, K=64/128; scalar/vector gates, dense/varlen, both state orientations. Five alternating repeats, 25 ms warmup/100 ms timing, median; BV=32 for common backward, BLOCK_SIZE=32/64 for CP, four warps/two stages. Across 24 cases, latency ratios were 0.99473–1.00401.\n\nMerge: `4056b9de` → `9e451067`, FP32/TF32x3, HV=4, V=80, K=64/128, both state orientations, intra-card/cross-rank, chains of 2/8. Default autotuning; five alternating 100 ms CUDA Graph repeats, median. Across 16 cases, ratios were 0.62643–1.02442, with bitwise-equal outputs. The largest slowdown was 2.44% / 0.126 µs. The original K192/K256 merge exceeded shared memory, so it has no baseline timing.\n\n</details>\n\nCurrent full backward/merge benchmarks, NCU, peak memory, and end-to-end throughput remain unmeasured.\n\n## Breaking changes\n\nNo additional precision or hardware-policy change beyond #1546. Public operator entry points, tensor input dtypes, and checkpoint/state layouts are preserved. The removed legacy option is accepted through `**kwargs`, with `False` rejected. The `tests/cp` directory and operator-based naming are supplied by #1546; this PR further organizes the files and shared test setup.\n\n## Checklist\n\n- [x] I have read [CONTRIBUTING.md](../CONTRIBUTING.md) and follow its conventions (code style, docstrings, commit prefixes).\n- [x] I have read [AGENTS.md](../AGENTS.md) and, where my change matches its scope, the relevant skill under [.agents/skills](../.agents/skills).\n- [ ] Dependent tests pass locally or in CI, and new behavior is covered by tests where applicable (tick as N/A for changes with no testable code, e.g. docs-only).\n- [x] Kernel changes include same-hardware before/after benchmark numbers, dense + varlen where applicable (tick as N/A when no kernel code changed).\n- [ ] This PR is minor/cosmetic-only (typo, formatting, style-only tweaks) — tick only if it is, and justify below.\n- [x] I understand this PR exceeds 500 changed lines and have explained its single purpose and why it should stay together below.\n\n\n### Large PR justification\n\nThis increment contains common-backward state reuse, its CP integration, communication changes, and reference coverage with further test organization. The kernels and callers need to be validated together; separating the reference suite would leave the implementation without its strict comparisons. Review common-backward reuse, context/communication, then the test organization. The precision policy, required wide-state fixes, and basic kernel/launch organization are isolated in #1546. Common-backward reuse and test organization remain sizeable review units, and the overlap with #1518 still needs reconciliation.\n",
+      "reactions": {
+        "url": "https://api.github.com/repos/fla-org/flash-linear-attention/issues/1425/reactions",
+        "total_count": 0,
+        "+1": 0,
+        "-1": 0,
+        "laugh": 0,
+        "hooray": 0,
+        "confused": 0,
+        "heart": 0,
+        "rocket": 0,
+        "eyes": 0
+      },
+      "timeline_url": "https://api.github.com/repos/fla-org/flash-linear-attention/issues/1425/timeline",
+      "performed_via_github_app": null,
+      "state_reason": null,
+      "score": 1.0
+    },
+    {
+      "url": "https://api.github.com/repos/fla-org/flash-linear-attention/issues/1402",
+      "repository_url": "https://api.github.com/repos/fla-org/flash-linear-attention",
+      "labels_url": "https://api.github.com/repos/fla-org/flash-linear-attention/issues/1402/labels{/name}",
+      "comments_url": "https://api.github.com/repos/fla-org/flash-linear-attention/issues/1402/comments",
+      "events_url": "https://api.github.com/repos/fla-org/flash-linear-attention/issues/1402/events",
+      "html_url": "https://github.com/fla-org/flash-linear-attention/pull/1402",
+      "id": 5868776611,
+      "node_id": "PR_kwDOK7zues8AAAABIpo0OQ",
+      "number": 1402,
+      "title": "[Perf] Token-aligned forward for gated DeltaProduct inference",
+      "user": {
+        "login": "gregghy",
+        "id": 100513337,
+        "node_id": "U_kgDOBf22OQ",
+        "avatar_url": "https://avatars.githubusercontent.com/u/100513337?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/gregghy",
+        "html_url": "https://github.com/gregghy",
+        "followers_url": "https://api.github.com/users/gregghy/followers",
+        "following_url": "https://api.github.com/users/gregghy/following{/other_user}",
+        "gists_url": "https://api.github.com/users/gregghy/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/gregghy/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/gregghy/subscriptions",
+        "organizations_url": "https://api.github.com/users/gregghy/orgs",
+        "repos_url": "https://api.github.com/users/gregghy/repos",
+        "events_url": "https://api.github.com/users/gregghy/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/gregghy/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "labels": [
+
+      ],
+      "state": "open",
+      "locked": false,
+      "assignees": [
+
+      ],
+      "milestone": null,
+      "comments": 1,
+      "created_at": "2026-10-15T15:13:01Z",
+      "updated_at": "2026-10-15T20:33:24Z",
+      "closed_at": null,
+      "assignee": null,
+      "author_association": "NONE",
+      "issue_field_values": [
+
+      ],
+      "type": null,
+      "active_lock_reason": null,
+      "draft": false,
+      "pull_request": {
+        "url": "https://api.github.com/repos/fla-org/flash-linear-attention/pulls/1402",
+        "html_url": "https://github.com/fla-org/flash-linear-attention/pull/1402",
+        "diff_url": "https://github.com/fla-org/flash-linear-attention/pull/1402.diff",
+        "patch_url": "https://github.com/fla-org/flash-linear-attention/pull/1402.patch",
+        "merged_at": null
+      },
+      "body": "\n## Summary\n\n`chunk_gated_delta_product` calls that need no gradients now use a token-aligned forward when `num_householder >= 2`, `K <= 64` and `V <= 128` on NVIDIA sm80+. On an RTX 3070 Ti, the no-grad forward is 1.10–1.31x faster at nh=2 and up to ~1.5x at nh=8. The sequential state pass runs over `T / 64` token chunks, independent of `num_householder`, instead of `T * num_householder / 64` expanded chunks. Each 64-token chunk is first reduced, in parallel, to an exact affine map `S -> Phi_c S + B_c`.\n\nDesign discussion: #1379. That issue covers the algorithm, precision tiers, accuracy tables, memory trade-off and open questions.\n\nSupersedes #1380, which was auto-closed by a maintainer-side incident; the commits are unchanged.\n\nWho is affected: inference and prefill callers, i.e. calls under `torch.no_grad()`/`torch.inference_mode()` or with no input requiring grad, inside the routing bounds. That includes `GatedDeltaProduct` layers in `chunk` mode with head dims in range. Unchanged:\n- Training calls.\n- `cp_context`.\n- `num_householder == 1`.\n- `K > 64` or `V > 128`, which includes the layer default K=256, V=512.\n- Non-NVIDIA backends.\n\nThe new path has no backward, and the router never selects it when a gradient is needed.\n\nNumerics: against a float64 recurrence, the new path's output error matches or beats the existing forward in every measured case, and its final-state error is up to 3.5x lower (table in the RFC). As on the existing path, neither route reaches the 0.005 output bound against the fp32 oracle with bf16 inputs at nh >= 3 — the existing path lands at 0.0053–0.0063 there — so the new test keeps 0.005 for fp16 and, for routed bf16 cases, asserts parity with the fallback output (0.01) plus no accuracy regression vs the oracle.\n\nThe route trades memory for speed: peak extra workspace of the no-grad forward rises 1.35–2.1x (fp32 intermediates; table in the RFC).\n\n## Test plan\n\nNew `test_chunk_no_grad` in `tests/ops/test_gdp.py`, under the NaN allocation guard.\n- **Reference:** fp16 cases compare output and final state against `naive_recurrent_gated_delta_product` at the existing 0.005 bound. bf16 routed cases compare against the fallback path output at 0.01 and must not be less accurate than it against the oracle.\n- **Routing:** asserts which route was taken, and compares both routes on the same inputs.\n- **Covered:** dense and varlen (including an empty sequence and length-1 sequences), partial chunks, gated and ungated, beta in (0, 2), qk-l2norm in kernel, non-power-of-two K/V (60/100), non-contiguous q/k, fp16 and bf16, nh 1/2/3/4.\n- **Fallbacks (not routed):** K=128, V=256, nh=1.\n\nEnvironment: RTX 3070 Ti (SM86, 8 GB), CUDA 12.8, PyTorch 2.9.1, Triton 3.5.1, `FLA_CI_ENV=0`. A single pytest process over the whole ops suite can exhaust this card (the existing `D=256` varlen cases reserve ~7.3 GiB on their own), so the dependent files were run per file; unmodified `main` passes the same file orders.\n\n- `pytest tests/ops/test_gdp.py`: 27 passed on the pre-review head; the review round adds 1 non-contiguous case (28 cases, rerun pending).\n- `pytest tests/ops/test_delta_product.py tests/layers/test_attn_varlen_pack_layout.py tests/layers/test_layer_cache_layer_idx.py tests/models/test_modeling_gated_deltaproduct.py` (with test_gdp.py): 85 passed, 3 skipped (pre-review run).\n- `pytest tests/models/test_hybrid_attention.py`: 210 passed, 2 skipped.\n- `python scripts/find_dependent_tests.py` also returns:\n  - `tests/context_parallel/test_cp_gdp.py`: not run (needs 2 GPUs; CP is excluded from the new route).\n  - `tests/ops/test_dplr_tilelang.py`: not run (tilelang not installed).\n- `ruff check` and `autopep8` (repo pins): clean on all changed files.\n- Not run: Hopper/Blackwell, AMD, Intel. The new route is gated off non-NVIDIA by `IS_TF32_SUPPORTED`.\n\n## Benchmark / NCU\n\nThe op is registered in `benchmarks/ops/registry.py` twice, so the H100 CI job measures both routes:\n- `chunk_gated_delta_product`: training route.\n- `chunk_gated_delta_product_no_grad`: inference route.\n\nSettings: RTX 3070 Ti, bf16, nh=2, `use_qk_l2norm_in_kernel=True`. Base 1fe52b5. Command: `python -m benchmarks.ops.run --op chunk_gated_delta_product_no_grad chunk_gated_delta_product --base 1fe52b5d05c53601885610fab3d39157647d836d`.\n\n| Workload (B, T, H, D; bf16; dense) | Measurement | Before | After | Change |\n| --- | --- | --- | --- | --- |\n| 1, 8192, 8, 64 | no-grad fwd, ms | 1.133 | 0.909 | 1.25x |\n| 1, 32768, 8, 64 | no-grad fwd, ms | 4.423 | 3.464 | 1.28x |\n| 4, 4096, 16, 64 | no-grad fwd, ms | 3.784 | 3.247 | 1.17x |\n| 8, 1024, 8, 64 | no-grad fwd, ms | 0.940 | 0.856 | 1.10x |\n| 2, 4096, 6, 128 | no-grad fwd, ms (fallback) | 1.165 | 1.166 | 1.00x |\n| 1, 8192, 6, 256 | no-grad fwd, ms (fallback) | 2.527 | 2.529 | 1.00x |\n| all six shapes above | fwd and fwd+bwd with grad, ms | — | — | 1.00x (unchanged route) |\n\nThe following table compares the routed call with the previous forward function in the same process, timed with `triton.testing.do_bench` (beta in (0, 2), qk-l2norm):\n\n| Workload | Before (ms) | After (ms) | Change |\n| --- | --- | --- | --- |\n| B1 T8192 H8 K32 V64 nh2 | 1.018 | 0.591 | 1.72x |\n| B1 T8192 H8 K64 V64 nh3 / nh4 / nh8 | 1.677 / 2.136 / 4.148 | 1.244 / 1.565 / 2.837 | 1.35x / 1.36x / 1.46x |\n| B1 T8192 H16 K64 V128 nh2 | 2.448 | 2.314 | 1.06x |\n| B2 T8192 H16 K64 V128 nh3 | 7.389 | 6.235 | 1.19x |\n| B16 T2048 H16 K64 V64 nh2 | 7.464 | 6.435 | 1.16x |\n| B1 T65536 H4 K64 V64 nh2 | 5.580 | 4.086 | 1.37x |\n| varlen, 14 mixed lengths (33k tokens), H8 K=V=64, nh2 / nh4 | 3.822 / 7.212 | 3.395 / 5.874 | 1.13x / 1.23x |\n| varlen, 8 x 4096, H8 K=V=64, nh2 / nh4 | 3.784 / 7.162 | 3.308 / 5.770 | 1.14x / 1.24x |\n| varlen, 8 x 4096, H16 K64 V128, nh2 | 9.490 | 9.204 | 1.03x |\n| B1 T8192 H8 K64 **V256** nh2 | 1.704 | 1.904 | 0.90x (excluded by routing) |\n\nPeak extra memory of the no-grad forward, inputs excluded (RTX 3070 Ti):\n\n| Shape | main | new |\n| --- | --- | --- |\n| B1 T32768 H8 K64 V64 nh2 | 421 MiB | 867 MiB |\n| B1 T8192 H8 K64 V64 nh4 | 184 MiB | 249 MiB |\n| B4 T4096 H16 K64 V128 nh2 | 614 MiB | 1125 MiB |\n\nThese are consumer-GPU numbers. Hopper results will come from the CI benchmark job; I have no access to sm90 hardware.\n\n## Breaking changes\n\nNone. The signature, defaults and return structure are unchanged. Within the routing bounds, no-grad outputs differ from grad-enabled outputs on the same inputs at the bf16/fp16 rounding level documented above.\n\n## Checklist\n\n- [x] I have read [CONTRIBUTING.md](../CONTRIBUTING.md) and follow its conventions (code style, docstrings, commit prefixes).\n- [x] I have read [AGENTS.md](../AGENTS.md) and, where my change matches its scope, the relevant skill under [.agents/skills](../.agents/skills).\n- [x] Dependent tests pass locally or in CI, and new behavior is covered by tests where applicable (tick as N/A for changes with no testable code, e.g. docs-only).\n- [x] Kernel changes include same-hardware before/after benchmark numbers, dense + varlen where applicable (tick as N/A when no kernel code changed).\n- [ ] This PR is minor/cosmetic-only (typo, formatting, style-only tweaks) — tick only if it is, and justify below.\n- [x] I understand this PR exceeds 500 changed lines and have explained its single purpose and why it should stay together below.\n\n### Large PR justification\n\nThe single outcome is one complete forward implementation: the 4 kernels and host function in the new `chunk_compact.py` (about 525 lines, most of it one-argument-per-line launches and kernel signatures). It ships together with its routing (19 lines), its tests (about 110 lines) and the benchmark registration (39 lines) that lets CI measure it. Splitting would land either dead kernels or a route without tests.\n\nSuggested review order:\n1. Routing: `is_compact_fwd_supported` and the call site in `chunk.py`.\n2. The tests.\n3. The host function.\n4. The kernels in pipeline order: `compact_m`, then `compact_u`, `compact_h`, `compact_o`.\n\n",
+      "reactions": {
+        "url": "https://api.github.com/repos/fla-org/flash-linear-attention/issues/1402/reactions",
+        "total_count": 0,
+        "+1": 0,
+        "-1": 0,
+        "laugh": 0,
+        "hooray": 0,
+        "confused": 0,
+        "heart": 0,
+        "rocket": 0,
+        "eyes": 0
+      },
+      "timeline_url": "https://api.github.com/repos/fla-org/flash-linear-attention/issues/1402/timeline",
+      "performed_via_github_app": null,
+      "state_reason": null,
+      "score": 1.0
+    }
+  ],
+  "search_type": "lexical"
+}

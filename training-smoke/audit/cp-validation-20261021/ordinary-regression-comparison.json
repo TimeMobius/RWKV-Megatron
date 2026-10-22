@@ -1,0 +1,131 @@
+{
+  "sp": true,
+  "checkpoint_step": 2,
+  "resumed_steps": [
+    3,
+    4
+  ],
+  "passed": true,
+  "ranks": [
+    {
+      "rank": 0,
+      "states": {
+        "before3": {
+          "records": 1190,
+          "mismatches": []
+        },
+        "after4": {
+          "records": 1190,
+          "mismatches": []
+        }
+      },
+      "continuation_events_exact": true,
+      "events_compared": 4
+    },
+    {
+      "rank": 1,
+      "states": {
+        "before3": {
+          "records": 1190,
+          "mismatches": []
+        },
+        "after4": {
+          "records": 1190,
+          "mismatches": []
+        }
+      },
+      "continuation_events_exact": true,
+      "events_compared": 4
+    },
+    {
+      "rank": 2,
+      "states": {
+        "before3": {
+          "records": 512,
+          "mismatches": []
+        },
+        "after4": {
+          "records": 512,
+          "mismatches": []
+        }
+      },
+      "continuation_events_exact": true,
+      "events_compared": 4
+    },
+    {
+      "rank": 3,
+      "states": {
+        "before3": {
+          "records": 512,
+          "mismatches": []
+        },
+        "after4": {
+          "records": 512,
+          "mismatches": []
+        }
+      },
+      "continuation_events_exact": true,
+      "events_compared": 4
+    },
+    {
+      "rank": 4,
+      "states": {
+        "before3": {
+          "records": 467,
+          "mismatches": []
+        },
+        "after4": {
+          "records": 467,
+          "mismatches": []
+        }
+      },
+      "continuation_events_exact": true,
+      "events_compared": 4
+    },
+    {
+      "rank": 5,
+      "states": {
+        "before3": {
+          "records": 467,
+          "mismatches": []
+        },
+        "after4": {
+          "records": 467,
+          "mismatches": []
+        }
+      },
+      "continuation_events_exact": true,
+      "events_compared": 4
+    },
+    {
+      "rank": 6,
+      "states": {
+        "before3": {
+          "records": 1235,
+          "mismatches": []
+        },
+        "after4": {
+          "records": 1235,
+          "mismatches": []
+        }
+      },
+      "continuation_events_exact": true,
+      "events_compared": 4
+    },
+    {
+      "rank": 7,
+      "states": {
+        "before3": {
+          "records": 1235,
+          "mismatches": []
+        },
+        "after4": {
+          "records": 1235,
+          "mismatches": []
+        }
+      },
+      "continuation_events_exact": true,
+      "events_compared": 4
+    }
+  ]
+}

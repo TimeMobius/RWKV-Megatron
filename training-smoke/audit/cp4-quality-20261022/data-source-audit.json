@@ -1,0 +1,121 @@
+{
+  "selection": "256 random byte offsets per source file; next complete JSONL record; size-biased rather than uniform document sample",
+  "sample_count": 1024,
+  "metadata_languages": {
+    "eng": 1024
+  },
+  "top_domains": [
+    [
+      "www.tripadvisor.com",
+      8
+    ],
+    [
+      "www.almartinraw.com",
+      7
+    ],
+    [
+      "www.tripadvisor.co.uk",
+      4
+    ],
+    [
+      "www.swimia.com",
+      4
+    ],
+    [
+      "www.scout.com",
+      4
+    ],
+    [
+      "www.movoto.com",
+      3
+    ],
+    [
+      "www.airbnb.co.uk",
+      3
+    ],
+    [
+      "www.ratebeer.com",
+      3
+    ],
+    [
+      "www.homedepot.com",
+      3
+    ],
+    [
+      "www.freelancer.com",
+      3
+    ],
+    [
+      "www.groupon.com",
+      3
+    ],
+    [
+      "www.expedia.com",
+      3
+    ],
+    [
+      "www.bartprince.com",
+      3
+    ],
+    [
+      "www.whereorg.com",
+      3
+    ],
+    [
+      "www.inspirock.com",
+      3
+    ]
+  ],
+  "examples": [
+    {
+      "file": "00560000.jsonl",
+      "id": "00560000000455f3",
+      "url": "https://hr.airbnb.com/rooms/18639867",
+      "text_excerpt": "Warm, welcoming, authentic, family run and super comfortable. Himalayak has everything a traveller needs to immerse themselves in Tibetan culture. The café and bar are beautiful, s"
+    },
+    {
+      "file": "00560000.jsonl",
+      "id": "0056000000037b1a",
+      "url": "http://toxaprevent.co.uk/cart",
+      "text_excerpt": "User Reviews Love this product! ★ I used the sample of this on my skin several times and again last night. I just cannot believe the night an dday difference of what it does to my "
+    },
+    {
+      "file": "00560000.jsonl",
+      "id": "00560000000220df",
+      "url": "https://www.howtoshopforfree.net/tag/app/",
+      "text_excerpt": "Walmart is testing a service that delivers groceries straight to your fridge when you're not home. On Friday, the retail giant announced a partnership with August Home, a smart-loc"
+    },
+    {
+      "file": "00560000.jsonl",
+      "id": "00560000000096d2",
+      "url": "http://beenandgoing.com/?tag=photos",
+      "text_excerpt": " challenges his friends to name these celebrity pictures, posted to twitter, just by looking at their rear! Think you can do. play along and find out! Fans post all kinds of photos"
+    },
+    {
+      "file": "00560000.jsonl",
+      "id": "005600000002fa6e",
+      "url": "http://www.blancheporte.sk.ipaddress.com/",
+      "text_excerpt": " Blancheporte Website and Webhosting Information is a sub-domain of Blancheporte.sk which is ranked at 529,375 and the hosting organization is SuperNetwork s.r.o. in Czech Republic"
+    },
+    {
+      "file": "00560000.jsonl",
+      "id": "005600000002d843",
+      "url": "https://www.ebay.co.uk/b/Rayon-Stretch-Bodycon-Skirts-for-Women/63864/bn_3767345",
+      "text_excerpt": "1-48 of 62 results Red and white striped long ankle length skirt from free people. BNWT. Lovely burgundy red colour with white. Doesn't suit me so would like someone else to get so"
+    },
+    {
+      "file": "00560000.jsonl",
+      "id": "005600000002e40f",
+      "url": "https://www.thompsoncigar.com/product/ALEC-BRADLEY-POST-EMBARGO-ROBUSTO-HONDURAN/94199.uts",
+      "text_excerpt": "Alec Bradley Post Embargo Robusto Honduran Criollo '98 (5\" x 52) is a Cuban contender boasting a medium-to-full body blend of Honduran and Nicaraguan long fillers, and a double-bin"
+    },
+    {
+      "file": "00560000.jsonl",
+      "id": "005600000000092f",
+      "url": "https://www.airbnb.se/s/Brodarica--Kroatien?type=apartment",
+      "text_excerpt": " withHello! Me, my mum and my sister stayed at Antonijas apartment for one week and had a really good time, even on rainy days. Our apartment was comfortable and we had enough spac"
+    }
+  ],
+  "raw_source_directory": "/mnt/data/Datas/Pretrain_Data/0056",
+  "source_collection_name": "Not documented in local source files or preprocessing manifests"
+}

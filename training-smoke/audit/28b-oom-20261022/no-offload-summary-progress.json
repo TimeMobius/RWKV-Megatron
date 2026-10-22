@@ -1,0 +1,134 @@
+{
+  "cp2-no-offload-remainder": {
+    "completed_train_steps": 0,
+    "completed_rank_count_at_step30": 0,
+    "passed_30_steps_and_evaluation": false,
+    "logged_loss_and_grad_finite": null,
+    "logged_nan_count": 0,
+    "logged_skipped_count": 0,
+    "all_recorded_storage_on_cuda": null,
+    "storage_rank0_at_step30": null,
+    "median_step_ms_after_step2": null,
+    "max_audited_cuda_allocated_gib": 74.97239351272583,
+    "sampled_gpu_peak_mib_by_rank": {
+      "0": 80553,
+      "1": 80745,
+      "2": 80719,
+      "3": 80527,
+      "4": 80937,
+      "5": 80959,
+      "6": 81013,
+      "7": 80991
+    },
+    "final_training_loss": null,
+    "evaluations": [],
+    "audited_oom_ranks": [
+      4,
+      5,
+      6,
+      7
+    ]
+  },
+  "cp2-no-offload-low-nccl": {
+    "completed_train_steps": 1,
+    "completed_rank_count_at_step30": 0,
+    "passed_30_steps_and_evaluation": false,
+    "logged_loss_and_grad_finite": true,
+    "logged_nan_count": 0,
+    "logged_skipped_count": 0,
+    "all_recorded_storage_on_cuda": null,
+    "storage_rank0_at_step30": null,
+    "median_step_ms_after_step2": null,
+    "max_audited_cuda_allocated_gib": 76.05934381484985,
+    "sampled_gpu_peak_mib_by_rank": {
+      "0": 80709,
+      "1": 80749,
+      "2": 80723,
+      "3": 80683,
+      "4": 81049,
+      "5": 81069,
+      "6": 81061,
+      "7": 81051
+    },
+    "final_training_loss": 12.42638,
+    "evaluations": [],
+    "audited_oom_ranks": []
+  },
+  "cp2-no-offload-2k": {
+    "completed_train_steps": 30,
+    "completed_rank_count_at_step30": 8,
+    "passed_30_steps_and_evaluation": true,
+    "logged_loss_and_grad_finite": true,
+    "logged_nan_count": 0,
+    "logged_skipped_count": 0,
+    "all_recorded_storage_on_cuda": true,
+    "storage_rank0_at_step30": {
+      "model_buffer/cuda/torch.bfloat16": 14513827840,
+      "gradient_buffer/cuda/torch.float32": 29027655680,
+      "exp_avg/cuda/torch.float32": 14513827840,
+      "exp_avg_sq/cuda/torch.float32": 14513827840,
+      "master_param/cuda/torch.int16": 7256913920
+    },
+    "median_step_ms_after_step2": 5669.4,
+    "max_audited_cuda_allocated_gib": 77.4923448562622,
+    "sampled_gpu_peak_mib_by_rank": {
+      "0": 80451,
+      "1": 80469,
+      "2": 80435,
+      "3": 80427,
+      "4": 80759,
+      "5": 80767,
+      "6": 80797,
+      "7": 80779
+    },
+    "final_training_loss": 7.878817,
+    "evaluations": [
+      {
+        "step": 10,
+        "loss": 8.788555,
+        "perplexity": 6558.749
+      },
+      {
+        "step": 20,
+        "loss": 8.104,
+        "perplexity": 3307.673
+      },
+      {
+        "step": 30,
+        "loss": 7.754669,
+        "perplexity": 2332.437
+      },
+      {
+        "step": 30,
+        "loss": 7.754669,
+        "perplexity": 2332.437
+      }
+    ],
+    "audited_oom_ranks": []
+  },
+  "cp2-no-offload-4k-recompute2": {
+    "completed_train_steps": 1,
+    "completed_rank_count_at_step30": 0,
+    "passed_30_steps_and_evaluation": false,
+    "logged_loss_and_grad_finite": true,
+    "logged_nan_count": 0,
+    "logged_skipped_count": 0,
+    "all_recorded_storage_on_cuda": null,
+    "storage_rank0_at_step30": null,
+    "median_step_ms_after_step2": null,
+    "max_audited_cuda_allocated_gib": 76.05934381484985,
+    "sampled_gpu_peak_mib_by_rank": {
+      "0": 79353,
+      "1": 79361,
+      "2": 79335,
+      "3": 79327,
+      "4": 80167,
+      "5": 80175,
+      "6": 80207,
+      "7": 80199
+    },
+    "final_training_loss": 12.42638,
+    "evaluations": [],
+    "audited_oom_ranks": []
+  }
+}

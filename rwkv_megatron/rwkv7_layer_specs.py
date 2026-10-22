@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Optional, Tuple
 
 import torch
@@ -11,7 +11,9 @@ from megatron.core.parallel_state import (
     get_tensor_model_parallel_rank,
     get_tensor_model_parallel_world_size,
     get_context_parallel_group,
+    get_context_parallel_rank,
     get_context_parallel_world_size,
+    get_tensor_and_context_parallel_group,
     get_pipeline_model_parallel_group,
     get_pipeline_model_parallel_rank,
     get_pipeline_model_parallel_world_size,
@@ -65,6 +67,7 @@ from .key_preparation import prepare_key
 from .precision import keep_time_mix_bf16, validate_rwkv_precision
 from .rwkv7_transformer_layer import RWKV7TransformerLayer
 from .value_residual import pack_sharded_value, unpack_sharded_value
+from .token_shift import tp_cp_shift_neighbors
 
 def mix_inputs(hidden_states, delta, coefficients):
     """Flatten independent tokens into FLA's [batch, time, hidden] layout."""
@@ -329,20 +332,29 @@ class RWKV7TokenShiftSequenceParallel(torch.autograd.Function):
         dim: int,
     ):
         ctx.dim = dim
-
         world_group = get_tensor_model_parallel_group()
         world_size = get_tensor_model_parallel_world_size()
         world_rank = get_tensor_model_parallel_rank()
-
+        previous = world_rank - 1 if world_rank > 0 else None
+        following = world_rank + 1 if world_rank < world_size - 1 else None
+        if get_context_parallel_world_size() > 1:
+            world_group = get_tensor_and_context_parallel_group()
+            previous, following = tp_cp_shift_neighbors(
+                world_group, get_context_parallel_rank(), world_rank, world_size, input.device
+            )
+        ctx.group = world_group
+        ctx.previous = previous
+        ctx.following = following
         recv_buffer = torch.empty_like(input.select(dim, 0))
+        send_buffer = input.select(dim, -1).contiguous()
 
         with dist._coalescing_manager(world_group, input.device, async_ops=True) as cm:
-            if world_rank < world_size - 1:
-                world_group.send([input.select(dim, -1).contiguous()], world_rank + 1, 0)
-            if world_rank > 0:
-                world_group.recv([recv_buffer], world_rank - 1, 0)
+            if following is not None:
+                world_group.send([send_buffer], following, 0)
+            if previous is not None:
+                world_group.recv([recv_buffer], previous, 0)
 
-        if world_rank == 0:
+        if previous is None:
             recv_buffer.zero_()
 
         cm.wait()
@@ -363,21 +375,20 @@ class RWKV7TokenShiftSequenceParallel(torch.autograd.Function):
     ):
         dim = ctx.dim
 
-        world_group = get_tensor_model_parallel_group()
-        world_size = get_tensor_model_parallel_world_size()
-        world_rank = get_tensor_model_parallel_rank()
-
+        world_group = ctx.group
+        previous, following = ctx.previous, ctx.following
         recv_buffer = torch.empty_like(grad_output.select(dim, 0))
+        send_buffer = grad_output.select(dim, 0).contiguous()
 
         with dist._coalescing_manager(
             world_group, grad_output.device, async_ops=True
         ) as cm:
-            if world_rank < world_size - 1:
-                world_group.recv([recv_buffer], world_rank + 1, 0)
-            if world_rank > 0:
-                world_group.send([grad_output.select(dim, 0).contiguous()], world_rank - 1, 0)
+            if following is not None:
+                world_group.recv([recv_buffer], following, 0)
+            if previous is not None:
+                world_group.send([send_buffer], previous, 0)
 
-        if world_rank == world_size - 1:
+        if following is None:
             recv_buffer.zero_()
 
         cm.wait()
@@ -454,12 +465,7 @@ class RWKV7TokenShiftContextParallel(torch.autograd.Function):
 
 def _token_shift(input: Tensor, dim: int, sequence_parallel: bool):
     if sequence_parallel:
-        if get_context_parallel_world_size() > 1:
-            raise ValueError(
-                "RWKV7 stage-1 CP requires sequence_parallel=False; "
-                "CP+SP needs the combined TP/CP layout."
-            )
-        return RWKV7TokenShiftSequenceParallel.apply(input, 0)
+        return RWKV7TokenShiftSequenceParallel.apply(input, dim)
     elif get_context_parallel_world_size() > 1:
         return RWKV7TokenShiftContextParallel.apply(input, dim)
     else:
@@ -496,20 +502,18 @@ class WKV7(MegatronModule):
 
         cp_size = get_context_parallel_world_size()
         if cp_size > 1:
-            # Stage-1 CP uses contiguous sequence shards and CP-only sequence
-            # partitioning (SP is rejected by the model provider). FLA's CP
-            # API takes a global cu_seqlens and a batch dimension of one. Run
-            # each micro-batch sample independently so samples never share a
-            # recurrent state.
+            # TP projections/all-to-all restore the complete CP-local sequence
+            # when SP is enabled. FLA exchanges state between matching TP heads.
+            # Run each sample independently so samples never share a state.
             cp_group = get_context_parallel_group()
             global_seq_len = r.shape[1] * cp_size
             cu_seqlens = torch.tensor(
                 [0, global_seq_len], dtype=torch.long, device=r.device
             )
-            cp_context = build_cp_context(
-                cu_seqlens,
-                group=cp_group,
-                layout="contiguous",
+            # Preserve the CP1 BF16 recurrence instead of an affine approximation.
+            cp_context = replace(
+                build_cp_context(cu_seqlens, group=cp_group, layout="contiguous"),
+                dplr_state_mode="recurrent",
             )
             outputs = []
             for batch_idx in range(r.shape[0]):

@@ -89,10 +89,9 @@ def model_provider(pre_process=True, post_process=True, config=None, pg_collecti
     """
     args = get_args()
     if args.context_parallel_size > 1 and args.sequence_parallel:
-        raise ValueError(
-            "RWKV7 stage-1 context parallelism requires sequence_parallel=false; "
-            "combined TP/CP sequence layout is not implemented yet."
-        )
+        sequence_shards = args.context_parallel_size * args.tensor_model_parallel_size
+        if args.seq_length % sequence_shards:
+            raise ValueError("RWKV7 CP+SP requires seq_length divisible by CP * TP")
     """
     assert (
         args.transformer_impl != "transformer_engine"

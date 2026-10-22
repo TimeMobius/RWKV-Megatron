@@ -48,15 +48,16 @@ def _load_get_tensor_shapes(tp_size: int = TP_SIZE, cp_size: int = 1):
 
 
 @pytest.mark.parametrize("tp_size", [1, 2, 4])
+@pytest.mark.parametrize("cp_size", [1, 2, 4])
 @pytest.mark.parametrize("batch", [1, 3])
-def test_pipeline_shape_reserves_two_slots(tp_size, batch):
-    get_shapes, _ = _load_get_tensor_shapes(tp_size)
+def test_pipeline_shape_reserves_two_slots(tp_size, cp_size, batch):
+    get_shapes, _ = _load_get_tensor_shapes(tp_size, cp_size)
     config = SimpleNamespace(sequence_parallel=True, hidden_size=16,
                              variable_seq_lengths=False, rwkv7_value_residual=True)
-    shapes = get_shapes(seq_length=8, micro_batch_size=batch, decoder_seq_length=None,
+    shapes = get_shapes(seq_length=16, micro_batch_size=batch, decoder_seq_length=None,
                         config=config, tp_group=SimpleNamespace(size=lambda: tp_size),
-                        cp_group=SimpleNamespace(size=lambda: 1))
-    assert shapes == [(2, 8 // tp_size, batch, 16)]
+                        cp_group=SimpleNamespace(size=lambda: cp_size))
+    assert shapes == [(2, 16 // (tp_size * cp_size), batch, 16)]
 
 
 @pytest.mark.parametrize("tp_size", [2, 4])

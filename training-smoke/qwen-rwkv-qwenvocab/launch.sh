@@ -13,8 +13,9 @@ export NVCC_PREPEND_FLAGS="${NVCC_PREPEND_FLAGS:-}"
 
 source /mnt/data/anaconda3/etc/profile.d/conda.sh
 conda activate train_mobius_py312
-cd /mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test
-export PYTHONPATH="$PWD:${PYTHONPATH:-}"
+distill_repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$distill_repo_root"
+export PYTHONPATH="$PWD:$PWD/3rdparty/Megatron-LM-0.11.0:$PWD/3rdparty/flash-linear-attention-260115"
 mkdir -p training-smoke/qwen-rwkv-qwenvocab
 
 teacher_env="${RWKV_TEACHER_ENV_FILE:-$HOME/.config/rwkv-distill/teacher.env}"

@@ -8,16 +8,15 @@ from __future__ import annotations
 import argparse
 import json
 import os
-from pathlib import Path
 import signal
 import socket
 import subprocess
 import sys
 import tempfile
 import time
+from pathlib import Path
 
 import yaml
-
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -66,6 +65,20 @@ def wait_for_pool(process, log, timeout):
     raise TimeoutError('teacher pool startup timed out')
 
 
+def default_training_command(settings):
+    """One node, DP=1 by default; explicit commands can select more DP ranks."""
+    parallel = settings.get('model_parallel', {})
+    tp = parallel.get('tensor_model_parallel_size', 1)
+    pp = parallel.get('pipeline_model_parallel_size', 1)
+    cp = parallel.get('context_parallel_size', 1)
+    if any(type(size) is not int or size < 1 for size in (tp, pp, cp)):
+        raise ValueError('parallel sizes must be positive integers')
+    if cp != 1:
+        raise ValueError('online distillation does not support context parallelism')
+    return [sys.executable, '-m', 'torch.distributed.run', '--standalone',
+            f'--nproc-per-node={tp * pp}', str(ROOT / 'pretrain_rwkv7.py')]
+
+
 def launch(config, command=None, startup_timeout=120, shutdown_timeout=15, *, pool_command=None):
     if startup_timeout <= 0 or shutdown_timeout <= 0:
         raise ValueError('startup and shutdown timeouts must be positive')
@@ -84,8 +97,7 @@ def launch(config, command=None, startup_timeout=120, shutdown_timeout=15, *, po
         pass
     pool_command = pool_command or [sys.executable, '-u', str(ROOT / 'tools/teacher_pool_server.py'),
                                      '--rwkv-config', str(config)]
-    command = command or [sys.executable, '-m', 'torch.distributed.run', '--standalone',
-                          '--nproc-per-node=1', str(ROOT / 'pretrain_rwkv7.py')]
+    command = command or default_training_command(settings)
     train_command = [*command, '--rwkv-config', str(config), '--rwkv-teacher-pool']
     pool = train = None
     old_handlers = {}

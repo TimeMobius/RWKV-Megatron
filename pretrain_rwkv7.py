@@ -622,9 +622,17 @@ def forward_step(data_iterator, model: GPTModel):
                      'memory/allocated_mib': torch.cuda.memory_allocated() / 2**20,
                      'memory/max_allocated_mib': torch.cuda.max_memory_allocated() / 2**20,
                      'memory/reserved_mib': torch.cuda.memory_reserved() / 2**20}
-        if teacher_future is not None:
-            stats = data_iterator.iterable.get_stats()
-            telemetry.update({f'teacher/{name}': value for name, value in stats.items()})
+        stats = data_iterator.iterable.get_stats() if teacher_future is not None else {}
+        if args.tensor_model_parallel_size > 1 and model.training and args.rwkv_teacher_async_prefetch:
+            # W&B writes on the last global rank, which is usually not TP0.
+            # Share source-only prefetch/pool metrics with every loss reporter.
+            stats_payload = [stats]
+            torch.distributed.broadcast_object_list(
+                stats_payload, src=mpu.get_tensor_model_parallel_src_rank(),
+                group=mpu.get_tensor_model_parallel_group(), device=output_tensor.device,
+            )
+            stats = stats_payload[0]
+        telemetry.update({f'teacher/{name}': value for name, value in stats.items()})
         return (output_tensor, teacher), partial(distillation_loss_func, loss_mask, labels, telemetry=telemetry)
 
     with stimer:
@@ -686,7 +694,7 @@ def train_valid_test_datasets_provider(train_val_test_num_samples):
     args = get_args()
 
     jsonl_input = any(
-        str(path).endswith(".jsonl") or os.path.isdir(path) for path in args.data_path
+        str(path).endswith(".jsonl") or os.path.isdir(path) for path in (args.data_path or [])
     )
     if jsonl_input:
         tokenizer = (_get_online_teacher(args)._get_tokenizer() if args.rwkv_distill else get_tokenizer())

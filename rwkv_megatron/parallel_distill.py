@@ -42,11 +42,16 @@ class _TargetLogProb(torch.autograd.Function):
 
 def _validate(logits, valid_vocab_size, group):
     total_vocab = logits.shape[-1] * dist.get_world_size(group)
-    if not isinstance(valid_vocab_size, int) or not 1 <= valid_vocab_size <= total_vocab:
+    if (
+        not isinstance(valid_vocab_size, int)
+        or not 1 <= valid_vocab_size <= total_vocab
+    ):
         raise ValueError(f"valid_vocab_size must be in [1, {total_vocab}]")
 
 
-def vocab_parallel_kl(student_logits, teacher, attention_mask, temperature, valid_vocab_size, group):
+def vocab_parallel_kl(
+    student_logits, teacher, attention_mask, temperature, valid_vocab_size, group
+):
     """Match online_teacher.kl_divergence_topk on a contiguous TP vocab shard."""
     logits, mask = student_logits, attention_mask
     _validate(logits, valid_vocab_size, group)
@@ -54,21 +59,32 @@ def vocab_parallel_kl(student_logits, teacher, attention_mask, temperature, vali
         raise ValueError("temperature must be positive")
     ids = teacher.token_ids.to(device=logits.device, dtype=torch.long)
     logp = teacher.logprobs.to(device=logits.device, dtype=torch.float32) / temperature
-    if ids.shape != logp.shape or ids.shape[:2] != logits.shape[:2] or mask.shape != logits.shape[:2]:
+    if (
+        ids.shape != logp.shape
+        or ids.shape[:2] != logits.shape[:2]
+        or mask.shape != logits.shape[:2]
+    ):
         raise ValueError("teacher, student and mask shapes do not align")
     if ((ids < -1) | (ids >= valid_vocab_size)).any():
-        raise ValueError("Teacher token IDs exceed student vocabulary; use the same tokenizer")
+        raise ValueError(
+            "Teacher token IDs exceed student vocabulary; use the same tokenizer"
+        )
     usable = (ids >= 0) & torch.isfinite(logp)
     logp = logp.masked_fill(~usable, -torch.inf)
     log_z = torch.logsumexp(logp, -1, keepdim=True)
-    rows = mask.to(device=logits.device, dtype=torch.bool) & torch.isfinite(log_z.squeeze(-1))
+    rows = mask.to(device=logits.device, dtype=torch.bool) & torch.isfinite(
+        log_z.squeeze(-1)
+    )
     if not rows.any():
         return logits.float().sum() * 0.0
     teacher_logp = logp[rows] - log_z[rows]
     probs = teacher_logp.exp().masked_fill(~usable[rows], 0.0)
     teacher_logp = teacher_logp.masked_fill(~usable[rows], 0.0)
     student_logp = _TargetLogProb.apply(
-        logits[rows].float() / temperature, ids[rows].clamp_min(0), valid_vocab_size, group
+        logits[rows].float() / temperature,
+        ids[rows].clamp_min(0),
+        valid_vocab_size,
+        group,
     ).masked_fill(~usable[rows], 0.0)
     return (probs * (teacher_logp - student_logp)).sum(-1).mean() * temperature**2
 
@@ -80,10 +96,14 @@ def vocab_parallel_ce(logits, labels, mask, valid_vocab_size, group):
     labels = labels.to(device=logits.device, dtype=torch.long)
     targets = labels[rows]
     if ((targets < 0) | (targets >= valid_vocab_size)).any():
-        raise ValueError("student CE labels contain IDs outside the effective vocabulary")
+        raise ValueError(
+            "student CE labels contain IDs outside the effective vocabulary"
+        )
     if not rows.any():
         return logits.float().sum() * 0.0
-    return -_TargetLogProb.apply(logits[rows].float(), targets[:, None], valid_vocab_size, group).mean()
+    return -_TargetLogProb.apply(
+        logits[rows].float(), targets[:, None], valid_vocab_size, group
+    ).mean()
 
 
 def broadcast_teacher(request, group, src, device):
@@ -97,29 +117,42 @@ def broadcast_teacher(request, group, src, device):
 
     source = dist.get_rank() == src
     teacher = None
-    error = b''
+    error = b""
     if source:
         try:
             teacher = request()
             if not isinstance(teacher, TeacherTopK):
-                raise TypeError('teacher response must be TeacherTopK')
-            if teacher.token_ids.ndim != 3 or teacher.token_ids.shape != teacher.logprobs.shape:
-                raise ValueError('teacher response must have matching [B,S,K] tensors')
+                raise TypeError("teacher response must be TeacherTopK")
+            if (
+                teacher.token_ids.ndim != 3
+                or teacher.token_ids.shape != teacher.logprobs.shape
+            ):
+                raise ValueError("teacher response must have matching [B,S,K] tensors")
             ids = teacher.token_ids.to(device=device, dtype=torch.long).contiguous()
-            logprobs = teacher.logprobs.to(device=device, dtype=torch.float32).contiguous()
+            logprobs = teacher.logprobs.to(
+                device=device, dtype=torch.float32
+            ).contiguous()
             header = torch.tensor([1, *ids.shape], dtype=torch.long, device=device)
         except Exception as exc:
-            error = f'{type(exc).__name__}: {exc}'.encode('utf-8')[:8192]
-            header = torch.tensor([-len(error), 0, 0, 0], dtype=torch.long, device=device)
+            error = f"{type(exc).__name__}: {exc}".encode("utf-8")[:8192]
+            header = torch.tensor(
+                [-len(error), 0, 0, 0], dtype=torch.long, device=device
+            )
     else:
         header = torch.empty(4, dtype=torch.long, device=device)
     dist.broadcast(header, src=src, group=group)
     status, *shape = header.tolist()
     if status < 0:
-        message = (torch.tensor(list(error), dtype=torch.uint8, device=device) if source else
-                   torch.empty(-status, dtype=torch.uint8, device=device))
+        message = (
+            torch.tensor(list(error), dtype=torch.uint8, device=device)
+            if source
+            else torch.empty(-status, dtype=torch.uint8, device=device)
+        )
         dist.broadcast(message, src=src, group=group)
-        raise RuntimeError('teacher request failed on TP source: ' + bytes(message.cpu().tolist()).decode('utf-8', errors='replace'))
+        raise RuntimeError(
+            "teacher request failed on TP source: "
+            + bytes(message.cpu().tolist()).decode("utf-8", errors="replace")
+        )
     if not source:
         ids = torch.empty(shape, dtype=torch.long, device=device)
         logprobs = torch.empty(shape, dtype=torch.float32, device=device)

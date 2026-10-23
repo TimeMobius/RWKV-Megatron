@@ -2,17 +2,17 @@
 
 import json
 import os
-from pathlib import Path
 import signal
 import socket
 import subprocess
 import sys
 import time
+from pathlib import Path
 
 import pytest
 import yaml
 
-from tools.launch_distillation import launch
+from tools.launch_distillation import default_training_command, launch
 
 
 @pytest.fixture
@@ -91,7 +91,7 @@ def test_sigterm_cleans_up_pool_and_training(programs):
     config, pool, train, port, folder = programs
     pool_pid, train_pid = folder / 'pool.pid', folder / 'train.pid'
     wrapper = folder / 'wrapper.py'
-    wrapper.write_text('from tools.launch_distillation import launch\nimport sys\nsys.exit(launch(' +
+    wrapper.write_text('from tools.launch_distillation import default_training_command, launch\nimport sys\nsys.exit(launch(' +
                        repr(str(config)) + ', ' + repr([sys.executable, str(train), str(port), str(train_pid), '99']) +
                        ', pool_command=' + repr([sys.executable, '-u', str(pool), str(port), str(pool_pid), 'ok']) + '))\n')
     process = subprocess.Popen([sys.executable, str(wrapper)], env={**os.environ, 'PYTHONPATH': str(Path.cwd())})
@@ -108,3 +108,15 @@ def test_sigterm_cleans_up_pool_and_training(programs):
         if process.poll() is None:
             process.kill()
         process.wait()
+
+
+@pytest.mark.parametrize('tp,pp', [(1, 1), (2, 1), (1, 2), (2, 2), (4, 2)])
+def test_default_launcher_matches_parallel_layout(tp, pp):
+    command = default_training_command({'model_parallel': {
+        'tensor_model_parallel_size': tp, 'pipeline_model_parallel_size': pp}})
+    assert f'--nproc-per-node={tp * pp}' in command
+
+
+def test_default_launcher_rejects_cp():
+    with pytest.raises(ValueError, match='context parallelism'):
+        default_training_command({'model_parallel': {'context_parallel_size': 2}})

@@ -189,3 +189,9 @@ RWKV-7-World-HF-Converter/
 /training-smoke/checkpoints/
 /training-smoke/wandb/
 /training-smoke/qwen-rwkv-qwenvocab/tensorboard/
+
+# Distributed distillation validation: retain reports/configs, not generated tensors/runs.
+/training-smoke/parallel-distill-20261023/*.pt
+/training-smoke/parallel-distill-20261023/cache*/
+/training-smoke/parallel-distill-20261023/online-*/
+/training-smoke/parallel-distill-20261023/frozen-*/

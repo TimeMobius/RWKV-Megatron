@@ -197,3 +197,7 @@ RWKV-7-World-HF-Converter/
 /training-smoke/parallel-distill-20261023/frozen-*/
 /training-smoke/parallel-distill-20261023/*.yaml
 /training-smoke/parallel-distill-20261023/wandb/
+
+# DP2 audit snapshots and run-specific configs; retain compact result JSON.
+/training-smoke/dp2-distill-20261023/*/
+/training-smoke/dp2-distill-20261023/*.yaml

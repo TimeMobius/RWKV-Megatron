@@ -1,8 +1,0 @@
-{
-  "cache_prefix": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/cache/e9841bdde4d0eda1dac255c6df373f3b-GPTDataset-train",
-  "sample_index": 161275,
-  "sequence_length": 4096,
-  "original_prefix_exact": true,
-  "token_count": 4097,
-  "token_file": "key-minipile-4097.pth"
-}

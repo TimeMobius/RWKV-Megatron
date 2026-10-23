@@ -1,6 +1,0 @@
-{
-  "python": "/mnt/data/anaconda3/envs/train_mobius/bin/python",
-  "megatron": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/baseline-replay/meg-source/megatron/core/__init__.py",
-  "fla": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/baseline-replay/fla-source/fla/__init__.py",
-  "model": "/mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-upstream-test/training-smoke/baseline-replay/rwkv_megatron/rwkv7_model.py"
-}

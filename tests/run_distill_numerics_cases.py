@@ -37,6 +37,14 @@ def run(name, dp, tp, pp, sp=False, row=False, oracle=False, resume=False, steps
             link.symlink_to(CKPTS / original / "iter_0000002", target_is_directory=True)
         (source / "latest_checkpointed_iteration.txt").write_text("2")
         cfg["load"] = str(source)
+    if "original" in name and "rewarm" not in name:
+        tag = "dp2-tp2-sp-pp2-bf16" if sp else "dp2-tp2-pp2-bf16"
+        cfg["load"] = str(
+            ROOT
+            / "training-smoke/checkpoints/dp2-distill-20261023"
+            / (tag + "-resume-source")
+        )
+        cfg["eval_iters"] = 1
     config = OUT / f"{name}.yaml"
     config.write_text(yaml.safe_dump(cfg, sort_keys=False))
     folder = OUT / name
@@ -44,7 +52,7 @@ def run(name, dp, tp, pp, sp=False, row=False, oracle=False, resume=False, steps
     level = next(
         (
             v
-            for v in ("none", "sync", "single-thread", "eager-mix", "plain")
+            for v in ("none", "sync", "single-thread", "eager-mix", "plain", "cold")
             if v in name
         ),
         "full",
@@ -56,6 +64,20 @@ def run(name, dp, tp, pp, sp=False, row=False, oracle=False, resume=False, steps
         RWKV_DP_FP32=str(int(oracle)),
         DIAG_TRACE_LEVEL=level,
     )
+    if "rewarm" in name:
+        tag = "dp2-tp2-sp-pp2-bf16" if sp else "dp2-tp2-pp2-bf16"
+        env["DIAG_REWARM_CHECKPOINT"] = str(
+            ROOT
+            / "training-smoke/checkpoints/dp2-distill-20261023"
+            / (tag + "-resume-source")
+        )
+        cfg["eval_iters"] = 1
+        config.write_text(yaml.safe_dump(cfg, sort_keys=False))
+    if "cold" in name:
+        env.update(
+            TRITON_CACHE_DIR=str(folder / "triton"),
+            TORCHINDUCTOR_CACHE_DIR=str(folder / "inductor"),
+        )
     with (OUT / f"{name}.log").open("w") as log:
         proc = subprocess.run(
             [
@@ -93,6 +115,8 @@ if __name__ == "__main__":
         "dense": (1, 1, 1),
         "tp2": (1, 2, 1),
         "dp2-tp2": (2, 2, 1),
+        "tp2-sp-none": (1, 2, 1, True),
+        "tp2-sp-row32-none": (1, 2, 1, True, True),
         "dense-row32": (1, 1, 1, False, True),
         "tp2-row32": (1, 2, 1, False, True),
         "dense-oracle": (1, 1, 1, False, False, True),
@@ -105,6 +129,16 @@ if __name__ == "__main__":
         "combined-plain-resume": (2, 2, 2),
         "combined-eager-mix": (2, 2, 2),
         "combined-eager-mix-resume": (2, 2, 2),
+        "combined-cold": (2, 2, 2),
+        "combined-cold-resume": (2, 2, 2),
+        "combined-sp-cold": (2, 2, 2, True),
+        "combined-sp-cold-resume": (2, 2, 2, True),
+        "combined-original-none": (2, 2, 2),
+        "combined-sp-original-none": (2, 2, 2, True),
+        "combined-original": (2, 2, 2),
+        "combined-sp-original": (2, 2, 2, True),
+        "combined-original-rewarm": (2, 2, 2),
+        "combined-sp-original-rewarm": (2, 2, 2, True),
         "combined-none": (2, 2, 2),
         "combined-none-resume": (2, 2, 2),
         "combined-sync": (2, 2, 2),

@@ -67,8 +67,21 @@ def trace_backward(*args, **kwargs):
 
 def trace_step(forward_func, iterator, model, optimizer, *args, **kwargs):
     global CTX
+    if os.environ.get("DIAG_REWARM_CHECKPOINT") and kwargs["iteration"] == 2:
+        # Compare direct restart with two warm training steps, then restore the
+        # very same historical model/Adam/RNG before the measured step3.
+        from megatron.training import get_args
+        from megatron.training.checkpointing import load_checkpoint
+
+        config = get_args()
+        config.diag_rewarm_load = os.environ["DIAG_REWARM_CHECKPOINT"]
+        restored_iteration, _ = load_checkpoint(
+            model, optimizer, None, load_arg="diag_rewarm_load"
+        )
+        del config.diag_rewarm_load
+        assert restored_iteration == 2
     level = os.environ.get("DIAG_TRACE_LEVEL", "full")
-    if level in ("none", "sync", "single-thread", "eager-mix", "plain"):
+    if level in ("none", "sync", "single-thread", "eager-mix", "plain", "cold"):
         if level == "single-thread":
             with torch.autograd.set_multithreading_enabled(False):
                 result = TRAIN_STEP(
@@ -85,6 +98,14 @@ def trace_step(forward_func, iterator, model, optimizer, *args, **kwargs):
             if not module_name.startswith("fla.ops.") or module_obj is None:
                 continue
             for key, value in vars(module_obj).items():
+                # Many recurrence kernels put Heuristics outside Autotuner.
+                # Looking only at the outer object misses their tile choices.
+                seen = set()
+                while not isinstance(value, Autotuner) and hasattr(value, "fn"):
+                    if id(value) in seen:
+                        break
+                    seen.add(id(value))
+                    value = value.fn
                 if isinstance(value, Autotuner) and value.cache:
                     configs[module_name + "." + key] = {
                         str(k): str(v) for k, v in value.cache.items()

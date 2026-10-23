@@ -53,7 +53,20 @@ def precision():
     reference = records("dense")
     ref = canonical(reference, "grads", 1, 1)
     report = {}
-    for case, tp in [("tp2", 2), ("dp2-tp2", 2), ("dense-row32", 1), ("tp2-row32", 2)]:
+    if records("tp2") and records("dp2-tp2"):
+        key = "blocks.1.att.w1"
+        report["tp2_vs_dp2_tp2_w1"] = metric(
+            canonical(records("dp2-tp2"), "grads", 2, 1)[key],
+            canonical(records("tp2"), "grads", 2, 1)[key],
+        )
+    for case, tp in [
+        ("tp2", 2),
+        ("dp2-tp2", 2),
+        ("tp2-sp-none", 2),
+        ("tp2-sp-row32-none", 2),
+        ("dense-row32", 1),
+        ("tp2-row32", 2),
+    ]:
         rows = records(case)
         if not rows:
             continue
@@ -76,6 +89,14 @@ def precision():
             worst_significant=max(
                 (v for v in metrics.values() if v["reference_l2"] >= 1e-3),
                 key=lambda v: v["relative_l2"],
+            ),
+            worst_significant_parameter=max(
+                (
+                    key
+                    for key, value in metrics.items()
+                    if value["reference_l2"] >= 1e-3
+                ),
+                key=lambda key: metrics[key]["relative_l2"],
             ),
         )
     if records("dense-row32") and records("tp2-row32"):

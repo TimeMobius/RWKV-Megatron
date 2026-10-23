@@ -70,6 +70,7 @@ from rwkv_megatron.online_teacher import (
     build_teacher_client, RoundTripDataset, TeacherTopK, TeacherPrefetchIterator, kl_divergence_topk,
 )
 from rwkv_megatron.jsonl_dataset import JsonlTextDataset
+from rwkv_megatron.parallel_distill import vocab_parallel_ce, vocab_parallel_kl
 
 
 stimer = StragglerDetector()
@@ -464,8 +465,11 @@ def distillation_loss_func(loss_mask: torch.Tensor, labels: torch.Tensor, output
         if hasattr(args, "rwkv_teacher_tokenizer") or hasattr(args, "tokenizer_model"):
             valid_vocab_size = _get_online_teacher(args).get_effective_vocab_size()
         else:
-            valid_vocab_size = student_logits.shape[-1]
-    kl = kl_divergence_topk(
+            valid_vocab_size = student_logits.shape[-1] * getattr(args, "tensor_model_parallel_size", 1)
+    tp_group = (mpu.get_tensor_model_parallel_group()
+                if getattr(args, "tensor_model_parallel_size", 1) > 1 else None)
+    kl_func = kl_divergence_topk if tp_group is None else partial(vocab_parallel_kl, group=tp_group)
+    kl = kl_func(
         student_logits=aligned_student,
         teacher=teacher,
         attention_mask=aligned_mask,
@@ -477,7 +481,9 @@ def distillation_loss_func(loss_mask: torch.Tensor, labels: torch.Tensor, output
     # Always compute CE for an independent student quality signal.  It only
     # contributes to the training objective when explicitly weighted.
     with torch.set_grad_enabled(torch.is_grad_enabled() and bool(args.rwkv_distill_ce_weight)):
-        ce = _student_cross_entropy(student_logits, labels, loss_mask, valid_vocab_size)
+        ce = (_student_cross_entropy(student_logits, labels, loss_mask, valid_vocab_size)
+              if tp_group is None else
+              vocab_parallel_ce(student_logits, labels, loss_mask, valid_vocab_size, tp_group))
     if args.rwkv_distill_ce_weight:
         total = total + float(args.rwkv_distill_ce_weight) * ce
     token_count = aligned_mask.float().sum()

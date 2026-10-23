@@ -195,3 +195,5 @@ RWKV-7-World-HF-Converter/
 /training-smoke/parallel-distill-20261023/cache*/
 /training-smoke/parallel-distill-20261023/online-*/
 /training-smoke/parallel-distill-20261023/frozen-*/
+/training-smoke/parallel-distill-20261023/*.yaml
+/training-smoke/parallel-distill-20261023/wandb/

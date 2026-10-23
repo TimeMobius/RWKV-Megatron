@@ -133,6 +133,11 @@ def audited_step(forward_step_func, data_iterator, model, optimizer, *args, **kw
     global active
     step = kwargs["iteration"] + 1
     module = unwrap(model[0])
+    if os.environ.get("RWKV_DP_CAPTURE_LOADED") == "1":
+        torch.save(
+            optimizer.state_dict(),
+            OUT / f"loaded-optimizer-rank{torch.distributed.get_rank()}.pt",
+        )
     active = dict(step=step, samples=[], logits={})
     real_optimizer_step = optimizer.step
 

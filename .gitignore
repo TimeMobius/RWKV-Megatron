@@ -201,3 +201,7 @@ RWKV-7-World-HF-Converter/
 # DP2 audit snapshots and run-specific configs; retain compact result JSON.
 /training-smoke/dp2-distill-20261023/*/
 /training-smoke/dp2-distill-20261023/*.yaml
+
+# Numeric diagnosis traces/checkpoints are local; compact JSON reports remain tracked.
+/training-smoke/distill-numerics-20261023/*/
+/training-smoke/distill-numerics-20261023/*.yaml

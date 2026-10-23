@@ -28,7 +28,7 @@ L2Wrap 不改变显示的 CE loss；只在训练后向中，对每个有效 toke
 | 递归 JSONL 文件读取 | `[x]` 已完成 | 目录输入递归发现 `.jsonl`，按 split 文件名优先选择并保持稳定排序。 |
 | 本地 teacher 后端 | 不做 | 继续使用外部 vLLM teacher 服务。 |
 | 直接发送 token ID | `[x]` 已实现；当前网关不支持 | `rwkv_teacher_prompt_mode: token_ids`；文本模式仍为默认，当前 API 对数组 prompt 返回 422。 |
-| 多 GPU 蒸馏（TP/PP/SP） | `[x]` 已实现 | 有效词表并行 KL/CE、普通 PP、SP；DP=1 的数值/恢复测试见下方记录。 |
+| 多 GPU 蒸馏（TP/PP/SP/DP2） | `[x]` 已实现 | DP2 样本/梯度及在线短训通过；BF16 TP2+PP2 组合的严格逐位恢复有未通过项，详见 DP2 记录。 |
 | 跨 rank teacher 失败处理 | `[x]` 已实现 | PP 末段 TP0 请求，TP 组广播结果/异常；失败由 torchrun 终止全作业，不跳样本。 |
 | Teacher pool 与训练一键启动 | `[x]` 已完成 | `tools/launch_distillation.py` 启动 pool，等待就绪后启动训练，并在退出或失败时清理进程组。 |
 | 普通 checkpoint 保留最近 N 个并清理旧文件 | `[x]` 已完成 | `rwkv_checkpoint_keep_last: N`，0 为关闭；项目侧回调实现，无需修改 Megatron 子仓库。 |
@@ -57,9 +57,9 @@ Launcher 使用同一份 YAML 配置两个进程，并为训练追加 `--rwkv-te
 
 `rwkv_checkpoint_keep_last: 2` 保留最近两个已完成的普通 checkpoint；默认 `0` 不清理。以 `latest_checkpointed_iteration.txt` 为完成边界，在下一步开始/训练结束时清理，并在 `pretrain()` 返回后检查最终保存。缺失/无效 tracker 或最新 checkpoint 不完整时不删除；较新的在写目录、release、初始化 step 0、符号链接及非 checkpoint 目录保留。该策略不能与 Megatron 的 `save_retain_interval` 同时开启。测试覆盖删除边界、保留数量及 rank 0 行为；实际小模型同步 torch checkpoint 在 step 1–4 保存后只保留 3、4，从 4 恢复到 5 后只保留 4、5。更改训练总步数后续训时，应保持原 scheduler 配置，或显式 `use_checkpoint_opt_param_scheduler: true` 恢复 checkpoint 中的 scheduler。
 
-单卡功能测试详情见 [蒸馏功能验证记录](docs/distillation-validation-20261021.md)。TP/PP/SP 的分阶段计划、精度阈值、恢复和多卡测试见 [多卡蒸馏记录](docs/distillation-parallel-20261023.md)。普通 PP 与 SP 已接通；CP、虚拟/交错 PP 明确拒绝，DP>1 未纳入本轮认证。
+单卡功能测试详情见 [蒸馏功能验证记录](docs/distillation-validation-20261021.md)。TP/PP/SP 的分阶段计划、精度阈值、恢复和多卡测试见 [多卡蒸馏记录](docs/distillation-parallel-20261023.md)。普通 PP 与 SP 已接通；后续完成 [DP2 精度与恢复测试](docs/distillation-dp2-20261023.md)，其中两个 BF16 TP2+PP2 组合仍有严格逐位复现遗留项。CP、虚拟/交错 PP 明确拒绝，DP>2 和多机未认证。
 
-多卡 launcher 默认从 YAML 的 TP×PP 计算本机进程数（DP=1）。例如 4 卡 TP2+PP2+SP：
+多卡 launcher 默认从 YAML 的 TP×PP 计算本机进程数（DP=1）；DP2 需显式提供 `--nproc-per-node=2×TP×PP` 的训练命令，示例见 DP2 记录。例如 4 卡 TP2+PP2+SP：
 
 ```bash
 bash training-smoke/parallel-distill-20261023/run.sh python tools/launch_distillation.py \

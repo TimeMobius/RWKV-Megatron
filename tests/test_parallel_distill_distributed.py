@@ -8,7 +8,7 @@ import torch.distributed as dist
 import torch.nn.functional as F
 
 from rwkv_megatron.online_teacher import TeacherTopK, kl_divergence_topk
-from rwkv_megatron.parallel_distill import vocab_parallel_ce, vocab_parallel_kl
+from rwkv_megatron.parallel_distill import broadcast_teacher, vocab_parallel_ce, vocab_parallel_kl
 
 
 def main():
@@ -55,6 +55,24 @@ def main():
                     results.append(dict(dtype=str(dtype), vocab=vocab, empty=empty, ce_weight=ce_weight,
                                         loss_abs=float((actual-expected).abs().detach()),
                                         grad_max_abs=float((local.grad-reference_grad).abs().max())))
+    # Use the last global rank as source to catch assumptions that src is 0.
+    for failure in (False, True):
+        calls = []
+        def request():
+            calls.append(True)
+            if failure:
+                raise TimeoutError('injected teacher outage')
+            return TeacherTopK(torch.arange(12).reshape(2, 3, 2), torch.zeros(2, 3, 2))
+        if failure:
+            try:
+                broadcast_teacher(request, group, size - 1, torch.device('cuda'))
+                raise AssertionError('failure was swallowed')
+            except RuntimeError as error:
+                assert 'injected teacher outage' in str(error)
+        else:
+            response = broadcast_teacher(request, group, size - 1, torch.device('cuda'))
+            assert torch.equal(response.token_ids.cpu(), torch.arange(12).reshape(2, 3, 2))
+        assert len(calls) == int(rank == size - 1)
     if rank == 0:
         print(json.dumps(dict(tp=size, cases=len(results), results=results)), flush=True)
     dist.destroy_process_group()

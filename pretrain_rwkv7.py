@@ -70,7 +70,7 @@ from rwkv_megatron.online_teacher import (
     build_teacher_client, RoundTripDataset, TeacherTopK, TeacherPrefetchIterator, kl_divergence_topk,
 )
 from rwkv_megatron.jsonl_dataset import JsonlTextDataset
-from rwkv_megatron.parallel_distill import vocab_parallel_ce, vocab_parallel_kl
+from rwkv_megatron.parallel_distill import broadcast_teacher, vocab_parallel_ce, vocab_parallel_kl
 
 
 stimer = StragglerDetector()
@@ -320,7 +320,7 @@ def get_batch(data_iterator, teacher_prefetch=False):
 
     # get batches based on the TP rank you are on
     args = get_args()
-    if teacher_prefetch:
+    if teacher_prefetch and mpu.get_tensor_model_parallel_rank() == 0:
         from megatron.core.rerun_state_machine import get_rerun_state_machine, RerunMode
 
         if get_rerun_state_machine().get_mode() != RerunMode.DISABLED:
@@ -373,7 +373,9 @@ def get_batch(data_iterator, teacher_prefetch=False):
         micro_batch_size=args.micro_batch_size,
         seq_length=args.seq_length,
         mtp_on_this_rank=False,
-        pipeline_model_parallel_size=args.pipeline_model_parallel_size,
+        # Distillation needs input tokens on the last stage for the teacher,
+        # in addition to labels/masks; broadcast the complete endpoint batch.
+        pipeline_model_parallel_size=1 if args.rwkv_distill else args.pipeline_model_parallel_size,
         is_pipeline_first_stage=mpu.is_pipeline_first_stage(),
         is_pipeline_last_stage=mpu.is_pipeline_last_stage(),
     )
@@ -570,10 +572,12 @@ def forward_step(data_iterator, model: GPTModel):
     """
     args = get_args()
     timers = get_timers()
-    if args.rwkv_distill and any(size != 1 for size in (
-        args.tensor_model_parallel_size, args.pipeline_model_parallel_size, args.context_parallel_size
-    )):
-        raise ValueError("Initial online distillation path requires tensor/pipeline/context parallel size 1")
+    if args.rwkv_distill:
+        if args.context_parallel_size != 1:
+            raise ValueError("Online distillation does not support context parallelism")
+        if getattr(args, "virtual_pipeline_model_parallel_size", None) is not None:
+            raise ValueError("Online distillation currently supports non-interleaved PP only")
+
 
     # Get the batch.
     timers("batch-generator", log_level=2).start()
@@ -581,18 +585,23 @@ def forward_step(data_iterator, model: GPTModel):
     with stimer(bdata=True):
         tokens, labels, loss_mask, attention_mask, position_ids, teacher_future, raw_prompts = get_batch(
             data_iterator,
-            teacher_prefetch=(args.rwkv_distill and model.training and args.rwkv_teacher_async_prefetch),
+            teacher_prefetch=(args.rwkv_distill and mpu.is_pipeline_last_stage()
+                              and model.training and args.rwkv_teacher_async_prefetch),
         )
     timers("batch-generator").stop()
     if args.rwkv_distill:
         with stimer:
             output_tensor = model(tokens, position_ids, attention_mask, labels=None)
-        # Wait on this exact batch after student forward. Errors propagate;
-        # never issue a duplicate synchronous request or skip a sample.
+        if not mpu.is_pipeline_last_stage():
+            # Pipeline schedules require a Tensor carrier on intermediate stages.
+            return output_tensor, partial(distillation_loss_func, loss_mask, labels)
+        # Only the final stage TP source contacts the teacher. All TP peers
+        # receive the same response or error before entering loss collectives.
         wait_start = time.perf_counter()
-        if teacher_future is not None:
-            teacher = teacher_future.result()
-        else:
+
+        def request_teacher():
+            if teacher_future is not None:
+                return teacher_future.result()
             teacher_client = _get_online_teacher(args)
             if getattr(teacher_client, "prompt_mode", "text") == "token_ids" and raw_prompts is not None:
                 lengths = loss_mask.detach().sum(dim=-1).to(torch.long) + 1
@@ -601,9 +610,14 @@ def forward_step(data_iterator, model: GPTModel):
                     torch.arange(tokens.shape[-1], device=tokens.device).unsqueeze(0)
                     < lengths.unsqueeze(1)
                 )
-                teacher = teacher_client.get_logits(tokens, attention_mask=token_attention_mask)
-            else:
-                teacher = teacher_client.get_logits(tokens, prompts=raw_prompts)
+                return teacher_client.get_logits(tokens, attention_mask=token_attention_mask)
+            return teacher_client.get_logits(tokens, prompts=raw_prompts)
+
+        if args.tensor_model_parallel_size > 1:
+            teacher = broadcast_teacher(request_teacher, mpu.get_tensor_model_parallel_group(),
+                                        mpu.get_tensor_model_parallel_src_rank(), output_tensor.device)
+        else:
+            teacher = request_teacher()
         telemetry = {'teacher/wait_seconds': time.perf_counter() - wait_start,
                      'memory/allocated_mib': torch.cuda.memory_allocated() / 2**20,
                      'memory/max_allocated_mib': torch.cuda.max_memory_allocated() / 2**20,

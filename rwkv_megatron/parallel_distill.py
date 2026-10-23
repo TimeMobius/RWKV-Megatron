@@ -84,3 +84,45 @@ def vocab_parallel_ce(logits, labels, mask, valid_vocab_size, group):
     if not rows.any():
         return logits.float().sum() * 0.0
     return -_TargetLogProb.apply(logits[rows].float(), targets[:, None], valid_vocab_size, group).mean()
+
+
+def broadcast_teacher(request, group, src, device):
+    """Run request only on src; distribute either top-k or a bounded error.
+
+    Only the final pipeline stage calls this function. On failure all its TP
+    ranks raise, so torchrun can terminate pipeline peers waiting in P2P.
+    A PP-wide collective inside 1F1B would deadlock across microbatches.
+    """
+    from rwkv_megatron.online_teacher import TeacherTopK
+
+    source = dist.get_rank() == src
+    teacher = None
+    error = b''
+    if source:
+        try:
+            teacher = request()
+            if not isinstance(teacher, TeacherTopK):
+                raise TypeError('teacher response must be TeacherTopK')
+            if teacher.token_ids.ndim != 3 or teacher.token_ids.shape != teacher.logprobs.shape:
+                raise ValueError('teacher response must have matching [B,S,K] tensors')
+            ids = teacher.token_ids.to(device=device, dtype=torch.long).contiguous()
+            logprobs = teacher.logprobs.to(device=device, dtype=torch.float32).contiguous()
+            header = torch.tensor([1, *ids.shape], dtype=torch.long, device=device)
+        except Exception as exc:
+            error = f'{type(exc).__name__}: {exc}'.encode('utf-8')[:8192]
+            header = torch.tensor([-len(error), 0, 0, 0], dtype=torch.long, device=device)
+    else:
+        header = torch.empty(4, dtype=torch.long, device=device)
+    dist.broadcast(header, src=src, group=group)
+    status, *shape = header.tolist()
+    if status < 0:
+        message = (torch.tensor(list(error), dtype=torch.uint8, device=device) if source else
+                   torch.empty(-status, dtype=torch.uint8, device=device))
+        dist.broadcast(message, src=src, group=group)
+        raise RuntimeError('teacher request failed on TP source: ' + bytes(message.cpu().tolist()).decode('utf-8', errors='replace'))
+    if not source:
+        ids = torch.empty(shape, dtype=torch.long, device=device)
+        logprobs = torch.empty(shape, dtype=torch.float32, device=device)
+    dist.broadcast(ids, src=src, group=group)
+    dist.broadcast(logprobs, src=src, group=group)
+    return TeacherTopK(ids, logprobs)

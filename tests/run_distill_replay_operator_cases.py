@@ -18,6 +18,8 @@ def main():
             "eager-mix",
             "dgk-fixed",
             "dgk-historical",
+            "dgktrace",
+            "cold",
         ],
         required=True,
     )
@@ -35,6 +37,9 @@ def main():
             os.environ["DIAG_BF16_FULL_REDUCTION"] = "1"
         if mode.startswith("dgk-"):
             os.environ["DIAG_DGK_LAYOUT"] = mode.removeprefix("dgk-")
+        if mode == "dgktrace":
+            os.environ["DIAG_DGK_CAPTURE"] = "1"
+            os.environ["DIAG_ALL_WKV_INPUTS"] = "1"
         name = "combined-" + ("sp-" if args.sp else "") + f"original-{mode}-20261026"
         run(name, 2, 2, 2, sp=args.sp, steps=3)
 

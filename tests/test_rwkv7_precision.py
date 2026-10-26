@@ -29,6 +29,14 @@ def test_bf16_fallback_and_wkv_attention_flags():
             validate_rwkv_precision(SimpleNamespace(**{flag: True}), have_te=True)
 
 
+@pytest.mark.parametrize("deterministic", [False, True])
+def test_fla_scan_policy_requires_deterministic_mode(deterministic):
+    cfg = SimpleNamespace(fp8=None, deterministic_mode=deterministic)
+    with patch("rwkv_megatron.precision.configure_rwkv7_determinism") as configure:
+        validate_rwkv_precision(cfg, have_te=False)
+        assert configure.call_count == int(deterministic)
+
+
 def test_ffn_scope_preserves_stored_weight_precision():
     cfg = SimpleNamespace(
         fp8="hybrid", transformer_impl="transformer_engine", fp8_param=True

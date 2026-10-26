@@ -106,10 +106,15 @@ def trace_step(forward_func, iterator, model, optimizer, *args, **kwargs):
                         break
                     seen.add(id(value))
                     value = value.fn
-                if isinstance(value, Autotuner) and value.cache:
-                    configs[module_name + "." + key] = {
-                        str(k): str(v) for k, v in value.cache.items()
-                    }
+                if isinstance(value, Autotuner):
+                    if value.cache:
+                        configs[module_name + "." + key] = {
+                            str(k): str(v) for k, v in value.cache.items()
+                        }
+                    elif len(value.configs) == 1:
+                        configs[module_name + "." + key] = {
+                            "fixed": str(value.configs[0])
+                        }
         path = (
             Path(os.environ["RWKV_DP_AUDIT_DIR"])
             / f'kernels-step{kwargs["iteration"]+1}-rank{torch.distributed.get_rank()}.json'

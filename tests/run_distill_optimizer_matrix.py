@@ -17,9 +17,10 @@ OUT = ROOT / "training-smoke/distill-remaining-20261026"
 CASES = {
     "distopt-dp2": (2, 1, 1, False, True, 0.0),
     "distopt-combined": (2, 2, 2, True, True, 0.0),
-    "offload-dp2": (2, 1, 1, False, False, 0.5),
-    "offload-combined": (2, 2, 2, True, False, 0.5),
-    "distopt-offload-combined": (2, 2, 2, True, True, 0.5),
+    "offload-dp2": (2, 1, 1, False, True, 0.5),
+    "offload-combined": (2, 2, 2, True, True, 0.5),
+    "offload-overlap-combined": (2, 2, 2, True, True, 0.5),
+    "distopt-offload-combined": (2, 2, 2, True, True, 1.0),
     "dp4": (4, 1, 1, False, False, 0.0),
     "dp4-tp2-sp": (4, 2, 1, True, False, 0.0),
     "dp4-pp2": (4, 1, 2, False, False, 0.0),
@@ -44,9 +45,10 @@ def run(name, resume):
         deterministic_mode=True,
         use_distributed_optimizer=distributed,
         optimizer_cpu_offload=offload > 0,
+        use_precision_aware_optimizer=offload > 0,
         optimizer_offload_fraction=offload,
         use_torch_optimizer_for_cpu_offload=offload > 0,
-        overlap_cpu_optimizer_d2h_h2d=False,
+        overlap_cpu_optimizer_d2h_h2d="overlap" in name,
         save=str(ckpt),
         load=None,
         train_iters=3,
@@ -125,7 +127,39 @@ def check(name):
         assert samples(rows, dp, pp)[0] == samples(wanted, 1, 1)[0]
         assert all(row["skipped"] == 0 for row in rows)
     first = records(name, 1)
+
+    def residency(value):
+        if isinstance(value, list):
+            totals = {}
+            for item in value:
+                for key, count in residency(item).items():
+                    totals[key] = totals.get(key, 0) + count
+            return totals
+        return value.get("residency", {})
+
+    devices = [residency(row["optimizer"]) for row in first]
+    if offload:
+        assert sum(item.get("cpu", 0) for item in devices) > 0, devices
     grad = canonical(first, "grads", tp, pp)
+    _, actual_logits = samples(first, dp, pp)
+    keys, expected_logits = samples(reference, 1, 1)
+    keys = sorted(keys)
+    logits = metric(
+        torch.stack([actual_logits[k] for k in keys]),
+        torch.stack([expected_logits[k] for k in keys]),
+    )
+    assert logits["relative_l2"] < 0.02, (name, logits)
+    final = next(
+        row
+        for row in first
+        if row["dp"] == 0 and row["tp"] == 0 and row["pp"] == pp - 1
+    )
+    losses = {
+        key: abs(final["losses"][key] - reference[0]["losses"][key])
+        / abs(reference[0]["losses"][key])
+        for key in ("lm loss", "distill/kl_loss", "distill/student_ce_loss")
+    }
+    assert max(losses.values()) < 0.005, (name, losses)
     metrics = {k: metric(v, expected[k]) for k, v in grad.items()}
     significant = {k: v for k, v in metrics.items() if v["reference_l2"] >= 1e-3}
     worst = max(significant, key=lambda k: significant[k]["relative_l2"])
@@ -148,10 +182,19 @@ def check(name):
         cpu_offload_fraction=offload,
         worst_gradient_parameter=worst,
         worst_gradient=significant[worst],
+        logits=logits,
+        loss_relative_errors=losses,
+        overlap_cpu_optimizer_d2h_h2d="overlap" in name,
         strict_resume_bit_identical=True,
         dp_replicas_bit_identical=True,
         samples_disjoint_and_complete=True,
         exact_resume_counts=count,
+        optimizer_state_elements_by_device=devices,
+        peak_allocated_mib=max(
+            row["memory"]["allocated_mib"]
+            for step in (1, 2, 3)
+            for row in records(name, step)
+        ),
     )
 
 

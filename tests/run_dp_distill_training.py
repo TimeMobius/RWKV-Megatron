@@ -50,8 +50,44 @@ def optimizer_snapshot(optimizer):
     children = getattr(optimizer, "chained_optimizers", None)
     if children is not None:
         return [optimizer_snapshot(child) for child in children]
+    inner = optimizer.optimizer
+    actual = getattr(inner, "sub_optimizers", [inner])
+    residency = {}
+    states = []
+    for child in actual:
+        # Inspect live FP32 state directly; TE's exporter rejects the generic
+        # loader's unused per-parameter step before it can be filtered here.
+        state = cpu_snapshot(torch.optim.Optimizer.state_dict(child))
+        # FusedAdam uses group['step']; checkpoint loading can leave unused
+        # per-parameter 'step' entries supplied by the generic shard loader.
+        if type(child).__name__ == "FusedAdam":
+            assert all("step" in group for group in child.param_groups)
+            for values in state["state"].values():
+                values.pop("step", None)
+        elif isinstance(child, torch.optim.Adam):
+            # torch Adam advances state[param]['step'], never group['step'].
+            assert all("step" in values for values in child.state.values())
+            for group in state["param_groups"]:
+                group.pop("step", None)
+        states.append(state)
+        for values in child.state.values():
+            for key, value in values.items():
+                if isinstance(value, torch.Tensor) and key != "step":
+                    device = value.device.type
+                    residency[device] = residency.get(device, 0) + value.numel()
     return dict(
-        state=cpu_snapshot(optimizer.optimizer.state_dict()),
+        state=states,
+        residency=residency,
+        inner_params=(
+            cpu_snapshot(
+                [
+                    [param for group in child.param_groups for param in group["params"]]
+                    for child in actual
+                ]
+            )
+            if hasattr(inner, "sub_optimizers")
+            else []
+        ),
         masters=cpu_snapshot(
             getattr(
                 optimizer,
@@ -118,6 +154,11 @@ class FixtureTeacher:
     prompt_mode = "text"
 
     def get_logits(self, tokens, **kwargs):
+        if ps.get_context_parallel_world_size() > 1:
+            assert ps.get_context_parallel_rank() == 0
+            assert tokens.shape[1] == 128, "Teacher must receive full context"
+        if active is not None:
+            active["teacher_requests"] += 1
         if os.environ.get("RWKV_DP_FAIL") == "1" and ps.get_data_parallel_rank() == 1:
             raise TimeoutError("injected DP1 teacher failure")
         ids = (
@@ -155,6 +196,19 @@ def audited_batch(*args, **kwargs):
     result = original_batch(*args, **kwargs)
     if active is not None and result[0] is not None:
         tokens, labels, mask = result[:3]
+        if ps.get_context_parallel_world_size() > 1:
+
+            def gather(value):
+                shards = [
+                    torch.empty_like(value)
+                    for _ in range(ps.get_context_parallel_world_size())
+                ]
+                torch.distributed.all_gather(
+                    shards, value, group=ps.get_context_parallel_group()
+                )
+                return torch.cat(shards, dim=1)
+
+            tokens, labels, mask = map(gather, (tokens, labels, mask))
         active["current_samples"] = [
             identity(t, l, m) for t, l, m in zip(tokens, labels, mask)
         ]
@@ -173,7 +227,17 @@ def audited_forward(iterator, model):
         torch.distributed.all_gather(
             shards, logits, group=ps.get_tensor_model_parallel_group()
         )
-        full = torch.cat(shards, -1).cpu()
+        full = torch.cat(shards, -1)
+        if ps.get_context_parallel_world_size() > 1:
+            contexts = [
+                torch.empty_like(full)
+                for _ in range(ps.get_context_parallel_world_size())
+            ]
+            torch.distributed.all_gather(
+                contexts, full, group=ps.get_context_parallel_group()
+            )
+            full = torch.cat(contexts, dim=1)
+        full = full.cpu()
         for key, value in zip(active["current_samples"], full):
             active["logits"][key] = value
     return output, loss
@@ -188,7 +252,8 @@ def audited_step(forward_step_func, data_iterator, model, optimizer, *args, **kw
             optimizer.state_dict(),
             OUT / f"loaded-optimizer-rank{torch.distributed.get_rank()}.pt",
         )
-    active = dict(step=step, samples=[], logits={})
+    active = dict(step=step, samples=[], logits={}, teacher_requests=0)
+    torch.cuda.reset_peak_memory_stats()
     real_optimizer_step = optimizer.step
 
     def capture_update():
@@ -212,9 +277,14 @@ def audited_step(forward_step_func, data_iterator, model, optimizer, *args, **kw
             audited_forward, data_iterator, model, optimizer, *args, **kwargs
         )
         active.update(
+            memory=dict(
+                allocated_mib=torch.cuda.max_memory_allocated() / 2**20,
+                reserved_mib=torch.cuda.max_memory_reserved() / 2**20,
+            ),
             tp=ps.get_tensor_model_parallel_rank(),
             pp=ps.get_pipeline_model_parallel_rank(),
             dp=ps.get_data_parallel_rank(),
+            cp=ps.get_context_parallel_rank(),
             losses={key: float(value) for key, value in result[0].items()},
             grad_norm=float(result[5]),
             skipped=int(result[1]),

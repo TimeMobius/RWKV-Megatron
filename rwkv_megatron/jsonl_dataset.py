@@ -143,6 +143,12 @@ class JsonlTextDataset(Dataset):
             index += len(self)
         if index < 0 or (self._target_samples is not None and index >= self._target_samples):
             raise IndexError(index)
+        return self.get_source_sample(index)
+
+    def get_source_sample(self, index):
+        """Read a raw window, extending past the logical target for replacements."""
+        if index < 0:
+            raise IndexError(index)
         self._ensure_window(index)
         available = len(self._windows) // 4
         if self._target_samples is None and index >= available:

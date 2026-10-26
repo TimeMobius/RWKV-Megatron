@@ -51,6 +51,10 @@ def add_rwkv_arguments(parser):
     parser.add_argument("--rwkv-teacher-tokenizer-use-fast", action=argparse.BooleanOptionalAction,
                         default=True, help="Match the teacher service tokenizer implementation; "
                         "use false when it uses the slow tokenizer's splitting rules")
+    parser.add_argument("--rwkv-teacher-replace-bad-samples", action=argparse.BooleanOptionalAction,
+                        default=False, help="Validate JSONL samples before forward; replace invalid teacher targets with the next sample")
+    parser.add_argument("--rwkv-teacher-sample-records", default=None,
+                        help="Shared local directory for deterministic sample selection and rejected JSONL records")
     parser.add_argument("--rwkv-teacher-api-key", default="sk-distill",
                         help="Explicit bearer token for the teacher service")
     parser.add_argument("--rwkv-teacher-prompt-mode", choices=("text", "token_ids"), default="text",
@@ -145,6 +149,12 @@ def add_rwkv_arguments(parser):
         raise ValueError("rwkv_teacher_prompt_mode must be 'text' or 'token_ids'")
     if type(settings.get('rwkv_teacher_tokenizer_use_fast', True)) is not bool:
         raise ValueError('rwkv_teacher_tokenizer_use_fast must be a YAML boolean (true/false)')
+    if type(settings.get('rwkv_teacher_replace_bad_samples', False)) is not bool:
+        raise ValueError('rwkv_teacher_replace_bad_samples must be a YAML boolean')
+    if settings.get('rwkv_teacher_sample_records') is not None and (
+        not isinstance(settings['rwkv_teacher_sample_records'], str) or not settings['rwkv_teacher_sample_records']
+    ):
+        raise ValueError('rwkv_teacher_sample_records must be a nonempty string or null')
     for key in ('rwkv_teacher_retry_backoff_initial', 'rwkv_teacher_retry_backoff_max',
                 'rwkv_teacher_retry_jitter'):
         if settings.get(key, 0.0) < 0:

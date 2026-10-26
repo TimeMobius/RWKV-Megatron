@@ -15,11 +15,15 @@ import random
 import threading
 import time
 from collections import OrderedDict, deque
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass
 from typing import Optional
 
 import torch
+
+
+class TeacherSampleError(RuntimeError):
+    """A deterministic prompt/target mismatch that another sample can replace."""
 
 
 def build_teacher_client(args, *, use_pool=True):
@@ -196,7 +200,12 @@ class TeacherPrefetchIterator:
                 raise ValueError("Teacher prefetch requires CPU dataloader tokens")
             tokens = batch["tokens"].detach().clone()
             prompts = batch.get("raw_prompts")
-            if getattr(self.teacher_client, "prompt_mode", "text") == "token_ids":
+            if "teacher_token_ids" in batch:
+                future = Future()
+                future.set_result(TeacherTopK(batch["teacher_token_ids"], batch["teacher_logprobs"]))
+                with self._lock:
+                    self._stats["completed"] += 1
+            elif getattr(self.teacher_client, "prompt_mode", "text") == "token_ids":
                 attention_mask = None
                 if prompts is not None:
                     loss_mask = batch.get("loss_mask")
@@ -419,10 +428,10 @@ class OnlineTeacherClient:
                 # next-token label. The teacher can score that final label too;
                 # only its first S prompt positions are returned to the loss.
                 if valid_len > row.shape[0] + 1 or row[:valid_len].tolist() != row_ids_from_text[:row.shape[0]]:
-                    raise ValueError("Raw JSONL prompt does not match the student token IDs")
+                    raise TeacherSampleError("Raw JSONL prompt does not match the student token IDs")
                 row_ids = row_ids_from_text
             if valid_len and self._get_tokenizer()(prompt, add_special_tokens=False).input_ids != row_ids:
-                raise ValueError("Teacher prompt does not round-trip to the student token IDs")
+                raise TeacherSampleError("Teacher prompt does not round-trip to the student token IDs")
             prompt_rows.append((prompt, valid_len, row_ids))
 
         token_rows = []
@@ -515,6 +524,8 @@ class OnlineTeacherClient:
                     {"retries": retries, "rate_limits": rate_limits},
                 )
                 return result if return_metrics else result[:2]
+            except TeacherSampleError:
+                raise
             except (
                 requests.RequestException,
                 _RetryableTeacherError,
@@ -564,13 +575,13 @@ class OnlineTeacherClient:
         choice = choices[0] if choices else {}
         prompt_logprobs = choice.get("prompt_logprobs")
         if not isinstance(prompt_logprobs, list):
-            raise RuntimeError(
+            raise TeacherSampleError(
                 "Teacher response does not contain prompt_logprobs; "
                 "set echo=true and prompt_logprobs in the vLLM service"
             )
 
         if len(prompt_logprobs) != sequence_length:
-            raise RuntimeError(
+            raise TeacherSampleError(
                 f"Teacher returned {len(prompt_logprobs)} prompt positions for {sequence_length} tokens; "
                 f"check teacher tokenizer implementation (tokenizer_use_fast={self.tokenizer_use_fast})"
             )
@@ -579,7 +590,7 @@ class OnlineTeacherClient:
             actual_ids = choice.get("prompt_token_ids")
             if isinstance(actual_ids, list):
                 if actual_ids != expected_token_ids:
-                    raise RuntimeError(
+                    raise TeacherSampleError(
                         "Teacher prompt token IDs differ from student token IDs"
                     )
 
@@ -604,7 +615,7 @@ class OnlineTeacherClient:
                 token_ids[position, :len(row_ids)] = torch.tensor(row_ids, dtype=torch.int32)
                 logprobs[position, :len(row_logprobs)] = torch.tensor(row_logprobs, dtype=torch.float32)
         if sequence_length > 1 and not torch.isfinite(logprobs[1:]).any(dim=-1).all():
-            raise RuntimeError("Teacher returned missing or nonfinite prompt log probabilities")
+            raise TeacherSampleError("Teacher returned missing or nonfinite prompt log probabilities")
         return token_ids, logprobs
 
     @staticmethod

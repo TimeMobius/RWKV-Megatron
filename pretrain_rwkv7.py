@@ -31,7 +31,9 @@ Requirements:
 import math
 import os
 import time
+from concurrent.futures import Future
 from functools import partial
+from pathlib import Path
 
 import numpy
 import rwkv
@@ -95,6 +97,7 @@ from rwkv_megatron.rwkv7_model import RWKV7Model
 stimer = StragglerDetector()
 _online_teacher = None
 _teacher_prefetchers = []
+_teacher_replacement_datasets = []
 
 
 def _get_online_teacher(args):
@@ -379,6 +382,9 @@ def get_batch(data_iterator, teacher_prefetch=False):
     if mpu.get_tensor_model_parallel_rank() == 0:
         data = next(data_iterator)
         teacher_future = data.get(TeacherPrefetchIterator.future_key)
+        if teacher_future is None and "teacher_token_ids" in data:
+            teacher_future = Future()
+            teacher_future.set_result(TeacherTopK(data["teacher_token_ids"], data["teacher_logprobs"]))
         raw_prompts = data.get("raw_prompts")
         batch = {key: data[key].cuda(non_blocking=True) if data.get(key) is not None else None for key in keys}
     batch = get_batch_on_this_tp_rank(
@@ -675,7 +681,10 @@ def forward_step(data_iterator, model: GPTModel):
                      'memory/allocated_mib': torch.cuda.memory_allocated() / 2**20,
                      'memory/max_allocated_mib': torch.cuda.max_memory_allocated() / 2**20,
                      'memory/reserved_mib': torch.cuda.memory_reserved() / 2**20}
-        stats = data_iterator.iterable.get_stats() if teacher_future is not None else {}
+        stats = (data_iterator.iterable.get_stats()
+                 if isinstance(getattr(data_iterator, "iterable", None), TeacherPrefetchIterator) else {})
+        if _teacher_replacement_datasets:
+            stats['rejected_source_samples'] = sum(dataset.rejected_count() for dataset in _teacher_replacement_datasets)
         if (args.context_parallel_size > 1 and mpu.get_tensor_model_parallel_rank() == 0
                 and model.training and args.rwkv_teacher_async_prefetch):
             stats_payload = [stats]
@@ -773,6 +782,23 @@ def train_valid_test_datasets_provider(train_val_test_num_samples):
                 text_field=args.rwkv_jsonl_text_field,
                 chunk_chars=args.rwkv_jsonl_chunk_chars,
             )
+            if args.rwkv_distill and getattr(args, "rwkv_teacher_replace_bad_samples", False):
+                from rwkv_megatron.teacher_replacement import (
+                    TeacherValidatedDataset,
+                    selection_signature,
+                )
+
+                if args.num_workers != 0:
+                    raise ValueError("Teacher sample replacement currently requires num_workers=0")
+                directory = args.rwkv_teacher_sample_records or str(
+                    Path(args.data_cache_path or "training-smoke") / "teacher-sample-selection"
+                )
+                dataset = TeacherValidatedDataset(
+                    dataset, _get_online_teacher(args), directory,
+                    selection_signature(dataset, args, split_name),
+                    lookahead=args.rwkv_teacher_prefetch_lookahead,
+                )
+                _teacher_replacement_datasets.append(dataset)
             datasets.append(dataset)
             print_rank_0(f"> JSONL {split_name}: {len(dataset)} samples from {len(paths)} files")
         return tuple(datasets)
@@ -796,7 +822,6 @@ def train_valid_test_datasets_provider(train_val_test_num_samples):
 
     if filter_roundtrip:
         import json
-        from pathlib import Path
 
         tokenizer = _get_online_teacher(args)._get_tokenizer()
         filtered = []
@@ -1038,3 +1063,5 @@ if __name__ == "__main__":
                 for prefetcher in _teacher_prefetchers:
                     prefetcher.close()
                     print(f"async Qwen teacher final stats: {prefetcher.get_stats()}", flush=True)
+                for dataset in _teacher_replacement_datasets:
+                    dataset.close()

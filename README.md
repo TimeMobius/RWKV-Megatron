@@ -21,6 +21,18 @@ L2Wrap 不改变显示的 CE loss；只在训练后向中，对每个有效 toke
 
 启动前可执行 `python tools/check_teacher_tokenizer.py --rwkv-config <config.yaml>`，用多语言文本检查真实教师的位置对齐；长跑监督器自动执行此检查。服务若返回 `prompt_token_ids`，还会逐个核对输入 ID。长度或 ID 不符仍报错，避免把错误位置的分布当作目标。
 
+针对个别请求的位置数、token ID或教师概率格式错误，可开启前向前补位：
+
+```yaml
+rwkv_teacher_tokenizer_use_fast: false
+rwkv_teacher_replace_bad_samples: true
+rwkv_teacher_sample_records: /path/to/local/sample-selection
+num_workers: 0
+```
+
+数据读取时先请求教师，失败样本记录到该目录的`rejected-samples.jsonl`，改取下一条有效样本，保持训练batch大小；验证成功的输入和教师响应一起进入前向。共享选择记录让DP/PP/CP读取相同有效样本序列，并用于恢复时重建采样位置；恢复时保留该目录。W&B的`teacher/rejected_source_samples`记录已发现的坏源样本数（包含预取）。当前仅支持JSONL、单机共享目录、`num_workers: 0`。网络/鉴权等服务故障保留原重试和报错；连续100条都无法对齐时停止并报告配置问题。
+
+
 以下清单记录分支 `codex/qwen-rwkv28b-distill` 的当前约定。实现完成后将对应项标记为 `[x]`。
 
 | 功能 | 状态 | 决策与说明 |
@@ -33,7 +45,7 @@ L2Wrap 不改变显示的 CE loss；只在训练后向中，对每个有效 toke
 | 本地 teacher 后端 | 不做 | 继续使用外部 vLLM teacher 服务。 |
 | 直接发送 token ID | `[x]` 已实现；当前网关不支持 | `rwkv_teacher_prompt_mode: token_ids`；文本模式仍为默认，当前 API 对数组 prompt 返回 422。 |
 | 多 GPU 蒸馏（TP/PP/SP/DP2） | `[x]` 已实现 | DP2/DP4样本、精度和严格恢复通过；deterministic_mode固定FLA scan，恢复末位问题已定位并修复，见docs/distillation-replay-20261026.md。 |
-| 跨 rank teacher 失败处理 | `[x]` 已实现 | PP 末段 TP0 请求，TP 组广播结果/异常；失败由 torchrun 终止全作业，不跳样本。 |
+| 跨 rank teacher 失败处理 | `[x]` 已实现 | TP/CP广播相同目标；开启JSONL补位时，坏教师样本在前向前记录并换下一条，服务故障仍统一退出。 |
 | Teacher pool 与训练一键启动 | `[x]` 已完成 | `tools/launch_distillation.py` 启动 pool，等待就绪后启动训练，并在退出或失败时清理进程组。 |
 | 普通 checkpoint 保留最近 N 个并清理旧文件 | `[x]` 已完成 | `rwkv_checkpoint_keep_last: N`，0 为关闭；项目侧回调实现，无需修改 Megatron 子仓库。 |
 | Hidden-state 蒸馏 | 不做 | 源项目也没有接入在线训练。 |
@@ -81,7 +93,7 @@ bash training-smoke/parallel-distill-20261023/run.sh python tools/launch_distill
   --rwkv-config configs/config-qwen-2p7b-distill-tp2-sp-pp2-smoke.yaml
 ```
 
-教师只在最后一个 PP stage 的 CP0/TP0 请求/异步预取完整上下文，先分发CP目标，再广播给其他 TP ranks；student 词表保持分片，KL/CE 排除全局 padding 行。配置的词表 padding 必须与 native checkpoint 行数一致：当前 248320 行 Qwen 初始化在 TP4 下使用 `make_vocab_size_divisible_by: 128`，TP2 下使用 256。生产在线 smoke 需要外部 Qwen 服务健康；固定教师测试用于验证并行与精度，不能代替真实 teacher 的训练质量评估。2026-10-23 外部服务恢复后，2.7B 在 dense、TP2、TP2+SP、PP2、TP2+PP2+SP、TP4+PP2+SP 六种布局均完成真实 Qwen 在线3步训练及验证/test，零NaN/skip；[W&B验收报告](http://dian.sea-group.org:9098/mobius/rwkv-qwen-distill-2p7b/runs/v4pf5ud7)与逐布局结果见上述多卡记录。
+默认教师只在最后一个PP stage的CP0/TP0请求完整上下文；开启JSONL补位后，数据端先校验教师并携带成功响应，随后分发CP目标并广播TP；student 词表保持分片，KL/CE 排除全局 padding 行。配置的词表 padding 必须与 native checkpoint 行数一致：当前 248320 行 Qwen 初始化在 TP4 下使用 `make_vocab_size_divisible_by: 128`，TP2 下使用 256。生产在线 smoke 需要外部 Qwen 服务健康；固定教师测试用于验证并行与精度，不能代替真实 teacher 的训练质量评估。2026-10-23 外部服务恢复后，2.7B 在 dense、TP2、TP2+SP、PP2、TP2+PP2+SP、TP4+PP2+SP 六种布局均完成真实 Qwen 在线3步训练及验证/test，零NaN/skip；[W&B验收报告](http://dian.sea-group.org:9098/mobius/rwkv-qwen-distill-2p7b/runs/v4pf5ud7)与逐布局结果见上述多卡记录。
 
 <div align="center">
 

@@ -18,7 +18,7 @@ from multiprocessing.managers import BaseManager
 import numpy as np
 import torch
 
-from rwkv_megatron.online_teacher import TeacherTopK
+from rwkv_megatron.online_teacher import TeacherSampleError, TeacherTopK
 
 
 def teacher_metadata(client):
@@ -145,7 +145,8 @@ class TeacherPool:
                               token_ids=out.token_ids.cpu().numpy().astype(np.int32).tobytes(),
                               logprobs=out.logprobs.cpu().numpy().astype(np.float32).tobytes())
             except Exception as error:
-                result = dict(ok=False, error=f"{type(error).__name__}: {error}")
+                result = dict(ok=False, error=f"{type(error).__name__}: {error}",
+                              sample_error=isinstance(error, TeacherSampleError))
             with self._cond:
                 self._active -= 1
                 self._stats["completed" if result["ok"] else "failed"] += 1
@@ -254,6 +255,8 @@ class RemoteTeacherPoolClient:
                 if result is not None:
                     break
             if not result["ok"]:
+                if result.get("sample_error"):
+                    raise TeacherSampleError(result["error"])
                 raise RuntimeError(f"Teacher pool upstream failure: {result['error']}")
             self._thread_local.metrics = result["metrics"]
             shape = tuple(result["shape"])

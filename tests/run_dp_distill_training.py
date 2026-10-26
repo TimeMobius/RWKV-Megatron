@@ -4,6 +4,7 @@ RWKV_DP_AUDIT_DIR selects snapshots; RWKV_DP_FP32=1 uses a torch recurrence
 oracle. Inputs are indexed by Megatron's real data sampler, never by rank.
 """
 
+import atexit
 import hashlib
 import json
 import os
@@ -23,7 +24,8 @@ from megatron.training.arguments import parse_and_validate_args
 from megatron.training.global_vars import initialize_runtime_services
 from rwkv_megatron.arguments import add_rwkv_arguments
 from rwkv_megatron.distill_metrics import StudentPerplexityCallback
-from rwkv_megatron.online_teacher import TeacherTopK
+from rwkv_megatron.online_teacher import TeacherSampleError, TeacherTopK
+from rwkv_megatron.teacher_replacement import TeacherValidatedDataset
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "training-smoke/audit"))
@@ -136,15 +138,34 @@ class FixtureDataset(Dataset):
             labels=tokens[1:].masked_fill(~mask.bool(), -100),
             loss_mask=mask,
             position_ids=torch.arange(128),
+            **(
+                {"raw_prompts": "fixture"}
+                if os.environ.get("RWKV_REPLACEMENT_DIR")
+                else {}
+            ),
         )
+
+    def get_source_sample(self, index):
+        return self[index]
 
 
 def datasets(counts):
     if not pretrain.is_dataset_built_on_rank():
         return None, None, None
-    return tuple(
-        FixtureDataset(int(n), split) if n else None for split, n in enumerate(counts)
-    )
+    result = []
+    for split, count in enumerate(counts):
+        dataset = FixtureDataset(int(count), split) if count else None
+        if dataset is not None and os.environ.get("RWKV_REPLACEMENT_DIR"):
+            dataset = TeacherValidatedDataset(
+                dataset,
+                FixtureTeacher(),
+                os.environ["RWKV_REPLACEMENT_DIR"],
+                f"fixture-split{split}",
+                lookahead=4,
+            )
+            pretrain._teacher_replacement_datasets.append(dataset)
+        result.append(dataset)
+    return tuple(result)
 
 
 datasets.is_distributed = True
@@ -154,9 +175,11 @@ class FixtureTeacher:
     prompt_mode = "text"
 
     def get_logits(self, tokens, **kwargs):
+        if os.environ.get("RWKV_REPLACEMENT_DIR") and (tokens[:, 0] % 7 == 0).any():
+            raise TeacherSampleError("injected sample token alignment mismatch")
         if os.environ.get("RWKV_CP_FAIL") == "1":
             raise TimeoutError("injected CP source teacher failure")
-        if ps.get_context_parallel_world_size() > 1:
+        if ps.get_context_parallel_world_size() > 1 and tokens.is_cuda:
             assert ps.get_context_parallel_rank() == 0
             assert tokens.shape[1] == 128, "Teacher must receive full context"
         if active is not None:
@@ -317,6 +340,11 @@ if __name__ == "__main__":
                     layer.self_attention.core_attention.forward = recurrence
 
             pretrain.RWKV7Model.__init__ = oracle_init
+        atexit.register(
+            lambda: [
+                dataset.close() for dataset in pretrain._teacher_replacement_datasets
+            ]
+        )
         pretrain.pretrain(
             pretrain_cfg_container_from_args(args),
             datasets,

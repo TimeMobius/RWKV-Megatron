@@ -12,8 +12,16 @@ from types import SimpleNamespace
 import pytest
 import torch
 
-from rwkv_megatron.online_teacher import TeacherPrefetchIterator, TeacherTopK, kl_divergence_topk
-from rwkv_megatron.teacher_pool import RemoteTeacherPoolClient, TeacherPool, make_pool_server
+from rwkv_megatron.online_teacher import (
+    TeacherPrefetchIterator,
+    TeacherTopK,
+    kl_divergence_topk,
+)
+from rwkv_megatron.teacher_pool import (
+    RemoteTeacherPoolClient,
+    TeacherPool,
+    make_pool_server,
+)
 
 
 class Tokenizer:
@@ -376,10 +384,35 @@ def test_pool_config_and_factory_selection(tmp_path, monkeypatch):
     assert token_client.prompt_mode == 'token_ids'
     slow_client = build_teacher_client(parser.parse_args(['--no-rwkv-teacher-tokenizer-use-fast']), use_pool=False)
     assert slow_client.tokenizer_use_fast is False
-    for key, value in [("rwkv_teacher_pool", "yes"), ("rwkv_teacher_tokenizer_use_fast", "false"), ("rwkv_teacher_pool_queue_size", 0),
+    for key, value in [("rwkv_teacher_pool", "yes"), ("rwkv_teacher_replace_bad_samples", "yes"), ("rwkv_teacher_tokenizer_use_fast", "false"), ("rwkv_teacher_pool_queue_size", 0),
                        ("rwkv_teacher_pool_timeout", float("nan")), ("rwkv_teacher_pool_port", 65536)]:
         import yaml
 
         config.write_text(yaml.safe_dump({key: value}))
         with pytest.raises(ValueError):
             add_rwkv_arguments(argparse.ArgumentParser())
+
+
+def test_pool_preserves_sample_error_type_for_replacement():
+    from rwkv_megatron.online_teacher import TeacherSampleError
+
+    class BadTeacher(FrozenTeacher):
+        def get_logits(self, *args, **kwargs):
+            raise TeacherSampleError("Teacher returned mismatched prompt positions")
+
+    pool = TeacherPool(BadTeacher(), workers=1)
+    try:
+        submit(pool, "bad-sample", 1)
+        result = pool.get("bad-sample", 5)
+        assert not result["ok"] and result["sample_error"]
+        remote_client = object.__new__(RemoteTeacherPoolClient)
+        remote_client._pool = pool
+        remote_client.local_client = BadTeacher()
+        remote_client.timeout = 5
+        remote_client._thread_local = threading.local()
+        remote_client._lock = threading.Lock()
+        remote_client._stats = dict(requests=0, backpressure_waits=0)
+        with pytest.raises(TeacherSampleError, match="mismatched prompt positions"):
+            remote_client.get_logits(torch.tensor([[1, 2, 3]]))
+    finally:
+        pool.close()

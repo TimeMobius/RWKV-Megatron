@@ -143,6 +143,8 @@ def main():
         rwkv_teacher_pool=True,
         # This endpoint uses Qwen2Tokenizer's slow pretokenization regex.
         rwkv_teacher_tokenizer_use_fast=False,
+        rwkv_teacher_replace_bad_samples=True,
+        rwkv_teacher_sample_records=str(output / "sample-selection"),
         rwkv_teacher_async_prefetch=True,
         wandb_entity="mobius",
         wandb_project="rwkv-qwen-distill-2p7b",

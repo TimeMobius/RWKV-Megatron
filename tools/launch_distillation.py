@@ -68,14 +68,14 @@ def wait_for_pool(process, log, timeout):
 
 
 def default_training_command(settings):
-    """Infer one-node torchrun size from the configured DP/TP/PP layout."""
-    dp, tp, pp = validate_parallel_settings(settings)
+    """Infer one-node torchrun size from the configured DP/TP/PP/CP layout."""
+    dp, tp, pp, cp = validate_parallel_settings(settings)
     return [
         sys.executable,
         "-m",
         "torch.distributed.run",
         "--standalone",
-        f"--nproc-per-node={dp * tp * pp}",
+        f"--nproc-per-node={dp * tp * pp * cp}",
         str(ROOT / "pretrain_rwkv7.py"),
     ]
 
@@ -91,8 +91,6 @@ def validate_parallel_settings(settings):
     cp = parallel.get("context_parallel_size", 1)
     if any(type(size) is not int or size < 1 for size in (dp, tp, pp, cp)):
         raise ValueError("parallel sizes must be positive integers")
-    if cp != 1:
-        raise ValueError("online distillation does not support context parallelism")
     if (
         parallel.get("virtual_pipeline_model_parallel_size") is not None
         or settings.get("virtual_pipeline_model_parallel_size") is not None
@@ -128,10 +126,13 @@ def validate_parallel_settings(settings):
         )
     sequence = settings.get("seq_length")
     if sequence is not None and (
-        type(sequence) is not int or sequence < 1 or (sp and sequence % tp)
+        type(sequence) is not int
+        or sequence < 1
+        or (sp and sequence % (tp * cp))
+        or (cp > 1 and sequence % (64 * cp))
     ):
         raise ValueError(
-            "seq_length must be positive and divisible by TP when SP is enabled"
+            "seq_length must be positive, divisible by TP * CP with SP, and by 64 * CP with CP"
         )
     micro, batch = settings.get("micro_batch_size"), settings.get("global_batch_size")
     for key, value in (("micro_batch_size", micro), ("global_batch_size", batch)):
@@ -141,12 +142,12 @@ def validate_parallel_settings(settings):
         raise ValueError(
             f"global_batch_size must be divisible by micro_batch_size * DP={micro * dp}"
         )
-    return dp, tp, pp
+    return dp, tp, pp, cp
 
 
 def validate_training_command(settings, command):
     """Check explicit local torchrun sizes while preserving custom executables."""
-    dp, tp, pp = validate_parallel_settings(settings)
+    dp, tp, pp, cp = validate_parallel_settings(settings)
     is_torchrun = any(
         Path(part).name in ("torchrun", "torch.distributed.run") for part in command
     )
@@ -165,15 +166,15 @@ def validate_training_command(settings, command):
             "local torchrun requires an explicit positive integer --nproc-per-node"
         )
     requested = int(count)
-    model_size = tp * pp
+    model_size = tp * pp * cp
     if requested % model_size:
-        raise ValueError("torchrun process count must be divisible by TP * PP")
+        raise ValueError("torchrun process count must be divisible by TP * PP * CP")
     if (
         "data_parallel_size" in settings.get("model_parallel", {})
         and requested != dp * model_size
     ):
         raise ValueError(
-            "torchrun process count disagrees with configured DP * TP * PP"
+            "torchrun process count disagrees with configured DP * TP * PP * CP"
         )
     actual_dp = requested // model_size
     actual = {

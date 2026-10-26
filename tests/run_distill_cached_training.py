@@ -84,6 +84,19 @@ def batch(*args, **kwargs):
     result = ORIGINAL_BATCH(*args, **kwargs)
     if result[0] is not None:
         tokens, labels, mask = result[:3]
+        if ps.get_context_parallel_world_size() > 1:
+
+            def gather(value):
+                shards = [
+                    torch.empty_like(value)
+                    for _ in range(ps.get_context_parallel_world_size())
+                ]
+                torch.distributed.all_gather(
+                    shards, value, group=ps.get_context_parallel_group()
+                )
+                return torch.cat(shards, dim=1)
+
+            tokens, labels, mask = map(gather, (tokens, labels, mask))
         rows = []
         for token, label, valid in zip(tokens, labels, mask):
             digest = hashlib.sha256()
@@ -132,6 +145,7 @@ def finish():
         dp=ps.get_data_parallel_rank(),
         tp=ps.get_tensor_model_parallel_rank(),
         pp=ps.get_pipeline_model_parallel_rank(),
+        cp=ps.get_context_parallel_rank(),
         measurements=MEASUREMENTS,
         batches=BATCHES,
         teacher_requests=CLIENT.requests if CLIENT else 0,

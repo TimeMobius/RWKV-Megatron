@@ -28,50 +28,69 @@ Requirements:
 # Copyright (c) 2023, NVIDIA CORPORATION.  All rights reserved.
 """Pretrain RWKV7."""
 
-import os
 import math
+import os
 import time
+from functools import partial
+
+import numpy
+import rwkv
 import rwkv.model
 import torch
-import torch.nn.functional as F
-from functools import partial
-import numpy
 import torch.distributed
+import torch.nn.functional as F
+import transformers
 
-from megatron.training import get_args
-from megatron.training import print_rank_0
-from megatron.training import get_timers
-from megatron.training import get_tokenizer
 from megatron.core import mpu
-from megatron.core.enums import ModelType
 from megatron.core.datasets.blended_megatron_dataset_builder import (
     BlendedMegatronDatasetBuilder,
 )
+from megatron.core.datasets.gpt_dataset import (
+    GPTDataset,
+    GPTDatasetConfig,
+    MockGPTDataset,
+)
 from megatron.core.datasets.utils import get_blend_from_list
-from megatron.core.datasets.gpt_dataset import GPTDatasetConfig
-from megatron.core.datasets.gpt_dataset import MockGPTDataset, GPTDataset
+from megatron.core.enums import ModelType
 from megatron.core.models.gpt import GPTModel
-from megatron.training import pretrain
-from megatron.core.utils import StragglerDetector
 from megatron.core.transformer.spec_utils import import_module
 from megatron.core.utils import (
+    StragglerDetector,
     get_batch_on_this_cp_rank,
     get_batch_on_this_tp_rank,
 )
+from megatron.training import (
+    get_args,
+    get_timers,
+    get_tokenizer,
+    pretrain,
+    print_rank_0,
+)
 from megatron.training.arguments import core_transformer_config_from_args
 from megatron.training.yaml_arguments import core_transformer_config_from_yaml
-
-import transformers
-import rwkv
-
-from rwkv_megatron.rwkv7_layer_specs import get_rwkv7_layer_spec, get_rwkv7_with_transformer_engine_spec
-from rwkv_megatron.rwkv7_model import RWKV7Model
-from rwkv_megatron.online_teacher import (
-    build_teacher_client, RoundTripDataset, TeacherTopK, TeacherPrefetchIterator, kl_divergence_topk,
+from rwkv_megatron.context_distill import (
+    ContextTeacherInput,
+    finalize_context_loss,
+    shard_teacher,
 )
 from rwkv_megatron.jsonl_dataset import JsonlTextDataset
-from rwkv_megatron.parallel_distill import broadcast_teacher, vocab_parallel_ce, vocab_parallel_kl
-
+from rwkv_megatron.online_teacher import (
+    RoundTripDataset,
+    TeacherPrefetchIterator,
+    TeacherTopK,
+    build_teacher_client,
+    kl_divergence_topk,
+)
+from rwkv_megatron.parallel_distill import (
+    broadcast_teacher,
+    vocab_parallel_ce,
+    vocab_parallel_kl,
+)
+from rwkv_megatron.rwkv7_layer_specs import (
+    get_rwkv7_layer_spec,
+    get_rwkv7_with_transformer_engine_spec,
+)
+from rwkv_megatron.rwkv7_model import RWKV7Model
 
 stimer = StragglerDetector()
 _online_teacher = None
@@ -320,8 +339,9 @@ def get_batch(data_iterator, teacher_prefetch=False):
 
     # get batches based on the TP rank you are on
     args = get_args()
-    if teacher_prefetch and mpu.get_tensor_model_parallel_rank() == 0:
-        from megatron.core.rerun_state_machine import get_rerun_state_machine, RerunMode
+    if (teacher_prefetch and mpu.get_tensor_model_parallel_rank() == 0
+            and mpu.get_context_parallel_rank() == 0):
+        from megatron.core.rerun_state_machine import RerunMode, get_rerun_state_machine
 
         if get_rerun_state_machine().get_mode() != RerunMode.DISABLED:
             raise ValueError("Async teacher prefetch currently requires rerun_mode=disabled")
@@ -379,7 +399,12 @@ def get_batch(data_iterator, teacher_prefetch=False):
         is_pipeline_first_stage=mpu.is_pipeline_first_stage(),
         is_pipeline_last_stage=mpu.is_pipeline_last_stage(),
     )
-    batch = get_batch_on_this_cp_rank(batch, is_hybrid_cp=False, cp_group=mpu.get_context_parallel_group())
+    if args.rwkv_distill and args.context_parallel_size > 1:
+        raw_prompts = ContextTeacherInput(batch["tokens"], batch["loss_mask"], raw_prompts)
+    batch = get_batch_on_this_cp_rank(
+        batch, is_hybrid_cp=False, cp_group=mpu.get_context_parallel_group(),
+        use_contiguous_cp=True,
+    )
     return [batch[key] for key in keys] + [teacher_future, raw_prompts]
 
 
@@ -450,10 +475,15 @@ def distillation_loss_func(loss_mask: torch.Tensor, labels: torch.Tensor, output
         raise ValueError(
             f"Cannot align student logits {tuple(student_logits.shape)} with labels {tuple(labels.shape)}"
         )
-    aligned_student = student_logits[:, :-1, :]
+    # Non-final CP shards include the next shard's first teacher target, so
+    # their final student position participates in KL across the boundary.
+    aligned_length = teacher.token_ids.shape[1] - 1
+    if aligned_length not in (student_logits.shape[1] - 1, student_logits.shape[1]):
+        raise ValueError("Teacher targets do not match the student context shard")
+    aligned_student = student_logits[:, :aligned_length, :]
     # Megatron loss_mask is already aligned with next-token labels, so mask[t]
     # belongs to student_logits[t] (unlike the source's input attention mask).
-    aligned_mask = loss_mask[:, :-1].to(device=student_logits.device, dtype=torch.bool)
+    aligned_mask = loss_mask[:, :aligned_length].to(device=student_logits.device, dtype=torch.bool)
     teacher = TeacherTopK(
         token_ids=teacher.token_ids[:, 1:, :],
         logprobs=teacher.logprobs[:, 1:, :],
@@ -489,14 +519,22 @@ def distillation_loss_func(loss_mask: torch.Tensor, labels: torch.Tensor, output
     if args.rwkv_distill_ce_weight:
         total = total + float(args.rwkv_distill_ce_weight) * ce
     token_count = aligned_mask.float().sum()
-    loss, count, reporting = _finalize_loss(total, token_count)
-    # Reporting pairs follow Megatron's sum/count contract. KL is explicit
-    # because the legacy "lm loss" name is the weighted training objective.
-    reporting['distill/kl_loss'] = torch.stack((kl.detach() * token_count, token_count))
     ce_count = loss_mask.float().sum()
-    reporting['distill/student_ce_loss'] = torch.stack((ce.detach() * ce_count, ce_count))
-    if args.rwkv_distill_ce_weight:
-        reporting['distill/ce_loss'] = torch.stack((ce.detach() * token_count, token_count))
+    if args.context_parallel_size > 1:
+        usable = ((teacher.token_ids >= 0) & torch.isfinite(teacher.logprobs)).any(-1)
+        kl_count = (aligned_mask & usable.to(aligned_mask.device)).float().sum()
+        loss, count, reporting = finalize_context_loss(
+            kl, ce, kl_count, ce_count, float(args.rwkv_distill_logit_weight),
+            float(args.rwkv_distill_ce_weight), mpu.get_context_parallel_group(), token_count,
+        )
+        if args.check_for_nan_in_loss_and_grad:
+            assert torch.isfinite(loss), "Non-finite context-parallel distillation loss"
+    else:
+        loss, count, reporting = _finalize_loss(total, token_count)
+        reporting['distill/kl_loss'] = torch.stack((kl.detach() * token_count, token_count))
+        reporting['distill/student_ce_loss'] = torch.stack((ce.detach() * ce_count, ce_count))
+        if args.rwkv_distill_ce_weight:
+            reporting['distill/ce_loss'] = torch.stack((ce.detach() * token_count, token_count))
     for name, value in (telemetry or {}).items():
         reporting[name] = torch.tensor([value, 1.0], device=total.device, dtype=torch.float32)
     return loss, count, reporting
@@ -573,8 +611,6 @@ def forward_step(data_iterator, model: GPTModel):
     args = get_args()
     timers = get_timers()
     if args.rwkv_distill:
-        if args.context_parallel_size != 1:
-            raise ValueError("Online distillation does not support context parallelism")
         if getattr(args, "virtual_pipeline_model_parallel_size", None) is not None:
             raise ValueError("Online distillation currently supports non-interleaved PP only")
 
@@ -599,19 +635,36 @@ def forward_step(data_iterator, model: GPTModel):
         # receive the same response or error before entering loss collectives.
         wait_start = time.perf_counter()
 
-        def request_teacher():
+        full_input = raw_prompts if isinstance(raw_prompts, ContextTeacherInput) else None
+        teacher_tokens = full_input.tokens if full_input is not None else tokens
+        teacher_mask = full_input.loss_mask if full_input is not None else loss_mask
+        teacher_prompts = full_input.prompts if full_input is not None else raw_prompts
+
+        def request_full_teacher():
             if teacher_future is not None:
                 return teacher_future.result()
             teacher_client = _get_online_teacher(args)
-            if getattr(teacher_client, "prompt_mode", "text") == "token_ids" and raw_prompts is not None:
-                lengths = loss_mask.detach().sum(dim=-1).to(torch.long) + 1
-                lengths = lengths.clamp_max(tokens.shape[-1])
+            if getattr(teacher_client, "prompt_mode", "text") == "token_ids" and teacher_prompts is not None:
+                lengths = teacher_mask.detach().sum(dim=-1).to(torch.long) + 1
+                lengths = lengths.clamp_max(teacher_tokens.shape[-1])
                 token_attention_mask = (
-                    torch.arange(tokens.shape[-1], device=tokens.device).unsqueeze(0)
+                    torch.arange(teacher_tokens.shape[-1], device=teacher_tokens.device).unsqueeze(0)
                     < lengths.unsqueeze(1)
                 )
-                return teacher_client.get_logits(tokens, attention_mask=token_attention_mask)
-            return teacher_client.get_logits(tokens, prompts=raw_prompts)
+                return teacher_client.get_logits(teacher_tokens, attention_mask=token_attention_mask)
+            return teacher_client.get_logits(teacher_tokens, prompts=teacher_prompts)
+
+        def request_teacher():
+            if args.context_parallel_size == 1:
+                return request_full_teacher()
+            cp_group = mpu.get_context_parallel_group()
+            full_teacher = broadcast_teacher(
+                request_full_teacher, cp_group,
+                torch.distributed.get_process_group_ranks(cp_group)[0], output_tensor.device,
+            )
+            return shard_teacher(
+                full_teacher, mpu.get_context_parallel_rank(), args.context_parallel_size
+            )
 
         if args.tensor_model_parallel_size > 1:
             teacher = broadcast_teacher(request_teacher, mpu.get_tensor_model_parallel_group(),
@@ -623,6 +676,15 @@ def forward_step(data_iterator, model: GPTModel):
                      'memory/max_allocated_mib': torch.cuda.max_memory_allocated() / 2**20,
                      'memory/reserved_mib': torch.cuda.memory_reserved() / 2**20}
         stats = data_iterator.iterable.get_stats() if teacher_future is not None else {}
+        if (args.context_parallel_size > 1 and mpu.get_tensor_model_parallel_rank() == 0
+                and model.training and args.rwkv_teacher_async_prefetch):
+            stats_payload = [stats]
+            cp_group = mpu.get_context_parallel_group()
+            torch.distributed.broadcast_object_list(
+                stats_payload, src=torch.distributed.get_process_group_ranks(cp_group)[0],
+                group=cp_group, device=output_tensor.device,
+            )
+            stats = stats_payload[0]
         if args.tensor_model_parallel_size > 1 and model.training and args.rwkv_teacher_async_prefetch:
             # W&B writes on the last global rank, which is usually not TP0.
             # Share source-only prefetch/pool metrics with every loss reporter.
@@ -779,9 +841,8 @@ def get_train_iters():
     改进版本：计算能够完整训练所有数据集的训练迭代数
     支持权重模式和无权重模式
     """
-    from megatron.training import get_args
-    from megatron.training import print_rank_0
     from megatron.core.datasets.gpt_dataset import GPTDataset, MockGPTDataset
+    from megatron.training import get_args, print_rank_0
     
     args = get_args()
     auto_train_iters = getattr(args, 'auto_train_iters', None)
@@ -948,12 +1009,12 @@ if __name__ == "__main__":
         "transformers.dynamic_module_utils.resolve_trust_remote_code",
         return_value=True,
     ):
-        from megatron.training.arguments import parse_and_validate_args
         from megatron.training.argument_utils import pretrain_cfg_container_from_args
+        from megatron.training.arguments import parse_and_validate_args
         from megatron.training.global_vars import initialize_runtime_services
         from rwkv_megatron.arguments import add_rwkv_arguments
-        from rwkv_megatron.distill_metrics import StudentPerplexityCallback
         from rwkv_megatron.checkpoint_retention import make_retention_callback
+        from rwkv_megatron.distill_metrics import StudentPerplexityCallback
 
         args = parse_and_validate_args(extra_args_provider=add_rwkv_arguments)
         initialize_runtime_services(args)

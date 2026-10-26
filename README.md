@@ -28,7 +28,7 @@ L2Wrap 不改变显示的 CE loss；只在训练后向中，对每个有效 toke
 | 递归 JSONL 文件读取 | `[x]` 已完成 | 目录输入递归发现 `.jsonl`，按 split 文件名优先选择并保持稳定排序。 |
 | 本地 teacher 后端 | 不做 | 继续使用外部 vLLM teacher 服务。 |
 | 直接发送 token ID | `[x]` 已实现；当前网关不支持 | `rwkv_teacher_prompt_mode: token_ids`；文本模式仍为默认，当前 API 对数组 prompt 返回 422。 |
-| 多 GPU 蒸馏（TP/PP/SP/DP2） | `[x]` 已实现 | DP2 样本/梯度及在线短训通过；BF16 TP2+PP2 组合的严格逐位恢复有未通过项，详见 DP2 记录。 |
+| 多 GPU 蒸馏（TP/PP/SP/DP2） | `[x]` 已实现 | DP2/DP4样本、精度和严格恢复通过；deterministic_mode固定FLA scan，恢复末位问题已定位并修复，见docs/distillation-replay-20261026.md。 |
 | 跨 rank teacher 失败处理 | `[x]` 已实现 | PP 末段 TP0 请求，TP 组广播结果/异常；失败由 torchrun 终止全作业，不跳样本。 |
 | Teacher pool 与训练一键启动 | `[x]` 已完成 | `tools/launch_distillation.py` 启动 pool，等待就绪后启动训练，并在退出或失败时清理进程组。 |
 | 普通 checkpoint 保留最近 N 个并清理旧文件 | `[x]` 已完成 | `rwkv_checkpoint_keep_last: N`，0 为关闭；项目侧回调实现，无需修改 Megatron 子仓库。 |
@@ -57,9 +57,9 @@ Launcher 使用同一份 YAML 配置两个进程，并为训练追加 `--rwkv-te
 
 `rwkv_checkpoint_keep_last: 2` 保留最近两个已完成的普通 checkpoint；默认 `0` 不清理。以 `latest_checkpointed_iteration.txt` 为完成边界，在下一步开始/训练结束时清理，并在 `pretrain()` 返回后检查最终保存。缺失/无效 tracker 或最新 checkpoint 不完整时不删除；较新的在写目录、release、初始化 step 0、符号链接及非 checkpoint 目录保留。该策略不能与 Megatron 的 `save_retain_interval` 同时开启。测试覆盖删除边界、保留数量及 rank 0 行为；实际小模型同步 torch checkpoint 在 step 1–4 保存后只保留 3、4，从 4 恢复到 5 后只保留 4、5。更改训练总步数后续训时，应保持原 scheduler 配置，或显式 `use_checkpoint_opt_param_scheduler: true` 恢复 checkpoint 中的 scheduler。
 
-单卡功能测试详情见 [蒸馏功能验证记录](docs/distillation-validation-20261021.md)。TP/PP/SP 的分阶段计划、精度阈值、恢复和多卡测试见 [多卡蒸馏记录](docs/distillation-parallel-20261023.md)。普通 PP 与 SP 已接通；后续完成 [DP2 精度与恢复测试](docs/distillation-dp2-20261023.md)，其中两个 BF16 TP2+PP2 组合仍有严格逐位复现遗留项。CP、虚拟/交错 PP 明确拒绝，DP>2 和多机未认证。
+单卡功能测试详情见 [蒸馏功能验证记录](docs/distillation-validation-20261021.md)。TP/PP/SP 的分阶段计划、精度阈值、恢复和多卡测试见 [多卡蒸馏记录](docs/distillation-parallel-20261023.md)。普通PP与SP、DP2/DP4、分布式优化器和CPU offload已通过精度及严格恢复。历史[DP2记录](docs/distillation-dp2-20261023.md)中的恢复差异已由deterministic_mode固定FLA scan解决；普通自动调优模式不承诺位一致。连续CP2的组合精度、严格恢复、真实2.7B评测和在线短训通过，范围见[剩余工作记录](docs/distillation-remaining-20261026.md)；虚拟/交错PP仍拒绝，多机未认证。
 
-多卡 launcher 从 YAML 的 DP×TP×PP 计算本机进程数；DP默认1，在 `model_parallel.data_parallel_size` 设置。例如以下配置自动启动8卡DP2×TP2×PP2+SP：
+多卡 launcher 从 YAML 的 DP×TP×PP×CP 计算本机进程数；DP默认1，在 `model_parallel.data_parallel_size` 设置。例如以下配置自动启动8卡DP2×TP2×PP2+SP：
 
 ```yaml
 model_parallel:
@@ -70,14 +70,14 @@ model_parallel:
   context_parallel_size: 1
 ```
 
-启动前检查并行度、SP/TP、head/hidden切分、普通PP层数分配、global batch能否按micro batch×DP划分，以及可见GPU数。显式torchrun命令仍可用；如配置已指定DP，进程数必须一致。原4卡TP2+PP2+SP配置仍可这样启动：
+CP使用连续切分、真实recurrent状态传递；CP-local序列需按64token切块，SP还需按TP切分。recurrent CP按rank传递状态，尚未承诺加速收益。启动前检查并行度、SP/TP/CP、head/hidden切分、普通PP层数分配、global batch能否按micro batch×DP划分，以及可见GPU数。显式torchrun命令仍可用；如配置已指定DP，进程数必须一致。原4卡TP2+PP2+SP配置仍可这样启动：
 
 ```bash
 bash training-smoke/parallel-distill-20261023/run.sh python tools/launch_distillation.py \
   --rwkv-config configs/config-qwen-2p7b-distill-tp2-sp-pp2-smoke.yaml
 ```
 
-教师只在最后一个 PP stage 的 TP0 请求/异步预取，其他 TP ranks 接收相同 top-k；student 词表保持分片，KL/CE 排除全局 padding 行。配置的词表 padding 必须与 native checkpoint 行数一致：当前 248320 行 Qwen 初始化在 TP4 下使用 `make_vocab_size_divisible_by: 128`，TP2 下使用 256。生产在线 smoke 需要外部 Qwen 服务健康；固定教师测试用于验证并行与精度，不能代替真实 teacher 的训练质量评估。2026-10-23 外部服务恢复后，2.7B 在 dense、TP2、TP2+SP、PP2、TP2+PP2+SP、TP4+PP2+SP 六种布局均完成真实 Qwen 在线3步训练及验证/test，零NaN/skip；[W&B验收报告](http://dian.sea-group.org:9098/mobius/rwkv-qwen-distill-2p7b/runs/v4pf5ud7)与逐布局结果见上述多卡记录。
+教师只在最后一个 PP stage 的 CP0/TP0 请求/异步预取完整上下文，先分发CP目标，再广播给其他 TP ranks；student 词表保持分片，KL/CE 排除全局 padding 行。配置的词表 padding 必须与 native checkpoint 行数一致：当前 248320 行 Qwen 初始化在 TP4 下使用 `make_vocab_size_divisible_by: 128`，TP2 下使用 256。生产在线 smoke 需要外部 Qwen 服务健康；固定教师测试用于验证并行与精度，不能代替真实 teacher 的训练质量评估。2026-10-23 外部服务恢复后，2.7B 在 dense、TP2、TP2+SP、PP2、TP2+PP2+SP、TP4+PP2+SP 六种布局均完成真实 Qwen 在线3步训练及验证/test，零NaN/skip；[W&B验收报告](http://dian.sea-group.org:9098/mobius/rwkv-qwen-distill-2p7b/runs/v4pf5ud7)与逐布局结果见上述多卡记录。
 
 <div align="center">
 

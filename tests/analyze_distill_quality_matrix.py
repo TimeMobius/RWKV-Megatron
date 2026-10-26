@@ -22,7 +22,7 @@ def sample_ids(rows, step):
     values = [
         sample["hash"]
         for row in rows
-        if row["tp"] == 0 and row["pp"] == 0
+        if row["tp"] == 0 and row["pp"] == 0 and row.get("cp", 0) == 0
         for batch in row["batches"]
         if batch["step"] == step
         for sample in batch["samples"]
@@ -126,6 +126,30 @@ def main():
         report[name]["checkpoint_reload_ce"] = runs[loaded]["validation_ce"]
         report[name]["checkpoint_reload_verified"] = True
     report["initial"] = runs["initial"]
+    for name, source in (
+        ("cp2-checkpoint", "dense"),
+        ("cp-combined-checkpoint", "combined"),
+    ):
+        if name not in runs:
+            continue
+        ce, ppl = runs[name]["validation_ce"], runs[name]["validation_ppl"]
+        assert abs(ce / runs[source]["validation_ce"] - 1) < 0.005
+        assert abs(ppl / runs[source]["validation_ppl"] - 1) < 0.01
+        rows = ranks(name)
+        assert set(sample_ids(rows, None)) == set(sample_ids(reference, None))
+        assert all(row["teacher_requests"] == 0 for row in rows)
+        assert not any(
+            row["measurements"] for row in rows
+        ), "Eval-only must not update optimizer"
+        report[name] = dict(
+            **runs[name],
+            reference=source,
+            fixed_validation_samples_match=True,
+            no_http_during_replay=True,
+            evaluation_only=True,
+            ce_relative_error=abs(ce / runs[source]["validation_ce"] - 1),
+            ppl_relative_error=abs(ppl / runs[source]["validation_ppl"] - 1)
+        )
     report["comparison_scope"] = (
         "2.7B, 8 optimizer steps / 64 same training samples, 32 fixed validation samples per eval, seq512, identical recorded real-Qwen top100; cache replay GPU cost, excludes live HTTP throughput; no long-run quality claim"
     )

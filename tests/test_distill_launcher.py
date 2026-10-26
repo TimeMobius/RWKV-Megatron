@@ -164,9 +164,31 @@ def test_default_launcher_matches_parallel_layout(tp, pp):
     assert f"--nproc-per-node={tp * pp}" in command
 
 
-def test_default_launcher_rejects_cp():
-    with pytest.raises(ValueError, match="context parallelism"):
-        default_training_command({"model_parallel": {"context_parallel_size": 2}})
+@pytest.mark.parametrize(
+    "dp,tp,pp,sp,cp", [(1, 1, 1, False, 2), (2, 2, 1, True, 2), (1, 2, 2, True, 2)]
+)
+def test_default_launcher_infers_cp(dp, tp, pp, sp, cp, monkeypatch):
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "0,1,2,3,4,5,6,7")
+    cfg = {
+        "model_parallel": {
+            "data_parallel_size": dp,
+            "tensor_model_parallel_size": tp,
+            "pipeline_model_parallel_size": pp,
+            "context_parallel_size": cp,
+            "sequence_parallel": sp,
+        },
+        "seq_length": 128,
+        "micro_batch_size": 2,
+        "global_batch_size": 8,
+    }
+    command = default_training_command(cfg)
+    assert f"--nproc-per-node={dp*tp*pp*cp}" in command
+    validate_training_command(cfg, command)
+    with pytest.raises(ValueError, match="disagrees|divisible"):
+        validate_training_command(cfg, ["torchrun", "--nproc-per-node=1", "train.py"])
+    cfg["seq_length"] = 96
+    with pytest.raises(ValueError, match="seq_length"):
+        default_training_command(cfg)
 
 
 @pytest.mark.parametrize("dp,tp,pp", [(2, 1, 1), (2, 2, 2), (4, 2, 1)])

@@ -21,7 +21,7 @@ LAYOUTS = dict(
 )
 
 
-def run(name, layout, record=False, load=None, initial=False):
+def run(name, layout, record=False, load=None, initial=False, cp=1):
     dp, tp, pp, sp = layout
     cfg = yaml.safe_load(
         (ROOT / "configs/config-qwen-2p7b-distill-tp2-sp-pp2-smoke.yaml").read_text()
@@ -31,6 +31,7 @@ def run(name, layout, record=False, load=None, initial=False):
         tensor_model_parallel_size=tp,
         pipeline_model_parallel_size=pp,
         sequence_parallel=sp,
+        context_parallel_size=cp,
     )
     cfg.update(
         deterministic_mode=True,
@@ -80,7 +81,7 @@ def run(name, layout, record=False, load=None, initial=False):
                 "-m",
                 "torch.distributed.run",
                 "--standalone",
-                f"--nproc-per-node={dp*tp*pp}",
+                f"--nproc-per-node={dp*tp*pp*cp}",
                 str(ROOT / "tests/run_distill_cached_training.py"),
                 "--rwkv-config",
                 str(path),
@@ -96,7 +97,7 @@ def run(name, layout, record=False, load=None, initial=False):
     remote = wandb.Api().run("mobius/rwkv-qwen-distill-2p7b/" + runid)
     assert remote.state == "finished", remote.state
     info = dict(
-        layout=dict(dp=dp, tp=tp, pp=pp, sp=sp),
+        layout=dict(dp=dp, tp=tp, pp=pp, sp=sp, cp=cp),
         wandb=remote.url,
         verified_finished=True,
         validation_ce=remote.summary.get("distill/validation_student_ce_loss"),
@@ -135,6 +136,10 @@ if __name__ == "__main__":
             run(name, LAYOUTS["dense"], record=True)
         elif name == "initial":
             run(name, LAYOUTS["dense"], record=True, initial=True)
+        elif name == "cp2-checkpoint":
+            run(name, LAYOUTS["dense"], load=str(OUT / "dense/checkpoints"), cp=2)
+        elif name == "cp-combined-checkpoint":
+            run(name, (1, 2, 2, True), load=str(OUT / "combined/checkpoints"), cp=2)
         elif name.endswith("-reload"):
             source = name.removesuffix("-reload")
             run(name, LAYOUTS[source], load=str(OUT / source / "checkpoints"))

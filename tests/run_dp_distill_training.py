@@ -154,6 +154,8 @@ class FixtureTeacher:
     prompt_mode = "text"
 
     def get_logits(self, tokens, **kwargs):
+        if os.environ.get("RWKV_CP_FAIL") == "1":
+            raise TimeoutError("injected CP source teacher failure")
         if ps.get_context_parallel_world_size() > 1:
             assert ps.get_context_parallel_rank() == 0
             assert tokens.shape[1] == 128, "Teacher must receive full context"

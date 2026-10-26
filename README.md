@@ -59,7 +59,18 @@ Launcher 使用同一份 YAML 配置两个进程，并为训练追加 `--rwkv-te
 
 单卡功能测试详情见 [蒸馏功能验证记录](docs/distillation-validation-20261021.md)。TP/PP/SP 的分阶段计划、精度阈值、恢复和多卡测试见 [多卡蒸馏记录](docs/distillation-parallel-20261023.md)。普通 PP 与 SP 已接通；后续完成 [DP2 精度与恢复测试](docs/distillation-dp2-20261023.md)，其中两个 BF16 TP2+PP2 组合仍有严格逐位复现遗留项。CP、虚拟/交错 PP 明确拒绝，DP>2 和多机未认证。
 
-多卡 launcher 默认从 YAML 的 TP×PP 计算本机进程数（DP=1）；DP2 需显式提供 `--nproc-per-node=2×TP×PP` 的训练命令，示例见 DP2 记录。例如 4 卡 TP2+PP2+SP：
+多卡 launcher 从 YAML 的 DP×TP×PP 计算本机进程数；DP默认1，在 `model_parallel.data_parallel_size` 设置。例如以下配置自动启动8卡DP2×TP2×PP2+SP：
+
+```yaml
+model_parallel:
+  data_parallel_size: 2
+  tensor_model_parallel_size: 2
+  pipeline_model_parallel_size: 2
+  sequence_parallel: true
+  context_parallel_size: 1
+```
+
+启动前检查并行度、SP/TP、head/hidden切分、普通PP层数分配、global batch能否按micro batch×DP划分，以及可见GPU数。显式torchrun命令仍可用；如配置已指定DP，进程数必须一致。原4卡TP2+PP2+SP配置仍可这样启动：
 
 ```bash
 bash training-smoke/parallel-distill-20261023/run.sh python tools/launch_distillation.py \

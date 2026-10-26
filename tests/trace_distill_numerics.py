@@ -173,10 +173,17 @@ def trace_step(forward_func, iterator, model, optimizer, *args, **kwargs):
                 key = context["current"]
                 entry = {}
                 context["modules"].setdefault(key, {})[name] = entry
-                for label, value in [
+                observed = [
                     ("input", tensor(inputs)),
                     ("output", tensor(output)),
-                ]:
+                ]
+                if os.environ.get("DIAG_ALL_WKV_INPUTS") == "1" and name.endswith(
+                    "core_attention"
+                ):
+                    observed.extend(
+                        (f"operand{index}", value) for index, value in enumerate(inputs)
+                    )
+                for label, value in observed:
                     if value is None:
                         continue
                     entry[label] = value.detach().clone()
@@ -217,6 +224,67 @@ def trace_step(forward_func, iterator, model, optimizer, *args, **kwargs):
 
 
 if __name__ == "__main__":
+    if os.environ.get("DIAG_DGK_LAYOUT"):
+        import importlib
+
+        from triton.runtime.autotuner import Autotuner
+
+        dgk_module = importlib.import_module(
+            "fla.ops.generalized_delta_rule.dplr.chunk_A_bwd"
+        )
+        tuner = dgk_module.chunk_dplr_bwd_dgk_kernel
+        while not isinstance(tuner, Autotuner):
+            tuner = tuner.fn
+        use_alt = (
+            os.environ["DIAG_DGK_LAYOUT"] == "historical"
+            and int(os.environ["RANK"]) == 5
+        )
+        block = 64 if use_alt else 32
+        tuner.configs = [
+            next(
+                c
+                for c in tuner.configs
+                if c.kwargs["BK"] == block and c.num_warps == 4 and c.num_stages == 2
+            )
+        ]
+        tuner.cache.clear()
+    if os.environ.get("DIAG_DGK_CAPTURE") == "1":
+        import importlib
+
+        from triton.runtime.autotuner import Autotuner
+
+        dgk_module = importlib.import_module(
+            "fla.ops.generalized_delta_rule.dplr.chunk_A_bwd"
+        )
+        dgk_tuner = dgk_module.chunk_dplr_bwd_dgk_kernel
+        while not isinstance(dgk_tuner, Autotuner):
+            dgk_tuner = dgk_tuner.fn
+        dgk_run = dgk_tuner.run
+
+        def capture_dgk(*args, **kwargs):
+            result = dgk_run(*args, **kwargs)
+            if CTX is not None:
+                captured = {
+                    key: (
+                        value.detach().clone()
+                        if isinstance(value, torch.Tensor)
+                        else value
+                    )
+                    for key, value in kwargs.items()
+                    if key not in ("grid", "warmup")
+                }
+                CTX.setdefault("dgk_kernels", []).append(
+                    dict(
+                        micro=CTX["backward_key"],
+                        operands=captured,
+                        launch_config=str(dgk_tuner.best_config),
+                    )
+                )
+            return result
+
+        dgk_tuner.run = capture_dgk
+    if os.environ.get("DIAG_BF16_FULL_REDUCTION") == "1":
+        torch.backends.cuda.matmul.allow_bf16_reduced_precision_reduction = False
     if os.environ.get("DIAG_TRACE_LEVEL") == "eager-mix":
         import importlib
 

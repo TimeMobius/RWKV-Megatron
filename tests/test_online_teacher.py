@@ -1,8 +1,13 @@
 import pytest
-import torch
 import requests
+import torch
 
-from rwkv_megatron.online_teacher import OnlineTeacherClient, RoundTripDataset, TeacherTopK, kl_divergence_topk
+from rwkv_megatron.online_teacher import (
+    OnlineTeacherClient,
+    RoundTripDataset,
+    TeacherTopK,
+    kl_divergence_topk,
+)
 
 
 class _Response:
@@ -311,3 +316,41 @@ def test_topk_kl_rejects_teacher_id_outside_effective_vocab():
     teacher = TeacherTopK(torch.tensor([[[3]]]), torch.zeros(1, 1, 1))
     with pytest.raises(ValueError, match="student vocabulary"):
         kl_divergence_topk(torch.zeros(1, 1, 5), teacher, torch.ones(1, 1), valid_vocab_size=3)
+
+
+@pytest.mark.parametrize('use_fast', [True, False])
+def test_tokenizer_implementation_is_explicit(monkeypatch, use_fast):
+    from transformers import AutoTokenizer
+
+    calls = []
+    tokenizer = type('Tokenizer', (), {'get_vocab': lambda self: {'a': 1}})()
+    def load(path, **kwargs):
+        calls.append((path, kwargs))
+        return tokenizer
+    monkeypatch.setattr(AutoTokenizer, 'from_pretrained', load)
+    client = OnlineTeacherClient('http://teacher', 'Qwen', '/unused', tokenizer_use_fast=use_fast)
+    assert client._get_tokenizer() is tokenizer
+    assert client.get_effective_vocab_size() == 2
+    assert calls == [('/unused', dict(trust_remote_code=True, use_fast=use_fast))]
+
+
+@pytest.mark.parametrize('actual_ids,actual_tokens', [([2, 1], None)])
+def test_same_length_teacher_token_mismatch_is_rejected(actual_ids, actual_tokens):
+    client = OnlineTeacherClient('http://teacher', 'Qwen', '/unused', top_k=1)
+    client._decode = lambda ids: {1: 'a', 2: 'b'}[ids[0]]
+    result = {'choices': [{'prompt_logprobs': [None, {'2': -.1}],
+                          'prompt_token_ids': actual_ids,
+                          'logprobs': {'tokens': actual_tokens}}]}
+    with pytest.raises(RuntimeError, match='differ'):
+        client._parse_response(result, 2, torch.full((2, 1), -1, dtype=torch.int32),
+                               torch.full((2, 1), -torch.inf), [1, 2])
+
+
+def test_echoed_utf8_fragments_do_not_replace_numeric_token_validation():
+    client = OnlineTeacherClient('http://teacher', 'Qwen', '/unused', top_k=1)
+    client._decode = lambda ids: {1: 'a', 2: 'b'}[ids[0]]
+    result = {'choices': [{'prompt_logprobs': [None, {'2': -.1}],
+                          'logprobs': {'tokens': ['', '🧪', 'generated']}}]}
+    ids, _ = client._parse_response(result, 2, torch.full((2, 1), -1, dtype=torch.int32),
+                                    torch.full((2, 1), -torch.inf), [1, 2])
+    assert ids[1, 0].item() == 2

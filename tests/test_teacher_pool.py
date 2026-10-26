@@ -227,7 +227,7 @@ def test_remote_backpressure_waits_until_an_unread_result_is_consumed(pool_port)
 
 @pytest.mark.parametrize("field,value", [("model_name", "wrong"), ("top_k", 2),
                                         ("request_seed", 0), ("request_temperature", 2.0),
-                                        ("server_url", "http://other")])
+                                        ("server_url", "http://other"), ("tokenizer_use_fast", False)])
 def test_incompatible_teacher_configuration_is_rejected(pool_port, field, value):
     local = FrozenTeacher()
     setattr(local, field, value)
@@ -374,7 +374,9 @@ def test_pool_config_and_factory_selection(tmp_path, monkeypatch):
     assert captured[0][1]["port"] == 50057
     token_client = build_teacher_client(parser.parse_args(['--rwkv-teacher-prompt-mode', 'token_ids']), use_pool=False)
     assert token_client.prompt_mode == 'token_ids'
-    for key, value in [("rwkv_teacher_pool", "yes"), ("rwkv_teacher_pool_queue_size", 0),
+    slow_client = build_teacher_client(parser.parse_args(['--no-rwkv-teacher-tokenizer-use-fast']), use_pool=False)
+    assert slow_client.tokenizer_use_fast is False
+    for key, value in [("rwkv_teacher_pool", "yes"), ("rwkv_teacher_tokenizer_use_fast", "false"), ("rwkv_teacher_pool_queue_size", 0),
                        ("rwkv_teacher_pool_timeout", float("nan")), ("rwkv_teacher_pool_port", 65536)]:
         import yaml
 

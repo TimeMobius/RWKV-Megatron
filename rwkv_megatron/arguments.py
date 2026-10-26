@@ -48,6 +48,9 @@ def add_rwkv_arguments(parser):
     parser.add_argument("--rwkv-teacher-url", default="http://192.168.10.121:8000")
     parser.add_argument("--rwkv-teacher-model", default="Qwen3.8-27B")
     parser.add_argument("--rwkv-teacher-tokenizer", default=None)
+    parser.add_argument("--rwkv-teacher-tokenizer-use-fast", action=argparse.BooleanOptionalAction,
+                        default=True, help="Match the teacher service tokenizer implementation; "
+                        "use false when it uses the slow tokenizer's splitting rules")
     parser.add_argument("--rwkv-teacher-api-key", default="sk-distill",
                         help="Explicit bearer token for the teacher service")
     parser.add_argument("--rwkv-teacher-prompt-mode", choices=("text", "token_ids"), default="text",
@@ -140,6 +143,8 @@ def add_rwkv_arguments(parser):
         raise ValueError('rwkv_teacher_api_key must be a nonempty string or null')
     if settings.get('rwkv_teacher_prompt_mode', 'text') not in ('text', 'token_ids'):
         raise ValueError("rwkv_teacher_prompt_mode must be 'text' or 'token_ids'")
+    if type(settings.get('rwkv_teacher_tokenizer_use_fast', True)) is not bool:
+        raise ValueError('rwkv_teacher_tokenizer_use_fast must be a YAML boolean (true/false)')
     for key in ('rwkv_teacher_retry_backoff_initial', 'rwkv_teacher_retry_backoff_max',
                 'rwkv_teacher_retry_jitter'):
         if settings.get(key, 0.0) < 0:

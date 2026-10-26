@@ -28,6 +28,7 @@ def teacher_metadata(client):
                 top_k=client.top_k, seed=client.request_seed,
                 request_temperature=client.request_temperature,
                 prompt_mode=getattr(client, 'prompt_mode', 'text'),
+                tokenizer_use_fast=getattr(client, 'tokenizer_use_fast', True),
                 valid_vocab_size=client.get_effective_vocab_size(),
                 vocab_sha256=hashlib.sha256(vocabulary).hexdigest())
 

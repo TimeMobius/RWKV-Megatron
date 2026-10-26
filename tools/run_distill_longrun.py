@@ -141,6 +141,8 @@ def main():
         exit_interval=2 if args.smoke else None,
         exit_duration_in_mins=None if args.smoke else args.phase_minutes,
         rwkv_teacher_pool=True,
+        # This endpoint uses Qwen2Tokenizer's slow pretokenization regex.
+        rwkv_teacher_tokenizer_use_fast=False,
         rwkv_teacher_async_prefetch=True,
         wandb_entity="mobius",
         wandb_project="rwkv-qwen-distill-2p7b",
@@ -148,6 +150,10 @@ def main():
         num_workers=0,
     )
     try:
+        save()
+        from tools.check_teacher_tokenizer import check_teacher_tokenizer
+
+        state["teacher_tokenizer_preflight"] = check_teacher_tokenizer(cfg)
         save()
         for phase in (1, 2):
             if phase == 2:

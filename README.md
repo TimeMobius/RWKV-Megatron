@@ -17,6 +17,10 @@ L2Wrap 不改变显示的 CE loss；只在训练后向中，对每个有效 toke
 
 ## Qwen→RWKV 蒸馏分支功能范围
 
+文本蒸馏必须让学生数据与教师服务使用相同的 tokenizer 实现。当前 Qwen 服务的分词与 `Qwen2Tokenizer`（Slow）一致；在 YAML 中设置 `rwkv_teacher_tokenizer_use_fast: false`，JSONL、异步预取和 teacher pool 会统一采用该实现。默认值 `true` 保留既有 Fast 行为。相同词表文件不代表分词规则相同，Fast/Slow 对泰文等组合字符可能得到不同位置数；改变该配置会改变样本分词与窗口边界，旧评测结果需按对应设置比较。
+
+启动前可执行 `python tools/check_teacher_tokenizer.py --rwkv-config <config.yaml>`，用多语言文本检查真实教师的位置对齐；长跑监督器自动执行此检查。服务若返回 `prompt_token_ids`，还会逐个核对输入 ID。长度或 ID 不符仍报错，避免把错误位置的分布当作目标。
+
 以下清单记录分支 `codex/qwen-rwkv28b-distill` 的当前约定。实现完成后将对应项标记为 `[x]`。
 
 | 功能 | 状态 | 决策与说明 |

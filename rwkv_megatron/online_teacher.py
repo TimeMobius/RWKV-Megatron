@@ -8,16 +8,15 @@ position is ``null`` because there is no preceding context; positions
 
 from __future__ import annotations
 
+import hashlib
 import math
 import os
 import random
 import threading
 import time
-from collections import deque
+from collections import OrderedDict, deque
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
-from collections import OrderedDict
-import hashlib
 from typing import Optional
 
 import torch
@@ -34,6 +33,7 @@ def build_teacher_client(args, *, use_pool=True):
         top_k=args.rwkv_teacher_top_k, timeout=args.rwkv_teacher_timeout,
         request_temperature=1.0, request_seed=args.rwkv_teacher_seed,
         prompt_mode=getattr(args, "rwkv_teacher_prompt_mode", "text"),
+        tokenizer_use_fast=getattr(args, "rwkv_teacher_tokenizer_use_fast", True),
         max_retries=args.rwkv_teacher_max_retries,
         retry_backoff_initial=args.rwkv_teacher_retry_backoff_initial,
         retry_backoff_max=args.rwkv_teacher_retry_backoff_max,
@@ -262,6 +262,7 @@ class OnlineTeacherClient:
         retry_jitter: float = 0.2,
         cache_size: int = 256,
         prompt_mode: str = "text",
+        tokenizer_use_fast: bool = True,
     ) -> None:
         if not 1 <= int(top_k) <= 1000:
             raise ValueError("top_k must be in [1, 1000] for the teacher service")
@@ -276,6 +277,9 @@ class OnlineTeacherClient:
         if prompt_mode not in ("text", "token_ids"):
             raise ValueError("prompt_mode must be 'text' or 'token_ids'")
         self.prompt_mode = prompt_mode
+        if type(tokenizer_use_fast) is not bool:
+            raise ValueError("tokenizer_use_fast must be a boolean")
+        self.tokenizer_use_fast = tokenizer_use_fast
         if request_seed is not None and (type(request_seed) is not int or request_seed < 0):
             raise ValueError("request_seed must be a nonnegative integer or None")
         self.request_seed = request_seed
@@ -321,6 +325,7 @@ class OnlineTeacherClient:
                 self._tokenizer = AutoTokenizer.from_pretrained(
                     self.tokenizer_path,
                     trust_remote_code=True,
+                    use_fast=self.tokenizer_use_fast,
                 )
                 # ``tokenizer.vocab_size`` is the size of the base vocabulary
                 # for Qwen and excludes added/special tokens.  The teacher
@@ -403,7 +408,7 @@ class OnlineTeacherClient:
             if self.prompt_mode == "token_ids":
                 # vLLM accepts a list of token IDs as the completion prompt.
                 # This path never decodes or re-tokenizes the input.
-                prompt_rows.append((row_ids, valid_len))
+                prompt_rows.append((row_ids, valid_len, row_ids))
                 continue
             if prompt is None:
                 prompt = self._decode(row_ids) if valid_len else ""
@@ -418,23 +423,30 @@ class OnlineTeacherClient:
                 row_ids = row_ids_from_text
             if valid_len and self._get_tokenizer()(prompt, add_special_tokens=False).input_ids != row_ids:
                 raise ValueError("Teacher prompt does not round-trip to the student token IDs")
-            prompt_rows.append((prompt, valid_len))
+            prompt_rows.append((prompt, valid_len, row_ids))
 
         token_rows = []
         logprob_rows = []
-        for prompt, valid_len in prompt_rows:
+        for prompt, valid_len, row_ids in prompt_rows:
             token_ids, logprobs, request_metrics = self._request_prompt_logprobs(
-                prompt, valid_len, return_metrics=True
+                prompt, valid_len, return_metrics=True, expected_token_ids=row_ids
             )
             total_retries += request_metrics["retries"]
             total_rate_limits += request_metrics["rate_limits"]
-            token_ids = token_ids[:input_ids.shape[1]]
-            logprobs = logprobs[:input_ids.shape[1]]
+            token_ids = token_ids[: input_ids.shape[1]]
+            logprobs = logprobs[: input_ids.shape[1]]
             valid_len = min(valid_len, input_ids.shape[1])
             padding = input_ids.shape[1] - valid_len
             if padding:
-                token_ids = torch.cat((token_ids, torch.full((padding, self.top_k), -1, dtype=torch.int32)))
-                logprobs = torch.cat((logprobs, torch.full((padding, self.top_k), -torch.inf)))
+                token_ids = torch.cat(
+                    (
+                        token_ids,
+                        torch.full((padding, self.top_k), -1, dtype=torch.int32),
+                    )
+                )
+                logprobs = torch.cat(
+                    (logprobs, torch.full((padding, self.top_k), -torch.inf))
+                )
             token_rows.append(token_ids)
             logprob_rows.append(logprobs)
         result = TeacherTopK(torch.stack(token_rows), torch.stack(logprob_rows))
@@ -454,7 +466,7 @@ class OnlineTeacherClient:
         return result
 
     def _request_prompt_logprobs(self, prompt: str | list[int], sequence_length: int,
-                                 return_metrics: bool = False):
+                                 return_metrics: bool = False, expected_token_ids=None):
         token_ids = torch.full((sequence_length, self.top_k), -1, dtype=torch.int32)
         logprobs = torch.full((sequence_length, self.top_k), float("-inf"), dtype=torch.float32)
         if not prompt:
@@ -494,13 +506,27 @@ class OnlineTeacherClient:
                     raise _RetryableTeacherError(status, getattr(response, "headers", {}).get("Retry-After"))
                 response.raise_for_status()
                 result = response.json()
-                parsed = self._parse_response(result, sequence_length, token_ids, logprobs)
-                result = (parsed[0], parsed[1], {"retries": retries, "rate_limits": rate_limits})
+                parsed = self._parse_response(
+                    result, sequence_length, token_ids, logprobs, expected_token_ids
+                )
+                result = (
+                    parsed[0],
+                    parsed[1],
+                    {"retries": retries, "rate_limits": rate_limits},
+                )
                 return result if return_metrics else result[:2]
-            except (requests.RequestException, _RetryableTeacherError, RuntimeError) as error:
+            except (
+                requests.RequestException,
+                _RetryableTeacherError,
+                RuntimeError,
+            ) as error:
                 if isinstance(error, requests.HTTPError):
-                    status = getattr(getattr(error, "response", None), "status_code", None)
-                    if status not in (408, 425, 429) and not (status is not None and status >= 500):
+                    status = getattr(
+                        getattr(error, "response", None), "status_code", None
+                    )
+                    if status not in (408, 425, 429) and not (
+                        status is not None and status >= 500
+                    ):
                         with self._stats_lock:
                             self._stats["failures"] += 1
                         raise
@@ -513,16 +539,27 @@ class OnlineTeacherClient:
                     retry_after = float(retry_after) if retry_after is not None else 0.0
                 except (TypeError, ValueError):
                     retry_after = 0.0
-                delay = (retry_after if retry_after > 0 else
-                         min(self.retry_backoff_max, self.retry_backoff_initial * (2 ** attempt)))
+                delay = (
+                    retry_after
+                    if retry_after > 0
+                    else min(
+                        self.retry_backoff_max,
+                        self.retry_backoff_initial * (2**attempt),
+                    )
+                )
                 delay += random.uniform(0.0, self.retry_jitter)
                 retries += 1
                 with self._stats_lock:
                     self._stats["retries"] += 1
-                    self._stats["rate_limits"] += int(isinstance(error, _RetryableTeacherError) and error.status == 429)
+                    self._stats["rate_limits"] += int(
+                        isinstance(error, _RetryableTeacherError)
+                        and error.status == 429
+                    )
                 time.sleep(delay)
 
-    def _parse_response(self, result, sequence_length, token_ids, logprobs):
+    def _parse_response(
+        self, result, sequence_length, token_ids, logprobs, expected_token_ids=None
+    ):
         choices = result.get("choices") or []
         choice = choices[0] if choices else {}
         prompt_logprobs = choice.get("prompt_logprobs")
@@ -534,8 +571,17 @@ class OnlineTeacherClient:
 
         if len(prompt_logprobs) != sequence_length:
             raise RuntimeError(
-                f"Teacher returned {len(prompt_logprobs)} prompt positions for {sequence_length} tokens"
+                f"Teacher returned {len(prompt_logprobs)} prompt positions for {sequence_length} tokens; "
+                f"check teacher tokenizer implementation (tokenizer_use_fast={self.tokenizer_use_fast})"
             )
+
+        if expected_token_ids is not None:
+            actual_ids = choice.get("prompt_token_ids")
+            if isinstance(actual_ids, list):
+                if actual_ids != expected_token_ids:
+                    raise RuntimeError(
+                        "Teacher prompt token IDs differ from student token IDs"
+                    )
 
         for position, position_values in enumerate(prompt_logprobs[:sequence_length]):
             if not isinstance(position_values, dict):

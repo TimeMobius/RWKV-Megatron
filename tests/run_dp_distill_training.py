@@ -34,6 +34,56 @@ OUT.mkdir(parents=True, exist_ok=True)
 active = None
 
 
+def cpu_snapshot(value):
+    if isinstance(value, torch.Tensor):
+        return value.detach().cpu().clone()
+    if isinstance(value, dict):
+        return {key: cpu_snapshot(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [cpu_snapshot(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(cpu_snapshot(item) for item in value)
+    return value
+
+
+def optimizer_snapshot(optimizer):
+    children = getattr(optimizer, "chained_optimizers", None)
+    if children is not None:
+        return [optimizer_snapshot(child) for child in children]
+    return dict(
+        state=cpu_snapshot(optimizer.optimizer.state_dict()),
+        masters=cpu_snapshot(
+            getattr(
+                optimizer,
+                "shard_fp32_from_float16_groups",
+                getattr(optimizer, "fp32_from_float16_groups", []),
+            )
+        ),
+    )
+
+
+def gradient_snapshot(module, optimizer):
+    children = getattr(optimizer, "chained_optimizers", [optimizer])
+    distributed = [child for child in children if hasattr(child, "gbuf_ranges")]
+    result = {}
+    for key, param in module.named_parameters():
+        grad = param.main_grad.detach()
+        if distributed:
+            # Reduce-scatter leaves only the owned slice reduced. Other entries
+            # of main_grad are stale local values, not replicated gradients.
+            full = torch.zeros_like(grad)
+            for child in distributed:
+                if param in child.model_param_gbuf_map:
+                    owned = child._get_model_param_range_map(param)["param"]
+                    full.view(-1)[owned.start : owned.end].copy_(
+                        grad.view(-1)[owned.start : owned.end]
+                    )
+            torch.distributed.all_reduce(full, group=distributed[0].data_parallel_group)
+            grad = full
+        result[key] = grad.cpu().clone()
+    return result
+
+
 class FixtureDataset(Dataset):
     def __init__(self, count, split):
         self.count, self.split = count, split
@@ -142,15 +192,14 @@ def audited_step(forward_step_func, data_iterator, model, optimizer, *args, **kw
     real_optimizer_step = optimizer.step
 
     def capture_update():
-        active["grads"] = {
-            key: param.main_grad.detach().cpu().clone()
-            for key, param in module.named_parameters()
-        }
+        active["grads"] = gradient_snapshot(module, optimizer)
         active["before"] = {
             key: param.detach().cpu().clone()
             for key, param in module.named_parameters()
         }
         result = real_optimizer_step()
+        if os.environ.get("RWKV_DP_OPTIMIZER_AUDIT") == "1":
+            active["optimizer"] = optimizer_snapshot(optimizer)
         active["after"] = {
             key: param.detach().cpu().clone()
             for key, param in module.named_parameters()

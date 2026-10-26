@@ -342,7 +342,8 @@ def get_batch(data_iterator, teacher_prefetch=False):
 
     # get batches based on the TP rank you are on
     args = get_args()
-    if (teacher_prefetch and mpu.get_tensor_model_parallel_rank() == 0
+    if (teacher_prefetch and not getattr(args, "rwkv_teacher_replace_bad_samples", False)
+            and mpu.get_tensor_model_parallel_rank() == 0
             and mpu.get_context_parallel_rank() == 0):
         from megatron.core.rerun_state_machine import RerunMode, get_rerun_state_machine
 
@@ -684,9 +685,18 @@ def forward_step(data_iterator, model: GPTModel):
         stats = (data_iterator.iterable.get_stats()
                  if isinstance(getattr(data_iterator, "iterable", None), TeacherPrefetchIterator) else {})
         if _teacher_replacement_datasets:
-            stats['rejected_source_samples'] = sum(dataset.rejected_count() for dataset in _teacher_replacement_datasets)
+            if all(hasattr(dataset, "stats") for dataset in _teacher_replacement_datasets):
+                stream_stats = [dataset.stats() for dataset in _teacher_replacement_datasets]
+                for key in ("ready", "produced", "cache_hits", "cache_misses"):
+                    stats[f"sample_queue_{key}"] = sum(row[key] for row in stream_stats)
+                stats["sample_queue_wait_seconds"] = sum(row["queue_wait_seconds"] for row in stream_stats)
+                stats['rejected_source_samples'] = sum(row['rejected_source_samples'] for row in stream_stats)
+            else:
+                stats['rejected_source_samples'] = sum(dataset.rejected_count() for dataset in _teacher_replacement_datasets)
+        share_teacher_stats = (args.rwkv_teacher_async_prefetch
+                               or getattr(args, "rwkv_teacher_replace_bad_samples", False))
         if (args.context_parallel_size > 1 and mpu.get_tensor_model_parallel_rank() == 0
-                and model.training and args.rwkv_teacher_async_prefetch):
+                and model.training and share_teacher_stats):
             stats_payload = [stats]
             cp_group = mpu.get_context_parallel_group()
             torch.distributed.broadcast_object_list(
@@ -694,7 +704,7 @@ def forward_step(data_iterator, model: GPTModel):
                 group=cp_group, device=output_tensor.device,
             )
             stats = stats_payload[0]
-        if args.tensor_model_parallel_size > 1 and model.training and args.rwkv_teacher_async_prefetch:
+        if args.tensor_model_parallel_size > 1 and model.training and share_teacher_stats:
             # W&B writes on the last global rank, which is usually not TP0.
             # Share source-only prefetch/pool metrics with every loss reporter.
             stats_payload = [stats]
@@ -783,20 +793,22 @@ def train_valid_test_datasets_provider(train_val_test_num_samples):
                 chunk_chars=args.rwkv_jsonl_chunk_chars,
             )
             if args.rwkv_distill and getattr(args, "rwkv_teacher_replace_bad_samples", False):
-                from rwkv_megatron.teacher_replacement import (
-                    TeacherValidatedDataset,
-                    selection_signature,
-                )
+                from rwkv_megatron.teacher_replacement import selection_signature
+                from rwkv_megatron.teacher_sample_stream import PoolValidatedDataset
 
+                if not args.rwkv_teacher_pool:
+                    raise ValueError("Teacher sample replacement requires rwkv_teacher_pool=true")
                 if args.num_workers != 0:
                     raise ValueError("Teacher sample replacement currently requires num_workers=0")
                 directory = args.rwkv_teacher_sample_records or str(
                     Path(args.data_cache_path or "training-smoke") / "teacher-sample-selection"
                 )
-                dataset = TeacherValidatedDataset(
+                dataset = PoolValidatedDataset(
                     dataset, _get_online_teacher(args), directory,
                     selection_signature(dataset, args, split_name),
                     lookahead=args.rwkv_teacher_prefetch_lookahead,
+                    start_index=(getattr(args, "consumed_train_samples", 0) if split_name == "train"
+                                 else getattr(args, "consumed_valid_samples", 0) if split_name == "validation" else 0),
                 )
                 _teacher_replacement_datasets.append(dataset)
             datasets.append(dataset)

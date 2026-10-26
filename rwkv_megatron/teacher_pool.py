@@ -1,7 +1,8 @@
 """Node-local teacher RPC pool with bounded, disposable CPU results.
 
-BaseManager is intended for trusted local processes. No CUDA/Megatron state or
-training cursor lives here; requests are namespaced UUIDs, not iteration IDs.
+BaseManager is intended for trusted local processes. CUDA/Megatron state and
+the authoritative consumed-sample cursor stay in training. Pool lookahead and
+tensor caches are disposable; ordered sample decisions use a persistent journal.
 """
 
 from __future__ import annotations
@@ -24,7 +25,7 @@ from rwkv_megatron.online_teacher import TeacherSampleError, TeacherTopK
 def teacher_metadata(client):
     tokenizer = client._get_tokenizer()
     vocabulary = json.dumps(tokenizer.get_vocab(), sort_keys=True, ensure_ascii=True).encode()
-    return dict(protocol=1, server_url=client.server_url, model=client.model_name,
+    return dict(protocol=2, server_url=client.server_url, model=client.model_name,
                 top_k=client.top_k, seed=client.request_seed,
                 request_temperature=client.request_temperature,
                 prompt_mode=getattr(client, 'prompt_mode', 'text'),
@@ -59,6 +60,9 @@ class TeacherPool:
         self._stats = dict(submitted=0, completed=0, failed=0, consumed=0, cancelled=0,
                            expired=0, rejected=0, peak_active=0, concurrency_reductions=0,
                            concurrency_increases=0)
+        self._stream_lock = threading.Lock()
+        self._streams = {}
+        self._retired_streams = []
         self._threads = [threading.Thread(target=self._worker, daemon=True, name=f"teacher-pool-{i}")
                          for i in range(workers)]
         for thread in self._threads:
@@ -104,6 +108,8 @@ class TeacherPool:
         deadline = time.monotonic() + min(max(float(timeout), 0.0), 5.0)
         with self._cond:
             while True:
+                if self._closed:
+                    raise RuntimeError("TeacherPool is closed")
                 self._expire()
                 if request_id not in self._jobs:
                     raise RuntimeError("teacher pool request expired, cancelled, or unknown")
@@ -174,7 +180,86 @@ class TeacherPool:
                          retained=len(self._jobs), ready=sum(j["finished"] is not None for j in self._jobs.values()),
                          target_workers=self._target)
         stats.update({f"client_{k}": v for k, v in self.client.get_stats().items()})
+        with self._stream_lock:
+            stream_stats = [entry["stream"].stats() for entry in self._streams.values()]
+        stats.update(sample_streams=len(stream_stats),
+                     sample_ready=sum(s["ready"] for s in stream_stats),
+                     rejected_source_samples=sum(s["rejected_source_samples"] for s in stream_stats))
         return stats
+
+    def open_sample_stream(self, key, spec):
+        """Register the same JSONL stream once for all local DP/PP readers."""
+        from types import SimpleNamespace
+        from rwkv_megatron.jsonl_dataset import JsonlTextDataset
+        from rwkv_megatron.teacher_replacement import TeacherValidatedDataset, selection_signature
+        from rwkv_megatron.teacher_sample_stream import ValidatedSampleStream
+
+        if type(spec["lookahead"]) is not int or spec["lookahead"] < 1:
+            raise ValueError("sample lookahead must be positive")
+        if type(spec["start_index"]) is not int or not 0 <= spec["start_index"] <= spec["target_samples"]:
+            raise ValueError("sample start index must be inside the requested dataset")
+        expected_key = hashlib.sha256(json.dumps(spec, sort_keys=True).encode()).hexdigest()
+        if key != expected_key:
+            raise ValueError("Teacher sample stream key does not match its configuration")
+        with self._stream_lock:
+            if self._closed:
+                raise RuntimeError("TeacherPool is closed")
+            if key not in self._streams:
+                if len(self._streams) >= 8:
+                    raise RuntimeError("Too many active teacher sample streams")
+                source = JsonlTextDataset(
+                    spec["paths"], self.client._get_tokenizer(), spec["sequence_length"],
+                    target_samples=spec["target_samples"], max_records=spec["max_records"],
+                    text_field=spec["text_field"], chunk_chars=spec["chunk_chars"],
+                )
+                signature = json.loads(spec["signature"])
+                args = SimpleNamespace(rwkv_jsonl_max_records=spec["max_records"],
+                                       rwkv_teacher_model=self.client.model_name,
+                                       rwkv_teacher_url=self.client.server_url,
+                                       rwkv_teacher_top_k=self.client.top_k,
+                                       rwkv_teacher_seed=self.client.request_seed,
+                                       rwkv_teacher_prompt_mode=getattr(self.client, "prompt_mode", "text"))
+                actual = selection_signature(source, args, signature["split"])
+                if actual != spec["signature"]:
+                    raise ValueError("Teacher sample source/tokenizer configuration mismatch")
+                lookahead = min(spec["lookahead"], self.max_results)
+                selector = TeacherValidatedDataset(
+                    source, _LocalPoolRequestClient(self), spec["directory"], actual,
+                    lookahead=lookahead,
+                )
+                stream = ValidatedSampleStream(selector, lookahead,
+                                               capacity=min(2 * lookahead, self.max_results),
+                                               start_index=spec["start_index"])
+                self._streams[key] = dict(stream=stream, consumers=set(), spec=spec)
+            entry = self._streams[key]
+            if entry["spec"] != spec:
+                raise ValueError("Teacher sample stream configuration changed")
+            consumer = uuid.uuid4().hex
+            entry["consumers"].add(consumer)
+            return consumer
+
+    def get_validated_sample(self, key, consumer, index, timeout=1.0):
+        with self._stream_lock:
+            entry = self._streams[key]
+            if consumer not in entry["consumers"]:
+                raise RuntimeError("Unknown teacher sample consumer")
+            stream = entry["stream"]
+        return stream.get(index, timeout)
+
+    def sample_stream_stats(self, key):
+        with self._stream_lock:
+            return self._streams[key]["stream"].stats()
+
+    def close_sample_stream(self, key, consumer):
+        with self._stream_lock:
+            entry = self._streams.get(key)
+            if entry is None:
+                return
+            entry["consumers"].discard(consumer)
+            if not entry["consumers"]:
+                entry["stream"].close()
+                self._retired_streams.append(entry["stream"])
+                del self._streams[key]
 
     def close(self):
         with self._cond:
@@ -182,6 +267,14 @@ class TeacherPool:
             self._queue.clear()
             self._jobs.clear()
             self._cond.notify_all()
+        with self._stream_lock:
+            streams = self._retired_streams + [entry["stream"] for entry in self._streams.values()]
+            self._streams.clear()
+            self._retired_streams = []
+        for stream in streams:
+            stream.close()
+        for stream in streams:
+            stream.join()
         for thread in self._threads:
             thread.join()
 
@@ -191,7 +284,9 @@ def make_pool_server(pool, host="127.0.0.1", port=50055, authkey="teacher-pool")
         pass
 
     Manager.register("get_pool", callable=lambda: pool,
-                     exposed=("get_metadata", "submit", "get", "cancel", "get_stats"))
+                     exposed=("get_metadata", "submit", "get", "cancel", "get_stats",
+                              "open_sample_stream", "get_validated_sample", "sample_stream_stats",
+                              "close_sample_stream"))
     return Manager(address=(host, port), authkey=authkey.encode()).get_server()
 
 
@@ -277,6 +372,29 @@ class RemoteTeacherPoolClient:
     def get_last_request_metrics(self):
         return dict(getattr(self._thread_local, "metrics", {}))
 
+    def open_sample_stream(self, key, spec):
+        return self._pool.open_sample_stream(key, spec)
+
+    def get_validated_sample(self, key, consumer, index):
+        from rwkv_megatron.teacher_sample_stream import unpack_sample
+
+        deadline = time.monotonic() + self.timeout
+        while True:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise TimeoutError("Teacher validated-sample queue timed out")
+            result = self._pool.get_validated_sample(key, consumer, index, min(1.0, remaining))
+            if result is not None:
+                if not result["ok"]:
+                    raise RuntimeError(f"Teacher sample producer failed: {result['error']}")
+                return unpack_sample(result["sample"])
+
+    def sample_stream_stats(self, key):
+        return self._pool.sample_stream_stats(key)
+
+    def close_sample_stream(self, key, consumer):
+        self._pool.close_sample_stream(key, consumer)
+
     def get_stats(self):
         with self._lock:
             stats = dict(self._stats)
@@ -289,3 +407,16 @@ class RemoteTeacherPoolClient:
         keys = ("requests", "backpressure_waits", "pool_active", "pool_queued", "pool_ready",
                 "pool_failed", "pool_expired", "pool_target_workers")
         return {key: stats[key] for key in keys}
+
+
+class _LocalPoolRequestClient(RemoteTeacherPoolClient):
+    """Producer requests use the existing global worker/queue limits, without RPC."""
+
+    def __init__(self, pool):
+        self.local_client = pool.client
+        self.prompt_mode = getattr(pool.client, "prompt_mode", "text")
+        self.timeout = 2700.0
+        self._thread_local = threading.local()
+        self._lock = threading.Lock()
+        self._stats = dict(requests=0, backpressure_waits=0)
+        self._pool = pool

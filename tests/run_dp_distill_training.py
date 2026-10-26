@@ -155,7 +155,34 @@ def datasets(counts):
     result = []
     for split, count in enumerate(counts):
         dataset = FixtureDataset(int(count), split) if count else None
-        if dataset is not None and os.environ.get("RWKV_REPLACEMENT_DIR"):
+        if dataset is not None and os.environ.get("RWKV_REPLACEMENT_POOL_PORT"):
+            from types import SimpleNamespace
+            from megatron.training import get_args
+            from rwkv_megatron.jsonl_dataset import JsonlTextDataset
+            from rwkv_megatron.teacher_pool import RemoteTeacherPoolClient
+            from rwkv_megatron.teacher_replacement import selection_signature
+            from rwkv_megatron.teacher_sample_stream import PoolValidatedDataset
+            from teacher_sample_pool_fixture import FixturePoolTeacher, FixtureTokenizer
+
+            source = JsonlTextDataset(
+                [Path(os.environ["RWKV_REPLACEMENT_DIR"]) / f"split{split}.jsonl"],
+                FixtureTokenizer(), 128, target_samples=int(count),
+            )
+            settings = SimpleNamespace(rwkv_jsonl_max_records=0, rwkv_teacher_model="fixture",
+                                       rwkv_teacher_url="http://fixture", rwkv_teacher_top_k=4,
+                                       rwkv_teacher_seed=1234, rwkv_teacher_prompt_mode="text")
+            client = RemoteTeacherPoolClient(
+                FixturePoolTeacher(), port=int(os.environ["RWKV_REPLACEMENT_POOL_PORT"]),
+            )
+            args = get_args()
+            dataset = PoolValidatedDataset(
+                source, client, os.environ["RWKV_REPLACEMENT_DIR"],
+                selection_signature(source, settings, str(split)), lookahead=16,
+                start_index=(args.consumed_train_samples if split == 0
+                             else args.consumed_valid_samples if split == 1 else 0),
+            )
+            pretrain._teacher_replacement_datasets.append(dataset)
+        elif dataset is not None and os.environ.get("RWKV_REPLACEMENT_DIR"):
             dataset = TeacherValidatedDataset(
                 dataset,
                 FixtureTeacher(),
@@ -219,6 +246,10 @@ original_step = training.train_step
 
 def audited_batch(*args, **kwargs):
     result = original_batch(*args, **kwargs)
+    if os.environ.get("RWKV_REPLACEMENT_POOL_PORT"):
+        assert not pretrain._teacher_prefetchers, "Pool already owns the ready-pair buffer"
+        if result[5] is not None:
+            assert result[5].done(), "Students must receive validated targets before forward"
     if active is not None and result[0] is not None:
         tokens, labels, mask = result[:3]
         if ps.get_context_parallel_world_size() > 1:

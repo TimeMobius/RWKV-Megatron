@@ -52,7 +52,7 @@ def add_rwkv_arguments(parser):
                         default=True, help="Match the teacher service tokenizer implementation; "
                         "use false when it uses the slow tokenizer's splitting rules")
     parser.add_argument("--rwkv-teacher-replace-bad-samples", action=argparse.BooleanOptionalAction,
-                        default=False, help="Validate JSONL samples before forward; replace invalid teacher targets with the next sample")
+                        default=False, help="Prepare valid JSONL input/target pairs in the teacher pool; requires rwkv_teacher_pool")
     parser.add_argument("--rwkv-teacher-sample-records", default=None,
                         help="Shared local directory for deterministic sample selection and rejected JSONL records")
     parser.add_argument("--rwkv-teacher-api-key", default="sk-distill",

@@ -25,12 +25,13 @@ L2Wrap 不改变显示的 CE loss；只在训练后向中，对每个有效 toke
 
 ```yaml
 rwkv_teacher_tokenizer_use_fast: false
+rwkv_teacher_pool: true
 rwkv_teacher_replace_bad_samples: true
 rwkv_teacher_sample_records: /path/to/local/sample-selection
 num_workers: 0
 ```
 
-数据读取时先请求教师，失败样本记录到该目录的`rejected-samples.jsonl`，改取下一条有效样本，保持训练batch大小；验证成功的输入和教师响应一起进入前向。共享选择记录让DP/PP/CP读取相同有效样本序列，并用于恢复时重建采样位置；恢复时保留该目录。W&B的`teacher/rejected_source_samples`记录已发现的坏源样本数（包含预取）。当前仅支持JSONL、单机共享目录、`num_workers: 0`。网络/鉴权等服务故障保留原重试和报错；连续100条都无法对齐时停止并报告配置问题。
+Pool 后台按源顺序并发请求教师、检查响应；坏样本记录到该目录的 `rejected-samples.jsonl`，用下一条有效样本补位。已验证的输入和教师响应成对缓存在有界队列中，学生只按逻辑编号读取，保持训练 batch 大小；DP/PP/CP 读取端共享同一份选择结果和响应。后台预取与学生计算重叠，不再由学生线程填满整段预取队列；首次启动、队列耗尽或读取已淘汰结果时仍可能等待。请求并发仍受 pool 全局上限与动态限流控制。恢复时保留选择记录目录，缓存可丢弃。W&B 的 `teacher/rejected_source_samples` 记录已发现的坏源样本数（包含预取）。当前仅支持 JSONL、独立 teacher pool、单机共享目录、`num_workers: 0`。网络/鉴权等服务故障保留原重试和报错；连续 100 条都无法对齐时停止并报告配置问题。
 
 
 以下清单记录分支 `codex/qwen-rwkv28b-distill` 的当前约定。实现完成后将对应项标记为 `[x]`。

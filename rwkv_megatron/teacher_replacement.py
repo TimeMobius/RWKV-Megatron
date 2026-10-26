@@ -133,7 +133,7 @@ class TeacherValidatedDataset(Dataset):
             )
         rejected = 0
         while len(self.selected) <= index:
-            while len(self.pending) < self.lookahead:
+            while len(self.pending) < min(self.lookahead, len(self) - len(self.selected)):
                 raw = self.next_source
                 sample = self.source.get_source_sample(raw)
                 self.pending.append(

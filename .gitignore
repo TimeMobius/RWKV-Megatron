@@ -209,3 +209,8 @@ RWKV-7-World-HF-Converter/
 # Extended distillation validation: keep compact reports, not tensor caches or runs.
 /training-smoke/distill-remaining-20261026/*/
 /training-smoke/distill-remaining-20261026/*.yaml
+
+# Local training artifacts and planning notes
+/training-smoke/
+/docs/
+/todolist.txt

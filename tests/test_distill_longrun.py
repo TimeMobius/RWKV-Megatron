@@ -85,3 +85,68 @@ def test_pool_audit_rejects_nonfinite_failure_counters(tmp_path):
     path.write_text(log_line(1).replace('teacher/failed: 0', 'teacher/pool_fatal_errors: nan'))
     with pytest.raises(RuntimeError, match='Non-finite'):
         audit_training_log(path, 0)
+
+
+@pytest.mark.parametrize('quality_exit', [0, 1])
+def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_failure(tmp_path, monkeypatch, quality_exit):
+    import json
+    from pathlib import Path
+    from types import SimpleNamespace
+    import yaml
+    import tools.run_distill_longrun as runner
+    import tools.check_teacher_tokenizer as tokenizer_check
+    import tools.evaluate_distill_checkpoint as evaluator
+    import wandb
+
+    root = tmp_path / 'repo'
+    (root / 'configs').mkdir(parents=True)
+    (root / 'configs/config-qwen-2p7b-distill-tp2-sp-pp2-smoke.yaml').write_text(
+        yaml.safe_dump(dict(model_parallel={}, load_pretrained_rwkv='initial.pt')))
+    output = tmp_path / 'run'
+    commands = []
+    class Process:
+        pid = 999999
+        def __init__(self, command, **kwargs):
+            commands.append(command)
+            self.quality = '--manifest' in command
+            if self.quality:
+                assert command[command.index('--checkpoint')+1].endswith('iter_0000003')
+                assert '--nproc-per-node=1' in command
+                report = Path(command[command.index('--output')+1])
+                report.write_text('{}')
+            else:
+                config = yaml.safe_load(Path(command[-1]).read_text())
+                iteration = 2 if len(commands) == 1 else 3
+                checkpoints = Path(config['save'])
+                checkpoints.mkdir(exist_ok=True)
+                (checkpoints / 'latest_checkpointed_iteration.txt').write_text(str(iteration))
+                for rank in ('00_000','00_001','01_000','01_001'):
+                    directory = checkpoints / f'iter_{iteration:07d}' / f'mp_rank_{rank}'
+                    directory.mkdir(parents=True)
+                    (directory / 'model_optim_rng.pt').write_bytes(b'fixture')
+                text = (log_line(1)+log_line(2) if iteration == 2 else
+                        'successfully loaded checkpoint from /fixture at iteration 2\n'+log_line(3))
+                kwargs['stdout'].write(text)
+        def wait(self):
+            return quality_exit if self.quality else 0
+        def poll(self):
+            return self.wait()
+    monkeypatch.setattr(runner, 'ROOT', root)
+    monkeypatch.setattr(runner.sys, 'argv', ['run', '--output', str(output), '--smoke'])
+    monkeypatch.setattr(runner.subprocess, 'Popen', Process)
+    monkeypatch.setattr(runner.subprocess, 'check_output', lambda *a, **k: 'test-commit\n')
+    monkeypatch.setattr(runner.signal, 'signal', lambda *a: None)
+    monkeypatch.setattr(tokenizer_check, 'check_teacher_tokenizer', lambda settings: dict(all_matched=True))
+    monkeypatch.setattr(wandb, 'Api', lambda: SimpleNamespace(run=lambda *a: SimpleNamespace(state='finished', url='training-url')))
+    monkeypatch.setattr(evaluator, 'upload_quality_report', lambda path, cfg: dict(report=str(path), wandb_url='quality-url'))
+    if quality_exit:
+        with pytest.raises(RuntimeError, match='quality evaluation exited 1'):
+            runner.main()
+    else:
+        runner.main()
+    state = json.loads((output / 'status.json').read_text())
+    assert len(commands) == 3
+    assert state['state'] == ('failed' if quality_exit else 'completed')
+    assert len(state['phases']) == 2
+    if not quality_exit:
+        assert state['checkpoint_quality']['wandb_url'] == 'quality-url'

@@ -252,6 +252,26 @@ def main():
             if remote.state != "finished":
                 raise RuntimeError(f"Unexpected W&B state {remote.state}")
             save()
+        state['state'] = 'evaluating_checkpoint'
+        save()
+        quality_path = output / 'checkpoint-quality.json'
+        with (output / 'checkpoint-quality.log').open('w') as log:
+            process = subprocess.Popen(
+                [sys.executable, '-m', 'torch.distributed.run', '--standalone',
+                 '--nproc-per-node=1', str(ROOT / 'tools/evaluate_distill_checkpoint.py'),
+                 '--rwkv-config', str(path),
+                 '--checkpoint', str(checkpoints / f'iter_{saved:07d}'),
+                 '--manifest', str(output / 'fixed-validation.json'),
+                 '--output', str(quality_path)],
+                cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, start_new_session=True,
+            )
+            save()
+            quality_exit = process.wait()
+        if quality_exit:
+            raise RuntimeError(f'Checkpoint quality evaluation exited {quality_exit}; see checkpoint-quality.log')
+        from tools.evaluate_distill_checkpoint import upload_quality_report
+
+        state['checkpoint_quality'] = upload_quality_report(quality_path, cfg)
         state["state"] = "completed"
     except BaseException as error:
         state.update(state="failed", error=f"{type(error).__name__}: {error}")

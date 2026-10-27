@@ -37,6 +37,18 @@ Pool 后台按源顺序并发请求教师、检查响应；坏样本记录到该
 
 Pool 模式上报 `teacher/pool_sample_errors`（可补位的样本错误）与 `teacher/pool_fatal_errors`（服务等故障）。长跑监督器使用后者验收，兼容旧预取模式的 `teacher/failed`；缺失故障指标会明确报错，不会按零处理。成功补位的样本错误不导致审计失败。
 
+长跑监督器完成训练后会自动运行 `tools/evaluate_distill_checkpoint.py`，对初始化权重和最终 checkpoint 做固定验证集 CE/PPL、top-1 及六条固定提示词的 greedy 续写对照，另开 W&B evaluation run 上传报告。评估仅加载权重，不请求 teacher 或更新优化器。固定清单保存 tokens/labels/mask、tokenizer 与源文件指纹，复用时拒绝配置或内容变化；保留 `fixed-validation.json` 用于后续 checkpoint 比较。生成样例用于直接检查重复或退化，CE 改善不等于生成质量合格。
+
+也可用单卡独立评估已有 torch checkpoint（TP/PP 均匀分片通过已有转换器合并）：
+
+```bash
+torchrun --standalone --nproc-per-node=1 tools/evaluate_distill_checkpoint.py \
+  --rwkv-config /path/to/phase2.yaml --checkpoint /path/to/checkpoints/iter_0004000 \
+  --manifest /path/to/fixed-validation.json --output /path/to/checkpoint-quality.json
+```
+
+默认固定 32 条验证样本和每提示词最多 32 个生成 token，可用 `--samples`、`--max-new-tokens` 指定。独立命令写本地报告；监督器额外负责 W&B 上传。已有报告不会被覆盖。
+
 
 以下清单记录分支 `codex/qwen-rwkv28b-distill` 的当前约定。实现完成后将对应项标记为 `[x]`。
 

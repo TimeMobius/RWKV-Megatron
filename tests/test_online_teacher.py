@@ -7,6 +7,7 @@ from rwkv_megatron.online_teacher import (
     RoundTripDataset,
     TeacherTopK,
     kl_divergence_topk,
+    teacher_request_deadline,
 )
 
 
@@ -166,13 +167,80 @@ def test_retry_after_rate_limit_uses_backoff_and_returns_metrics(monkeypatch):
     assert client.get_stats()["rate_limits"] == 1
 
 
-def test_non_retryable_http_error_is_not_retried():
+@pytest.mark.parametrize('window', [0, 300])
+def test_non_retryable_http_error_is_not_retried(window):
     client = OnlineTeacherClient("http://teacher", "Qwen3.8-27B", "/unused", top_k=1,
-                                max_retries=3, retry_jitter=0.0)
+                                max_retries=3, retry_jitter=0.0, retry_window=window)
     session = _SequenceSession([_StatusResponse(401)])
     client._get_session = lambda: session
     with pytest.raises(requests.HTTPError):
         client._request_prompt_logprobs("hello", 2)
+    assert session.calls == 1
+
+
+class _RecoveryClock:
+    now = 0.0
+
+    def __init__(self, monkeypatch):
+        self.sleeps = []
+        monkeypatch.setattr('rwkv_megatron.online_teacher.time.monotonic', lambda: self.now)
+        monkeypatch.setattr('rwkv_megatron.online_teacher.time.sleep', self.sleep)
+
+    def sleep(self, seconds):
+        self.sleeps.append(seconds)
+        self.now += seconds
+
+
+class _OfflineSession:
+    def __init__(self, failed_calls):
+        self.failed_calls, self.timeouts = failed_calls, []
+
+    def post(self, url, json, timeout):
+        self.timeouts.append(timeout)
+        if len(self.timeouts) <= self.failed_calls:
+            raise requests.ConnectionError('connection refused')
+        return _valid_response()
+
+
+def test_recovery_window_survives_refused_connections_beyond_retry_count(monkeypatch):
+    clock = _RecoveryClock(monkeypatch)
+    client = OnlineTeacherClient('http://teacher', 'Qwen', '/unused', top_k=1,
+                                max_retries=1, retry_window=60, retry_backoff_initial=5,
+                                retry_jitter=0)
+    session = _OfflineSession(3)
+    client._get_session = lambda: session
+    _, _, metrics = client._request_prompt_logprobs('hello', 2, return_metrics=True)
+    assert clock.sleeps == [5, 10, 20]
+    assert session.timeouts == [60, 55, 45, 25]
+    assert metrics['retries'] == 3
+    assert client.get_stats()['failures'] == 0
+
+
+@pytest.mark.parametrize('outer_deadline', [None, 6])
+def test_recovery_window_and_step_deadline_bound_retries(monkeypatch, outer_deadline):
+    clock = _RecoveryClock(monkeypatch)
+    client = OnlineTeacherClient('http://teacher', 'Qwen', '/unused', top_k=1,
+                                retry_window=10, retry_backoff_initial=5, retry_jitter=0)
+    session = _OfflineSession(100)
+    client._get_session = lambda: session
+    with teacher_request_deadline(client, outer_deadline or 100):
+        with pytest.raises(TimeoutError, match='deadline exhausted'):
+            client._request_prompt_logprobs('hello', 2)
+    assert clock.now == (outer_deadline or 10)
+    assert session.timeouts == ([6, 1] if outer_deadline else [10, 5])
+    assert client.get_stats()['failures'] == 1
+    assert getattr(client._thread_local, 'deadline') is None
+
+
+def test_recovery_window_caps_server_retry_after(monkeypatch):
+    clock = _RecoveryClock(monkeypatch)
+    client = OnlineTeacherClient('http://teacher', 'Qwen', '/unused', top_k=1,
+                                retry_window=10, retry_jitter=0)
+    session = _SequenceSession([_StatusResponse(429, headers={'Retry-After': '9999'})])
+    client._get_session = lambda: session
+    with pytest.raises(TimeoutError, match='deadline exhausted'):
+        client._request_prompt_logprobs('hello', 2)
+    assert clock.sleeps == [10]
     assert session.calls == 1
 
 

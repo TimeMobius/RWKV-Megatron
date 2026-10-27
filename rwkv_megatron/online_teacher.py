@@ -9,6 +9,7 @@ position is ``null`` because there is no preceding context; positions
 from __future__ import annotations
 
 import hashlib
+import logging
 import math
 import os
 import random
@@ -16,6 +17,7 @@ import threading
 import time
 from collections import OrderedDict, deque
 from concurrent.futures import Future, ThreadPoolExecutor
+from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Optional
 
@@ -24,6 +26,21 @@ import torch
 
 class TeacherSampleError(RuntimeError):
     """A deterministic prompt/target mismatch that another sample can replace."""
+
+
+@contextmanager
+def teacher_request_deadline(client, deadline):
+    """Cap blocking HTTP/RPC reads on this thread at the step's deadline."""
+    local = getattr(client, "_thread_local", None)
+    if local is None:
+        yield
+        return
+    previous = getattr(local, "deadline", None)
+    local.deadline = deadline if previous is None else min(previous, deadline)
+    try:
+        yield
+    finally:
+        local.deadline = previous
 
 
 def build_teacher_client(args, *, use_pool=True):
@@ -39,6 +56,7 @@ def build_teacher_client(args, *, use_pool=True):
         prompt_mode=getattr(args, "rwkv_teacher_prompt_mode", "text"),
         tokenizer_use_fast=getattr(args, "rwkv_teacher_tokenizer_use_fast", True),
         max_retries=args.rwkv_teacher_max_retries,
+        retry_window=getattr(args, "rwkv_teacher_retry_window", 300.0),
         retry_backoff_initial=args.rwkv_teacher_retry_backoff_initial,
         retry_backoff_max=args.rwkv_teacher_retry_backoff_max,
         retry_jitter=args.rwkv_teacher_retry_jitter, cache_size=args.rwkv_teacher_cache_size,
@@ -272,6 +290,7 @@ class OnlineTeacherClient:
         cache_size: int = 256,
         prompt_mode: str = "text",
         tokenizer_use_fast: bool = True,
+        retry_window: float = 0.0,
     ) -> None:
         if not 1 <= int(top_k) <= 1000:
             raise ValueError("top_k must be in [1, 1000] for the teacher service")
@@ -282,6 +301,11 @@ class OnlineTeacherClient:
         self.tokenizer_path = tokenizer_path
         self.top_k = int(top_k)
         self.timeout = float(timeout)
+        if not math.isfinite(self.timeout) or self.timeout <= 0:
+            raise ValueError("teacher timeout must be finite and positive")
+        if not math.isfinite(retry_window) or retry_window < 0:
+            raise ValueError("teacher retry window must be finite and nonnegative")
+        self.retry_window = float(retry_window)
         self.request_temperature = float(request_temperature)
         if prompt_mode not in ("text", "token_ids"):
             raise ValueError("prompt_mode must be 'text' or 'token_ids'")
@@ -498,14 +522,25 @@ class OnlineTeacherClient:
 
         retries = 0
         rate_limits = 0
-        for attempt in range(self.max_retries + 1):
+        deadline = getattr(self._thread_local, "deadline", None)
+        if self.retry_window:
+            window_deadline = time.monotonic() + self.retry_window
+            deadline = window_deadline if deadline is None else min(deadline, window_deadline)
+        attempt = 0
+        last_error = None
+        while True:
+            remaining = None if deadline is None else deadline - time.monotonic()
+            if remaining is not None and remaining <= 0:
+                with self._stats_lock:
+                    self._stats["failures"] += 1
+                raise TimeoutError("Teacher request retry window/deadline exhausted") from last_error
             with self._calls_lock:
                 self._calls += 1
             try:
                 response = self._get_session().post(
                     f"{self.server_url}/v1/completions",
                     json=payload,
-                    timeout=self.timeout,
+                    timeout=self.timeout if remaining is None else min(self.timeout, remaining),
                 )
                 status = int(getattr(response, "status_code", 200))
                 if status == 429:
@@ -541,7 +576,9 @@ class OnlineTeacherClient:
                         with self._stats_lock:
                             self._stats["failures"] += 1
                         raise
-                if attempt >= self.max_retries:
+                transient = isinstance(error, (requests.ConnectionError, requests.Timeout,
+                                               _RetryableTeacherError))
+                if attempt >= self.max_retries and not (self.retry_window and transient):
                     with self._stats_lock:
                         self._stats["failures"] += 1
                     raise
@@ -559,6 +596,8 @@ class OnlineTeacherClient:
                     )
                 )
                 delay += random.uniform(0.0, self.retry_jitter)
+                if deadline is not None:
+                    delay = min(delay, max(0.0, deadline - time.monotonic()))
                 retries += 1
                 with self._stats_lock:
                     self._stats["retries"] += 1
@@ -566,7 +605,14 @@ class OnlineTeacherClient:
                         isinstance(error, _RetryableTeacherError)
                         and error.status == 429
                     )
+                logging.getLogger(__name__).warning(
+                    "Teacher temporarily unavailable (%s); retry %s in %.1fs%s",
+                    type(error).__name__, retries, delay,
+                    " (bounded recovery window)" if self.retry_window else "",
+                )
+                last_error = error
                 time.sleep(delay)
+                attempt += 1
 
     def _parse_response(
         self, result, sequence_length, token_ids, logprobs, expected_token_ids=None

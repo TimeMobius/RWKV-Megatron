@@ -64,7 +64,13 @@ def add_rwkv_arguments(parser):
                         help="Fixed seed included in each teacher completion request")
     parser.add_argument("--rwkv-teacher-timeout", type=float, default=600.0)
     parser.add_argument("--rwkv-teacher-max-retries", type=nonnegative_int, default=3)
-    parser.add_argument("--rwkv-teacher-retry-backoff-initial", type=float, default=1.0)
+    parser.add_argument("--rwkv-teacher-retry-window", type=float, default=300.0,
+                        help="Total seconds to retry transient HTTP failures; 0 uses max-retries")
+    parser.add_argument("--rwkv-teacher-step-timeout", type=float, default=360.0,
+                        help="Maximum seconds to prepare all teacher data before a pipeline step")
+    parser.add_argument("--rwkv-teacher-save-on-failure", action=argparse.BooleanOptionalAction,
+                        default=True, help="Save a synchronous emergency checkpoint at a safe data boundary")
+    parser.add_argument("--rwkv-teacher-retry-backoff-initial", type=float, default=5.0)
     parser.add_argument("--rwkv-teacher-retry-backoff-max", type=float, default=30.0)
     parser.add_argument("--rwkv-teacher-retry-jitter", type=float, default=0.2)
     parser.add_argument("--rwkv-teacher-cache-size", type=int, default=256)
@@ -135,6 +141,14 @@ def add_rwkv_arguments(parser):
         raise ValueError('rwkv_key_fusion must be a YAML boolean (true/false)')
     if not isinstance(settings.get('fixed_eval_samples', False), bool):
         raise ValueError('fixed_eval_samples must be a YAML boolean (true/false)')
+    retry_window = settings.get('rwkv_teacher_retry_window', 300.0)
+    step_timeout = settings.get('rwkv_teacher_step_timeout', 360.0)
+    if not isinstance(retry_window, (int, float)) or not math.isfinite(retry_window) or retry_window < 0:
+        raise ValueError('rwkv_teacher_retry_window must be finite and nonnegative')
+    if not isinstance(step_timeout, (int, float)) or not math.isfinite(step_timeout) or step_timeout <= 0:
+        raise ValueError('rwkv_teacher_step_timeout must be finite and positive')
+    if not isinstance(settings.get('rwkv_teacher_save_on_failure', True), bool):
+        raise ValueError('rwkv_teacher_save_on_failure must be a YAML boolean (true/false)')
     if settings.get('rwkv_fp8_scope', 'ffn') not in ('ffn', 'all'):
         raise ValueError("rwkv_fp8_scope must be 'ffn' or 'all'")
     if settings.get('rwkv_teacher_top_k', 100) < 1 or settings.get('rwkv_teacher_top_k', 100) > 1000:

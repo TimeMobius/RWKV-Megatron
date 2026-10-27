@@ -25,7 +25,7 @@ from rwkv_megatron.online_teacher import TeacherSampleError, TeacherTopK
 def teacher_metadata(client):
     tokenizer = client._get_tokenizer()
     vocabulary = json.dumps(tokenizer.get_vocab(), sort_keys=True, ensure_ascii=True).encode()
-    return dict(protocol=3, server_url=client.server_url, model=client.model_name,
+    return dict(protocol=4, server_url=client.server_url, model=client.model_name,
                 top_k=client.top_k, seed=client.request_seed,
                 request_temperature=client.request_temperature,
                 prompt_mode=getattr(client, 'prompt_mode', 'text'),
@@ -193,9 +193,11 @@ class TeacherPool:
         stats.update(sample_streams=len(stream_stats),
                      sample_ready=sum(s["ready"] for s in stream_stats),
                      rejected_source_samples=sum(s["rejected_source_samples"] for s in stream_stats))
+        for key in ("receipt_tracking", "unclaimed", "partial", "received", "evicted"):
+            stats[f"sample_{key}"] = sum(s[key] for s in stream_stats)
         return stats
 
-    def open_sample_stream(self, key, spec):
+    def open_sample_stream(self, key, spec, reader=None):
         """Register the same JSONL stream once for all local DP/PP readers."""
         from types import SimpleNamespace
         from rwkv_megatron.jsonl_dataset import JsonlTextDataset
@@ -206,12 +208,17 @@ class TeacherPool:
             raise ValueError("sample lookahead must be positive")
         if type(spec["start_index"]) is not int or not 0 <= spec["start_index"] <= spec["target_samples"]:
             raise ValueError("sample start index must be inside the requested dataset")
+        if spec.get("delivery") is not None and reader is None:
+            raise ValueError("Tracked teacher streams require a reader identity")
         expected_key = hashlib.sha256(json.dumps(spec, sort_keys=True).encode()).hexdigest()
         if key != expected_key:
             raise ValueError("Teacher sample stream key does not match its configuration")
         with self._stream_lock:
             if self._closed:
                 raise RuntimeError("TeacherPool is closed")
+            # Repeated fixed validation opens fresh receipt rounds. Release
+            # completed old producers rather than retaining their datasets.
+            self._retired_streams = [stream for stream in self._retired_streams if stream.is_alive()]
             if key not in self._streams:
                 if len(self._streams) >= 8:
                     raise RuntimeError("Too many active teacher sample streams")
@@ -240,12 +247,14 @@ class TeacherPool:
                                                start_index=spec["start_index"],
                                                # Validation/test must not fill the global
                                                # HTTP queue while the student is training.
-                                               eager=signature["split"] == "train")
+                                               eager=signature["split"] == "train",
+                                               delivery=spec.get("delivery"))
                 self._streams[key] = dict(stream=stream, consumers=set(), spec=spec)
             entry = self._streams[key]
             if entry["spec"] != spec:
                 raise ValueError("Teacher sample stream configuration changed")
             consumer = uuid.uuid4().hex
+            entry["stream"].register_reader(consumer, reader)
             entry["consumers"].add(consumer)
             return consumer
 
@@ -255,7 +264,20 @@ class TeacherPool:
             if consumer not in entry["consumers"]:
                 raise RuntimeError("Unknown teacher sample consumer")
             stream = entry["stream"]
-        return stream.get(index, timeout)
+        return stream.get(index, timeout, consumer=consumer)
+
+    def acknowledge_sample(self, key, consumer, index, receipt):
+        with self._stream_lock:
+            entry = self._streams[key]
+            if consumer not in entry["consumers"]:
+                raise RuntimeError("Unknown teacher sample consumer")
+            stream = entry["stream"]
+        stream.acknowledge(consumer, index, receipt)
+
+    def sample_delivery_status(self, key, index):
+        with self._stream_lock:
+            stream = self._streams[key]["stream"]
+        return stream.sample_status(index)
 
     def sample_stream_stats(self, key):
         with self._stream_lock:
@@ -267,6 +289,7 @@ class TeacherPool:
             if entry is None:
                 return
             entry["consumers"].discard(consumer)
+            entry["stream"].unregister_reader(consumer)
             if not entry["consumers"]:
                 entry["stream"].close()
                 self._retired_streams.append(entry["stream"])
@@ -297,7 +320,7 @@ def make_pool_server(pool, host="127.0.0.1", port=50055, authkey="teacher-pool")
     Manager.register("get_pool", callable=lambda: pool,
                      exposed=("get_metadata", "submit", "get", "cancel", "get_stats", "get_failure_stats",
                               "open_sample_stream", "get_validated_sample", "sample_stream_stats",
-                              "close_sample_stream"))
+                              "close_sample_stream", "acknowledge_sample", "sample_delivery_status"))
     return Manager(address=(host, port), authkey=authkey.encode()).get_server()
 
 
@@ -386,8 +409,8 @@ class RemoteTeacherPoolClient:
     def get_failure_stats(self):
         return self._pool.get_failure_stats()
 
-    def open_sample_stream(self, key, spec):
-        return self._pool.open_sample_stream(key, spec)
+    def open_sample_stream(self, key, spec, reader=None):
+        return self._pool.open_sample_stream(key, spec, reader)
 
     def get_validated_sample(self, key, consumer, index):
         from rwkv_megatron.teacher_sample_stream import unpack_sample
@@ -401,7 +424,15 @@ class RemoteTeacherPoolClient:
             if result is not None:
                 if not result["ok"]:
                     raise RuntimeError(f"Teacher sample producer failed: {result['error']}")
-                return unpack_sample(result["sample"])
+                sample = unpack_sample(result["sample"])
+                # A returned server payload is not yet proof of receipt. ACK
+                # only after the client owns independent, decoded CPU tensors.
+                if result.get("receipt") is not None:
+                    self._pool.acknowledge_sample(key, consumer, index, result["receipt"])
+                return sample
+
+    def sample_delivery_status(self, key, index):
+        return self._pool.sample_delivery_status(key, index)
 
     def sample_stream_stats(self, key):
         return self._pool.sample_stream_stats(key)

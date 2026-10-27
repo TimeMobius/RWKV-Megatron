@@ -780,6 +780,11 @@ def train_valid_test_datasets_provider(train_val_test_num_samples):
         str(path).endswith(".jsonl") or os.path.isdir(path) for path in (args.data_path or [])
     )
     if jsonl_input:
+        if (args.rwkv_distill and getattr(args, "rwkv_teacher_replace_bad_samples", False)
+                and not is_dataset_built_on_rank()):
+            # The distributed provider is called on every rank, but only the
+            # endpoint TP sources consume data and participate in receipt ACKs.
+            return None, None, None
         tokenizer = (_get_online_teacher(args)._get_tokenizer() if args.rwkv_distill else get_tokenizer())
         requested = list(train_val_test_num_samples)
         datasets = []

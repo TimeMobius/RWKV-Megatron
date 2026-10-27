@@ -126,7 +126,8 @@ def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_fai
                     assert config['exit_duration_in_mins'] == 720
                     assert config['exit_interval'] is None and config['save_interval'] == 250
                     assert config['rwkv_teacher_prefetch_lookahead'] == 32
-                    assert config['rwkv_teacher_pool_workers'] == 8
+                    assert config['rwkv_teacher_pool_workers'] == (4 if capacity else 8)
+                    assert config['rwkv_teacher_prefetch_min_workers'] == (2 if capacity else 4)
                 iteration = 2 if len(commands) == 1 else 3
                 checkpoints = Path(config['save'])
                 checkpoints.mkdir(exist_ok=True)
@@ -145,7 +146,8 @@ def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_fai
     monkeypatch.setattr(runner, 'ROOT', root)
     monkeypatch.setattr(runner.sys, 'argv', ['run', '--output', str(output)] +
                         (['--continuous-minutes', '720'] if continuous else ['--smoke']) +
-                        (['--seq-length', '4096', '--micro-batch-size', '2', '--no-recompute'] if capacity else []))
+                        (['--seq-length', '4096', '--micro-batch-size', '2', '--no-recompute',
+                          '--teacher-pool-workers', '4'] if capacity else []))
     monkeypatch.setattr(runner.subprocess, 'Popen', Process)
     monkeypatch.setattr(runner.subprocess, 'check_output', lambda *a, **k: 'test-commit\n')
     monkeypatch.setattr(runner.signal, 'signal', lambda *a: None)

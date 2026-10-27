@@ -103,6 +103,7 @@ def main():
     parser.add_argument('--seq-length', type=int, default=1024)
     parser.add_argument('--micro-batch-size', type=int, default=1)
     parser.add_argument('--global-batch-size', type=int, default=8)
+    parser.add_argument('--teacher-pool-workers', type=int, default=8)
     parser.add_argument('--no-recompute', action='store_true',
                         help='Keep activations when measured GPU capacity permits')
     parser.add_argument('--continuous-minutes', type=int,
@@ -111,7 +112,7 @@ def main():
         "--smoke", action="store_true", help="Exit at step2, resume and finish step3"
     )
     args = parser.parse_args()
-    if (args.seq_length < 2 or args.micro_batch_size < 1
+    if (args.seq_length < 2 or args.micro_batch_size < 1 or args.teacher_pool_workers < 1
             or args.global_batch_size < 1
             or args.global_batch_size % (2 * args.micro_batch_size)
             or args.seq_length % 2):
@@ -202,10 +203,10 @@ def main():
     # requests over 16/24. Buffer four consumed global batches, independent
     # of DP/TP/PP readers; HTTP batching is unsupported by this endpoint.
     cfg.update(
-        rwkv_teacher_pool_workers=8,
+        rwkv_teacher_pool_workers=args.teacher_pool_workers,
         rwkv_teacher_pool_port=56329,
-        rwkv_teacher_prefetch_workers=8,
-        rwkv_teacher_prefetch_min_workers=4,
+        rwkv_teacher_prefetch_workers=args.teacher_pool_workers,
+        rwkv_teacher_prefetch_min_workers=max(1, args.teacher_pool_workers // 2),
         rwkv_teacher_prefetch_latency_target=30.0,
         rwkv_teacher_prefetch_lookahead=4 * cfg["global_batch_size"],
         rwkv_teacher_pool_queue_size=8 * cfg["global_batch_size"],

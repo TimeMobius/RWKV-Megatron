@@ -88,7 +88,8 @@ def test_pool_audit_rejects_nonfinite_failure_counters(tmp_path):
 
 
 @pytest.mark.parametrize('quality_exit', [0, 1])
-def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_failure(tmp_path, monkeypatch, quality_exit):
+@pytest.mark.parametrize('continuous', [False, True])
+def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_failure(tmp_path, monkeypatch, quality_exit, continuous):
     import json
     from pathlib import Path
     from types import SimpleNamespace
@@ -101,7 +102,7 @@ def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_fai
     root = tmp_path / 'repo'
     (root / 'configs').mkdir(parents=True)
     (root / 'configs/config-qwen-2p7b-distill-tp2-sp-pp2-smoke.yaml').write_text(
-        yaml.safe_dump(dict(model_parallel={}, load_pretrained_rwkv='initial.pt')))
+        yaml.safe_dump(dict(model_parallel={}, load_pretrained_rwkv='initial.pt', rwkv_teacher_tokenizer='fixture')))
     output = tmp_path / 'run'
     commands = []
     class Process:
@@ -110,12 +111,17 @@ def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_fai
             commands.append(command)
             self.quality = '--manifest' in command
             if self.quality:
-                assert command[command.index('--checkpoint')+1].endswith('iter_0000003')
+                assert command[command.index('--checkpoint')+1].endswith('iter_0000002' if continuous else 'iter_0000003')
                 assert '--nproc-per-node=1' in command
                 report = Path(command[command.index('--output')+1])
                 report.write_text('{}')
             else:
                 config = yaml.safe_load(Path(command[-1]).read_text())
+                if continuous:
+                    assert config['exit_duration_in_mins'] == 720
+                    assert config['exit_interval'] is None and config['save_interval'] == 250
+                    assert config['rwkv_teacher_prefetch_lookahead'] == 32
+                    assert config['rwkv_teacher_pool_workers'] == 8
                 iteration = 2 if len(commands) == 1 else 3
                 checkpoints = Path(config['save'])
                 checkpoints.mkdir(exist_ok=True)
@@ -132,11 +138,15 @@ def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_fai
         def poll(self):
             return self.wait()
     monkeypatch.setattr(runner, 'ROOT', root)
-    monkeypatch.setattr(runner.sys, 'argv', ['run', '--output', str(output), '--smoke'])
+    monkeypatch.setattr(runner.sys, 'argv', ['run', '--output', str(output)] +
+                        (['--continuous-minutes', '720'] if continuous else ['--smoke']))
     monkeypatch.setattr(runner.subprocess, 'Popen', Process)
     monkeypatch.setattr(runner.subprocess, 'check_output', lambda *a, **k: 'test-commit\n')
     monkeypatch.setattr(runner.signal, 'signal', lambda *a: None)
     monkeypatch.setattr(tokenizer_check, 'check_teacher_tokenizer', lambda settings: dict(all_matched=True))
+    import transformers
+    monkeypatch.setattr(transformers.AutoTokenizer, 'from_pretrained', lambda *a, **k: object())
+    monkeypatch.setattr(evaluator, 'fixed_manifest', lambda *a, **k: dict(sha256='fixed-before-training'))
     monkeypatch.setattr(wandb, 'Api', lambda: SimpleNamespace(run=lambda *a: SimpleNamespace(state='finished', url='training-url')))
     monkeypatch.setattr(evaluator, 'upload_quality_report', lambda path, cfg: dict(report=str(path), wandb_url='quality-url'))
     if quality_exit:
@@ -145,8 +155,10 @@ def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_fai
     else:
         runner.main()
     state = json.loads((output / 'status.json').read_text())
-    assert len(commands) == 3
+    assert len(commands) == (2 if continuous else 3)
     assert state['state'] == ('failed' if quality_exit else 'completed')
-    assert len(state['phases']) == 2
+    assert len(state['phases']) == (1 if continuous else 2)
+    assert state['planned_restart'] is (not continuous)
+    assert state['fixed_validation_sha256'] == 'fixed-before-training'
     if not quality_exit:
         assert state['checkpoint_quality']['wandb_url'] == 'quality-url'

@@ -436,3 +436,15 @@ def test_pool_separates_replaceable_sample_errors_from_service_failures():
         assert pool.get_failure_stats() == dict(failed=2, sample_errors=1, fatal_errors=1)
     finally:
         pool.close()
+
+
+def test_supply_metrics_are_available_over_rpc_without_consuming_results(pool_port):
+    client = remote(pool_port)
+    before = client.get_supply_stats()
+    assert before['target_workers'] >= 1
+    assert client._pool.submit('supply-metric-check', torch.tensor([[1,2,3]]).numpy().tobytes(), None, (1,3), None)
+    wait_for(lambda: client._pool.get_stats()['ready'] >= 1)
+    snapshot = client.get_supply_stats()
+    assert snapshot['submitted'] == before['submitted'] + 1
+    assert snapshot['completed'] >= before['completed'] + 1
+    assert client._pool.get('supply-metric-check', 1)['ok']

@@ -1,4 +1,4 @@
-"""Run two bounded online distillation phases with a checked checkpoint restart."""
+"""Run bounded online distillation, audit it, and evaluate the final checkpoint."""
 
 import argparse
 import json
@@ -11,10 +11,15 @@ import sys
 import uuid
 from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def now():
+    return datetime.now(ZoneInfo('Asia/Shanghai')).isoformat()
 
 
 def audit_training_log(path, expected_previous):
@@ -95,22 +100,28 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--phase-minutes", type=int, default=360)
+    parser.add_argument('--continuous-minutes', type=int,
+                        help='One continuous training phase, with no planned checkpoint restart')
     parser.add_argument(
         "--smoke", action="store_true", help="Exit at step2, resume and finish step3"
     )
     args = parser.parse_args()
     if args.phase_minutes < 1:
         parser.error("phase-minutes must be positive")
+    if args.continuous_minutes is not None and (args.continuous_minutes < 1 or args.smoke):
+        parser.error('continuous-minutes must be positive and cannot be combined with smoke')
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
     checkpoints = output / "checkpoints"
     state_path = output / "status.json"
     state = dict(
-        started=datetime.now().astimezone().isoformat(),
+        started=now(),
         smoke=args.smoke,
         supervisor_pid=os.getpid(),
         phases=[],
         state="preparing",
+        continuous_minutes=args.continuous_minutes,
+        planned_restart=args.continuous_minutes is None,
         commit=subprocess.check_output(
             ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
         ).strip(),
@@ -156,7 +167,7 @@ def main():
         rwkv_checkpoint_keep_last=2,
         load=None,
         exit_interval=2 if args.smoke else None,
-        exit_duration_in_mins=None if args.smoke else args.phase_minutes,
+        exit_duration_in_mins=None if args.smoke else (args.continuous_minutes or args.phase_minutes),
         rwkv_teacher_pool=True,
         # This endpoint uses Qwen2Tokenizer's slow pretokenization regex.
         rwkv_teacher_tokenizer_use_fast=False,
@@ -173,6 +184,7 @@ def main():
     # of DP/TP/PP readers; HTTP batching is unsupported by this endpoint.
     cfg.update(
         rwkv_teacher_pool_workers=8,
+        rwkv_teacher_pool_port=56329,
         rwkv_teacher_prefetch_workers=8,
         rwkv_teacher_prefetch_min_workers=4,
         rwkv_teacher_prefetch_latency_target=30.0,
@@ -183,10 +195,20 @@ def main():
     try:
         save()
         from tools.check_teacher_tokenizer import check_teacher_tokenizer
+        from tools.evaluate_distill_checkpoint import fixed_manifest
+        from transformers import AutoTokenizer
 
         state["teacher_tokenizer_preflight"] = check_teacher_tokenizer(cfg)
+        # Freeze evaluation tokens before training so data drift fails clearly
+        # instead of silently changing the final checkpoint's validation set.
+        tokenizer = AutoTokenizer.from_pretrained(
+            cfg['rwkv_teacher_tokenizer'], trust_remote_code=True,
+            local_files_only=True, use_fast=cfg['rwkv_teacher_tokenizer_use_fast'])
+        manifest = fixed_manifest(output / 'fixed-validation.json', cfg, tokenizer)
+        state['fixed_validation_sha256'] = manifest['sha256']
+        del manifest, tokenizer
         save()
-        for phase in (1, 2):
+        for phase in ((1,) if args.continuous_minutes is not None else (1, 2)):
             if phase == 2:
                 previous = checkpoint_iteration(checkpoints)
                 cfg.update(load=str(checkpoints), exit_interval=None)
@@ -205,7 +227,7 @@ def main():
                 phase=phase,
                 load_iteration=previous,
                 wandb_id=runid,
-                started=datetime.now().astimezone().isoformat(),
+                started=now(),
             )
             state["phases"].append(entry)
             state["state"] = "running"
@@ -222,7 +244,8 @@ def main():
                         os.environ,
                         WANDB_RUN_ID=runid,
                         WANDB_MODE="online",
-                        WANDB_TAGS="distill,2p7b,long-sequence,checkpoint-restart,"
+                        WANDB_TAGS="distill,2p7b,long-sequence,"
+                        + ('continuous,' if args.continuous_minutes is not None else 'checkpoint-restart,')
                         + ("smoke" if args.smoke else "12hour"),
                     ),
                     stdout=log,
@@ -243,7 +266,7 @@ def main():
             if saved <= previous:
                 raise RuntimeError("Checkpoint iteration did not advance")
             entry.update(
-                saved_iteration=saved, finished=datetime.now().astimezone().isoformat()
+                saved_iteration=saved, finished=now()
             )
             import wandb
 
@@ -284,7 +307,7 @@ def main():
                 process.wait()
         raise
     finally:
-        state["updated"] = datetime.now().astimezone().isoformat()
+        state["updated"] = now()
         save()
     print(json.dumps(state, indent=2), flush=True)
 

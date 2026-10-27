@@ -687,12 +687,13 @@ def forward_step(data_iterator, model: GPTModel):
         if _teacher_replacement_datasets:
             if all(hasattr(dataset, "stats") for dataset in _teacher_replacement_datasets):
                 stream_stats = [dataset.stats() for dataset in _teacher_replacement_datasets]
-                for key in ("ready", "produced", "cache_hits", "cache_misses"):
+                for key in ("ready", "produced", "cache_hits", "cache_misses", "unclaimed", "partial", "received"):
                     stats[f"sample_queue_{key}"] = sum(row[key] for row in stream_stats)
                 stats["sample_queue_wait_seconds"] = sum(row["queue_wait_seconds"] for row in stream_stats)
                 stats['rejected_source_samples'] = sum(row['rejected_source_samples'] for row in stream_stats)
                 client = _teacher_replacement_datasets[0].teacher
                 stats.update({f"pool_{key}": value for key, value in client.get_failure_stats().items()})
+                stats.update({f"pool_{key}": value for key, value in client.get_supply_stats().items()})
             else:
                 stats['rejected_source_samples'] = sum(dataset.rejected_count() for dataset in _teacher_replacement_datasets)
         share_teacher_stats = (args.rwkv_teacher_async_prefetch

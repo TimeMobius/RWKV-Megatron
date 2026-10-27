@@ -49,6 +49,8 @@ torchrun --standalone --nproc-per-node=1 tools/evaluate_distill_checkpoint.py \
 
 默认固定 32 条验证样本和每提示词最多 32 个生成 token，可用 `--samples`、`--max-new-tokens` 指定。独立命令写本地报告；监督器额外负责 W&B 上传。已有报告不会被覆盖。
 
+需要连续运行约 12 小时且不中途主动重启时，使用 `python tools/run_distill_longrun.py --output /path/to/new-run --continuous-minutes 720`。该模式单段运行，保存间隔保持 250 步，退出时保存最终 checkpoint 后自动评估；固定验证清单在训练前生成。省略该参数仍使用原来的两段流程。运行中 W&B 的 `teacher/pool_active`、`pool_queued`、`pool_target_workers`、`pool_ewma_latency_seconds` 及 `sample_queue_unclaimed/partial/received` 用于检查供给速度和多卡领取进度；这些累计或微批次聚合指标需要结合逐步耗时判断，不能仅以缓存条数认定供给充足。
+
 
 以下清单记录分支 `codex/qwen-rwkv28b-distill` 的当前约定。实现完成后将对应项标记为 `[x]`。
 

@@ -181,6 +181,18 @@ class TeacherPool:
         with self._cond:
             return {key: self._stats[key] for key in ("failed", "sample_errors", "fatal_errors")}
 
+    def get_supply_stats(self):
+        """Small per-step payload for diagnosing supply limits during long runs."""
+        with self._cond:
+            stats = dict(active=self._active, queued=len(self._queue), target_workers=self._target,
+                         submitted=self._stats['submitted'], completed=self._stats['completed'],
+                         backpressure=self._stats['rejected'])
+        client = self.client.get_stats()
+        for key in ('ewma_latency_seconds', 'retries', 'rate_limits'):
+            if key in client:
+                stats[key] = client[key]
+        return stats
+
     def get_stats(self):
         with self._cond:
             self._expire()
@@ -318,7 +330,7 @@ def make_pool_server(pool, host="127.0.0.1", port=50055, authkey="teacher-pool")
         pass
 
     Manager.register("get_pool", callable=lambda: pool,
-                     exposed=("get_metadata", "submit", "get", "cancel", "get_stats", "get_failure_stats",
+                     exposed=("get_metadata", "submit", "get", "cancel", "get_stats", "get_failure_stats", "get_supply_stats",
                               "open_sample_stream", "get_validated_sample", "sample_stream_stats",
                               "close_sample_stream", "acknowledge_sample", "sample_delivery_status"))
     return Manager(address=(host, port), authkey=authkey.encode()).get_server()
@@ -408,6 +420,9 @@ class RemoteTeacherPoolClient:
 
     def get_failure_stats(self):
         return self._pool.get_failure_stats()
+
+    def get_supply_stats(self):
+        return self._pool.get_supply_stats()
 
     def open_sample_stream(self, key, spec, reader=None):
         return self._pool.open_sample_stream(key, spec, reader)

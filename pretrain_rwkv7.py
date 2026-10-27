@@ -790,6 +790,17 @@ def train_valid_test_datasets_provider(train_val_test_num_samples):
         requested = list(train_val_test_num_samples)
         datasets = []
         for split_name, count in zip(("train", "validation", "test"), requested):
+            fixed_teacher_validation = (
+                split_name == "validation" and args.rwkv_distill
+                and getattr(args, "rwkv_teacher_replace_bad_samples", False)
+                and getattr(args, "fixed_eval_samples", False)
+                and not getattr(args, "full_validation", False)
+            )
+            if fixed_teacher_validation:
+                # Every fixed evaluation starts at zero. Bound both layers of
+                # pool lookahead to the samples this round actually consumes,
+                # rather than prefetching the next (unused) validation round.
+                count = min(count, args.eval_iters * args.eval_global_batch_size)
             if not count:
                 datasets.append(None)
                 continue
@@ -816,7 +827,8 @@ def train_valid_test_datasets_provider(train_val_test_num_samples):
                     selection_signature(dataset, args, split_name),
                     lookahead=args.rwkv_teacher_prefetch_lookahead,
                     start_index=(getattr(args, "consumed_train_samples", 0) if split_name == "train"
-                                 else getattr(args, "consumed_valid_samples", 0) if split_name == "validation" else 0),
+                                 else getattr(args, "consumed_valid_samples", 0)
+                                 if split_name == "validation" and not fixed_teacher_validation else 0),
                 )
                 _teacher_replacement_datasets.append(dataset)
             datasets.append(dataset)

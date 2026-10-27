@@ -7,7 +7,7 @@ from types import SimpleNamespace
 import pytest
 import torch
 
-from rwkv_megatron.teacher_pool import RemoteTeacherPoolClient
+from rwkv_megatron.teacher_pool import RemoteTeacherPoolClient, TeacherPool, _LocalPoolRequestClient
 from rwkv_megatron.teacher_sample_stream import PoolValidatedDataset, ValidatedSampleStream
 from test_teacher_sample_stream import Teacher, pool_port, source_spec, wait_for
 
@@ -279,3 +279,63 @@ def test_non_reader_ranks_skip_jsonl_registration(monkeypatch):
     monkeypatch.setattr(pretrain, '_get_online_teacher',
                         lambda _: pytest.fail('Non-readers must not register with the pool'))
     assert pretrain.train_valid_test_datasets_provider([8, 8, 8]) == (None, None, None)
+
+
+@pytest.mark.parametrize('fixed,full_validation', [(True, False), (False, False), (True, True)])
+def test_fixed_validation_bounds_requests_to_round_budget_across_dp_pp(
+        monkeypatch, tmp_path, fixed, full_validation):
+    import pretrain_rwkv7 as pretrain
+    import rwkv_megatron.teacher_sample_stream as streams
+
+    source, _ = source_spec(tmp_path)
+    settings = SimpleNamespace(
+        data_path=[str(source._paths[0])], rwkv_distill=True,
+        rwkv_teacher_replace_bad_samples=True, fixed_eval_samples=fixed,
+        full_validation=full_validation, eval_iters=2, eval_global_batch_size=4,
+        seq_length=4, rwkv_jsonl_max_records=0, rwkv_jsonl_text_field='text',
+        rwkv_jsonl_chunk_chars=512, rwkv_teacher_pool=True, num_workers=0,
+        rwkv_teacher_sample_records=str(tmp_path/'selection'),
+        rwkv_teacher_prefetch_lookahead=32, consumed_valid_samples=32,
+        rwkv_teacher_model='fixture', rwkv_teacher_url='http://fixture',
+        rwkv_teacher_top_k=2, rwkv_teacher_seed=1234, rwkv_teacher_prompt_mode='text')
+    pool = TeacherPool(Teacher(), workers=4, max_results=64)
+    client = _LocalPoolRequestClient(pool)
+    monkeypatch.setattr(pretrain, 'get_args', lambda: settings)
+    monkeypatch.setattr(pretrain, 'is_dataset_built_on_rank', lambda: True)
+    monkeypatch.setattr(pretrain, 'print_rank_0', lambda _: None)
+    monkeypatch.setattr(pretrain, '_get_online_teacher', lambda _: client)
+    monkeypatch.setattr(pretrain, '_teacher_replacement_datasets', [])
+    identity = None
+    monkeypatch.setattr(streams, 'megatron_delivery_context',
+                        lambda start: (layout(dp=2, offset=start), identity))
+    readers = []
+    try:
+        for dp in range(2):
+            for pp in range(2):
+                identity = (dp, pp, 0)
+                reader = pretrain.train_valid_test_datasets_provider([0, 120, 0])[1]
+                readers.append((identity, reader))
+        bounded = fixed and not full_validation
+        assert all(len(reader) == (8 if bounded else 120) for _, reader in readers)
+        assert all(reader._spec['start_index'] == (0 if bounded else 32)
+                   for _, reader in readers)
+        if not bounded:
+            return
+        expected = ['aa', 'cc', 'ee', 'ff', 'gg', 'hh', 'ii', 'jj']
+        for round_index in range(3):
+            def consume(item):
+                identity, reader = item
+                indices = [i for i in range(8) if i % 2 == identity[0]]
+                assert [reader[i]['raw_prompts'] for i in indices] == [expected[i] for i in indices]
+            with ThreadPoolExecutor(max_workers=4) as executor:
+                list(executor.map(consume, readers))
+            stats = readers[0][1].stats()
+            assert stats['produced'] == 8
+            assert stats['unclaimed'] == stats['partial'] == 0
+            # Two bad windows are replaced once; no future-round speculation.
+            assert pool.get_stats()['submitted'] == 8 * (round_index + 1) + 2
+            assert len({reader.key for _, reader in readers}) == 1
+    finally:
+        for _, reader in readers:
+            reader.close()
+        pool.close()

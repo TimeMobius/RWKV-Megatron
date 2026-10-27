@@ -60,3 +60,28 @@ def test_failed_or_gapped_log_is_rejected(tmp_path, bad):
     path.write_text(bad)
     with pytest.raises(RuntimeError):
         audit_training_log(path, 0)
+
+
+def test_pool_audit_allows_replaced_samples_but_rejects_fatal_or_missing_metrics(tmp_path):
+    path = tmp_path / 'pool.log'
+    def pool_line(fatal=0, sample=2):
+        return log_line(1).replace('teacher/failed: 0',
+            f'teacher/pool_failed: {fatal+sample} | teacher/pool_sample_errors: {sample} | teacher/pool_fatal_errors: {fatal}')
+    path.write_text(pool_line())
+    report = audit_training_log(path, 0)
+    assert report['teacher_failures'] == 0
+    assert report['teacher_sample_errors'] == 2
+    assert report['teacher_failure_metrics'] == ['teacher/pool_fatal_errors']
+    path.write_text(pool_line(fatal=1))
+    with pytest.raises(RuntimeError, match='Teacher failures'):
+        audit_training_log(path, 0)
+    path.write_text(log_line(1).replace('teacher/failed: 0 | ', ''))
+    with pytest.raises(RuntimeError, match='Missing teacher/failed metric'):
+        audit_training_log(path, 0)
+
+
+def test_pool_audit_rejects_nonfinite_failure_counters(tmp_path):
+    path = tmp_path / 'pool.log'
+    path.write_text(log_line(1).replace('teacher/failed: 0', 'teacher/pool_fatal_errors: nan'))
+    with pytest.raises(RuntimeError, match='Non-finite'):
+        audit_training_log(path, 0)

@@ -23,19 +23,34 @@ def audit_training_log(path, expected_previous):
     skipped = []
     nan = []
     teacher_failures = []
+    sample_errors = []
+    failure_metric_names = set()
     for line in text.splitlines():
         match = re.search(r"iteration\s+(\d+)/\s*\d+.*consumed samples:", line)
         if match:
-            if not math.isfinite(float(re.search(r"grad norm:\s*(\S+)", line)[1])):
-                raise RuntimeError("Non-finite gradient norm")
-            teacher_failures.append(
-                float(re.search(r"teacher/failed:\s*(\S+)", line)[1])
-            )
+            def metric(name, optional=False):
+                found = re.search(re.escape(name) + r":\s*(\S+)", line)
+                if found is None:
+                    if optional:
+                        return None
+                    raise RuntimeError(f"Missing {name} metric at iteration {match[1]}")
+                value = float(found[1])
+                if not math.isfinite(value):
+                    raise RuntimeError(f"Non-finite {name} metric")
+                return value
+
+            metric("grad norm")
+            failure_key = ("teacher/pool_fatal_errors" if "teacher/pool_fatal_errors:" in line
+                           else "teacher/failed")
+            failure_metric_names.add(failure_key)
+            failures = metric(failure_key)
+            if failures < 0:
+                raise RuntimeError("Negative teacher failure counter")
+            teacher_failures.append(failures)
+            sample_errors.append(metric("teacher/pool_sample_errors", optional=True) or 0.0)
             iterations.append(int(match[1]))
-            skipped.append(
-                int(re.search(r"number of skipped iterations:\s*(\d+)", line)[1])
-            )
-            nan.append(int(re.search(r"number of nan iterations:\s*(\d+)", line)[1]))
+            skipped.append(metric("number of skipped iterations"))
+            nan.append(metric("number of nan iterations"))
     if not iterations or iterations[0] != expected_previous + 1:
         raise RuntimeError(
             f"Unexpected first iteration {iterations[:1]} after {expected_previous}"
@@ -58,7 +73,9 @@ def audit_training_log(path, expected_previous):
         optimizer_steps=len(iterations),
         skipped=sum(skipped),
         nan=sum(nan),
-        teacher_failures=sum(teacher_failures),
+        teacher_failures=max(teacher_failures),
+        teacher_sample_errors=max(sample_errors),
+        teacher_failure_metrics=sorted(failure_metric_names),
     )
 
 

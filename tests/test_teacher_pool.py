@@ -416,3 +416,23 @@ def test_pool_preserves_sample_error_type_for_replacement():
             remote_client.get_logits(torch.tensor([[1, 2, 3]]))
     finally:
         pool.close()
+
+
+def test_pool_separates_replaceable_sample_errors_from_service_failures():
+    from rwkv_megatron.online_teacher import TeacherSampleError
+
+    class BrokenTeacher(FrozenTeacher):
+        def get_logits(self, tokens, **kwargs):
+            if int(tokens[0, 0]) == 1:
+                raise TeacherSampleError('bad sample')
+            raise TimeoutError('service offline')
+    pool = TeacherPool(BrokenTeacher(), workers=1)
+    try:
+        assert submit(pool, 'sample', 1)
+        assert not pool.get('sample', 5)['ok']
+        assert pool.get_failure_stats() == dict(failed=1, sample_errors=1, fatal_errors=0)
+        assert submit(pool, 'service', 2)
+        assert not pool.get('service', 5)['ok']
+        assert pool.get_failure_stats() == dict(failed=2, sample_errors=1, fatal_errors=1)
+    finally:
+        pool.close()

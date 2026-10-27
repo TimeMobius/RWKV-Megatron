@@ -35,6 +35,8 @@ Pool 后台按源顺序并发请求教师、检查响应；坏样本记录到该
 
 训练流注册后开始后台预取，验证/测试流等到首次实际读取才启动，避免初始化时挤占训练请求。当前 Qwen 端点不接受多条 prompt 的单次 HTTP 请求；增大学生 micro batch 不会合并 HTTP 请求。长跑模板按 global batch 8 配置 8 并发、32 条 lookahead（4 步）、64 条请求队列/结果容量，延迟目标 30 秒，限流时仍可降到 4 并发。预取量按 global batch 计算，不按 DP/PP 读取端重复相乘。供给跟不上时仍会等待，应结合实际 teacher 吞吐调参。
 
+Pool 模式上报 `teacher/pool_sample_errors`（可补位的样本错误）与 `teacher/pool_fatal_errors`（服务等故障）。长跑监督器使用后者验收，兼容旧预取模式的 `teacher/failed`；缺失故障指标会明确报错，不会按零处理。成功补位的样本错误不导致审计失败。
+
 
 以下清单记录分支 `codex/qwen-rwkv28b-distill` 的当前约定。实现完成后将对应项标记为 `[x]`。
 

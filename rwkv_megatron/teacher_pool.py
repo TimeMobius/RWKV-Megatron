@@ -25,7 +25,7 @@ from rwkv_megatron.online_teacher import TeacherSampleError, TeacherTopK
 def teacher_metadata(client):
     tokenizer = client._get_tokenizer()
     vocabulary = json.dumps(tokenizer.get_vocab(), sort_keys=True, ensure_ascii=True).encode()
-    return dict(protocol=2, server_url=client.server_url, model=client.model_name,
+    return dict(protocol=3, server_url=client.server_url, model=client.model_name,
                 top_k=client.top_k, seed=client.request_seed,
                 request_temperature=client.request_temperature,
                 prompt_mode=getattr(client, 'prompt_mode', 'text'),
@@ -57,7 +57,8 @@ class TeacherPool:
         self._closed = False
         self._active = 0
         self._target = workers
-        self._stats = dict(submitted=0, completed=0, failed=0, consumed=0, cancelled=0,
+        self._stats = dict(submitted=0, completed=0, failed=0, sample_errors=0, fatal_errors=0,
+                           consumed=0, cancelled=0,
                            expired=0, rejected=0, peak_active=0, concurrency_reductions=0,
                            concurrency_increases=0)
         self._stream_lock = threading.Lock()
@@ -156,6 +157,8 @@ class TeacherPool:
             with self._cond:
                 self._active -= 1
                 self._stats["completed" if result["ok"] else "failed"] += 1
+                if not result["ok"]:
+                    self._stats["sample_errors" if result.get("sample_error") else "fatal_errors"] += 1
                 if result["ok"]:
                     metrics = result["metrics"]
                     latency = metrics.get("latency_seconds", 0.0)
@@ -172,6 +175,11 @@ class TeacherPool:
                 if request_id in self._jobs:
                     self._jobs[request_id].update(result=result, finished=time.monotonic())
                 self._cond.notify_all()
+
+    def get_failure_stats(self):
+        """Auditable counters; rejected/replaced inputs are distinct from service failures."""
+        with self._cond:
+            return {key: self._stats[key] for key in ("failed", "sample_errors", "fatal_errors")}
 
     def get_stats(self):
         with self._cond:
@@ -287,7 +295,7 @@ def make_pool_server(pool, host="127.0.0.1", port=50055, authkey="teacher-pool")
         pass
 
     Manager.register("get_pool", callable=lambda: pool,
-                     exposed=("get_metadata", "submit", "get", "cancel", "get_stats",
+                     exposed=("get_metadata", "submit", "get", "cancel", "get_stats", "get_failure_stats",
                               "open_sample_stream", "get_validated_sample", "sample_stream_stats",
                               "close_sample_stream"))
     return Manager(address=(host, port), authkey=authkey.encode()).get_server()
@@ -374,6 +382,9 @@ class RemoteTeacherPoolClient:
 
     def get_last_request_metrics(self):
         return dict(getattr(self._thread_local, "metrics", {}))
+
+    def get_failure_stats(self):
+        return self._pool.get_failure_stats()
 
     def open_sample_stream(self, key, spec):
         return self._pool.open_sample_stream(key, spec)

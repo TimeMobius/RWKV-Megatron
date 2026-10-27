@@ -10,7 +10,7 @@ from pathlib import Path
 import torch
 import torch.distributed as dist
 
-from megatron.training import get_args
+from megatron.training import get_args, get_wandb_writer
 from megatron.training.callbacks import Callback
 
 from .online_teacher import TeacherPrefetchIterator, teacher_request_deadline
@@ -190,6 +190,20 @@ class TeacherFailureCheckpoint(Callback):
                 temporary.replace(path)
                 print(f"Teacher emergency checkpoint saved at iteration {self.iteration}: {destination}; "
                       f"resume with --load {destination}", flush=True)
+            writer = get_wandb_writer()
+            if writer is not None:
+                # Flush before other ranks exit: torchrun may otherwise kill
+                # the logging rank and W&B can mark a handled exit successful.
+                try:
+                    writer.log({'teacher/emergency_checkpoint_saved': 1,
+                                'teacher/emergency_checkpoint_iteration': self.iteration,
+                                'teacher/emergency_consumed_samples': args.consumed_train_samples,
+                                'teacher/failure_exit_code': 75})
+                    writer.run.summary.update({'teacher/emergency_checkpoint_directory': destination,
+                                               'teacher/failure_reason': str(error)})
+                    writer.finish(exit_code=75)
+                except Exception as logging_error:
+                    print(f"Teacher checkpoint is saved; W&B failure reporting failed: {logging_error}", flush=True)
             dist.barrier()
         finally:
             for key, value in previous.items():

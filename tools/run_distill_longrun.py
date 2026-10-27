@@ -100,12 +100,22 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--phase-minutes", type=int, default=360)
+    parser.add_argument('--seq-length', type=int, default=1024)
+    parser.add_argument('--micro-batch-size', type=int, default=1)
+    parser.add_argument('--global-batch-size', type=int, default=8)
+    parser.add_argument('--no-recompute', action='store_true',
+                        help='Keep activations when measured GPU capacity permits')
     parser.add_argument('--continuous-minutes', type=int,
                         help='One continuous training phase, with no planned checkpoint restart')
     parser.add_argument(
         "--smoke", action="store_true", help="Exit at step2, resume and finish step3"
     )
     args = parser.parse_args()
+    if (args.seq_length < 2 or args.micro_batch_size < 1
+            or args.global_batch_size < 1
+            or args.global_batch_size % (2 * args.micro_batch_size)
+            or args.seq_length % 2):
+        parser.error('sequence must divide TP2; global batch must divide DP2 times micro batch')
     if args.phase_minutes < 1:
         parser.error("phase-minutes must be positive")
     if args.continuous_minutes is not None and (args.continuous_minutes < 1 or args.smoke):
@@ -153,11 +163,12 @@ def main():
     )
     cfg.update(
         deterministic_mode=True,
-        seq_length=1024,
-        rwkv_jsonl_chunk_chars=8192,
-        global_batch_size=8,
-        eval_global_batch_size=8,
-        micro_batch_size=1,
+        seq_length=args.seq_length,
+        rwkv_jsonl_chunk_chars=max(8192, 8 * args.seq_length),
+        global_batch_size=args.global_batch_size,
+        eval_global_batch_size=args.global_batch_size,
+        micro_batch_size=args.micro_batch_size,
+        eval_micro_batch_size=args.micro_batch_size,
         train_iters=3 if args.smoke else 1000000,
         lr_decay_iters=3 if args.smoke else 1000000,
         eval_iters=2,
@@ -184,6 +195,9 @@ def main():
         log_interval=1,
         num_workers=0,
     )
+    if args.no_recompute:
+        cfg['language_model'].update(recompute_granularity=None, recompute_method=None,
+                                     recompute_num_layers=None)
     # Real top-100 measurements favored eight concurrent single-prompt
     # requests over 16/24. Buffer four consumed global batches, independent
     # of DP/TP/PP readers; HTTP batching is unsupported by this endpoint.

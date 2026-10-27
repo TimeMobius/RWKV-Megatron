@@ -87,9 +87,10 @@ def test_pool_audit_rejects_nonfinite_failure_counters(tmp_path):
         audit_training_log(path, 0)
 
 
+@pytest.mark.parametrize('capacity', [False, True])
 @pytest.mark.parametrize('quality_exit', [0, 1])
 @pytest.mark.parametrize('continuous', [False, True])
-def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_failure(tmp_path, monkeypatch, quality_exit, continuous):
+def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_failure(tmp_path, monkeypatch, quality_exit, continuous, capacity):
     import json
     from pathlib import Path
     from types import SimpleNamespace
@@ -102,7 +103,7 @@ def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_fai
     root = tmp_path / 'repo'
     (root / 'configs').mkdir(parents=True)
     (root / 'configs/config-qwen-2p7b-distill-tp2-sp-pp2-smoke.yaml').write_text(
-        yaml.safe_dump(dict(model_parallel={}, load_pretrained_rwkv='initial.pt', rwkv_teacher_tokenizer='fixture')))
+        yaml.safe_dump(dict(model_parallel={}, language_model={}, load_pretrained_rwkv='initial.pt', rwkv_teacher_tokenizer='fixture')))
     output = tmp_path / 'run'
     commands = []
     class Process:
@@ -117,6 +118,10 @@ def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_fai
                 report.write_text('{}')
             else:
                 config = yaml.safe_load(Path(command[-1]).read_text())
+                assert config['seq_length'] == (4096 if capacity else 1024)
+                assert config['micro_batch_size'] == config['eval_micro_batch_size'] == (2 if capacity else 1)
+                if capacity:
+                    assert config['language_model']['recompute_granularity'] is None
                 if continuous:
                     assert config['exit_duration_in_mins'] == 720
                     assert config['exit_interval'] is None and config['save_interval'] == 250
@@ -139,7 +144,8 @@ def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_fai
             return self.wait()
     monkeypatch.setattr(runner, 'ROOT', root)
     monkeypatch.setattr(runner.sys, 'argv', ['run', '--output', str(output)] +
-                        (['--continuous-minutes', '720'] if continuous else ['--smoke']))
+                        (['--continuous-minutes', '720'] if continuous else ['--smoke']) +
+                        (['--seq-length', '4096', '--micro-batch-size', '2', '--no-recompute'] if capacity else []))
     monkeypatch.setattr(runner.subprocess, 'Popen', Process)
     monkeypatch.setattr(runner.subprocess, 'check_output', lambda *a, **k: 'test-commit\n')
     monkeypatch.setattr(runner.signal, 'signal', lambda *a: None)

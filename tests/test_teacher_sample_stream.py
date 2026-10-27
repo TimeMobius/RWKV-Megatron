@@ -239,3 +239,29 @@ def test_tiny_capacity_preserves_concurrent_readers_and_global_worker_bound(tmp_
     finally:
         reader.close()
         pool.close()
+
+
+def test_validation_stream_does_not_compete_for_training_requests_until_consumed(tmp_path):
+    entered = threading.Event()
+
+    class Signaling(Teacher):
+        def get_logits(self, *args, **kwargs):
+            entered.set()
+            return super().get_logits(*args, **kwargs)
+
+    pool = TeacherPool(Signaling(), workers=2)
+    source, signature = source_spec(tmp_path, prompts=['aa', 'cc', 'ee'], count=3)
+    settings = json.loads(signature)
+    settings['split'] = 'validation'
+    reader = PoolValidatedDataset(source, _LocalPoolRequestClient(pool),
+                                  tmp_path / 'selection', json.dumps(settings, sort_keys=True),
+                                  lookahead=2)
+    try:
+        assert not entered.wait(0.15), 'Validation must not prefill the HTTP queue during training'
+        assert pool.get_stats()['submitted'] == 0
+        assert reader[0]['raw_prompts'] == 'aa'
+        assert entered.is_set()
+        wait_for(lambda: reader.stats()['ready'] == 3)
+    finally:
+        reader.close()
+        pool.close()

@@ -229,7 +229,10 @@ class TeacherPool:
                 )
                 stream = ValidatedSampleStream(selector, lookahead,
                                                capacity=min(2 * lookahead, self.max_results),
-                                               start_index=spec["start_index"])
+                                               start_index=spec["start_index"],
+                                               # Validation/test must not fill the global
+                                               # HTTP queue while the student is training.
+                                               eager=signature["split"] == "train")
                 self._streams[key] = dict(stream=stream, consumers=set(), spec=spec)
             entry = self._streams[key]
             if entry["spec"] != spec:

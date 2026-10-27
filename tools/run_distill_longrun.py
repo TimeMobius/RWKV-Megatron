@@ -151,6 +151,18 @@ def main():
         log_interval=1,
         num_workers=0,
     )
+    # Real top-100 measurements favored eight concurrent single-prompt
+    # requests over 16/24. Buffer four consumed global batches, independent
+    # of DP/TP/PP readers; HTTP batching is unsupported by this endpoint.
+    cfg.update(
+        rwkv_teacher_pool_workers=8,
+        rwkv_teacher_prefetch_workers=8,
+        rwkv_teacher_prefetch_min_workers=4,
+        rwkv_teacher_prefetch_latency_target=30.0,
+        rwkv_teacher_prefetch_lookahead=4 * cfg["global_batch_size"],
+        rwkv_teacher_pool_queue_size=8 * cfg["global_batch_size"],
+        rwkv_teacher_pool_max_results=8 * cfg["global_batch_size"],
+    )
     try:
         save()
         from tools.check_teacher_tokenizer import check_teacher_tokenizer

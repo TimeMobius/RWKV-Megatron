@@ -37,7 +37,7 @@ class ValidatedSampleStream:
     decisions. A lagging reader can regenerate an evicted pair from the journal.
     """
 
-    def __init__(self, dataset, lookahead, capacity, start_index=0):
+    def __init__(self, dataset, lookahead, capacity, start_index=0, eager=True):
         self.dataset = dataset
         self.lookahead = min(lookahead, capacity)
         self.capacity = capacity
@@ -46,6 +46,7 @@ class ValidatedSampleStream:
         self._wanted = OrderedDict()
         self._high_water = start_index - 1
         self._cursor = start_index
+        self._activated = eager
         self._error = None
         self._closed = False
         self._stats = dict(produced=0, cache_hits=0, cache_misses=0, evicted=0,
@@ -61,6 +62,7 @@ class ValidatedSampleStream:
             if self._closed:
                 raise RuntimeError("Teacher sample stream is closed")
             self._high_water = max(self._high_water, index)
+            self._activated = True
             self._wanted[index] = self._wanted.get(index, 0) + 1
             self._condition.notify_all()
             ready_on_entry = index in self._ready
@@ -96,6 +98,9 @@ class ValidatedSampleStream:
                     while True:
                         if self._closed:
                             return
+                        if not self._activated:
+                            self._condition.wait()
+                            continue
                         if (len(self._ready) >= self.capacity
                                 and all(i in self._wanted for i in self._ready)):
                             self._condition.wait()

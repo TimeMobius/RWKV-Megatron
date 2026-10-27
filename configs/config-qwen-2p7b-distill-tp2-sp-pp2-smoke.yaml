@@ -107,6 +107,9 @@ rwkv_l2wrap_coefficient: 0.0
 rwkv_teacher_async_prefetch: true
 rwkv_teacher_cache_size: 256
 rwkv_teacher_max_retries: 3
+rwkv_teacher_retry_window: 300.0
+rwkv_teacher_step_timeout: 360.0
+rwkv_teacher_save_on_failure: true
 rwkv_teacher_model: Qwen3.8-27B
 rwkv_teacher_pool: true
 rwkv_teacher_pool_host: 127.0.0.1
@@ -117,7 +120,7 @@ rwkv_teacher_pool_workers: 4
 rwkv_teacher_prefetch_lookahead: 4
 rwkv_teacher_prefetch_min_workers: 2
 rwkv_teacher_prefetch_workers: 4
-rwkv_teacher_retry_backoff_initial: 1.0
+rwkv_teacher_retry_backoff_initial: 5.0
 rwkv_teacher_retry_backoff_max: 30.0
 rwkv_teacher_retry_jitter: 0.2
 rwkv_teacher_seed: 1234

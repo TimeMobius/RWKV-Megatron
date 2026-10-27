@@ -26,6 +26,7 @@ from rwkv_megatron.arguments import add_rwkv_arguments
 from rwkv_megatron.distill_metrics import StudentPerplexityCallback
 from rwkv_megatron.online_teacher import TeacherSampleError, TeacherTopK
 from rwkv_megatron.teacher_replacement import TeacherValidatedDataset
+from rwkv_megatron.teacher_safety import TeacherDataUnavailable, TeacherFailureCheckpoint
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "training-smoke/audit"))
@@ -202,6 +203,16 @@ class FixtureTeacher:
     prompt_mode = "text"
 
     def get_logits(self, tokens, **kwargs):
+        if os.environ.get("RWKV_TEACHER_OUTAGE_EVAL") == "1" and not torch.is_grad_enabled():
+            raise TimeoutError("injected teacher outage during validation before forward")
+        if os.environ.get("RWKV_TEACHER_OUTAGE_STEP"):
+            from megatron.training import get_args
+
+            threshold = int(os.environ["RWKV_TEACHER_OUTAGE_STEP"])
+            failed_dp = int(os.environ.get("RWKV_TEACHER_OUTAGE_DP", "0"))
+            if (get_args().curr_iteration + 1 >= threshold
+                    and ps.get_data_parallel_rank() == failed_dp):
+                raise TimeoutError("injected persistent teacher outage before forward")
         if os.environ.get("RWKV_REPLACEMENT_DIR") and (tokens[:, 0] % 7 == 0).any():
             raise TeacherSampleError("injected sample token alignment mismatch")
         if os.environ.get("RWKV_CP_FAIL") == "1":
@@ -273,6 +284,8 @@ def audited_batch(*args, **kwargs):
 
 
 def audited_forward(iterator, model):
+    if active is not None:
+        active['forward_calls'] += 1
     output, loss = original_forward(iterator, model)
     if active is not None and ps.is_pipeline_last_stage():
         logits = output[0].detach()
@@ -308,7 +321,7 @@ def audited_step(forward_step_func, data_iterator, model, optimizer, *args, **kw
             optimizer.state_dict(),
             OUT / f"loaded-optimizer-rank{torch.distributed.get_rank()}.pt",
         )
-    active = dict(step=step, samples=[], logits={}, teacher_requests=0)
+    active = dict(step=step, samples=[], logits={}, teacher_requests=0, forward_calls=0)
     torch.cuda.reset_peak_memory_stats()
     real_optimizer_step = optimizer.step
 
@@ -347,6 +360,10 @@ def audited_step(forward_step_func, data_iterator, model, optimizer, *args, **kw
         )
         torch.save(active, OUT / f"step{step}-rank{torch.distributed.get_rank()}.pt")
         return result
+    except TeacherDataUnavailable:
+        (OUT / f"failure-rank{torch.distributed.get_rank()}.json").write_text(
+            json.dumps(dict(step=step, forward_calls=active['forward_calls'])) + '\n')
+        raise
     finally:
         optimizer.step = real_optimizer_step
         active = None
@@ -362,6 +379,13 @@ if __name__ == "__main__":
     ):
         args = parse_and_validate_args(extra_args_provider=add_rwkv_arguments)
         initialize_runtime_services(args)
+        safety = os.environ.get("RWKV_TEACHER_SAFETY") == "1"
+        if safety:
+            audited_forward.prepare_data = pretrain.prepare_teacher_step
+            failure_checkpoint = TeacherFailureCheckpoint()
+        else:
+            # Keep the existing numerical oracle independent of data staging.
+            del pretrain.forward_step.prepare_data
         if os.environ.get("RWKV_DP_FP32") == "1":
             original_init = pretrain.RWKV7Model.__init__
 
@@ -376,11 +400,15 @@ if __name__ == "__main__":
                 dataset.close() for dataset in pretrain._teacher_replacement_datasets
             ]
         )
-        pretrain.pretrain(
-            pretrain_cfg_container_from_args(args),
-            datasets,
-            ModelType.encoder_or_decoder,
-            pretrain.forward_step,
-            model_provider=pretrain.model_provider,
-            callbacks=[StudentPerplexityCallback()],
-        )
+        try:
+            pretrain.pretrain(
+                pretrain_cfg_container_from_args(args),
+                datasets,
+                ModelType.encoder_or_decoder,
+                audited_forward if safety else pretrain.forward_step,
+                model_provider=pretrain.model_provider,
+                callbacks=[StudentPerplexityCallback()] + ([failure_checkpoint] if safety else []),
+            )
+        except TeacherDataUnavailable as error:
+            failure_checkpoint.save(error)
+            raise SystemExit(75) from error

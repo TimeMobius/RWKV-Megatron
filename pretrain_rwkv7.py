@@ -342,7 +342,8 @@ def get_batch(data_iterator, teacher_prefetch=False):
 
     # get batches based on the TP rank you are on
     args = get_args()
-    if (teacher_prefetch and not getattr(args, "rwkv_teacher_replace_bad_samples", False)
+    if (teacher_prefetch and not getattr(getattr(data_iterator, "iterable", None), "teacher_prepared", False)
+            and not getattr(args, "rwkv_teacher_replace_bad_samples", False)
             and mpu.get_tensor_model_parallel_rank() == 0
             and mpu.get_context_parallel_rank() == 0):
         from megatron.core.rerun_state_machine import RerunMode, get_rerun_state_machine
@@ -683,7 +684,7 @@ def forward_step(data_iterator, model: GPTModel):
                      'memory/max_allocated_mib': torch.cuda.max_memory_allocated() / 2**20,
                      'memory/reserved_mib': torch.cuda.memory_reserved() / 2**20}
         stats = (data_iterator.iterable.get_stats()
-                 if isinstance(getattr(data_iterator, "iterable", None), TeacherPrefetchIterator) else {})
+                 if hasattr(getattr(data_iterator, "iterable", None), "get_stats") else {})
         if _teacher_replacement_datasets:
             if all(hasattr(dataset, "stats") for dataset in _teacher_replacement_datasets):
                 stream_stats = [dataset.stats() for dataset in _teacher_replacement_datasets]
@@ -723,6 +724,16 @@ def forward_step(data_iterator, model: GPTModel):
         output_tensor = model(tokens, position_ids, attention_mask, labels=labels)
 
     return output_tensor, partial(loss_func, loss_mask)
+
+def prepare_teacher_step(data_iterator, num_microbatches, training):
+    from rwkv_megatron.teacher_safety import prepare_teacher_step as prepare
+
+    prepare(data_iterator, num_microbatches, training,
+            lambda: _get_online_teacher(get_args()), _teacher_prefetchers)
+
+
+forward_step.prepare_data = prepare_teacher_step
+
 
 # 只在pp的第一个和最后一个stage上构建数据集（并且也要是tp的第一个rank）
 def is_dataset_built_on_rank():
@@ -1072,12 +1083,15 @@ if __name__ == "__main__":
         from rwkv_megatron.arguments import add_rwkv_arguments
         from rwkv_megatron.checkpoint_retention import make_retention_callback
         from rwkv_megatron.distill_metrics import StudentPerplexityCallback
+        from rwkv_megatron.teacher_safety import TeacherDataUnavailable, TeacherFailureCheckpoint, validate_teacher_safety
 
         args = parse_and_validate_args(extra_args_provider=add_rwkv_arguments)
         initialize_runtime_services(args)
+        validate_teacher_safety(args)
         get_train_iters()
         full_config = pretrain_cfg_container_from_args(args)
         retention = make_retention_callback(args)
+        teacher_failure = TeacherFailureCheckpoint()
         try:
             pretrain(
                 full_config,
@@ -1085,8 +1099,11 @@ if __name__ == "__main__":
                 ModelType.encoder_or_decoder,
                 forward_step,
                 model_provider=model_provider,
-                callbacks=[StudentPerplexityCallback(), retention],
+                callbacks=[StudentPerplexityCallback(), retention, teacher_failure],
             )
+        except TeacherDataUnavailable as error:
+            teacher_failure.save(error)
+            raise SystemExit(75) from error
         finally:
             # Covers the final checkpoint saved by pretrain after train_end.
             try:

@@ -374,6 +374,9 @@ class RemoteTeacherPoolClient:
             raise ValueError("teacher pool expects matching [batch, sequence] tensors")
         request_id = uuid.uuid4().hex
         deadline = time.monotonic() + self.timeout
+        step_deadline = getattr(self._thread_local, "deadline", None)
+        if step_deadline is not None:
+            deadline = min(deadline, step_deadline)
         accepted = False
         try:
             while not accepted:
@@ -431,6 +434,9 @@ class RemoteTeacherPoolClient:
         from rwkv_megatron.teacher_sample_stream import unpack_sample
 
         deadline = time.monotonic() + self.timeout
+        step_deadline = getattr(self._thread_local, "deadline", None)
+        if step_deadline is not None:
+            deadline = min(deadline, step_deadline)
         while True:
             remaining = deadline - time.monotonic()
             if remaining <= 0:

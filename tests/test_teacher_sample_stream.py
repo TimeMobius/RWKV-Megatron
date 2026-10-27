@@ -12,7 +12,7 @@ import pytest
 import torch
 
 from rwkv_megatron.jsonl_dataset import JsonlTextDataset
-from rwkv_megatron.online_teacher import TeacherSampleError, TeacherTopK
+from rwkv_megatron.online_teacher import TeacherSampleError, TeacherTopK, teacher_request_deadline
 from rwkv_megatron.teacher_pool import (
     RemoteTeacherPoolClient, TeacherPool, _LocalPoolRequestClient, make_pool_server,
 )
@@ -263,5 +263,27 @@ def test_validation_stream_does_not_compete_for_training_requests_until_consumed
         assert entered.is_set()
         wait_for(lambda: reader.stats()['ready'] == 3)
     finally:
+        reader.close()
+        pool.close()
+
+
+def test_step_deadline_bounds_a_pending_validated_sample(tmp_path):
+    release = threading.Event()
+
+    class Blocking(Teacher):
+        def get_logits(self, *args, **kwargs):
+            assert release.wait(10)
+            return super().get_logits(*args, **kwargs)
+
+    pool = TeacherPool(Blocking(), workers=1)
+    client = _LocalPoolRequestClient(pool)
+    reader = dataset(tmp_path, client, lookahead=1, prompts=['aa'], count=1)
+    try:
+        with teacher_request_deadline(client, time.monotonic() + 0.02):
+            with pytest.raises(TimeoutError, match='validated-sample queue timed out'):
+                reader[0]
+        assert client._thread_local.deadline is None
+    finally:
+        release.set()
         reader.close()
         pool.close()

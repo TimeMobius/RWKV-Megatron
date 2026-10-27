@@ -16,6 +16,7 @@ from rwkv_megatron.online_teacher import (
     TeacherPrefetchIterator,
     TeacherTopK,
     kl_divergence_topk,
+    teacher_request_deadline,
 )
 from rwkv_megatron.teacher_pool import (
     RemoteTeacherPoolClient,
@@ -213,6 +214,15 @@ def test_remote_timeout_cancels_result_without_an_upstream_fallback(pool_port):
     assert client.get_stats()["pool_cancelled"] == before + 1
     wait_for(lambda: client.get_stats()["pool_active"] == 0)
     assert client.get_stats()["pool_retained"] == 0
+
+
+def test_step_deadline_caps_the_longer_pool_timeout(pool_port):
+    client = remote(pool_port, timeout=30)
+    with teacher_request_deadline(client, time.monotonic() + 0.1):
+        with pytest.raises(TimeoutError, match="result timed out"):
+            client.get_logits(torch.tensor([[1, 2, 3]]), prompts=["slow"])
+    assert client._thread_local.deadline is None
+    wait_for(lambda: client.get_stats()["pool_active"] == 0)
 
 
 def test_remote_backpressure_waits_until_an_unread_result_is_consumed(pool_port):

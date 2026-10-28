@@ -14,7 +14,11 @@ from compare_dp_distill_resume import exact
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "training-smoke/distill-remaining-20261026"
+REFERENCE = ROOT / "training-smoke/dp2-distill-20261023/dense-bf16"
+SEQUENCE_LENGTH = 128
+TEACHER_SAFETY = False
 CASES = {
+    "dense": (1, 1, 1, False, 1, False),
     "cp2": (1, 1, 1, False, 2, False),
     "dp2-cp2": (2, 1, 1, False, 2, False),
     "tp2-cp2": (1, 2, 1, False, 2, False),
@@ -22,6 +26,13 @@ CASES = {
     "pp2-cp2": (1, 1, 2, False, 2, False),
     "tp2-sp-pp2-cp2": (1, 2, 2, True, 2, False),
     "tp2-sp-pp2-cp2-recompute": (1, 2, 2, True, 2, True),
+    "cp4": (1, 1, 1, False, 4, False),
+    "dp2-cp4": (2, 1, 1, False, 4, False),
+    "tp2-cp4": (1, 2, 1, False, 4, False),
+    "tp2-sp-cp4": (1, 2, 1, True, 4, False),
+    "pp2-cp4": (1, 1, 2, False, 4, False),
+    "tp2-sp-cp4-recompute": (1, 2, 1, True, 4, True),
+    "cp8": (1, 1, 1, False, 8, False),
 }
 
 
@@ -49,6 +60,8 @@ def run(name, resume):
         save=str(folder / "checkpoints"),
         load=None,
         train_iters=3,
+        seq_length=SEQUENCE_LENGTH,
+        distributed_timeout_minutes=10,
         eval_iters=1,
         eval_interval=3,
         wandb_project=None,
@@ -83,6 +96,7 @@ def run(name, resume):
                 RWKV_DP_AUDIT_DIR=str(folder),
                 RWKV_DP_OPTIMIZER_AUDIT="1",
                 RWKV_DP_FP32="0",
+                RWKV_TEACHER_SAFETY=str(int(TEACHER_SAFETY)),
             ),
             stdout=log,
             stderr=subprocess.STDOUT,
@@ -104,8 +118,7 @@ def check(name):
     def reference(step):
         return [
             torch.load(
-                ROOT
-                / f"training-smoke/dp2-distill-20261023/dense-bf16/step{step}-rank0.pt",
+                REFERENCE / f"step{step}-rank0.pt",
                 weights_only=False,
             )
         ]
@@ -135,6 +148,11 @@ def check(name):
                     dict(tensors=0, elements=0),
                 )
     rows = [r for r in records(name, 1) if r["cp"] == 0]
+    initial = canonical(rows, "before", tp, pp)
+    expected_initial = canonical(reference(1), "before", 1, 1)
+    assert initial.keys() == expected_initial.keys()
+    assert all(torch.equal(value, expected_initial[key]) for key, value in initial.items()), (
+        name, "Initial model weights differ from the CP1 reference")
     grad = canonical(rows, "grads", tp, pp)
     expected = canonical(reference(1), "grads", 1, 1)
     metrics = {k: metric(v, expected[k]) for k, v in grad.items()}
@@ -180,15 +198,36 @@ def check(name):
         cp_dp_replicas_bit_identical=True,
         full_context_teacher_once=True,
         samples_disjoint_and_complete=True,
+        sequence_length=SEQUENCE_LENGTH,
+        teacher_prepared_before_forward=TEACHER_SAFETY,
+        initial_weights_bit_identical=True,
         exact_resume_counts=counts,
     )
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--cases", nargs="+", choices=list(CASES), default=list(CASES))
+    parser.add_argument("--cases", nargs="+", choices=list(CASES),
+                        default=[name for name in CASES if name != "dense" and "cp4" not in name and name != "cp8"])
     parser.add_argument("--check-only", action="store_true")
+    parser.add_argument("--output-dir", type=Path, default=OUT)
+    parser.add_argument("--seq-length", type=int, default=128)
+    parser.add_argument("--teacher-safety", action="store_true")
+    parser.add_argument("--generate-reference", action="store_true",
+                        help="Run a fresh CP1 baseline in output-dir/dense before the matrix")
     args = parser.parse_args()
+    OUT = args.output_dir.resolve()
+    OUT.mkdir(parents=True, exist_ok=True)
+    SEQUENCE_LENGTH = args.seq_length
+    TEACHER_SAFETY = args.teacher_safety
+    for name in args.cases:
+        cp = CASES[name][4]
+        if SEQUENCE_LENGTH < 1 or (cp > 1 and SEQUENCE_LENGTH % (64 * cp)):
+            parser.error(f"{name} requires --seq-length divisible by {64 * cp}")
+    if args.generate_reference:
+        REFERENCE = OUT / "dense"
+        if not args.check_only:
+            run("dense", False)
     path = OUT / "context.json"
     report = json.loads(path.read_text()) if path.exists() else {}
     for name in args.cases:

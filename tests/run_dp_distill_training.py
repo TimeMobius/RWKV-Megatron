@@ -131,14 +131,17 @@ class FixtureDataset(Dataset):
         return self.count
 
     def __getitem__(self, idx):
+        from megatron.training import get_args
+
+        length = get_args().seq_length
         generator = torch.Generator().manual_seed(20261023 + self.split * 100000 + idx)
-        tokens = torch.randint(1, 119, (129,), generator=generator)
-        mask = (torch.arange(128) < 128 - (idx % 5) * 9).float()
+        tokens = torch.randint(1, 119, (length + 1,), generator=generator)
+        mask = (torch.arange(length) < length - (idx % 5) * 9).float()
         return dict(
             tokens=tokens[:-1],
             labels=tokens[1:].masked_fill(~mask.bool(), -100),
             loss_mask=mask,
-            position_ids=torch.arange(128),
+            position_ids=torch.arange(length),
             **(
                 {"raw_prompts": "fixture"}
                 if os.environ.get("RWKV_REPLACEMENT_DIR")
@@ -217,9 +220,11 @@ class FixtureTeacher:
             raise TeacherSampleError("injected sample token alignment mismatch")
         if os.environ.get("RWKV_CP_FAIL") == "1":
             raise TimeoutError("injected CP source teacher failure")
-        if ps.get_context_parallel_world_size() > 1 and tokens.is_cuda:
+        if ps.get_context_parallel_world_size() > 1:
+            from megatron.training import get_args
+
             assert ps.get_context_parallel_rank() == 0
-            assert tokens.shape[1] == 128, "Teacher must receive full context"
+            assert tokens.shape[1] == get_args().seq_length, "Teacher must receive full context"
         if active is not None:
             active["teacher_requests"] += 1
         if os.environ.get("RWKV_DP_FAIL") == "1" and ps.get_data_parallel_rank() == 1:

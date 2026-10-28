@@ -118,6 +118,10 @@ def run_worker(rank, tp, cp, order, store):
         pytest.param(2, 2, "tp-cp-ep-dp-pp", id="TP2-CP2"),
         pytest.param(2, 2, "cp-tp-ep-dp-pp", id="CP2-before-TP2"),
         pytest.param(4, 2, "tp-cp-ep-dp-pp", id="TP4-CP2"),
+        pytest.param(1, 4, "tp-cp-ep-dp-pp", id="TP1-CP4"),
+        pytest.param(2, 4, "tp-cp-ep-dp-pp", id="TP2-CP4"),
+        pytest.param(2, 4, "cp-tp-ep-dp-pp", id="CP4-before-TP2"),
+        pytest.param(1, 8, "tp-cp-ep-dp-pp", id="TP1-CP8"),
     ],
 )
 def test_tp_cp_shift_matches_global_values_and_gradients(tp, cp, order, tmp_path):

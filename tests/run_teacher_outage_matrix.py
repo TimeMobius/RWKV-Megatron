@@ -14,25 +14,30 @@ from compare_dp_distill_resume import exact
 
 ROOT = Path(__file__).resolve().parents[1]
 CASES = {'dense': (1, 1, 1, 1, False), 'combined': (2, 2, 2, 1, True),
-         'cp-combined': (1, 2, 2, 2, True)}
+         'cp-combined': (1, 2, 2, 2, True), 'cp4-sp': (1, 2, 1, 4, True)}
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--config', type=Path, default=ROOT/'training-smoke/dp2-distill-20261023/dense-bf16.yaml')
-    parser.add_argument('--cases', nargs='+', choices=CASES, default=list(CASES))
+    parser.add_argument('--cases', nargs='+', choices=CASES,
+                        default=['dense', 'combined', 'cp-combined'])
+    parser.add_argument('--seq-length', type=int, default=128)
     options = parser.parse_args()
     output = options.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     report = {}
     for name in options.cases:
         dp, tp, pp, cp, sp = CASES[name]
+        if options.seq_length < 1 or (cp > 1 and options.seq_length % (64 * cp)):
+            parser.error(f'{name} requires --seq-length divisible by {64 * cp}')
         base = yaml.safe_load(options.config.read_text())
         base['model_parallel'].update(tensor_model_parallel_size=tp,
                                       pipeline_model_parallel_size=pp,
                                       context_parallel_size=cp, sequence_parallel=sp)
         base.update(deterministic_mode=True, load=None, train_iters=3,
+                    seq_length=options.seq_length,
                     save_interval=250, eval_iters=0, rwkv_teacher_step_timeout=15,
                     rwkv_teacher_async_prefetch=False, wandb_project=None)
 

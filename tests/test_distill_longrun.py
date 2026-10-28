@@ -90,7 +90,8 @@ def test_pool_audit_rejects_nonfinite_failure_counters(tmp_path):
 @pytest.mark.parametrize('capacity', [False, True])
 @pytest.mark.parametrize('quality_exit', [0, 1])
 @pytest.mark.parametrize('continuous', [False, True])
-def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_failure(tmp_path, monkeypatch, quality_exit, continuous, capacity):
+@pytest.mark.parametrize('cp', [1, 2])
+def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_failure(tmp_path, monkeypatch, quality_exit, continuous, capacity, cp):
     import json
     from pathlib import Path
     from types import SimpleNamespace
@@ -118,13 +119,18 @@ def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_fai
                 report.write_text('{}')
             else:
                 config = yaml.safe_load(Path(command[-1]).read_text())
+                assert config['model_parallel']['context_parallel_size'] == cp
+                assert config['model_parallel']['data_parallel_size'] == 2 // cp
+                assert (config['model_parallel']['tensor_model_parallel_size']
+                        * config['model_parallel']['pipeline_model_parallel_size']
+                        * cp * config['model_parallel']['data_parallel_size']) == 8
                 assert config['seq_length'] == (4096 if capacity else 1024)
                 assert config['micro_batch_size'] == config['eval_micro_batch_size'] == (2 if capacity else 1)
                 if capacity:
                     assert config['language_model']['recompute_granularity'] is None
                 if continuous:
                     assert config['exit_duration_in_mins'] == 720
-                    assert config['exit_interval'] is None and config['save_interval'] == 250
+                    assert config['exit_interval'] is None and config['save_interval'] == (1000 if cp == 2 else 250)
                     assert config['rwkv_teacher_prefetch_lookahead'] == 32
                     assert config['rwkv_teacher_pool_workers'] == (4 if capacity else 8)
                     assert config['rwkv_teacher_prefetch_min_workers'] == (2 if capacity else 4)
@@ -145,6 +151,7 @@ def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_fai
             return self.wait()
     monkeypatch.setattr(runner, 'ROOT', root)
     monkeypatch.setattr(runner.sys, 'argv', ['run', '--output', str(output)] +
+                        (['--context-parallel-size', '2', '--save-interval', '1000'] if cp == 2 else []) +
                         (['--continuous-minutes', '720'] if continuous else ['--smoke']) +
                         (['--seq-length', '4096', '--micro-batch-size', '2', '--no-recompute',
                           '--teacher-pool-workers', '4'] if capacity else []))
@@ -167,6 +174,7 @@ def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_fai
     assert state['state'] == ('failed' if quality_exit else 'completed')
     assert len(state['phases']) == (1 if continuous else 2)
     assert state['planned_restart'] is (not continuous)
+    assert state['layout'] == dict(dp=2 // cp, tp=2, pp=2, cp=cp, sp=True)
     assert state['fixed_validation_sha256'] == 'fixed-before-training'
     if not quality_exit:
         assert state['checkpoint_quality']['wandb_url'] == 'quality-url'

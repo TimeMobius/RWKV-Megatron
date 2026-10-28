@@ -104,6 +104,9 @@ def main():
     parser.add_argument('--micro-batch-size', type=int, default=1)
     parser.add_argument('--global-batch-size', type=int, default=8)
     parser.add_argument('--teacher-pool-workers', type=int, default=8)
+    parser.add_argument('--context-parallel-size', type=int, choices=(1, 2), default=1,
+                        help='Use DP2 with CP1, or DP1 with CP2, keeping TP2 x PP2 on eight GPUs')
+    parser.add_argument('--save-interval', type=int, default=250)
     parser.add_argument('--no-recompute', action='store_true',
                         help='Keep activations when measured GPU capacity permits')
     parser.add_argument('--continuous-minutes', type=int,
@@ -112,11 +115,13 @@ def main():
         "--smoke", action="store_true", help="Exit at step2, resume and finish step3"
     )
     args = parser.parse_args()
+    dp = 2 // args.context_parallel_size
     if (args.seq_length < 2 or args.micro_batch_size < 1 or args.teacher_pool_workers < 1
-            or args.global_batch_size < 1
-            or args.global_batch_size % (2 * args.micro_batch_size)
-            or args.seq_length % 2):
-        parser.error('sequence must divide TP2; global batch must divide DP2 times micro batch')
+            or args.global_batch_size < 1 or args.save_interval < 1
+            or args.global_batch_size % (dp * args.micro_batch_size)
+            or args.seq_length % (2 * args.context_parallel_size)
+            or (args.context_parallel_size > 1 and args.seq_length % (64 * args.context_parallel_size))):
+        parser.error('sequence must divide TP2 x CP and 64 x CP with CP; global batch must divide DP times micro batch; save interval must be positive')
     if args.phase_minutes < 1:
         parser.error("phase-minutes must be positive")
     if args.continuous_minutes is not None and (args.continuous_minutes < 1 or args.smoke):
@@ -133,6 +138,7 @@ def main():
         state="preparing",
         continuous_minutes=args.continuous_minutes,
         planned_restart=args.continuous_minutes is None,
+        layout=dict(dp=dp, tp=2, pp=2, cp=args.context_parallel_size, sp=True),
         commit=subprocess.check_output(
             ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
         ).strip(),
@@ -156,10 +162,10 @@ def main():
         (ROOT / "configs/config-qwen-2p7b-distill-tp2-sp-pp2-smoke.yaml").read_text()
     )
     cfg["model_parallel"].update(
-        data_parallel_size=2,
+        data_parallel_size=dp,
         tensor_model_parallel_size=2,
         pipeline_model_parallel_size=2,
-        context_parallel_size=1,
+        context_parallel_size=args.context_parallel_size,
         sequence_parallel=True,
     )
     cfg.update(
@@ -175,7 +181,7 @@ def main():
         eval_iters=2,
         eval_interval=3 if args.smoke else 250,
         save=str(checkpoints),
-        save_interval=2 if args.smoke else 250,
+        save_interval=2 if args.smoke else args.save_interval,
         rwkv_checkpoint_keep_last=2,
         load=None,
         exit_interval=2 if args.smoke else None,

@@ -244,6 +244,16 @@ def test_recovery_window_caps_server_retry_after(monkeypatch):
     assert session.calls == 1
 
 
+def test_exhausted_window_preserves_last_http_status(monkeypatch):
+    _RecoveryClock(monkeypatch)
+    client = OnlineTeacherClient('http://teacher', 'Qwen', '/unused', top_k=1,
+                                retry_window=10, retry_jitter=0)
+    client._get_session = lambda: _SequenceSession([
+        _StatusResponse(503, headers={'Retry-After': '9999'})])
+    with pytest.raises(TimeoutError, match='deadline exhausted; last error: .*HTTP 503'):
+        client._request_prompt_logprobs('hello', 2)
+
+
 def test_identical_batch_is_served_from_thread_safe_cache(monkeypatch):
     client = OnlineTeacherClient("http://teacher", "Qwen3.8-27B", "/unused", top_k=1, cache_size=2)
     class Tokenizer:

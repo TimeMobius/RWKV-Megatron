@@ -73,6 +73,9 @@ def test_train_exit_status_and_pool_cleanup(programs, code):
     assert result == code
     assert not is_alive(int(pool_pid.read_text()))
     assert not is_alive(int(train_pid.read_text()))
+    logs = list(folder.glob('teacher-pool-*.log'))
+    assert len(logs) == 1
+    assert 'teacher_pool_ready' in logs[0].read_text()
 
 
 @pytest.mark.parametrize(

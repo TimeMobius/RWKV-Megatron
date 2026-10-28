@@ -106,6 +106,13 @@ def main():
                         help='Use a tested model and parallel layout instead of the default 2.7B layout')
     parser.add_argument('--local-teacher', action='store_true',
                         help='Use synthetic top100 targets for local stability testing; no online teacher quality claim')
+    parser.add_argument('--resume-from', type=Path,
+                        help='Resume model, optimizer, RNG and data cursor from a complete checkpoint root')
+    parser.add_argument('--sample-records', type=Path,
+                        help='Reuse the sample selection journal when resuming')
+    parser.add_argument('--teacher-retry-window', type=float, default=300.0)
+    parser.add_argument('--teacher-step-timeout', type=float, default=360.0)
+    parser.add_argument('--teacher-http-timeout', type=float, default=600.0)
     parser.add_argument("--phase-minutes", type=int, default=360)
     parser.add_argument('--seq-length', type=int, default=1024)
     parser.add_argument('--micro-batch-size', type=int, default=1)
@@ -142,6 +149,17 @@ def main():
         parser.error("phase-minutes must be positive")
     if args.continuous_minutes is not None and (args.continuous_minutes < 1 or args.smoke):
         parser.error('continuous-minutes must be positive and cannot be combined with smoke')
+    if args.resume_from and (args.smoke or args.continuous_minutes is None):
+        parser.error('--resume-from requires continuous mode without --smoke')
+    if (any(not math.isfinite(v) or v <= 0 for v in
+            (args.teacher_retry_window, args.teacher_step_timeout, args.teacher_http_timeout))
+            or args.teacher_step_timeout <= args.teacher_retry_window):
+        parser.error('teacher timeouts must be positive and step timeout must exceed retry window')
+    collective_timeout = (cfg.get('distributed_timeout_seconds_after_init')
+                          or cfg.get('distributed_timeout_minutes', 30) * 60)
+    if args.teacher_step_timeout + 60 >= collective_timeout:
+        parser.error('distributed timeout must exceed teacher step timeout by over 60 seconds')
+    resume_iteration = checkpoint_iteration(args.resume_from.resolve(), tp, pp) if args.resume_from else 0
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
     checkpoints = output / "checkpoints"
@@ -154,6 +172,8 @@ def main():
         state="preparing",
         continuous_minutes=args.continuous_minutes,
         planned_restart=args.continuous_minutes is None,
+        resume_from=str(args.resume_from.resolve()) if args.resume_from else None,
+        resume_iteration=resume_iteration,
         layout=dict(dp=dp, tp=tp, pp=pp, cp=cp,
                     sp=cfg.get('model_parallel', {}).get('sequence_parallel', True)),
         source_config=str(args.rwkv_config.resolve()) if args.rwkv_config else None,
@@ -200,17 +220,18 @@ def main():
         save=str(checkpoints),
         save_interval=2 if args.smoke else args.save_interval,
         rwkv_checkpoint_keep_last=args.keep_checkpoints,
-        load=None,
+        load=str(args.resume_from.resolve()) if args.resume_from else None,
         exit_interval=2 if args.smoke else None,
         exit_duration_in_mins=None if args.smoke else (args.continuous_minutes or args.phase_minutes),
         rwkv_teacher_pool=True,
         # This endpoint uses Qwen2Tokenizer's slow pretokenization regex.
         rwkv_teacher_tokenizer_use_fast=False,
         rwkv_teacher_replace_bad_samples=True,
-        rwkv_teacher_sample_records=str(output / "sample-selection"),
+        rwkv_teacher_sample_records=str(args.sample_records.resolve() if args.sample_records else output / "sample-selection"),
         rwkv_teacher_async_prefetch=True,
-        rwkv_teacher_retry_window=300.0,
-        rwkv_teacher_step_timeout=360.0,
+        rwkv_teacher_retry_window=args.teacher_retry_window,
+        rwkv_teacher_step_timeout=args.teacher_step_timeout,
+        rwkv_teacher_timeout=args.teacher_http_timeout,
         rwkv_teacher_save_on_failure=True,
         rwkv_teacher_retry_backoff_initial=5.0,
         rwkv_teacher_retry_backoff_max=30.0,
@@ -260,7 +281,7 @@ def main():
                 previous = checkpoint_iteration(checkpoints, tp, pp)
                 cfg.update(load=str(checkpoints), exit_interval=None)
             else:
-                previous = 0
+                previous = resume_iteration
             runid = uuid.uuid4().hex[:8]
             phase_name = f"phase{phase}"
             cfg.update(

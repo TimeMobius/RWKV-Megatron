@@ -12,7 +12,6 @@ import signal
 import socket
 import subprocess
 import sys
-import tempfile
 import time
 from pathlib import Path
 
@@ -249,34 +248,34 @@ def launch(
     for signum in (signal.SIGINT, signal.SIGTERM):
         old_handlers[signum] = signal.signal(signum, interrupt)
     try:
-        # Separate reader/writer handles avoid shared seek offsets between the
-        # subprocess and the parent. Keep the log to report startup failures.
-        with tempfile.TemporaryDirectory(prefix="rwkv-pool-") as folder:
-            log_path = Path(folder) / "pool.log"
-            with log_path.open("w") as writer, log_path.open("r") as reader:
-                pool = subprocess.Popen(
-                    pool_command,
-                    cwd=ROOT,
-                    stdout=writer,
-                    stderr=subprocess.STDOUT,
-                    start_new_session=True,
-                )
-                try:
-                    wait_for_pool(pool, reader, startup_timeout)
-                except Exception:
+        # Keep upstream retry diagnostics after launcher shutdown. Each launch
+        # gets its own log; reader/writer handles must not share seek offsets.
+        log_path = config.parent / f"teacher-pool-{os.getpid()}.log"
+        print(f"teacher pool log: {log_path}", flush=True)
+        with log_path.open("w") as writer, log_path.open("r") as reader:
+            pool = subprocess.Popen(
+                pool_command,
+                cwd=ROOT,
+                stdout=writer,
+                stderr=subprocess.STDOUT,
+                start_new_session=True,
+            )
+            try:
+                wait_for_pool(pool, reader, startup_timeout)
+            except Exception:
+                print(log_path.read_text(), file=sys.stderr, flush=True)
+                raise
+            train = subprocess.Popen(
+                train_command, cwd=ROOT, start_new_session=True
+            )
+            while train.poll() is None:
+                if pool.poll() is not None:
                     print(log_path.read_text(), file=sys.stderr, flush=True)
-                    raise
-                train = subprocess.Popen(
-                    train_command, cwd=ROOT, start_new_session=True
-                )
-                while train.poll() is None:
-                    if pool.poll() is not None:
-                        print(log_path.read_text(), file=sys.stderr, flush=True)
-                        raise RuntimeError(
-                            f"teacher pool exited during training (code {pool.returncode})"
-                        )
-                    time.sleep(0.1)
-                return train.returncode
+                    raise RuntimeError(
+                        f"teacher pool exited during training (code {pool.returncode})"
+                    )
+                time.sleep(0.1)
+            return train.returncode
     except Interrupted as error:
         return 128 + error.signum
     finally:

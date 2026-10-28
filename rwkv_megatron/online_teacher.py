@@ -533,7 +533,12 @@ class OnlineTeacherClient:
             if remaining is not None and remaining <= 0:
                 with self._stats_lock:
                     self._stats["failures"] += 1
-                raise TimeoutError("Teacher request retry window/deadline exhausted") from last_error
+                detail = ""
+                if last_error is not None:
+                    detail = f"; last error: {type(last_error).__name__}"
+                    if isinstance(last_error, _RetryableTeacherError):
+                        detail += f" HTTP {last_error.status}"
+                raise TimeoutError("Teacher request retry window/deadline exhausted" + detail) from last_error
             with self._calls_lock:
                 self._calls += 1
             try:
@@ -607,7 +612,8 @@ class OnlineTeacherClient:
                     )
                 logging.getLogger(__name__).warning(
                     "Teacher temporarily unavailable (%s); retry %s in %.1fs%s",
-                    type(error).__name__, retries, delay,
+                    (f"HTTP {error.status}" if isinstance(error, _RetryableTeacherError)
+                     else type(error).__name__), retries, delay,
                     " (bounded recovery window)" if self.retry_window else "",
                 )
                 last_error = error

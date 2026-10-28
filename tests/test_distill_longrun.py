@@ -195,7 +195,8 @@ def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_fai
 
 
 @pytest.mark.parametrize('local_teacher', [False, True])
-def test_28b_longrun_preserves_uneven_pp4_no_offload_and_evaluates_all_shards(tmp_path, monkeypatch, local_teacher):
+@pytest.mark.parametrize('resume', [False, True])
+def test_28b_longrun_preserves_uneven_pp4_no_offload_and_evaluates_all_shards(tmp_path, monkeypatch, local_teacher, resume):
     import json
     from pathlib import Path
     from types import SimpleNamespace
@@ -209,6 +210,17 @@ def test_28b_longrun_preserves_uneven_pp4_no_offload_and_evaluates_all_shards(tm
     config = Path(__file__).resolve().parents[1] / 'configs/config-qwen-28b-distill-tp2-sp-pp4-balanced-smoke.yaml'
     output = tmp_path / '28b'
     commands = []
+    source = tmp_path / 'emergency'
+    journal = tmp_path / 'sample-journal'
+    if resume:
+        source.mkdir()
+        (source / 'latest_checkpointed_iteration.txt').write_text('30')
+        for tp in range(2):
+            for pp in range(4):
+                directory = source / 'iter_0000030' / f'mp_rank_{tp:02d}_{pp:03d}'
+                directory.mkdir(parents=True)
+                (directory / 'model_optim_rng.pt').write_bytes(b'saved')
+    final = 31 if resume else 2
 
     class Process:
         pid = 999999
@@ -216,7 +228,7 @@ def test_28b_longrun_preserves_uneven_pp4_no_offload_and_evaluates_all_shards(tm
         def __init__(self, command, **kwargs):
             commands.append(command)
             if '--manifest' in command:
-                assert command[command.index('--checkpoint') + 1].endswith('iter_0000002')
+                assert command[command.index('--checkpoint') + 1].endswith(f'iter_{final:07d}')
                 Path(command[command.index('--output') + 1]).write_text('{}')
                 return
             cfg = yaml.safe_load(Path(command[-1]).read_text())
@@ -234,15 +246,23 @@ def test_28b_longrun_preserves_uneven_pp4_no_offload_and_evaluates_all_shards(tm
             assert cfg['seq_length'] == 4096 and cfg['exit_duration_in_mins'] == 720
             assert cfg['save_interval'] == 5000 and cfg['rwkv_checkpoint_keep_last'] == 1
             assert cfg['wandb_project'] == 'rwkv-qwen-distill-28b'
+            if resume:
+                assert cfg['load'] == str(source)
+                assert cfg['no_load_optim'] is False and cfg['no_load_rng'] is False
+                assert cfg['rwkv_teacher_sample_records'] == str(journal)
+                assert cfg['rwkv_teacher_retry_window'] == 900
+                assert cfg['rwkv_teacher_step_timeout'] == 1020
+                assert cfg['rwkv_teacher_timeout'] == 60
             checkpoints = Path(cfg['save'])
             checkpoints.mkdir()
-            (checkpoints / 'latest_checkpointed_iteration.txt').write_text('2')
+            (checkpoints / 'latest_checkpointed_iteration.txt').write_text(str(final))
             for tp in range(2):
                 for pp in range(4):
-                    directory = checkpoints / 'iter_0000002' / f'mp_rank_{tp:02d}_{pp:03d}'
+                    directory = checkpoints / f'iter_{final:07d}' / f'mp_rank_{tp:02d}_{pp:03d}'
                     directory.mkdir(parents=True)
                     (directory / 'model_optim_rng.pt').write_bytes(b'saved')
-            kwargs['stdout'].write(log_line(1) + log_line(2))
+            kwargs['stdout'].write(('successfully loaded checkpoint from /emergency at iteration 30\n' + log_line(31))
+                                   if resume else log_line(1) + log_line(2))
 
         def wait(self):
             return 0
@@ -258,7 +278,10 @@ def test_28b_longrun_preserves_uneven_pp4_no_offload_and_evaluates_all_shards(tm
                         '--continuous-minutes', '720', '--seq-length', '4096', '--micro-batch-size', '1',
                         '--global-batch-size', '2', '--teacher-pool-workers', '2',
                         '--save-interval', '5000', '--keep-checkpoints', '1']
-                        + (['--local-teacher'] if local_teacher else []))
+                        + (['--local-teacher'] if local_teacher else [])
+                        + (['--resume-from', str(source), '--sample-records', str(journal),
+                            '--teacher-retry-window', '900', '--teacher-step-timeout', '1020',
+                            '--teacher-http-timeout', '60'] if resume else []))
     monkeypatch.setattr(runner.subprocess, 'Popen', Process)
     monkeypatch.setattr(runner.subprocess, 'check_output', lambda *a, **k: 'test-commit\n')
     monkeypatch.setattr(runner.signal, 'signal', lambda *a: None)
@@ -276,3 +299,4 @@ def test_28b_longrun_preserves_uneven_pp4_no_offload_and_evaluates_all_shards(tm
     assert state['layout'] == dict(tp=2, pp=4, cp=1, dp=1, sp=True)
     assert state['teacher_mode'] == ('local-synthetic' if local_teacher else 'online')
     assert state['checkpoint_quality']['wandb_url'] == '28b-quality-url'
+    assert state['resume_iteration'] == (30 if resume else 0)

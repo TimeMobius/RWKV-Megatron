@@ -102,7 +102,8 @@ def make_native_model(config, dtype=torch.bfloat16):
 
 
 def make_shards(native, config, pp_rank):
-    layers_per_stage = config.num_layers // config.pipeline_model_parallel_size
+    counts = converter.pipeline_layer_counts(config)
+    layers_per_stage = counts[pp_rank]
     full_stage = OrderedDict()
     split_dims = {}
 
@@ -127,7 +128,7 @@ def make_shards(native, config, pp_rank):
         add('decoder.final_layernorm.weight', 'ln_out.weight', -1)
         add('decoder.final_layernorm.bias', 'ln_out.bias', -1)
     for local_layer in range(layers_per_stage):
-        global_layer = pp_rank * layers_per_stage + local_layer
+        global_layer = sum(counts[:pp_rank]) + local_layer
         source_prefix = f'decoder.layers.{local_layer}.'
         native_prefix = f'blocks.{global_layer}.'
         for suffix, (native_suffix, dim) in SOURCE_SUFFIXES.items():
@@ -414,10 +415,10 @@ class ValidationTests(ConversionTestCase):
 
     def test_unsupported_configs_rejected(self):
         for name, value in [('virtual_pipeline_model_parallel_size', 2),
-                            ('num_layers_in_first_pipeline_stage', 1),
-                            ('num_layers_in_last_pipeline_stage', 1),
-                            ('decoder_first_pipeline_num_layers', 1),
-                            ('decoder_last_pipeline_num_layers', 1),
+                            ('num_layers_in_first_pipeline_stage', 0),
+                            ('num_layers_in_last_pipeline_stage', 4),
+                            ('decoder_first_pipeline_num_layers', True),
+                            ('decoder_last_pipeline_num_layers', -1),
                             ('pipeline_model_parallel_layout', 'Et|tt|tL'),
                             ('num_layers', 3), ('num_attention_heads', 3),
                             ('tensor_model_parallel_size', 8), ('hidden_size', 0)]:
@@ -426,6 +427,34 @@ class ValidationTests(ConversionTestCase):
                 setattr(config, name, value)
                 with self.assertRaises(ValueError):
                     converter.validate_model_config(config)
+
+    def test_uneven_pipeline_native_roundtrip_and_saved_arg_aliases(self):
+        for first_name, last_name in [
+            ('num_layers_in_first_pipeline_stage', 'num_layers_in_last_pipeline_stage'),
+            ('decoder_first_pipeline_num_layers', 'decoder_last_pipeline_num_layers'),
+        ]:
+            with self.subTest(first_name=first_name):
+                config = make_config(pp_size=4, num_layers=12)
+                setattr(config, first_name, 2)
+                setattr(config, last_name, 2)
+                converter.validate_model_config(config)
+                self.assertEqual(converter.pipeline_layer_counts(config), [2, 4, 4, 2])
+                native = make_native_model(config)
+                merged = OrderedDict()
+                for stage in range(4):
+                    part = converter.convert_pipeline_stage(make_shards(native, config, stage), stage, config, 0)
+                    self.assertFalse(merged.keys() & part.keys())
+                    merged.update(part)
+                self.assertEqual(set(merged), set(native))
+                for key in native:
+                    self.assertTrue(torch.equal(merged[key], native[key]), key)
+
+    def test_conflicting_pipeline_aliases_rejected(self):
+        config = make_config()
+        config.num_layers_in_first_pipeline_stage = 1
+        config.decoder_first_pipeline_num_layers = 2
+        with self.assertRaisesRegex(ValueError, 'Conflicting'):
+            converter.validate_model_config(config)
 
     def test_atomic_write_failure_preserves_previous_artifacts(self):
         save_dir = self.output / 'iter_0000007'

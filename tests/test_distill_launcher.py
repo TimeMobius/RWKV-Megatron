@@ -303,7 +303,7 @@ def test_cp_smoke_configs_use_eight_gpus_and_full_context_teacher(name):
     assert cfg["rwkv_teacher_sample_records"].endswith(f"2p7b-{name}-smoke/sample-selection")
 
 
-@pytest.mark.parametrize("name", ["tp4-sp-pp2", "tp2-sp-pp2-cp2-offload50"])
+@pytest.mark.parametrize("name", ["tp4-sp-pp2", "tp2-sp-pp2-cp2-offload50", "tp2-sp-pp4-balanced"])
 def test_28b_configs_preserve_checkpoint_vocabulary_and_eight_gpu_geometry(name):
     root = Path(__file__).resolve().parents[1]
     cfg = yaml.safe_load((root / "configs" / f"config-qwen-28b-distill-{name}-smoke.yaml").read_text())
@@ -314,3 +314,6 @@ def test_28b_configs_preserve_checkpoint_vocabulary_and_eight_gpu_geometry(name)
     assert cfg["seq_length"] == 4096 and cfg["use_distributed_optimizer"]
     assert cfg["rwkv_teacher_model"] == "Qwen3.8-27B"
     assert cfg["optimizer_cpu_offload"] == ("offload50" in name)
+    if name.endswith("balanced"):
+        assert cfg["language_model"]["num_layers_in_first_pipeline_stage"] == 18
+        assert cfg["language_model"]["num_layers_in_last_pipeline_stage"] == 18

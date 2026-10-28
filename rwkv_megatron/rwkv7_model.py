@@ -234,25 +234,16 @@ class RWKV7Model(GPTModel):
         return super()._postprocess(hidden_states, *args, **kwargs)
 
     def _get_layers_start(self):
-        local_layers = len(self.decoder.layers) 
-
-        pp_size = get_pipeline_model_parallel_world_size()
-        pp_rank = get_pipeline_model_parallel_rank()
-        vp_size = get_virtual_pipeline_model_parallel_world_size()
-        if vp_size is not None:
-            vp_rank = get_virtual_pipeline_model_parallel_rank()
-            stage = vp_rank * pp_size + pp_rank 
-        else:
-            stage = pp_rank
-
-        layers_start = stage * local_layers 
-
+        """Use Megatron's global layer numbers, including uneven PP splits."""
+        layers = self.decoder.layers
+        if not layers:
+            raise ValueError("RWKV checkpoint loading requires a nonempty pipeline stage")
+        layers_start = layers[0].layer_number - 1
+        numbers = [layer.layer_number for layer in layers]
+        if numbers != list(range(layers_start + 1, layers_start + len(layers) + 1)):
+            raise ValueError("RWKV checkpoint loading requires contiguous global layer numbers")
         assert layers_start != 0 or self.pre_process
-        # last stage check
-        assert (
-            layers_start + local_layers != self.config.num_layers or self.post_process
-        )
-
+        assert layers_start + len(layers) != self.config.num_layers or self.post_process
         return layers_start
 
     @torch.no_grad

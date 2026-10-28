@@ -175,7 +175,9 @@ def checkpoint_native(directory):
     state = {}
     fields = ('num_layers', 'hidden_size', 'num_attention_heads', 'padded_vocab_size',
               'tensor_model_parallel_size', 'pipeline_model_parallel_size', 'ffn_hidden_size',
-              'D_AAA_LORA', 'D_DECAY_LORA', 'D_GATE_LORA', 'D_MV_LORA')
+              'D_AAA_LORA', 'D_DECAY_LORA', 'D_GATE_LORA', 'D_MV_LORA',
+              'num_layers_in_first_pipeline_stage', 'num_layers_in_last_pipeline_stage',
+              'decoder_first_pipeline_num_layers', 'decoder_last_pipeline_num_layers')
     for stage in range(pp):
         shards = []
         for rank in range(tp):
@@ -202,6 +204,9 @@ def build_model(metadata):
     args.sequence_parallel = False
     args.rank = 0
     args.virtual_pipeline_model_parallel_size = None
+    for key in ('num_layers_in_first_pipeline_stage', 'num_layers_in_last_pipeline_stage',
+                'decoder_first_pipeline_num_layers', 'decoder_last_pipeline_num_layers'):
+        setattr(args, key, None)
     args.gradient_accumulation_fusion = False
     args.recompute_granularity = None
     args.recompute_method = None

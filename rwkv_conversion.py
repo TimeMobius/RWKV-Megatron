@@ -193,6 +193,39 @@ def resolve_checkpoint(load_dir, iteration=None):
     return input_model_dir, iteration
 
 
+def pipeline_layer_counts(config):
+    """Resolve ordinary pipeline endpoint overrides from config or saved args."""
+    pp, total = config.pipeline_model_parallel_size, config.num_layers
+    endpoints = []
+    for side in ('first', 'last'):
+        names = (f'num_layers_in_{side}_pipeline_stage', f'decoder_{side}_pipeline_num_layers')
+        values = [getattr(config, name, None) for name in names]
+        specified = [value for value in values if value is not None]
+        if len(specified) == 2 and specified[0] != specified[1]:
+            raise ValueError(f'Conflicting {side} pipeline layer counts')
+        value = specified[0] if specified else None
+        if value is not None and (type(value) is not int or value < 1):
+            raise ValueError(f'Invalid {side} pipeline layer count')
+        endpoints.append(value)
+    if pp == 1:
+        if any(value is not None for value in endpoints):
+            raise ValueError('Pipeline endpoint overrides require PP > 1')
+        return [total]
+    remaining_stages = pp - sum(value is not None for value in endpoints)
+    remaining_layers = total - sum(value for value in endpoints if value is not None)
+    if remaining_stages == 0:
+        if remaining_layers:
+            raise ValueError('Pipeline endpoint layers do not cover the model')
+        return endpoints
+    if remaining_layers < remaining_stages or remaining_layers % remaining_stages:
+        raise ValueError('Remaining pipeline layers must divide evenly across remaining stages')
+    counts = [remaining_layers // remaining_stages] * pp
+    for index, value in zip((0, -1), endpoints):
+        if value is not None:
+            counts[index] = value
+    return counts
+
+
 def validate_model_config(config):
     for name in ('tensor_model_parallel_size', 'pipeline_model_parallel_size',
                  'num_layers', 'hidden_size', 'num_attention_heads'):
@@ -203,15 +236,12 @@ def validate_model_config(config):
         raise ValueError("hidden_size must be divisible by num_attention_heads")
     if config.num_attention_heads % config.tensor_model_parallel_size:
         raise ValueError("num_attention_heads must be divisible by tensor_model_parallel_size")
-    if config.num_layers % config.pipeline_model_parallel_size:
-        raise ValueError("Only evenly divided pipeline layers are supported")
+    pipeline_layer_counts(config)
     if any(getattr(config, name, None) is not None for name in (
-        'virtual_pipeline_model_parallel_size', 'num_layers_in_first_pipeline_stage',
-        'num_layers_in_last_pipeline_stage',
-        'decoder_first_pipeline_num_layers', 'decoder_last_pipeline_num_layers',
+        'virtual_pipeline_model_parallel_size',
         'pipeline_model_parallel_layout',
     )):
-        raise ValueError("Virtual or nonuniform pipeline layouts are not supported")
+        raise ValueError("Virtual or explicit pipeline layouts are not supported")
 
 
 def resolve_norm_offset(config, norm_offset=None):
@@ -227,7 +257,9 @@ def convert_pipeline_stage(tp_models, pp_rank, config, norm_offset):
         raise ValueError(f"Wrong number of TP shards for pipeline rank {pp_rank}")
     if any(set(model) != set(tp_models[0]) for model in tp_models[1:]):
         raise ValueError(f"TP key mismatch for pipeline rank {pp_rank}")
-    layers_per_stage = config.num_layers // config.pipeline_model_parallel_size
+    layer_counts = pipeline_layer_counts(config)
+    layers_per_stage = layer_counts[pp_rank]
+    layers_start = sum(layer_counts[:pp_rank])
     state_dict = OrderedDict()
     for source_key in tp_models[0]:
         if source_key.endswith('._extra_state'):
@@ -238,7 +270,7 @@ def convert_pipeline_stage(tp_models, pp_rank, config, norm_offset):
             local_layer = int(layer_match.group(1))
             if local_layer >= layers_per_stage:
                 raise ValueError(f"Invalid local pipeline layer in {source_key}")
-            global_layer = local_layer + pp_rank * layers_per_stage
+            global_layer = local_layer + layers_start
             megatron_key = re.sub(r'layers\.\d+\.', f'layers.{global_layer}.', source_key, count=1)
         rwkv_key = map_megatron_to_rwkv_key(megatron_key, config.num_layers, norm_offset)
         if rwkv_key is None:
@@ -386,6 +418,8 @@ def main(args):
         'tensor_model_parallel_size', 'pipeline_model_parallel_size', 'num_layers',
         'hidden_size', 'num_attention_heads', 'ffn_hidden_size', 'padded_vocab_size',
         'layernorm_zero_centered_gamma', 'D_DECAY_LORA', 'D_AAA_LORA', 'D_GATE_LORA', 'D_MV_LORA',
+        'num_layers_in_first_pipeline_stage', 'num_layers_in_last_pipeline_stage',
+        'decoder_first_pipeline_num_layers', 'decoder_last_pipeline_num_layers',
     )
     for pp_rank in range(config.pipeline_model_parallel_size):
         tp_models = []

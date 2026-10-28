@@ -287,3 +287,17 @@ def test_explicit_torchrun_preserves_implicit_dp_override(monkeypatch):
     cfg["global_batch_size"] = 6
     with pytest.raises(ValueError, match="global_batch_size"):
         validate_training_command(cfg, ["torchrun", "--nproc-per-node=4", "train.py"])
+
+
+@pytest.mark.parametrize("name", ["tp2-sp-pp2-cp2", "tp2-sp-cp4"])
+def test_cp_smoke_configs_use_eight_gpus_and_full_context_teacher(name):
+    root = Path(__file__).resolve().parents[1]
+    cfg = yaml.safe_load(
+        (root / "configs" / f"config-qwen-2p7b-distill-{name}-smoke.yaml").read_text()
+    )
+    assert "--nproc-per-node=8" in default_training_command(cfg)
+    assert cfg["seq_length"] == 4096
+    assert cfg["rwkv_teacher_pool"] and cfg["rwkv_teacher_replace_bad_samples"]
+    assert cfg["rwkv_teacher_tokenizer_use_fast"] is False
+    assert cfg["rwkv_teacher_step_timeout"] + 60 < cfg["distributed_timeout_minutes"] * 60
+    assert cfg["rwkv_teacher_sample_records"].endswith(f"2p7b-{name}-smoke/sample-selection")

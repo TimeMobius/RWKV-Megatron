@@ -1,0 +1,162 @@
+# 8 GPUs: DP1 x TP2 x PP2 x CP2 + SP. Slow Qwen tokenizer; full-context teacher.
+accumulate_allreduce_grads_in_fp32: true
+adam_beta1: 0.9
+adam_beta2: 0.995
+adam_eps: 1.0e-08
+async_save: false
+auto_train_iters: false
+check_against_pretrained: false
+check_for_nan_in_loss_and_grad: true
+ckpt_format: torch
+clip_grad: 1.0
+create_attention_mask_in_dataloader: false
+data_cache_path: /mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-distill/training-smoke/parallel-distill-20261023/cache-qwen
+data_path:
+- /mnt/data/Datas/minipile/jsonl
+dataloader_type: single
+distributed_backend: nccl
+distributed_timeout_minutes: 10
+enable_one_logger: false
+eod_mask_loss: false
+eval_global_batch_size: 8
+eval_interval: 10
+eval_iters: 1
+eval_micro_batch_size: 1
+fixed_eval_samples: true
+global_batch_size: 8
+language_model:
+  D_AAA_LORA: 128
+  D_DECAY_LORA: 128
+  D_GATE_LORA: 288
+  D_MV_LORA: 64
+  activation_func: squaredrelu
+  add_bias_linear: false
+  add_qkv_bias: false
+  apply_rope_fusion: false
+  attention_dropout: 0.0
+  bias_dropout_fusion: true
+  calculate_per_token_loss: false
+  ffn_hidden_size: 9216
+  first_last_layers_bf16: false
+  fp8: false
+  fp8_recipe: tensorwise
+  fp8_wgrad: true
+  hidden_dropout: 0.0
+  hidden_size: 2304
+  kv_channels: 64
+  layernorm_epsilon: 1.0e-05
+  normalization: LayerNorm
+  num_attention_heads: 36
+  num_layers: 24
+  persist_layer_norm: false
+  recompute_granularity: full
+  recompute_method: uniform
+  recompute_num_layers: 1
+load: null
+load_pretrained_rwkv: /mnt/data/Models/RWKV-7/rwkv7-qwen-vocab-2.7b-from-28b.pt
+load_pretrained_rwkv_source_type: rwkv-lm
+log_interval: 1
+log_memory_to_tensorboard: true
+log_progress: true
+log_throughput: true
+log_timers_to_tensorboard: true
+logging_level: 20
+lr: 1.0e-06
+lr_decay_iters: 10
+lr_decay_style: constant
+lr_warmup_iters: 0
+make_vocab_size_divisible_by: 256
+manual_gc_eval: true
+max_position_embeddings: 16384
+micro_batch_size: 1
+min_lr: 1.0e-06
+mmap_bin_files: true
+model_parallel:
+  bf16: true
+  context_parallel_size: 2
+  cross_entropy_fusion_impl: native
+  cross_entropy_loss_fusion: false
+  fp16: false
+  gradient_accumulation_fusion: true
+  overlap_p2p_comm: false
+  perform_initialization: false
+  pipeline_model_parallel_size: 2
+  sequence_parallel: true
+  tensor_model_parallel_size: 2
+  tp_comm_overlap: false
+  data_parallel_size: 1
+no_load_optim: false
+no_load_rng: false
+no_save_optim: false
+no_save_rng: false
+num_dataset_builder_threads: 2
+num_workers: 0
+optimizer: adam
+overlap_grad_reduce: false
+overlap_param_gather: false
+position_embedding_type: none
+rerun_mode: disabled
+reset_attention_mask: false
+reset_position_ids: false
+rwkv_distill: true
+rwkv_distill_ce_weight: 0.0
+rwkv_distill_logit_weight: 1.0
+rwkv_distill_temperature: 2.0
+rwkv_distill_valid_vocab_size: 248077
+rwkv_fp8_scope: ffn
+rwkv_key_fusion: true
+rwkv_l2wrap_coefficient: 0.0
+rwkv_teacher_async_prefetch: true
+rwkv_teacher_cache_size: 256
+rwkv_teacher_max_retries: 3
+rwkv_teacher_retry_window: 300.0
+rwkv_teacher_step_timeout: 360.0
+rwkv_teacher_save_on_failure: true
+rwkv_teacher_model: Qwen3.8-27B
+rwkv_teacher_pool: true
+rwkv_teacher_pool_host: 127.0.0.1
+rwkv_teacher_pool_max_results: 32
+rwkv_teacher_pool_port: 56341
+rwkv_teacher_pool_queue_size: 32
+rwkv_teacher_pool_workers: 2
+rwkv_teacher_prefetch_lookahead: 16
+rwkv_teacher_prefetch_min_workers: 1
+rwkv_teacher_prefetch_workers: 2
+rwkv_teacher_retry_backoff_initial: 5.0
+rwkv_teacher_retry_backoff_max: 30.0
+rwkv_teacher_retry_jitter: 0.2
+rwkv_teacher_seed: 1234
+rwkv_teacher_timeout: 600.0
+rwkv_teacher_tokenizer: /hikscale/models/Qwen/Qwen3.8-27B
+rwkv_teacher_top_k: 100
+rwkv_teacher_url: http://192.168.10.121:8000
+save: /mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-distill/training-smoke/2p7b-tp2-sp-pp2-cp2-smoke/checkpoints
+save_interval: 1000
+seed: 1234
+seq_length: 4096
+split: 99,1,0
+tensorboard_dir: /mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-distill/training-smoke/2p7b-tp2-sp-pp2-cp2-smoke/tensorboard
+timing_log_level: 0
+timing_log_option: minmax
+tokenizer_model: /hikscale/models/Qwen/Qwen3.8-27B
+tokenizer_type: HuggingFaceTokenizer
+train_iters: 10
+transformer_impl: local
+trust_remote_code: true
+untie_embeddings_and_output_weights: true
+use_checkpoint_args: false
+use_distributed_optimizer: false
+wandb_entity: mobius
+wandb_exp_name: 2p7b-tp2-sp-pp2-cp2-seq4096-smoke
+wandb_project: rwkv-qwen-distill-2p7b
+wandb_save_dir: /mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-distill/training-smoke/2p7b-tp2-sp-pp2-cp2-smoke/wandb
+weight_decay: 0.1
+deterministic_mode: true
+rwkv_jsonl_chunk_chars: 32768
+rwkv_checkpoint_keep_last: 2
+exit_interval: null
+exit_duration_in_mins: null
+rwkv_teacher_tokenizer_use_fast: false
+rwkv_teacher_replace_bad_samples: true
+rwkv_teacher_sample_records: /mnt/data/Codes/RWKV/RWKV-Megatron-H200/RWKV/RWKV-Megatron-distill/training-smoke/2p7b-tp2-sp-pp2-cp2-smoke/sample-selection
+rwkv_teacher_prefetch_latency_target: 30.0

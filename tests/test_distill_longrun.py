@@ -22,6 +22,20 @@ def test_checkpoint_requires_all_pipeline_tensor_shards(tmp_path):
     assert checkpoint_iteration(tmp_path) == 2
 
 
+def test_pp4_checkpoint_requires_all_eight_correct_rank_directories(tmp_path):
+    (tmp_path / 'latest_checkpointed_iteration.txt').write_text('30')
+    for tp in range(2):
+        for pp in range(4):
+            directory = tmp_path / 'iter_0000030' / f'mp_rank_{tp:02d}_{pp:03d}'
+            directory.mkdir(parents=True)
+            (directory / 'model_optim_rng.pt').write_bytes(b'saved')
+    assert checkpoint_iteration(tmp_path, 2, 4) == 30
+    bad = tmp_path / 'iter_0000030/mp_rank_01_003'
+    bad.rename(bad.with_name('mp_rank_02_003'))
+    with pytest.raises(RuntimeError, match='Incomplete TP2 PP4'):
+        checkpoint_iteration(tmp_path, 2, 4)
+
+
 def log_line(step, skipped=0, nan=0, teacher=0, norm="1.0"):
     return (
         f" iteration {step}/100 | consumed samples: {step*8} | teacher/failed: {teacher} | "
@@ -178,3 +192,87 @@ def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_fai
     assert state['fixed_validation_sha256'] == 'fixed-before-training'
     if not quality_exit:
         assert state['checkpoint_quality']['wandb_url'] == 'quality-url'
+
+
+@pytest.mark.parametrize('local_teacher', [False, True])
+def test_28b_longrun_preserves_uneven_pp4_no_offload_and_evaluates_all_shards(tmp_path, monkeypatch, local_teacher):
+    import json
+    from pathlib import Path
+    from types import SimpleNamespace
+    import yaml
+    import tools.run_distill_longrun as runner
+    import tools.check_teacher_tokenizer as tokenizer_check
+    import tools.evaluate_distill_checkpoint as evaluator
+    import transformers
+    import wandb
+
+    config = Path(__file__).resolve().parents[1] / 'configs/config-qwen-28b-distill-tp2-sp-pp4-balanced-smoke.yaml'
+    output = tmp_path / '28b'
+    commands = []
+
+    class Process:
+        pid = 999999
+
+        def __init__(self, command, **kwargs):
+            commands.append(command)
+            if '--manifest' in command:
+                assert command[command.index('--checkpoint') + 1].endswith('iter_0000002')
+                Path(command[command.index('--output') + 1]).write_text('{}')
+                return
+            cfg = yaml.safe_load(Path(command[-1]).read_text())
+            if local_teacher:
+                assert command[1].endswith('run_parallel_distill_frozen_smoke.py')
+                assert cfg['rwkv_teacher_model'] == 'local-synthetic-top100'
+            assert cfg['model_parallel']['pipeline_model_parallel_size'] == 4
+            assert cfg['model_parallel']['data_parallel_size'] == 1
+            assert cfg['language_model']['num_layers'] == 88
+            assert cfg['language_model']['num_layers_in_first_pipeline_stage'] == 18
+            assert cfg['language_model']['num_layers_in_last_pipeline_stage'] == 18
+            assert cfg['optimizer_cpu_offload'] is False
+            assert cfg['use_distributed_optimizer'] is True
+            assert cfg['micro_batch_size'] == 1 and cfg['global_batch_size'] == 2
+            assert cfg['seq_length'] == 4096 and cfg['exit_duration_in_mins'] == 720
+            assert cfg['save_interval'] == 5000 and cfg['rwkv_checkpoint_keep_last'] == 1
+            assert cfg['wandb_project'] == 'rwkv-qwen-distill-28b'
+            checkpoints = Path(cfg['save'])
+            checkpoints.mkdir()
+            (checkpoints / 'latest_checkpointed_iteration.txt').write_text('2')
+            for tp in range(2):
+                for pp in range(4):
+                    directory = checkpoints / 'iter_0000002' / f'mp_rank_{tp:02d}_{pp:03d}'
+                    directory.mkdir(parents=True)
+                    (directory / 'model_optim_rng.pt').write_bytes(b'saved')
+            kwargs['stdout'].write(log_line(1) + log_line(2))
+
+        def wait(self):
+            return 0
+
+        def poll(self):
+            return 0
+
+    def remote_run(path):
+        assert path.startswith('mobius/rwkv-qwen-distill-28b/')
+        return SimpleNamespace(state='finished', url='28b-training-url')
+
+    monkeypatch.setattr(runner.sys, 'argv', ['run', '--rwkv-config', str(config), '--output', str(output),
+                        '--continuous-minutes', '720', '--seq-length', '4096', '--micro-batch-size', '1',
+                        '--global-batch-size', '2', '--teacher-pool-workers', '2',
+                        '--save-interval', '5000', '--keep-checkpoints', '1']
+                        + (['--local-teacher'] if local_teacher else []))
+    monkeypatch.setattr(runner.subprocess, 'Popen', Process)
+    monkeypatch.setattr(runner.subprocess, 'check_output', lambda *a, **k: 'test-commit\n')
+    monkeypatch.setattr(runner.signal, 'signal', lambda *a: None)
+    def check_online(cfg):
+        assert not local_teacher, 'Local stability runs must not contact the online teacher'
+        return dict(all_matched=True)
+    monkeypatch.setattr(tokenizer_check, 'check_teacher_tokenizer', check_online)
+    monkeypatch.setattr(transformers.AutoTokenizer, 'from_pretrained', lambda *a, **k: object())
+    monkeypatch.setattr(evaluator, 'fixed_manifest', lambda *a, **k: dict(sha256='28b-fixed'))
+    monkeypatch.setattr(evaluator, 'upload_quality_report', lambda *a, **k: dict(wandb_url='28b-quality-url'))
+    monkeypatch.setattr(wandb, 'Api', lambda: SimpleNamespace(run=remote_run))
+    runner.main()
+    state = json.loads((output / 'status.json').read_text())
+    assert len(commands) == 2 and state['state'] == 'completed'
+    assert state['layout'] == dict(tp=2, pp=4, cp=1, dp=1, sp=True)
+    assert state['teacher_mode'] == ('local-synthetic' if local_teacher else 'online')
+    assert state['checkpoint_quality']['wandb_url'] == '28b-quality-url'

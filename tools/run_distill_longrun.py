@@ -84,21 +84,28 @@ def audit_training_log(path, expected_previous):
     )
 
 
-def checkpoint_iteration(folder):
+def checkpoint_iteration(folder, tp=2, pp=2):
     marker = folder / "latest_checkpointed_iteration.txt"
     iteration = int(marker.read_text().strip())
     if iteration < 1:
         raise RuntimeError("Expected a positive saved checkpoint iteration")
     checkpoint = folder / f"iter_{iteration:07d}"
     parts = list(checkpoint.glob("mp_rank_*/model_optim_rng.pt"))
-    if len(parts) != 4 or any(path.stat().st_size == 0 for path in parts):
-        raise RuntimeError(f"Incomplete TP2 PP2 checkpoint at {checkpoint}")
+    expected = {f'mp_rank_{rank:02d}' + (f'_{stage:03d}' if pp > 1 else '')
+                for rank in range(tp) for stage in range(pp)}
+    if ({path.parent.name for path in parts} != expected
+            or any(path.stat().st_size == 0 for path in parts)):
+        raise RuntimeError(f"Incomplete TP{tp} PP{pp} checkpoint at {checkpoint}")
     return iteration
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument('--rwkv-config', type=Path,
+                        help='Use a tested model and parallel layout instead of the default 2.7B layout')
+    parser.add_argument('--local-teacher', action='store_true',
+                        help='Use synthetic top100 targets for local stability testing; no online teacher quality claim')
     parser.add_argument("--phase-minutes", type=int, default=360)
     parser.add_argument('--seq-length', type=int, default=1024)
     parser.add_argument('--micro-batch-size', type=int, default=1)
@@ -107,6 +114,7 @@ def main():
     parser.add_argument('--context-parallel-size', type=int, choices=(1, 2), default=1,
                         help='Use DP2 with CP1, or DP1 with CP2, keeping TP2 x PP2 on eight GPUs')
     parser.add_argument('--save-interval', type=int, default=250)
+    parser.add_argument('--keep-checkpoints', type=int, default=2)
     parser.add_argument('--no-recompute', action='store_true',
                         help='Keep activations when measured GPU capacity permits')
     parser.add_argument('--continuous-minutes', type=int,
@@ -115,13 +123,21 @@ def main():
         "--smoke", action="store_true", help="Exit at step2, resume and finish step3"
     )
     args = parser.parse_args()
-    dp = 2 // args.context_parallel_size
+    cfg = yaml.safe_load((args.rwkv_config or
+                          ROOT / 'configs/config-qwen-2p7b-distill-tp2-sp-pp2-smoke.yaml').read_text())
+    if args.rwkv_config:
+        from tools.launch_distillation import validate_parallel_settings
+        dp, tp, pp, cp = validate_parallel_settings(cfg)
+        if args.context_parallel_size != 1 and args.context_parallel_size != cp:
+            parser.error('--context-parallel-size conflicts with the supplied config')
+    else:
+        dp, tp, pp, cp = 2 // args.context_parallel_size, 2, 2, args.context_parallel_size
     if (args.seq_length < 2 or args.micro_batch_size < 1 or args.teacher_pool_workers < 1
-            or args.global_batch_size < 1 or args.save_interval < 1
+            or args.global_batch_size < 1 or args.save_interval < 1 or args.keep_checkpoints < 1
             or args.global_batch_size % (dp * args.micro_batch_size)
-            or args.seq_length % (2 * args.context_parallel_size)
-            or (args.context_parallel_size > 1 and args.seq_length % (64 * args.context_parallel_size))):
-        parser.error('sequence must divide TP2 x CP and 64 x CP with CP; global batch must divide DP times micro batch; save interval must be positive')
+            or args.seq_length % (tp * cp)
+            or (cp > 1 and args.seq_length % (64 * cp))):
+        parser.error('sequence must divide TP x CP and 64 x CP with CP; global batch must divide DP times micro batch; save interval and keep-checkpoints must be positive')
     if args.phase_minutes < 1:
         parser.error("phase-minutes must be positive")
     if args.continuous_minutes is not None and (args.continuous_minutes < 1 or args.smoke):
@@ -138,7 +154,10 @@ def main():
         state="preparing",
         continuous_minutes=args.continuous_minutes,
         planned_restart=args.continuous_minutes is None,
-        layout=dict(dp=dp, tp=2, pp=2, cp=args.context_parallel_size, sp=True),
+        layout=dict(dp=dp, tp=tp, pp=pp, cp=cp,
+                    sp=cfg.get('model_parallel', {}).get('sequence_parallel', True)),
+        source_config=str(args.rwkv_config.resolve()) if args.rwkv_config else None,
+        teacher_mode='local-synthetic' if args.local_teacher else 'online',
         commit=subprocess.check_output(
             ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
         ).strip(),
@@ -158,16 +177,14 @@ def main():
 
     for signum in (signal.SIGINT, signal.SIGTERM):
         signal.signal(signum, stop)
-    cfg = yaml.safe_load(
-        (ROOT / "configs/config-qwen-2p7b-distill-tp2-sp-pp2-smoke.yaml").read_text()
-    )
     cfg["model_parallel"].update(
         data_parallel_size=dp,
-        tensor_model_parallel_size=2,
-        pipeline_model_parallel_size=2,
-        context_parallel_size=args.context_parallel_size,
-        sequence_parallel=True,
+        tensor_model_parallel_size=tp,
+        pipeline_model_parallel_size=pp,
+        context_parallel_size=cp,
     )
+    if not args.rwkv_config:
+        cfg['model_parallel']['sequence_parallel'] = True
     cfg.update(
         deterministic_mode=True,
         seq_length=args.seq_length,
@@ -182,7 +199,7 @@ def main():
         eval_interval=3 if args.smoke else 250,
         save=str(checkpoints),
         save_interval=2 if args.smoke else args.save_interval,
-        rwkv_checkpoint_keep_last=2,
+        rwkv_checkpoint_keep_last=args.keep_checkpoints,
         load=None,
         exit_interval=2 if args.smoke else None,
         exit_duration_in_mins=None if args.smoke else (args.continuous_minutes or args.phase_minutes),
@@ -198,7 +215,7 @@ def main():
         rwkv_teacher_retry_backoff_initial=5.0,
         rwkv_teacher_retry_backoff_max=30.0,
         wandb_entity="mobius",
-        wandb_project="rwkv-qwen-distill-2p7b",
+        wandb_project=cfg.get('wandb_project') or 'rwkv-qwen-distill-2p7b',
         log_interval=1,
         num_workers=0,
     )
@@ -218,13 +235,17 @@ def main():
         rwkv_teacher_pool_queue_size=8 * cfg["global_batch_size"],
         rwkv_teacher_pool_max_results=8 * cfg["global_batch_size"],
     )
+    if args.local_teacher:
+        cfg['rwkv_teacher_model'] = 'local-synthetic-top100'
     try:
         save()
         from tools.check_teacher_tokenizer import check_teacher_tokenizer
         from tools.evaluate_distill_checkpoint import fixed_manifest
         from transformers import AutoTokenizer
 
-        state["teacher_tokenizer_preflight"] = check_teacher_tokenizer(cfg)
+        state["teacher_tokenizer_preflight"] = (
+            dict(mode='local-synthetic', upstream_checked=False, optimizer_steps=0)
+            if args.local_teacher else check_teacher_tokenizer(cfg))
         # Freeze evaluation tokens before training so data drift fails clearly
         # instead of silently changing the final checkpoint's validation set.
         tokenizer = AutoTokenizer.from_pretrained(
@@ -236,7 +257,7 @@ def main():
         save()
         for phase in ((1,) if args.continuous_minutes is not None else (1, 2)):
             if phase == 2:
-                previous = checkpoint_iteration(checkpoints)
+                previous = checkpoint_iteration(checkpoints, tp, pp)
                 cfg.update(load=str(checkpoints), exit_interval=None)
             else:
                 previous = 0
@@ -258,19 +279,23 @@ def main():
             state["phases"].append(entry)
             state["state"] = "running"
             with (output / (phase_name + ".log")).open("w") as log:
-                process = subprocess.Popen(
-                    [
+                training_command = (
+                    [sys.executable, str(ROOT / 'tests/run_parallel_distill_frozen_smoke.py'), str(path)]
+                    if args.local_teacher else [
                         sys.executable,
                         str(ROOT / "tools/launch_distillation.py"),
                         "--rwkv-config",
                         str(path),
-                    ],
+                    ])
+                process = subprocess.Popen(
+                    training_command,
                     cwd=ROOT,
                     env=dict(
                         os.environ,
                         WANDB_RUN_ID=runid,
                         WANDB_MODE="online",
-                        WANDB_TAGS="distill,2p7b,long-sequence,"
+                        WANDB_TAGS="distill,long-sequence,"
+                        + ('synthetic-teacher,local-stability,' if args.local_teacher else 'online-teacher,')
                         + ('continuous,' if args.continuous_minutes is not None else 'checkpoint-restart,')
                         + ("smoke" if args.smoke else "12hour"),
                     ),
@@ -288,7 +313,7 @@ def main():
             entry["log_audit"] = audit_training_log(
                 output / (phase_name + ".log"), previous
             )
-            saved = checkpoint_iteration(checkpoints)
+            saved = checkpoint_iteration(checkpoints, tp, pp)
             if saved <= previous:
                 raise RuntimeError("Checkpoint iteration did not advance")
             entry.update(
@@ -296,7 +321,7 @@ def main():
             )
             import wandb
 
-            remote = wandb.Api().run("mobius/rwkv-qwen-distill-2p7b/" + runid)
+            remote = wandb.Api().run(f"{cfg['wandb_entity']}/{cfg['wandb_project']}/{runid}")
             entry.update(wandb_url=remote.url, wandb_state=remote.state)
             if remote.state != "finished":
                 raise RuntimeError(f"Unexpected W&B state {remote.state}")

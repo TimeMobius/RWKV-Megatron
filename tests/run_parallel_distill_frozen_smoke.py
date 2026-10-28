@@ -12,7 +12,8 @@ import yaml
 from tools.launch_distillation import default_training_command, launch
 
 if __name__ == "__main__":
-    os.environ["WANDB_TAGS"] = "distill,parallel-validation,frozen-teacher"
+    os.environ["WANDB_TAGS"] = ",".join(filter(None, (
+        os.environ.get("WANDB_TAGS"), "distill,parallel-validation,frozen-teacher")))
     command = None
     if os.environ.get("RWKV_CP_LOGITS_DIR"):
         command = default_training_command(yaml.safe_load(Path(sys.argv[1]).read_text()))

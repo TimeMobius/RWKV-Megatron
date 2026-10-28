@@ -301,3 +301,16 @@ def test_cp_smoke_configs_use_eight_gpus_and_full_context_teacher(name):
     assert cfg["rwkv_teacher_tokenizer_use_fast"] is False
     assert cfg["rwkv_teacher_step_timeout"] + 60 < cfg["distributed_timeout_minutes"] * 60
     assert cfg["rwkv_teacher_sample_records"].endswith(f"2p7b-{name}-smoke/sample-selection")
+
+
+@pytest.mark.parametrize("name", ["tp4-sp-pp2", "tp2-sp-pp2-cp2-offload50"])
+def test_28b_configs_preserve_checkpoint_vocabulary_and_eight_gpu_geometry(name):
+    root = Path(__file__).resolve().parents[1]
+    cfg = yaml.safe_load((root / "configs" / f"config-qwen-28b-distill-{name}-smoke.yaml").read_text())
+    assert "--nproc-per-node=8" in default_training_command(cfg)
+    multiple = cfg["make_vocab_size_divisible_by"] * cfg["model_parallel"]["tensor_model_parallel_size"]
+    assert ((cfg["rwkv_distill_valid_vocab_size"] + multiple - 1) // multiple) * multiple == 248320
+    assert cfg["language_model"]["num_layers"] == 88 and cfg["language_model"]["hidden_size"] == 5120
+    assert cfg["seq_length"] == 4096 and cfg["use_distributed_optimizer"]
+    assert cfg["rwkv_teacher_model"] == "Qwen3.8-27B"
+    assert cfg["optimizer_cpu_offload"] == ("offload50" in name)

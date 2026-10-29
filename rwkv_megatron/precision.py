@@ -4,6 +4,8 @@ import inspect
 import warnings
 from functools import wraps
 
+from .fla_determinism import configure_rwkv7_determinism
+
 
 def _has_weight_gradient_override():
     from transformer_engine.common.recipe import DelayedScaling
@@ -64,3 +66,5 @@ def validate_rwkv_precision(config, *, have_te):
         raise ValueError(
             "RWKV WKV does not use TE attention; keep FP8 attention flags false"
         )
+    if getattr(config, "deterministic_mode", False):
+        configure_rwkv7_determinism()

@@ -30,11 +30,15 @@ class JsonlTextDataset(Dataset):
 
     def __init__(self, paths: Sequence[str | Path], tokenizer, sequence_length: int,
                  target_samples: int | None = None, max_records: int = 0,
-                 text_field: str = "text", chunk_chars: int = 512, lazy: bool = True):
+                 text_field: str = "text", chunk_chars: int = 512, lazy: bool = True,
+                 epoch_windows: int = 0):
         if sequence_length < 2 or chunk_chars < 1:
             raise ValueError("sequence_length must be >= 2 and chunk_chars must be positive")
         if max_records < 0 or (target_samples is not None and target_samples < 1):
             raise ValueError("max_records must be nonnegative and target_samples positive")
+        if type(epoch_windows) is not int or epoch_windows < 0:
+            raise ValueError("epoch_windows must be nonnegative")
+        self.epoch_windows = epoch_windows
         self.tokenizer = tokenizer
         self.sequence_length = int(sequence_length)
         self.chunk_chars = int(chunk_chars)
@@ -149,6 +153,14 @@ class JsonlTextDataset(Dataset):
         """Read a raw window, extending past the logical target for replacements."""
         if index < 0:
             raise IndexError(index)
+        if self.epoch_windows and index >= self.epoch_windows:
+            # The last global batch can be partial. Invalid teacher samples
+            # also consume source positions. Never wrap those requests into
+            # another epoch: carry a normal-shaped sample with zero loss.
+            sample = self.get_source_sample(0)
+            sample['loss_mask'].zero_()
+            sample['epoch_padding'] = True
+            return sample
         self._ensure_window(index)
         available = len(self._windows) // 4
         if self._target_samples is None and index >= available:

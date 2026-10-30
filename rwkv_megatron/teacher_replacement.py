@@ -13,14 +13,7 @@ from pathlib import Path
 import torch
 from torch.utils.data import Dataset
 
-from .online_teacher import TeacherSampleError, TeacherTopK
-
-
-def padding_targets(sample, teacher):
-    client = getattr(teacher, 'local_client', teacher)
-    shape = (1, sample['tokens'].numel(), getattr(client, 'top_k', 1))
-    return TeacherTopK(torch.full(shape, -1, dtype=torch.int32),
-                       torch.full(shape, -torch.inf, dtype=torch.float32))
+from .online_teacher import TeacherSampleError
 
 
 class TeacherValidatedDataset(Dataset):
@@ -64,8 +57,6 @@ class TeacherValidatedDataset(Dataset):
         return len(self.source)
 
     def _decision(self, index, sample):
-        if sample.get('epoch_padding', False):
-            return True, padding_targets(sample, self.teacher)
         sample_hash = hashlib.sha256(
             sample["tokens"].numpy().tobytes() + sample["raw_prompts"].encode()
         ).hexdigest()
@@ -165,8 +156,6 @@ class TeacherValidatedDataset(Dataset):
         raw = self.selected[index]
         sample = self.source.get_source_sample(raw)
         targets = self.ready.pop(raw, None)
-        if sample.get('epoch_padding', False):
-            targets = padding_targets(sample, self.teacher)
         if targets is None:
             kwargs = {"prompts": [sample["raw_prompts"]]}
             if getattr(self.teacher, "prompt_mode", "text") == "token_ids":

@@ -100,8 +100,6 @@ def add_rwkv_arguments(parser):
     parser.add_argument("--rwkv-jsonl-text-field", default="text")
     parser.add_argument("--rwkv-jsonl-max-records", type=nonnegative_int, default=0)
     parser.add_argument("--rwkv-jsonl-chunk-chars", type=positive_int, default=512)
-    parser.add_argument("--rwkv-jsonl-epoch-windows", type=nonnegative_int, default=0,
-                        help="Finite training source window count; mask batch padding instead of repeating the corpus")
     parser.add_argument("--rwkv-checkpoint-keep-last", type=nonnegative_int, default=0,
                         help="Keep the latest N completed ordinary checkpoints; 0 disables pruning")
     for name in ("D_AAA_LORA", "D_DECAY_LORA", "D_GATE_LORA", "D_MV_LORA"):
@@ -208,9 +206,6 @@ def add_rwkv_arguments(parser):
         raise ValueError('rwkv_jsonl_max_records must be nonnegative')
     if settings.get('rwkv_jsonl_chunk_chars', 512) < 1:
         raise ValueError('rwkv_jsonl_chunk_chars must be positive')
-    epoch_windows = settings.get('rwkv_jsonl_epoch_windows', 0)
-    if type(epoch_windows) is not int or epoch_windows < 0:
-        raise ValueError('rwkv_jsonl_epoch_windows must be nonnegative')
     keep_last = settings.get('rwkv_checkpoint_keep_last', 0)
     if type(keep_last) is not int or keep_last < 0:
         raise ValueError('rwkv_checkpoint_keep_last must be a nonnegative integer')

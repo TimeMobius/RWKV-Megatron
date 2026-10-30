@@ -302,8 +302,6 @@ class PoolValidatedDataset(Dataset):
                     max_records=json.loads(signature)["max_records"],
                     directory=str(Path(directory).resolve()),
                     signature=signature, lookahead=lookahead, start_index=start_index)
-        if getattr(source, 'epoch_windows', 0):
-            spec['epoch_windows'] = source.epoch_windows
         if delivery is not None:
             spec["delivery"] = delivery
             spec["delivery_epoch"] = 0

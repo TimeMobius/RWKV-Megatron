@@ -238,7 +238,6 @@ class TeacherPool:
                     spec["paths"], self.client._get_tokenizer(), spec["sequence_length"],
                     target_samples=spec["target_samples"], max_records=spec["max_records"],
                     text_field=spec["text_field"], chunk_chars=spec["chunk_chars"],
-                    epoch_windows=spec.get('epoch_windows', 0),
                 )
                 signature = json.loads(spec["signature"])
                 args = SimpleNamespace(rwkv_jsonl_max_records=spec["max_records"],

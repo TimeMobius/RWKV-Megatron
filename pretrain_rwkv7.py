@@ -821,8 +821,6 @@ def train_valid_test_datasets_provider(train_val_test_num_samples):
                 max_records=args.rwkv_jsonl_max_records,
                 text_field=args.rwkv_jsonl_text_field,
                 chunk_chars=args.rwkv_jsonl_chunk_chars,
-                epoch_windows=(getattr(args, 'rwkv_jsonl_epoch_windows', 0)
-                               if split_name == 'train' else 0),
             )
             if args.rwkv_distill and getattr(args, "rwkv_teacher_replace_bad_samples", False):
                 from rwkv_megatron.teacher_replacement import selection_signature
@@ -1085,7 +1083,7 @@ if __name__ == "__main__":
         from rwkv_megatron.arguments import add_rwkv_arguments
         from rwkv_megatron.checkpoint_retention import make_retention_callback
         from rwkv_megatron.distill_metrics import StudentPerplexityCallback
-        from rwkv_megatron.teacher_safety import TeacherDataUnavailable, TeacherEpochComplete, TeacherFailureCheckpoint, validate_teacher_safety
+        from rwkv_megatron.teacher_safety import TeacherDataUnavailable, TeacherFailureCheckpoint, validate_teacher_safety
 
         args = parse_and_validate_args(extra_args_provider=add_rwkv_arguments)
         initialize_runtime_services(args)
@@ -1103,8 +1101,6 @@ if __name__ == "__main__":
                 model_provider=model_provider,
                 callbacks=[StudentPerplexityCallback(), retention, teacher_failure],
             )
-        except TeacherEpochComplete as error:
-            teacher_failure.save(error, epoch_complete=True)
         except TeacherDataUnavailable as error:
             teacher_failure.save(error)
             raise SystemExit(75) from error

@@ -20,10 +20,6 @@ class TeacherDataUnavailable(RuntimeError):
     """All ranks agreed to stop before starting the next pipeline schedule."""
 
 
-class TeacherEpochComplete(RuntimeError):
-    """Every DP/PP reader reached the finite source end before another update."""
-
-
 class TeacherStepBuffer:
     """Replay only CPU input/target pairs staged for the next complete step."""
 
@@ -127,24 +123,15 @@ def prepare_teacher_step(data_iterator, num_microbatches, training, teacher_fact
         except Exception as exc:
             error = f"{type(exc).__name__}: {exc}"[:2048]
     device = torch.device("cuda", torch.cuda.current_device())
-    finite = training and bool(getattr(args, 'rwkv_jsonl_epoch_windows', 0))
-    flags = [int(error is not None)]
-    if finite:
-        flags.append(int(buffer is not None and any(
-            bool(row['loss_mask'].any()) for row in buffer.rows)))
-    failed = torch.tensor(flags, device=device, dtype=torch.int32)
+    failed = torch.tensor([int(error is not None)], device=device, dtype=torch.int32)
     dist.all_reduce(failed, op=dist.ReduceOp.MAX)
-    if failed[0].item():
+    if failed.item():
         if buffer is not None:
             buffer.rows.clear()
         messages = [None] * dist.get_world_size()
         dist.all_gather_object(messages, error)
         detail = "; ".join(f"rank {rank}: {message}" for rank, message in enumerate(messages) if message)
         raise TeacherDataUnavailable("Teacher data unavailable before pipeline step; " + detail)
-    if finite and not failed[1].item():
-        if buffer is not None:
-            buffer.rows.clear()
-        raise TeacherEpochComplete('All finite training-source windows have been consumed or rejected')
 
 
 class TeacherFailureCheckpoint(Callback):
@@ -168,9 +155,9 @@ class TeacherFailureCheckpoint(Callback):
             self.iteration += 1
             self.flops += num_floating_point_operations(get_args(), get_current_running_global_batch_size())
 
-    def save(self, error, *, epoch_complete=False):
+    def save(self, error):
         args = get_args()
-        if not epoch_complete and not args.rwkv_teacher_save_on_failure:
+        if not args.rwkv_teacher_save_on_failure:
             return None
         if self.context is None or self.iteration is None:
             raise RuntimeError("Cannot save teacher emergency checkpoint before training state is initialized") from error
@@ -179,7 +166,7 @@ class TeacherFailureCheckpoint(Callback):
         from megatron.training.training import force_param_sync, should_disable_forward_pre_hook
 
         root = args.save or str(Path("training-smoke") / ("teacher-checkpoints-" + os.environ.get("MASTER_PORT", "single")))
-        destination = str(root if epoch_complete else Path(root) / "teacher-emergency")
+        destination = str(Path(root) / "teacher-emergency")
         maybe_finalize_async_save(blocking=True)
         if should_disable_forward_pre_hook(args):
             force_param_sync(self.context.model, optimizer=self.context.optimizer)
@@ -195,31 +182,26 @@ class TeacherFailureCheckpoint(Callback):
             if dist.get_rank() == 0:
                 report = dict(reason=str(error), iteration=self.iteration,
                               consumed_train_samples=args.consumed_train_samples,
-                              checkpoint_directory=destination, exit_code=0 if epoch_complete else 75,
+                              checkpoint_directory=destination, exit_code=75,
                               safe_before_pipeline=True)
-                path = Path(destination) / ("epoch-completion.json" if epoch_complete else "teacher-failure.json")
+                path = Path(destination) / "teacher-failure.json"
                 temporary = path.with_suffix(".tmp")
                 temporary.write_text(json.dumps(report, indent=2) + "\n")
                 temporary.replace(path)
-                print(f"{'Epoch completion' if epoch_complete else 'Teacher emergency'} checkpoint saved at iteration {self.iteration}: {destination}; "
+                print(f"Teacher emergency checkpoint saved at iteration {self.iteration}: {destination}; "
                       f"resume with --load {destination}", flush=True)
             writer = get_wandb_writer()
             if writer is not None:
                 # Flush before other ranks exit: torchrun may otherwise kill
                 # the logging rank and W&B can mark a handled exit successful.
                 try:
-                    if epoch_complete:
-                        writer.log({'data/epoch_complete': 1,
-                                    'data/epoch_final_iteration': self.iteration})
-                        writer.finish(exit_code=0)
-                    else:
-                        writer.log({'teacher/emergency_checkpoint_saved': 1,
-                                    'teacher/emergency_checkpoint_iteration': self.iteration,
-                                    'teacher/emergency_consumed_samples': args.consumed_train_samples,
-                                    'teacher/failure_exit_code': 75})
-                        writer.run.summary.update({'teacher/emergency_checkpoint_directory': destination,
-                                                   'teacher/failure_reason': str(error)})
-                        writer.finish(exit_code=75)
+                    writer.log({'teacher/emergency_checkpoint_saved': 1,
+                                'teacher/emergency_checkpoint_iteration': self.iteration,
+                                'teacher/emergency_consumed_samples': args.consumed_train_samples,
+                                'teacher/failure_exit_code': 75})
+                    writer.run.summary.update({'teacher/emergency_checkpoint_directory': destination,
+                                               'teacher/failure_reason': str(error)})
+                    writer.finish(exit_code=75)
                 except Exception as logging_error:
                     print(f"Teacher checkpoint is saved; W&B failure reporting failed: {logging_error}", flush=True)
             dist.barrier()

@@ -16,6 +16,7 @@ from zoneinfo import ZoneInfo
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
+CHECKPOINT_ROOT = Path('/hikscale/models/RWKV-28B')
 
 
 def now():
@@ -161,8 +162,14 @@ def main():
         parser.error('distributed timeout must exceed teacher step timeout by over 60 seconds')
     resume_iteration = checkpoint_iteration(args.resume_from.resolve(), tp, pp) if args.resume_from else 0
     output = args.output.resolve()
+    checkpoints = (Path(cfg['save']).expanduser().resolve() if cfg.get('save') else
+                   CHECKPOINT_ROOT / output.name / 'checkpoints')
+    if (checkpoints.exists() and any(checkpoints.iterdir())
+            and (not args.resume_from or checkpoints != args.resume_from.resolve())):
+        parser.error(f'Checkpoint directory is non-empty: {checkpoints}; '
+                     'resume explicitly with --resume-from or choose a new save directory')
     output.mkdir(parents=True, exist_ok=False)
-    checkpoints = output / "checkpoints"
+    checkpoints.parent.mkdir(parents=True, exist_ok=True)
     state_path = output / "status.json"
     state = dict(
         started=now(),
@@ -177,6 +184,7 @@ def main():
         layout=dict(dp=dp, tp=tp, pp=pp, cp=cp,
                     sp=cfg.get('model_parallel', {}).get('sequence_parallel', True)),
         source_config=str(args.rwkv_config.resolve()) if args.rwkv_config else None,
+        checkpoint_dir=str(checkpoints),
         teacher_mode='local-synthetic' if args.local_teacher else 'online',
         commit=subprocess.check_output(
             ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True

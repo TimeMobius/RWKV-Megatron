@@ -164,6 +164,7 @@ def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_fai
         def poll(self):
             return self.wait()
     monkeypatch.setattr(runner, 'ROOT', root)
+    monkeypatch.setattr(runner, 'CHECKPOINT_ROOT', tmp_path / 'models')
     monkeypatch.setattr(runner.sys, 'argv', ['run', '--output', str(output)] +
                         (['--context-parallel-size', '2', '--save-interval', '1000'] if cp == 2 else []) +
                         (['--continuous-minutes', '720'] if continuous else ['--smoke']) +
@@ -192,11 +193,14 @@ def test_supervisor_evaluates_the_final_checkpoint_and_propagates_evaluation_fai
     assert state['fixed_validation_sha256'] == 'fixed-before-training'
     if not quality_exit:
         assert state['checkpoint_quality']['wandb_url'] == 'quality-url'
+    assert state['checkpoint_dir'] == str(tmp_path / 'models/run/checkpoints')
+    assert not (output / 'checkpoints').exists()
 
 
 @pytest.mark.parametrize('local_teacher', [False, True])
 @pytest.mark.parametrize('resume', [False, True])
-def test_28b_longrun_preserves_uneven_pp4_no_offload_and_evaluates_all_shards(tmp_path, monkeypatch, local_teacher, resume):
+@pytest.mark.parametrize('configured_save', [False, True])
+def test_28b_longrun_preserves_uneven_pp4_no_offload_and_evaluates_all_shards(tmp_path, monkeypatch, local_teacher, resume, configured_save):
     import json
     from pathlib import Path
     from types import SimpleNamespace
@@ -206,8 +210,10 @@ def test_28b_longrun_preserves_uneven_pp4_no_offload_and_evaluates_all_shards(tm
     import tools.evaluate_distill_checkpoint as evaluator
     import transformers
     import wandb
+    import yaml
 
     config = Path(__file__).resolve().parents[1] / 'configs/config-qwen-28b-distill-tp2-sp-pp4-balanced-smoke.yaml'
+    monkeypatch.setattr(runner, 'CHECKPOINT_ROOT', tmp_path / 'models')
     output = tmp_path / '28b'
     commands = []
     source = tmp_path / 'emergency'
@@ -220,6 +226,13 @@ def test_28b_longrun_preserves_uneven_pp4_no_offload_and_evaluates_all_shards(tm
                 directory = source / 'iter_0000030' / f'mp_rank_{tp:02d}_{pp:03d}'
                 directory.mkdir(parents=True)
                 (directory / 'model_optim_rng.pt').write_bytes(b'saved')
+    expected_save = tmp_path / 'models/28b/checkpoints'
+    if configured_save:
+        expected_save = source if resume else tmp_path / 'models/named-training/checkpoints'
+        settings = yaml.safe_load(config.read_text())
+        settings['save'] = str(expected_save)
+        config = tmp_path / 'train.yaml'
+        config.write_text(yaml.safe_dump(settings))
     final = 31 if resume else 2
 
     class Process:
@@ -254,7 +267,8 @@ def test_28b_longrun_preserves_uneven_pp4_no_offload_and_evaluates_all_shards(tm
                 assert cfg['rwkv_teacher_step_timeout'] == 1020
                 assert cfg['rwkv_teacher_timeout'] == 60
             checkpoints = Path(cfg['save'])
-            checkpoints.mkdir()
+            assert checkpoints == expected_save
+            checkpoints.mkdir(exist_ok=True)
             (checkpoints / 'latest_checkpointed_iteration.txt').write_text(str(final))
             for tp in range(2):
                 for pp in range(4):
@@ -300,3 +314,29 @@ def test_28b_longrun_preserves_uneven_pp4_no_offload_and_evaluates_all_shards(tm
     assert state['teacher_mode'] == ('local-synthetic' if local_teacher else 'online')
     assert state['checkpoint_quality']['wandb_url'] == '28b-quality-url'
     assert state['resume_iteration'] == (30 if resume else 0)
+
+
+def test_longrun_refuses_to_overwrite_existing_checkpoints_before_launch(tmp_path, monkeypatch):
+    from pathlib import Path
+    import yaml
+    import tools.run_distill_longrun as runner
+
+    template = Path(__file__).resolve().parents[1] / 'configs/config-qwen-28b-distill-tp2-sp-pp4-balanced-smoke.yaml'
+    settings = yaml.safe_load(template.read_text())
+    checkpoints = tmp_path / 'saved'
+    checkpoints.mkdir()
+    sentinel = checkpoints / 'existing.pt'
+    sentinel.write_bytes(b'existing checkpoint')
+    settings['save'] = str(checkpoints)
+    config = tmp_path / 'train.yaml'
+    config.write_text(yaml.safe_dump(settings))
+    output = tmp_path / 'logs'
+    monkeypatch.setattr(runner.sys, 'argv',
+                        ['run', '--rwkv-config', str(config), '--output', str(output)])
+    monkeypatch.setattr(runner.subprocess, 'Popen',
+                        lambda *a, **k: pytest.fail('Training must not start'))
+    with pytest.raises(SystemExit) as error:
+        runner.main()
+    assert error.value.code == 2
+    assert sentinel.read_bytes() == b'existing checkpoint'
+    assert not output.exists()

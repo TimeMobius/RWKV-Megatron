@@ -49,6 +49,64 @@ torchrun --standalone --nproc-per-node=1 tools/evaluate_distill_checkpoint.py \
 
 默认固定 32 条验证样本和每提示词最多 32 个生成 token，可用 `--samples`、`--max-new-tokens` 指定。独立命令写本地报告；监督器额外负责 W&B 上传。已有报告不会被覆盖。
 
+### 一键英语基准评测
+
+在仓库根目录运行，指定训练 YAML、torch checkpoint 和 GPU：
+
+```bash
+bash scripts/evaluate_english_benchmarks.sh \
+  --rwkv-config /path/to/train.yaml \
+  --checkpoint /path/to/checkpoints/iter_0160000 \
+  --gpus 0,1,2,3 \
+  --output training-smoke/english-benchmarks-smoke
+```
+
+脚本自动激活本机 `/mnt/data/anaconda3` 下的 `train_mobius_py312` 环境并设置 CUDA、Megatron 和 FLA 路径。其他机器可在配置好的训练环境中使用 `python tools/evaluate_english_benchmarks.py`，参数相同。省略 `--checkpoint` 时，依次读取 YAML 的 `save`、`load`，从中选择最新保存的 checkpoint；指定 iteration 目录可固定评测权重。tokenizer 默认读取 `rwkv_teacher_tokenizer` 或 `tokenizer_model`，使用 Slow 实现，也可通过 `--tokenizer` 指定。
+
+默认是 **smoke 短测**：LAMBADA、PIQA、HellaSwag 各取前 32 题，WikiText-2 取前 32 个窗口，只用于验证流程。`--limit N` 可调整短测规模。需要完整成绩时，显式选择全量模式并使用独立输出目录：
+
+```bash
+bash scripts/evaluate_english_benchmarks.sh \
+  --rwkv-config /path/to/train.yaml \
+  --checkpoint /path/to/checkpoints/iter_0160000 \
+  --gpus 0,1,2,3 \
+  --mode full \
+  --output training-smoke/english-benchmarks-full
+```
+
+| 基准 | 完整公开划分 | 数量 | 评分 |
+|---|---|---:|---|
+| WikiText-2 raw-v1 | test | 4,358 行 | next-token CE、token PPL、top-1 |
+| LAMBADA OpenAI | test | 5,153 题 | 最后一个词的全 token greedy exact-match、词 PPL；另记 token PPL |
+| PIQA | validation | 1,838 题 | 候选续写 log-likelihood 的 `acc`、字符长度归一化 `acc_norm` |
+| HellaSwag | validation | 10,042 题 | 标准文本预处理后的 `acc`、`acc_norm` |
+
+`--mode full` 禁止同时设置 `--limit`，并核对每个划分的完整样本数。各 GPU 加载一份完整模型，按样本索引分片评分后合并，每张卡都必须容纳完整模型；这里是样本并行评测，不是 TP/PP 推理。原 TP/PP checkpoint 通过已有转换器合并，仅加载模型权重，不请求 teacher 或更新优化器。评分采用原生 Megatron BF16 前向，参照 lm-evaluation-harness 任务模板；不是官方 harness 运行，也不使用生成采样参数。
+
+默认上下文为 512 token，`--context-length` 必须是 64 的倍数。任务题目保留完整输入，超长会报错而不会静默截断；WikiText 按 `context_length - 1` 的 stride 分窗、重置上下文，每个真实目标 token 只计一次，排除 padding。WikiText PPL 依赖 tokenizer 和分窗方式，不能直接与不同协议的成绩横比；LAMBADA 的词 PPL 与 token PPL 也应分别比较。当前没有做训练语料污染审计。
+
+数据缓存默认保存在本仓库的 `training-smoke/english-benchmark-cache/`；缺失时下载完整公开划分，已有文件则检查数量和字段。可用 `--data-dir` 指定缓存，`--offline` 禁止下载，`--prepare-only` 只准备和校验数据、不加载 GPU 权重。缓存、报告和临时分片均留在本地 `training-smoke/`，不提交。
+
+输出目录包含 `manifest.json`、`results.json`、`REPORT.md`、`evaluation.log` 和 `partials/`。脚本定期保存各卡进度（默认每 100 题，可用 `--save-every` 调整）。中断后沿用原输出目录和参数，加 `--resume`：
+
+```bash
+bash scripts/evaluate_english_benchmarks.sh \
+  --rwkv-config /path/to/train.yaml \
+  --checkpoint /path/to/checkpoints/iter_0160000 \
+  --gpus 0,1,2,3 \
+  --mode full \
+  --output training-smoke/english-benchmarks-full \
+  --resume
+```
+
+恢复时检查 checkpoint、数据、tokenizer、卡数、评分配置与脚本指纹；不一致会拒绝复用旧结果。建议固定 checkpoint iteration，避免期间生成新 checkpoint 后默认选择发生变化。合并时核对各卡样本索引、缺失/重复题目及有效 token 总数。
+
+YAML 配有 `wandb_project` 时，默认在该项目下创建独立 evaluation run，使用 `wandb_entity` 并上传指标、报告和清单；显式 `--wandb-mode` 优先于环境变量 `WANDB_MODE`。可用 `--wandb-mode online|offline|disabled` 控制，短测 run 与结果均明确标记为 smoke。仅准备数据时不上传。
+
+已用 28B step160000 完成四卡端到端短测（每任务 32 题、WikiText 32 个窗口），并通过 `tests/test_english_benchmark_data.py` 的 8 项单测。全量评测入口已备好，完整成绩尚待运行。
+
+### 长跑监督与分支功能清单
+
 需要连续运行约 12 小时且不中途主动重启时，使用 `python tools/run_distill_longrun.py --output /path/to/new-run --continuous-minutes 720`。该模式单段运行，保存间隔保持 250 步，退出时保存最终 checkpoint 后自动评估；固定验证清单在训练前生成。省略该参数仍使用原来的两段流程。运行中 W&B 的 `teacher/pool_active`、`pool_queued`、`pool_target_workers`、`pool_ewma_latency_seconds` 及 `sample_queue_unclaimed/partial/received` 用于检查供给速度和多卡领取进度；这些累计或微批次聚合指标需要结合逐步耗时判断，不能仅以缓存条数认定供给充足。
 
 
@@ -66,6 +124,7 @@ torchrun --standalone --nproc-per-node=1 tools/evaluate_distill_checkpoint.py \
 | 多 GPU 蒸馏（TP/PP/SP/DP2） | `[x]` 已实现 | DP2/DP4样本、精度和严格恢复通过；deterministic_mode固定FLA scan，恢复末位问题已定位并修复，见docs/distillation-replay-20261026.md。 |
 | 跨 rank teacher 失败处理 | `[x]` 已实现 | TP/CP广播相同目标；开启JSONL补位时，坏教师样本在前向前记录并换下一条，服务故障仍统一退出。 |
 | Teacher pool 与训练一键启动 | `[x]` 已完成 | `tools/launch_distillation.py` 启动 pool，等待就绪后启动训练，并在退出或失败时清理进程组。 |
+| 英语基准一键多卡评测 | `[x]` 脚本与四卡短测通过 | WikiText-2、LAMBADA、PIQA、HellaSwag；支持 smoke/full、续跑和独立 W&B 报告，完整成绩待运行。 |
 | 普通 checkpoint 保留最近 N 个并清理旧文件 | `[x]` 已完成 | `rwkv_checkpoint_keep_last: N`，0 为关闭；项目侧回调实现，无需修改 Megatron 子仓库。 |
 | Hidden-state 蒸馏 | 不做 | 源项目也没有接入在线训练。 |
 | Attention 蒸馏 | 不做 | 源项目也没有接入在线训练。 |

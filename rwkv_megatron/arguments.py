@@ -95,6 +95,14 @@ def add_rwkv_arguments(parser):
                         help="Effective teacher vocabulary size; defaults to the tokenizer ID range")
     parser.add_argument("--rwkv-distill-logit-weight", type=float, default=1.0)
     parser.add_argument("--rwkv-distill-ce-weight", type=float, default=0.0)
+    from .model_freeze import FREEZE_COMPONENTS, validate_freeze_settings
+    for component in FREEZE_COMPONENTS:
+        parser.add_argument(f"--rwkv-freeze-{component.replace('_', '-')}",
+                            action=argparse.BooleanOptionalAction, default=False,
+                            help=f"Freeze RWKV7 {component} parameters (FFN receptance absent in RWKV7)")
+    for kind in ('freeze', 'train'):
+        parser.add_argument(f"--rwkv-{kind}-extra-patterns", nargs="*", default=[],
+                            help="fnmatch patterns in global Megatron or native RWKV names; train wins")
     parser.add_argument("--rwkv-distill-filter-roundtrip", action=argparse.BooleanOptionalAction,
                         default=False, help="Preselect samples whose decoded text preserves teacher token IDs")
     parser.add_argument("--rwkv-jsonl-text-field", default="text")
@@ -117,6 +125,7 @@ def add_rwkv_arguments(parser):
     flat = {key: value for key, value in config.items() if key not in ("language_model", "model_parallel")}
     flat.update(parallel)
     flat.update(language)
+    validate_freeze_settings(flat)
     defaults = vars(parser.parse_args([]))
     # Old YAMLs contain optional internal fields set to null. Retain current
     # upstream defaults for those fields, instead of nulling new requirements.
@@ -217,6 +226,7 @@ def add_rwkv_arguments(parser):
     valid_vocab_size = settings.get('rwkv_distill_valid_vocab_size')
     if valid_vocab_size is not None and (type(valid_vocab_size) is not int or valid_vocab_size < 1):
         raise ValueError('rwkv_distill_valid_vocab_size must be a positive integer or null')
+    validate_freeze_settings(settings)
     # Position encoding is selected by position_embedding_type upstream.
     settings["add_position_embedding"] = True
     parser.set_defaults(**settings)

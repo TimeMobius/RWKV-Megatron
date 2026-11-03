@@ -83,6 +83,7 @@ from rwkv_megatron.online_teacher import (
     build_teacher_client,
     kl_divergence_topk,
 )
+from rwkv_megatron.model_freeze import freeze_rwkv_distill_layers
 from rwkv_megatron.parallel_distill import (
     broadcast_teacher,
     vocab_parallel_ce,
@@ -210,6 +211,12 @@ def model_provider(pre_process=True, post_process=True, config=None, pg_collecti
             )
         else:
             raise ValueError(f"Unrecognized {args.load_pretrained_rwkv_source_type=}")
+
+    frozen = freeze_rwkv_distill_layers(model, args=args)
+    if any(frozen.values()):
+        print(f"RWKV frozen parameters rank={torch.distributed.get_rank()}: {frozen}", flush=True)
+    if getattr(args, "rwkv_freeze_ffn_receptance", False):
+        print_rank_0("RWKV7 has no FFN receptance parameters; freeze_ffn_receptance is a no-op")
 
     if args.debug_dump:
         print_rank_0(f"vocab_size = {get_tokenizer().vocab_size}")
@@ -1092,15 +1099,17 @@ if __name__ == "__main__":
         full_config = pretrain_cfg_container_from_args(args)
         retention = make_retention_callback(args)
         teacher_failure = TeacherFailureCheckpoint()
+        from rwkv_megatron.model_freeze import freeze_checkpoint_guard
         try:
-            pretrain(
-                full_config,
-                train_valid_test_datasets_provider,
-                ModelType.encoder_or_decoder,
-                forward_step,
-                model_provider=model_provider,
-                callbacks=[StudentPerplexityCallback(), retention, teacher_failure],
-            )
+            with freeze_checkpoint_guard():
+                pretrain(
+                    full_config,
+                    train_valid_test_datasets_provider,
+                    ModelType.encoder_or_decoder,
+                    forward_step,
+                    model_provider=model_provider,
+                    callbacks=[StudentPerplexityCallback(), retention, teacher_failure],
+                )
         except TeacherDataUnavailable as error:
             teacher_failure.save(error)
             raise SystemExit(75) from error

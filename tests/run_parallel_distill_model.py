@@ -73,7 +73,7 @@ class FrozenTeacher:
         return TeacherTopK(ids, lp)
 
 
-def run(name, tp, pp, sp, recompute=False, fp32=False):
+def run(name, tp, pp, sp, recompute=False, fp32=False, freeze_args=None):
     ps.initialize_model_parallel(
         tensor_model_parallel_size=tp, pipeline_model_parallel_size=pp
     )
@@ -122,6 +122,13 @@ def run(name, tp, pp, sp, recompute=False, fp32=False):
     if fp32:
         for layer in model.decoder.layers:
             layer.self_attention.core_attention.forward = audit.recurrence
+    frozen_names = []
+    if freeze_args is not None:
+        from rwkv_megatron.model_freeze import freeze_rwkv_distill_layers, parameter_aliases
+        freeze_rwkv_distill_layers(model, args=freeze_args)
+        for key, parameter in model.named_parameters():
+            if not parameter.requires_grad:
+                frozen_names.extend(parameter_aliases(model, key))
     model.ddp_config = SimpleNamespace(use_megatron_fsdp=False)
     model.train()
     generator = torch.Generator().manual_seed(20261023)
@@ -186,6 +193,13 @@ def run(name, tp, pp, sp, recompute=False, fp32=False):
         teacher.calls,
         expected_calls,
     )
+    if freeze_args is not None:
+        assert all(p.grad is None for p in model.parameters() if not p.requires_grad)
+        trainable = [p for p in model.parameters() if p.requires_grad]
+        if trainable and model.post_process:
+            assert any(p.grad is not None and p.grad.count_nonzero() for p in trainable), (
+                "Frozen head blocked backbone gradients"
+            )
     grads = {
         key: p.grad.detach().cpu() if p.grad is not None else torch.zeros_like(p).cpu()
         for key, p in model.named_parameters()
@@ -197,6 +211,7 @@ def run(name, tp, pp, sp, recompute=False, fp32=False):
         grads=grads,
         outputs=outputs,
         losses=losses,
+        frozen_names=frozen_names,
     )
     gathered = [None] * dist.get_world_size() if dist.get_rank() == 0 else None
     dist.gather_object(payload, gathered, dst=0)
@@ -228,6 +243,7 @@ def run(name, tp, pp, sp, recompute=False, fp32=False):
                 grads=merged,
                 logits=torch.stack(final["outputs"]),
                 losses=final["losses"],
+                frozen_names=sorted({key for item in selected for key in item["frozen_names"]}),
             ),
             OUT / f"{name}.pt",
         )

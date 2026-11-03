@@ -54,6 +54,8 @@ def optimizer_snapshot(optimizer):
     if children is not None:
         return [optimizer_snapshot(child) for child in children]
     inner = optimizer.optimizer
+    if inner is None:
+        return dict(state=[], residency={}, inner_params=[], masters=[])
     actual = getattr(inner, "sub_optimizers", [inner])
     residency = {}
     states = []
@@ -106,6 +108,9 @@ def gradient_snapshot(module, optimizer):
     distributed = [child for child in children if hasattr(child, "gbuf_ranges")]
     result = {}
     for key, param in module.named_parameters():
+        if not param.requires_grad:
+            result[key] = torch.zeros_like(param).cpu()
+            continue
         grad = param.main_grad.detach()
         if distributed:
             # Reduce-scatter leaves only the owned slice reduced. Other entries
@@ -326,7 +331,8 @@ def audited_step(forward_step_func, data_iterator, model, optimizer, *args, **kw
             optimizer.state_dict(),
             OUT / f"loaded-optimizer-rank{torch.distributed.get_rank()}.pt",
         )
-    active = dict(step=step, samples=[], logits={}, teacher_requests=0, forward_calls=0)
+    active = dict(step=step, samples=[], logits={}, teacher_requests=0, forward_calls=0,
+                  trainable=[name for name, p in module.named_parameters() if p.requires_grad])
     torch.cuda.reset_peak_memory_stats()
     real_optimizer_step = optimizer.step
 
@@ -379,7 +385,8 @@ if __name__ == "__main__":
     pretrain.get_batch = audited_batch
     pretrain._get_online_teacher = lambda args: FixtureTeacher()
     training.train_step = audited_step
-    with patch(
+    from rwkv_megatron.model_freeze import freeze_checkpoint_guard
+    with freeze_checkpoint_guard(), patch(
         "transformers.dynamic_module_utils.resolve_trust_remote_code", return_value=True
     ):
         args = parse_and_validate_args(extra_args_provider=add_rwkv_arguments)
